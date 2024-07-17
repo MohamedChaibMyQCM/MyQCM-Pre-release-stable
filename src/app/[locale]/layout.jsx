@@ -15,6 +15,7 @@ export default async function RootLayout({ children, params: { locale } }) {
     <html lang={locale}>
       <body
         className={`${TTInterphases.variable} ${Genty.variable} ${Madani.variable}`}
+        dir={locale == "ar" ? "rtl" : "ltr" }
       >
         <NextIntlClientProvider messages={messages}>
           {children}

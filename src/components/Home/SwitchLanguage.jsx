@@ -27,7 +27,7 @@ const SwitchLanguage = () => {
 
   return (
     <Select value={selectedLocale} onValueChange={changeLanguageHandler} className="outline-none">
-      <SelectTrigger className="w-[80px] font-Madani outline-none">
+      <SelectTrigger className="w-[80px] font-Madani outline-none font-[400]">
         <SelectValue />
       </SelectTrigger>
       <SelectContent className="outline-none">

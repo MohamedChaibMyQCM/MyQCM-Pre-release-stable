@@ -1,6 +1,8 @@
+"use client";
 import Image from "next/image";
 import doctors from "../../../public/Doctors.svg";
 import { IoIosArrowDropright } from "react-icons/io";
+import Typewriter from "typewriter-effect";
 import { IoIosPlayCircle } from "react-icons/io";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -8,6 +10,11 @@ import { useLocale, useTranslations } from "next-intl";
 const HeroSection = () => {
   const t = useTranslations("home_page.hero");
   const locale = useLocale();
+  const typewriterOptions = {
+    strings: [t("header.0"), t("header.1"), t("header.2"), t("header.3")],
+    autoStart: true,
+    loop: true,
+  };
 
   return (
     <section
@@ -26,63 +33,87 @@ const HeroSection = () => {
           }`}
         >
           <span
-            className={`text-[#00000078] stroke ${
+            className={`text-[#00000078] stroke block h-[160px] ${
               locale == "ar" ? "text-[#2C2A2A78]" : "text-[#00000078]"
-            }`}
+            } ${locale == "fr" ? "w-[800px]" : "w-[500px]"}`}
           >
-            {t("header_part1")} <br /> {t("header_part2")}
+            <Typewriter options={typewriterOptions} />
           </span>
-          <span className="text-[#000000C7]">
+          <span className="text-[#000000C7] mt-[-72px] block">
             {" "}
             <br />
             {t("header_part3")} <span className="text-[#F8589FC9]">MY</span>QCM{" "}
             <br /> {t("header_part5")}
           </span>
         </h1>
-        <p className=" text-[17px] text-[#000] font-light">
+        <p
+          className={`text-[17px] text-[#000] font-[300] ${
+            locale == "ar" ? "max-w-[440px] " : "max-w-[464px]"
+          }`}
+        >
           {t("paragraph_part_1")}{" "}
-          <span className="text-[#F8589F] font-semibold">
+          <span
+            className={`text-[#F8589F] ${
+              locale === "ar" ? "font-medium" : "font-semibold"
+            }`}
+          >
             {t("paragraph_part_2")} {"  "}
           </span>
           {t("paragraph_part_3")}
-          <span className=" font-semibold">
+          <span
+            className={`${locale === "ar" ? "font-medium" : "font-semibold"}`}
+          >
             {t("paragraph_part_4")}
-          </span> 
-          <br /> 
+          </span>
           {t("paragraph_part_5")}
-          <span className="font-semibold text-[#F8589F]">
+          <span
+            className={`text-[#F8589F] ${
+              locale === "ar" ? "font-medium" : "font-semibold"
+            }`}
+          >
             {" "}
             {t("paragraph_part_6")}
           </span>
           {t("paragraph_part_7")}{" "}
-          <br className={`${locale == "ar" ? "hidden" : "block"}`} />{" "}
-          <span className="font-semibold">{t("paragraph_part_8")}</span>{" "}
-          <br className={`${locale == "ar" ? "block" : "hidden"}`} />
-          {t("paragraph_part_9")}{" "}
-          <br className={`${locale == "ar" ? "hidden" : "block"}`} />{" "}
-          {t("paragraph_part_1_9")}{" "}
-          <span className="text-[#EE4590] font-semibold">
+          <span
+            className={`${locale === "ar" ? "font-medium" : "font-semibold"}`}
+          >
+            {t("paragraph_part_8")}
+          </span>{" "}
+          {t("paragraph_part_9")} {t("paragraph_part_1_9")}{" "}
+          <span
+            className={`text-[#F8589F] ${
+              locale === "ar" ? "font-medium" : "font-semibold"
+            }`}
+          >
             {t("paragraph_part_10")}
           </span>{" "}
-          <br className={`${locale == "ar" ? "block" : "hidden"}`} />
-          <span className="font-semibold">
+          <span
+            className={`${locale === "ar" ? "font-medium" : "font-semibold"}`}
+          >
             {t("paragraph_part_11")}
-            <br /> {t("paragraph_part_12")}
+            {t("paragraph_part_12")}
           </span>
         </p>
         <div className="flex items-center gap-8">
           <Link
-            href="/SignUp"
-            className=" bg-[#F8589FCC] w-fit py-[8px] flex gap-2 items-center px-[20px] rounded-[10px] font-semibold text-[14px] text-[#fff]"
+            href={`${locale}/SignUp`}
+            className={`bg-[#F8589FCC] w-fit py-[8px] flex gap-3 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff] ${
+              locale === "ar" ? "font-medium" : "font-semibold"
+            }`}
           >
             {t("try_now")}
-            <IoIosArrowDropright className="text-[18px]" />
+            <IoIosArrowDropright className="text-[19px]" />
           </Link>
           <button className="flex items-center gap-3">
-            <div className="relative after:w-[30px] after:h-[30px] after:absolute after:z-10 after:left-[-6.6px] after:top-[-6px] after:rounded-[50%] after:bg-[#EE459045]">
-              <IoIosPlayCircle className="text-[#F8589FD6] text-[18px] z-50" />
+            <div className="relative wave_animation w-[30px] h-[30px] bg-[#EE459045] rounded-full flex items-center justify-center">
+              <IoIosPlayCircle className="text-[#F8589FD6] text-[19px] absolute " />
             </div>
-            <span className=" font-semibold text-[14px] text-[#433E3E]">
+            <span
+              className={`text-[14px] text-[#433E3E] ${
+                locale === "ar" ? "font-medium" : "font-semibold"
+              }`}
+            >
               {t("watch_video")}{" "}
             </span>
           </button>

@@ -64,12 +64,30 @@
   }
 }
 
-
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.wave_animation {
+  animation: wave 2s infinite;
+}
+
+@keyframes wave {
+  0% {
+    width: 30px;
+    height: 30px;
+  }
+  50% {
+    width: 15px;
+    height: 15px;
+  }
+  100% {
+    width: 30px;
+    height: 30px;
   }
 }

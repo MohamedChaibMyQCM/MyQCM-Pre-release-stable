@@ -8,6 +8,12 @@
       "button": "Inscrivez-vous"
     },
     "hero": {
+      "header": [
+        "Améliorez votre apprentissage médical",
+        "Personnalisez vos sessions",
+        "Questions adaptatives personnalisées",
+        "Tutorat médical personnalisé"
+      ],
       "header_part1": "Améliorez votre",
       "header_part2": "apprentissage médical",
       "header_part3": "avec",

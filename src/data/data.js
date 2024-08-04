@@ -1,5 +1,9 @@
 import homePic from '../../public/Aside/home.svg'
 import settings from '../../public/Aside/Setting.svg'
+import logo2 from "../../public/logos/logo_2.svg";
+import logo3 from "../../public/logos/logo_3.svg";
+import logo4 from "../../public/logos/logo_4.svg";
+import logo5 from "../../public/logos/logo_5.svg";
 
 export const aside_links = [
   {
@@ -43,3 +47,36 @@ export const aside_links = [
     href: "settings",
   },
 ];
+
+export const logos = [
+  {
+    src: logo4,
+  },
+  {
+    src: logo2,
+  },
+  {
+    src: logo3,
+  },
+  {
+    src: logo4,
+  },
+  {
+    src: logo5,
+  },
+  {
+    src: logo4,
+  },
+  {
+    src: logo2,
+  },
+  {
+    src: logo3,
+  },
+  {
+    src: logo4,
+  },
+  {
+    src: logo5,
+  },
+]

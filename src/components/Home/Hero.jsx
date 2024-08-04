@@ -119,7 +119,7 @@ const HeroSection = () => {
           </button>
         </div>
       </div>
-      <Image src={doctors} alt="doctors" className="w-[580px] self-end" />
+      <Image src={doctors} alt="doctors" className="w-[580px] relative bottom-[-0.5px] self-end" />
     </section>
   );
 };

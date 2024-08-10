@@ -1,6 +1,8 @@
 import Features from "./Features";
+import Footer from "./Footer";
 import Header from "./Header";
 import HeroSection from "./Hero";
+import Ready from "./Ready";
 import Trust from "./Trust";
 
 const HomePage = () => {
@@ -10,6 +12,8 @@ const HomePage = () => {
       <HeroSection />
       <Trust />
       <Features />
+      <Ready />
+      <Footer />
     </>
   );
 };

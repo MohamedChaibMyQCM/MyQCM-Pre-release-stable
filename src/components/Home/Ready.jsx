@@ -7,7 +7,7 @@ const Ready = () => {
   return (
     <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4">
       <Image src={patern} className="absolute top-0 left-0" />
-      <h2 className="font-Genty text-[60px] stroke text-[#FFFFFF] leading-[70px] z-50">
+      <h2 className="font-Genty text-[60px] stroke text-[#FFFFFF] leading-[69px] z-50">
         Ready to Enhance Your Medical <br /> Knowledge and Advance Your Career
       </h2>
       <p className="font-TTInterphases font-medium text-[#FFFFFF] z-50">

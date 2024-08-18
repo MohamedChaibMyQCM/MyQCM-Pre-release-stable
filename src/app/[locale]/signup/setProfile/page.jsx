@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import profile from "../../../../../public/profile.svg";
+import profile from "../../../../../public/Icons/Profile.svg";
 import logo from "../../../../../public/Icons/logo Myqcm 1.svg";
 import { useState } from "react";
 import SetProfileOne from "@/components/signup/SetProfileOne";

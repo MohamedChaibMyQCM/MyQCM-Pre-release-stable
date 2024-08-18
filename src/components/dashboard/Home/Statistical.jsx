@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const Statistical = () => {
   return (
-    <div className="bg-[#FFF5FA] h-screen pt-[30px] px-[20px] flex-1">
+    <div className="bg-[#FFF5FA] py-[30px] px-[20px] flex-1">
       <div className="flex items-center justify-between mb-[80px] pr-[60px]">
         <form className="flex items-center gap-4">
           <Image src={search} alt="search" className="w-[20px]" />

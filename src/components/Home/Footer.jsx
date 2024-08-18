@@ -9,7 +9,7 @@ const Footer = () => {
     <footer className="flex flex-col bg-[#F8589F] py-[20px]">
       <div className="px-[100px] flex justify-between border-b-[2px] border-b-[#FFFFFF] pb-[50px]">
         <div className="flex flex-col gap-4">
-          <Image src={logo} className='w-[130px]' />
+          <Image src={logo} alt='logo' className='w-[130px]' />
           <p className="w-[410px] text-[#FFFFFF] text-[15px] font-TTInterphases font-medium">
             MyQCM is an advanced AI-driven e-learning platform designed to
             revolutionize medical education. We offer personalized content,
@@ -40,7 +40,7 @@ const Footer = () => {
       </div>
       <div className="px-[100px] flex justify-between pt-[30px]">
         <div className="flex items-center">
-          <Image src={Tahsin} className='w-[120px]' />
+          <Image src={Tahsin} alt='tahsin olus logo' className='w-[120px]' />
           <span className='w-[2px] h-[46px] bg-[#FFFFFF] rounded-[4px]'></span>
           <span className="text-[#FFFFFF] font-TTInterphases font-medium pl-[10px] text-[15px]">
             ©2024 Tahsin healthcare group. All rights reserved
@@ -52,7 +52,7 @@ const Footer = () => {
               return (
                 <li key={index}>
                   <Link href={item.href}>
-                    <Image src={item.src} className="w-[30px]" />
+                    <Image src={item.src} alt='logo' className="w-[30px]" />
                   </Link>
                 </li>
               );

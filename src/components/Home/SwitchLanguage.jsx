@@ -9,7 +9,7 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from "@/components/ui/select"; 
+} from "@/components/ui/select";
 
 const SwitchLanguage = () => {
   const currentLocale = useLocale();
@@ -26,7 +26,11 @@ const SwitchLanguage = () => {
   }, [currentLocale]);
 
   return (
-    <Select value={selectedLocale} onValueChange={changeLanguageHandler} className="outline-none">
+    <Select
+      value={selectedLocale}
+      onValueChange={changeLanguageHandler}
+      className="outline-none border-[#FFFFFF]"
+    >
       <SelectTrigger className="w-[80px] font-Madani outline-none font-[400]">
         <SelectValue />
       </SelectTrigger>

@@ -1,13 +1,39 @@
+"use client";
+
 import Image from "next/image";
 import logo from "../../../../public/logoMyqcm.svg";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import email from "../../../../public/Icons/email.svg";
 import lock from "../../../../public/Icons/lock.svg";
-import google from "../../../../public/Icons/google.svg";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "react-query";
+import { GoogleLoginButton } from "react-social-login-buttons";
+import { LoginSocialGoogle } from "reactjs-social-login";
+import BaseUrl from "@/components/BaseUrl";
 
 const Page = () => {
+  const [Email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const locale = useLocale();
+  const router = useRouter();
+
+  const { mutate: login } = useMutation({
+    mutationFn: (data) => BaseUrl.post("/api/users/login", data),
+    onSuccess: () => {
+      router.push(`/${locale}/dashboard`);
+    },
+    onError: (error) => {
+      toast.error(error.response.data);
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = { email: Email, password };
+    login(data);
+  };
 
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
@@ -26,19 +52,36 @@ const Page = () => {
           Create account
         </Link>
       </div>
-      <button className="flex items-center justify-center rounded-[10px] border-[2px] border-[#E8ECEF] font-Inter text-[15px] py-[10px] gap-4 font-Inter font-semibold border border-[#E8ECEF] text-[#141718] w-[567.09px]">
-        <Image src={google} alt="Google icon" /> Continue with Google
-      </button>
+      <div className="w-[567.09px] flex items-center justify-center bg-transparent">
+        <LoginSocialGoogle
+          className="w-[100%] flex items-center justify-center font-Inter font-semibold text-[15px] social"
+          client_id="559428751431-ounvta81fgc2o7kfr708vbdu65nsecg2.apps.googleusercontent.com"
+          onResolve={({ provider, data }) => {
+            console.log(provider, data);
+          }}
+          onReject={(err) => {
+            console.log(err);
+          }}
+        >
+          <GoogleLoginButton />
+          <span>Continue With Google</span>
+        </LoginSocialGoogle>
+      </div>
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
         OR
       </span>
-      <form className="w-[567.09px] flex flex-col items-center gap-4">
+      <form
+        className="w-[567.09px] flex flex-col items-center gap-4"
+        onSubmit={handleSubmit}
+      >
         <div className="bg-[#FFE7F2] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[10px]">
           <Image src={email} alt="Email icon" />
           <input
             type="email"
             placeholder="Username or email"
             className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
+            value={Email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="bg-[#FFE7F2] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[10px]">
@@ -47,6 +90,8 @@ const Page = () => {
             type="password"
             placeholder="Password"
             className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <Link

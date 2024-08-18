@@ -33,9 +33,15 @@ const Progress = () => {
                   <h4 className="font-Inter text-[#11142D] text-[14px] font-semibold">
                     {item.module}
                   </h4>
-                  <div className="h-[20px]">
+                  <div className="h-[20px] flex items-center gap-2">
                     <span className="font-Inter text-[#808191] text-[12px] font-medium">
-                      Your Progress
+                      Your Progress:
+                    </span>
+                    <div className="relative h-[13px] w-[100px] rounded-[4px] bg-[#D9D9D9]">
+                      <div className="absolute left-0 top-0 h-[13px] rounded-[4px]" style={{backgroundColor: item.color, width: item.progress}} ></div>
+                    </div>
+                    <span className="text-[12px] text-[#808191] font-Inter font-medium">
+                      {item.progress}%
                     </span>
                   </div>
                 </div>

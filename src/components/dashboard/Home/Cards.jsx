@@ -16,7 +16,7 @@ const Cards = () => {
               className="flex items-center bg-[#FD2E8A] rounded-[16px] px-[10px] mb-[60px]"
               key={index}
             >
-              <Image src={item.img} className="w-[400px]" />
+              <Image src={item.img} alt='image of the card' className="w-[400px]" />
               <div className="flex flex-col gap-2">
                 <h3 className="font-Poppins text-[#FFFFFF] font-semibold text-[20px]">
                   Unite 01: <br /> Cardio-respiratory <br /> and Medical Psychology

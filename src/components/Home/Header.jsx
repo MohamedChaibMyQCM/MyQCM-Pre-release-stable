@@ -14,7 +14,6 @@ const Header = () => {
   const t = useTranslations("home_page.header");
   const locale = useLocale()
 
-
   return (
     <header
       className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] ${

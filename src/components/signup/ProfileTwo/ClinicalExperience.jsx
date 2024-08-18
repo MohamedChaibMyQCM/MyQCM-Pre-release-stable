@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import clinical from "../../../../public/Icons/Profile/ClinicalExp.svg";
-import arrow from "../../../../public/Icons/Profile/arrowProfile.svg";
+import arrow from "../../../../public/Icons/Profile/ArrowProfile.svg";
 import Image from "next/image";
 
 const ClinicalExperience = () => {

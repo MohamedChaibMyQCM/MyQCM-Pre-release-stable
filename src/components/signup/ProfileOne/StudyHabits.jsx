@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import study from "../../../../public/Icons/Profile/StudyHabits.svg";
-import arrow from "../../../../public/Icons/Profile/arrowProfile.svg";
+import arrow from "../../../../public/Icons/Profile/ArrowProfile.svg";
 import Image from "next/image";
 
 const StudyHabits = () => {

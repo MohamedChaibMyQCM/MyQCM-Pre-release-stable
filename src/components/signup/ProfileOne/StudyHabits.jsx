@@ -32,10 +32,34 @@ const StudyHabits = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Frequent, Short Study Sessions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Frequent, Short Study Sessions
+            </SelectItem>
+            <SelectItem
+              value="Long, Intense Study Sessions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Long, Intense Study Sessions
+            </SelectItem>
+            <SelectItem
+              value="Short, Frequent Study Sessions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Short, Frequent Study Sessions
+            </SelectItem>
+            <SelectItem
+              value="Detailed Note-Taking"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Detailed Note-Taking
+            </SelectItem>
+            <SelectItem
+              value="Revisiting Complex Topics Multiple Times"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Revisiting Complex Topics Multiple Times
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +68,4 @@ const StudyHabits = () => {
   );
 };
 
-export default StudyHabits
+export default StudyHabits;

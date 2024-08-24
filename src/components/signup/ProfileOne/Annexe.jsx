@@ -4,13 +4,29 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import annexe from "../../../../public/Icons/Profile/university.svg";
 import arrow from "../../../../public/Icons/Profile/ArrowProfile.svg";
 import Image from "next/image";
+
+const annexes = [
+  "Annexe Boumerdes",
+  "Annexe Tipaza",
+  "Annexe Djelfa",
+  "Annexe Tiaret",
+  "Annexe Biskra",
+  "Annexe Chlef",
+  "Annexe M’sila",
+  "Annexe Skikda",
+  "Annexe Oum El Bouaghi",
+  "Annexe El Oued",
+  "Annexe Saida",
+  "Annexe Jijel",
+  "Annexe Adrar",
+  "Annexe Mascara",
+];
 
 const Annexe = () => {
   return (
@@ -31,12 +47,15 @@ const Annexe = () => {
         </SelectTrigger>
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
-            <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
-            >
-              University of Saad Dahleb, Blida
-            </SelectItem>
+            {annexes.map((annexe, index) => (
+              <SelectItem
+                key={index}
+                value={annexe}
+                className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              >
+                {annexe}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -44,4 +63,4 @@ const Annexe = () => {
   );
 };
 
-export default Annexe
+export default Annexe;

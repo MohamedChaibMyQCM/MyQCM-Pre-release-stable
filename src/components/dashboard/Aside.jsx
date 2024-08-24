@@ -15,7 +15,7 @@ const Aside = () => {
   const afterDashboard = path.split("/dashboard/")[1] || "";
 
   return (
-    <aside className="fixed w-60 h-screen justify-between flex flex-col border-r border-r-[#E4E4E4] pt-[30px] pb-[18px]">
+    <aside className="fixed w-60 h-screen justify-between flex flex-col pt-[30px] pb-[18px] fixed top-0 left-0">
       <Image src={logo} alt="logo" className="w-[180px] mx-auto" />
       <ul className="flex flex-col mb-[40px] gap-1">
         {aside_links.map((item, index) => {

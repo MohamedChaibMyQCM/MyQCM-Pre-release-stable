@@ -1,5 +1,11 @@
 import homePic from "../../public/Aside/home.svg";
 import settings from "../../public/Aside/Setting.svg";
+import community from "../../public/Aside/community.svg";
+import course from "../../public/Aside/mycourse-normal.svg";
+import video from "../../public/Aside/Video play.svg";
+import progres from "../../public/Aside/Rectangle.svg";
+import solver from "../../public/Aside/solver.svg";
+import playlist from "../../public/Aside/playlist.svg";
 import logo1 from "../../public/logos/OpenAi.svg";
 import logo2 from "../../public/logos/ANPT.svg";
 import logo3 from "../../public/logos/Ouikaya.svg";
@@ -16,6 +22,10 @@ import instagram from "../../public/social Media/InstagramLogo.svg";
 import linkedin from "../../public/social Media/LinkedinLogo.svg";
 import tiktok from "../../public/social Media/TikTok.svg";
 import twitter from "../../public/social Media/Twitter.svg";
+import category from "../../public/Icons/categories.svg";
+import wHeart from '../../public/Icons/wHeart.svg'
+import blida from '../../public/Icons/Blida.svg'
+import coursePerModule from "../../public/Icons/coursePerModule.svg";
 
 export const aside_links = [
   {
@@ -25,32 +35,32 @@ export const aside_links = [
   },
   {
     name: "My Courses",
-    icon: settings,
+    icon: course,
     href: "MyCourses",
   },
   {
     name: "Videos library",
-    icon: settings,
+    icon: video,
     href: "VideoLibrary",
   },
   {
-    name: "QCM Playlist's",
-    icon: settings,
-    href: "QcmPlaylist",
+    name: "Questions Bank",
+    icon: playlist,
+    href: "QuestionsBank",
   },
   {
     name: "AI QCM Solver",
-    icon: settings,
+    icon: solver,
     href: "AiQcmSolver",
   },
   {
     name: "My Progress",
-    icon: settings,
+    icon: progres,
     href: "MyProgress",
   },
   {
     name: "MyQCM Community",
-    icon: settings,
+    icon: community,
     href: "MyQcmCommunity",
   },
   {
@@ -161,7 +171,7 @@ export const fouterLinks = [
       {
         name: "Cookies",
         href: "",
-      }
+      },
     ],
   },
   {
@@ -174,7 +184,7 @@ export const fouterLinks = [
       {
         name: "FAQ",
         href: "",
-      }
+      },
     ],
   },
 ];
@@ -199,5 +209,144 @@ export const socialMediaLogos = [
   {
     src: twitter,
     href: "",
+  },
+];
+
+export const categories = [
+  { name: "Semilogy", questions: 350, img: category },
+  { name: "Pathophysiology", questions: 350, img: category },
+  { name: "Biochemistry", questions: 350, img: category },
+  { name: "Radiology", questions: 350, img: category },
+  { name: "Medical Psychology", questions: 350, img: category },
+  { name: "Patho-Anatomy", questions: 350, img: category },
+  { name: "Pharmacology", questions: 350, img: category },
+  { name: "Parasitology", questions: 350, img: category },
+  { name: "Immunology", questions: 350, img: category },
+  { name: "Microbiology", questions: 350, img: category },
+];
+
+export const exams = [
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+  {
+    exam: "Examen UI1 2023-2024",
+    university: blida,
+    module: wHeart,
+    question: 60,
+  },
+];
+
+export const courses = [
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+  },
+  {
+    img: coursePerModule,
+    name: "Main Complementary Investigations",
+    question: 19,
+  },
+  {
+    img: coursePerModule,
+    name: "Weight Semiotics",
+    question: 19,
+  },
+  {
+    img: coursePerModule,
+    name: "Clinical Reasoning",
+    question: 19,
+  },
+  {
+    img: coursePerModule,
+    name: "Semiotics of Hydration Disorders",
+    question: 19,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
   },
 ];

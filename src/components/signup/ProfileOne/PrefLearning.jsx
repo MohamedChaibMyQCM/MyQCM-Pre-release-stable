@@ -32,10 +32,52 @@ const PrefLearning = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Repetitive Learning (Flashcards, Repetition Drills)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Repetitive Learning (Flashcards, Repetition Drills)
+            </SelectItem>
+            <SelectItem
+              value="Visual Aids (Diagrams, Flowcharts)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Visual Aids (Diagrams, Flowcharts)
+            </SelectItem>
+            <SelectItem
+              value="Problem-Based Learning"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Problem-Based Learning
+            </SelectItem>
+            <SelectItem
+              value="Case Study Analysis"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Case Study Analysis
+            </SelectItem>
+            <SelectItem
+              value="Interactive Learning (Quizzes, Gamified Content)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Interactive Learning (Quizzes, Gamified Content)
+            </SelectItem>
+            <SelectItem
+              value="Short, Engaging Content (Microlearning)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Short, Engaging Content (Microlearning)
+            </SelectItem>
+            <SelectItem
+              value="Focused on Details (Detailed Notes, Annotated Diagrams)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Focused on Details (Detailed Notes, Annotated Diagrams)
+            </SelectItem>
+            <SelectItem
+              value="Needs Help Connecting Concepts (Mind Maps)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Needs Help Connecting Concepts (Mind Maps)
             </SelectItem>
           </SelectGroup>
         </SelectContent>

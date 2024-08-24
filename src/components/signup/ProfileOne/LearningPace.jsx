@@ -33,7 +33,7 @@ const LearningPace = () => {
           <SelectGroup>
             <SelectItem
               value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               University of Saad Dahleb, Blida
             </SelectItem>

@@ -4,11 +4,11 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className='flex'>
+    <div className="flex border-l border-[#E4E4E4]">
       <Welcome />
       <Statistical />
     </div>
-  )
+  );
 }
 
 export default page

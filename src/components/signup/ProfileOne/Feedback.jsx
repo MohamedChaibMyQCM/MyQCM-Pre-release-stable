@@ -32,10 +32,46 @@ const Feedback = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Detailed Explanations After Each Question"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Detailed Explanations After Each Question
+            </SelectItem>
+            <SelectItem
+              value="Regular Revision Reminders"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Regular Revision Reminders
+            </SelectItem>
+            <SelectItem
+              value="High-Level Feedback on Complex Questions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              High-Level Feedback on Complex Questions
+            </SelectItem>
+            <SelectItem
+              value="Advanced Conceptual Challenges"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Advanced Conceptual Challenges
+            </SelectItem>
+            <SelectItem
+              value="Immediate Feedback to Maintain Engagement"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Immediate Feedback to Maintain Engagement
+            </SelectItem>
+            <SelectItem
+              value="Motivational Tips and Reminders"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Motivational Tips and Reminders
+            </SelectItem>
+            <SelectItem
+              value="Conceptual Clarification Sessions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Conceptual Clarification Sessions
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +80,4 @@ const Feedback = () => {
   );
 };
 
-export default Feedback
+export default Feedback;

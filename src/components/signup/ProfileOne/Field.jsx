@@ -32,10 +32,28 @@ const Field = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="General Medicine"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              General Medicine
+            </SelectItem>
+            <SelectItem
+              value="Dentistry"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Dentistry
+            </SelectItem>
+            <SelectItem
+              value="Pharmacy"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Pharmacy
+            </SelectItem>
+            <SelectItem
+              value="Nursing"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Nursing
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +62,4 @@ const Field = () => {
   );
 };
 
-export default Field
+export default Field;

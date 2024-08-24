@@ -22,20 +22,44 @@ const CertOrExam = () => {
         Any Certifications or Exams?
       </label>
       <Select>
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={exam} alt="exam" />
-            <SelectValue placeholder="Select any type of exame you prepare for" />
+            <SelectValue placeholder="Select any type of exam you prepare for" />
           </div>
           <Image src={arrow} alt="arrow" />
         </SelectTrigger>
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Unite Exam"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Unite Exam
+            </SelectItem>
+            <SelectItem
+              value="Module Exam"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Module Exam
+            </SelectItem>
+            <SelectItem
+              value="Residency Exam"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Residency Exam
+            </SelectItem>
+            <SelectItem
+              value="TP (Travaux Pratiques) Evaluation"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              TP (Travaux Pratiques) Evaluation
+            </SelectItem>
+            <SelectItem
+              value="ECOS (Examen Clinique Objectif Structuré)"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              ECOS (Examen Clinique Objectif Structuré)
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +68,4 @@ const CertOrExam = () => {
   );
 };
 
-export default CertOrExam
+export default CertOrExam;

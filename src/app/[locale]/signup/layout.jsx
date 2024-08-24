@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
   const locale = useLocale()
 
   return (
-    <section className="h-screen w-screen flex bg-[#FB63A6] p-[26px] px-[40px]">
+    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px]">
       {path != `/${locale}/signup/setProfile` ? (
         <>
           <div className="flex flex-col gap-4 self-end">

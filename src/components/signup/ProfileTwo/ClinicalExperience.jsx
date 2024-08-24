@@ -22,7 +22,7 @@ const ClinicalExperience = () => {
         Do You Have Clinical Experience?
       </label>
       <Select>
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={clinical} alt="clinical" />
             <SelectValue placeholder="Select Yes or No" />
@@ -32,10 +32,16 @@ const ClinicalExperience = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Yes"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Yes
+            </SelectItem>
+            <SelectItem
+              value="No"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              No
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +50,4 @@ const ClinicalExperience = () => {
   );
 };
 
-export default ClinicalExperience
+export default ClinicalExperience;

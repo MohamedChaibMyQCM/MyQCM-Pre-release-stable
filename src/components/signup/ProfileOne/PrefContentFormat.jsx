@@ -22,7 +22,7 @@ const PrefContentFormat = () => {
         What’s Your Preferred Content Format?
       </label>
       <Select>
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={format} alt="format" />
             <SelectValue placeholder="Choose the types of content you prefer" />
@@ -32,10 +32,52 @@ const PrefContentFormat = () => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="blida"
-              className="!bg-[#FFE7F2] text-[#6C727580] font-Inter font-medium"
+              value="Flashcards"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
-              University of Saad Dahleb, Blida
+              Flashcards
+            </SelectItem>
+            <SelectItem
+              value="Simplified Notes"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Simplified Notes
+            </SelectItem>
+            <SelectItem
+              value="Advanced Case Studies"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Advanced Case Studies
+            </SelectItem>
+            <SelectItem
+              value="Complex MCQs"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Complex MCQs
+            </SelectItem>
+            <SelectItem
+              value="Interactive Quizzes"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Interactive Quizzes
+            </SelectItem>
+            <SelectItem
+              value="Video Snippets"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Video Snippets
+            </SelectItem>
+            <SelectItem
+              value="Detailed Case Discussions"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Detailed Case Discussions
+            </SelectItem>
+            <SelectItem
+              value="Concept Maps"
+              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+            >
+              Concept Maps
             </SelectItem>
           </SelectGroup>
         </SelectContent>
@@ -44,4 +86,4 @@ const PrefContentFormat = () => {
   );
 };
 
-export default PrefContentFormat
+export default PrefContentFormat;

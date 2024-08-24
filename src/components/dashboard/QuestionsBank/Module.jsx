@@ -2,7 +2,7 @@ import Image from "next/image";
 import stock from "../../../../public/MyQCM Stock 1.svg";
 import Avatar from "../../../../public/Icons/Avatar.svg";
 import qcm from "../../../../public/Icons/QCM.svg";
-import qroc from "../../../../public/Icons/QROC.svg";
+import qroc from "../../../../public/Icons/Qroc.svg";
 import clinical from "../../../../public/Icons/casClinical.svg";
 
 const Module = () => {

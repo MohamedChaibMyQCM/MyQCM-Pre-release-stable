@@ -23,21 +23,29 @@ const Aside = () => {
             <li
               key={index}
               className={`rounded-r-[12px] py-[14px] pl-[16px] w-[88%] ${
-                afterDashboard == item.href
-                  ? "bg-[#F8589F]"
-                  : ""
+                afterDashboard == item.href ? "bg-[#F8589F]" : ""
               }`}
             >
               <Link
                 href={`/${locale}/dashboard/${item.href}`}
                 className="text-[#808191] flex items-center gap-4"
               >
-                <Image src={item.icon} alt="icon" className="w-[20px] font-[500]" />
+                {afterDashboard === item.href ? (
+                  <Image
+                    src={item.hoverIcon}
+                    alt="icon"
+                    className="w-[20px] font-[500]"
+                  />
+                ) : (
+                  <Image
+                    src={item.icon}
+                    alt="icon"
+                    className="w-[20px] font-[500]"
+                  />
+                )}
                 <span
                   className={`font-Poppins text-[14.6px] font-[500] ${
-                    afterDashboard == item.href
-                      ? "text-[#FFFFFF]"
-                      : ""
+                    afterDashboard == item.href ? "text-[#FFFFFF]" : ""
                   }`}
                 >
                   {item.name}

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.switch-Language {
+  border: none !important;
+  box-shadow: none !important;
+} 
+
+.switch-Language svg {
+  display: none !important;
+}
+
 .stroke {
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke-width: 2px;

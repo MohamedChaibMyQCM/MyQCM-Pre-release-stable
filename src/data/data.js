@@ -1,10 +1,15 @@
 import homePic from "../../public/Aside/home.svg";
+import homeWhite from "../../public/Aside/wHome.svg";
 import settings from "../../public/Aside/Setting.svg";
+import wsettings from "../../public/Aside/wSetting.svg";
 import community from "../../public/Aside/community.svg";
 import course from "../../public/Aside/mycourse-normal.svg";
+import wcourse from "../../public/Aside/wmycourse-normal.svg";
 import video from "../../public/Aside/Video play.svg";
+import wvideo from "../../public/Aside/wVideo play.svg";
 import progres from "../../public/Aside/Rectangle.svg";
 import solver from "../../public/Aside/solver.svg";
+import wsolver from "../../public/Aside/wsolver.svg";
 import playlist from "../../public/Aside/playlist.svg";
 import logo1 from "../../public/logos/OpenAi.svg";
 import logo2 from "../../public/logos/ANPT.svg";
@@ -31,41 +36,49 @@ export const aside_links = [
   {
     name: "Home",
     icon: homePic,
+    hoverIcon: homeWhite,
     href: "",
   },
   {
     name: "My Courses",
     icon: course,
+    hoverIcon: wcourse,
     href: "MyCourses",
   },
   {
     name: "Videos library",
     icon: video,
+    hoverIcon: wvideo,
     href: "VideoLibrary",
   },
   {
     name: "Questions Bank",
     icon: playlist,
+    hoverIcon: wvideo,
     href: "QuestionsBank",
   },
   {
     name: "AI QCM Solver",
     icon: solver,
+    hoverIcon: wsolver,
     href: "AiQcmSolver",
   },
   {
     name: "My Progress",
     icon: progres,
+    hoverIcon: homeWhite,
     href: "MyProgress",
   },
   {
     name: "MyQCM Community",
     icon: community,
+    hoverIcon: homeWhite,
     href: "MyQcmCommunity",
   },
   {
     name: "Settings",
     icon: settings,
+    hoverIcon: wsettings,
     href: "settings",
   },
 ];
@@ -323,30 +336,108 @@ export const courses = [
     img: coursePerModule,
     name: "Intro-Medical Semiotics",
     question: 19,
+    accuracy: 63,
   },
   {
     img: coursePerModule,
     name: "Main Complementary Investigations",
     question: 19,
+    accuracy: 63,
   },
   {
     img: coursePerModule,
     name: "Weight Semiotics",
     question: 19,
+    accuracy: 63,
   },
   {
     img: coursePerModule,
     name: "Clinical Reasoning",
     question: 19,
+    accuracy: 63,
   },
   {
     img: coursePerModule,
     name: "Semiotics of Hydration Disorders",
     question: 19,
+    accuracy: 63,
   },
   {
     img: coursePerModule,
     name: "Intro-Medical Semiotics",
     question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
+  },
+  {
+    img: coursePerModule,
+    name: "Intro-Medical Semiotics",
+    question: 19,
+    accuracy: 63,
   },
 ];

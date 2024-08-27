@@ -7,7 +7,6 @@ import SwitchLanguage from "./SwitchLanguage";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoIosPlayCircle } from "react-icons/io";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 const Header = () => {
@@ -64,7 +63,7 @@ const Header = () => {
           </a>
         </li>
       </ul>
-      <div className="flex gap-6 items-center">
+      <div className="flex items-center gap-3">
         <SwitchLanguage />
         <Link
           href={`/${locale}/signup`}

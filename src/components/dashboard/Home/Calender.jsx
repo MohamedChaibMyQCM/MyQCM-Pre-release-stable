@@ -26,7 +26,7 @@ const Calendar = () => {
     const month = currentDate.getMonth();
     const daysInMonth = getDaysInMonth(year, month);
     const firstDay = getFirstDayOfMonth(year, month);
-    const totalCells = 42; // 6 rows * 7 days
+    const totalCells = 42;
     const days = [];
 
     for (let i = 0; i < firstDay; i++) {

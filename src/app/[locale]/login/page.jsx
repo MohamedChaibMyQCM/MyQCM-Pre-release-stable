@@ -55,7 +55,7 @@ const Page = () => {
       <div className="w-[567.09px] flex items-center justify-center bg-transparent">
         <LoginSocialGoogle
           className="w-[100%] flex items-center justify-center font-Inter font-semibold text-[15px] social"
-          client_id="559428751431-ounvta81fgc2o7kfr708vbdu65nsecg2.apps.googleusercontent.com"
+          client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
           onResolve={({ provider, data }) => {
             console.log(provider, data);
           }}

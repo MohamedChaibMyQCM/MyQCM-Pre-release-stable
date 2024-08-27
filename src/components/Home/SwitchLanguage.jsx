@@ -10,6 +10,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import Image from "next/image";
+import arrow from '../../../public/arrow.svg'
 
 const SwitchLanguage = () => {
   const currentLocale = useLocale();
@@ -29,19 +31,29 @@ const SwitchLanguage = () => {
     <Select
       value={selectedLocale}
       onValueChange={changeLanguageHandler}
-      className="outline-none border-[#FFFFFF]"
+      className="outline-none"
     >
-      <SelectTrigger className="w-[80px] font-Madani outline-none font-[400]">
+      <SelectTrigger className="w-[80px] font-Madani outline-none font-[400] switch-Language flex items-center gap-1">
         <SelectValue />
+        <Image src={arrow} alt="arrow" className="w-[18px]" />
       </SelectTrigger>
-      <SelectContent className="outline-none">
-        <SelectItem value="en" className="font-Madani outline-none">
+      <SelectContent className="outline-none bg-[#FFFFFF]">
+        <SelectItem
+          value="en"
+          className="font-Madani outline-none hover:!bg-[grey]"
+        >
           ENG
         </SelectItem>
-        <SelectItem value="fr" className="font-Madani outline-none">
+        <SelectItem
+          value="fr"
+          className="font-Madani outline-none hover:!bg-[grey]"
+        >
           FR
         </SelectItem>
-        <SelectItem value="ar" className="font-Madani outline-none">
+        <SelectItem
+          value="ar"
+          className="font-Madani outline-none hover:!bg-[grey]"
+        >
           عربي
         </SelectItem>
       </SelectContent>

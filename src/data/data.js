@@ -28,9 +28,16 @@ import linkedin from "../../public/social Media/LinkedinLogo.svg";
 import tiktok from "../../public/social Media/TikTok.svg";
 import twitter from "../../public/social Media/Twitter.svg";
 import category from "../../public/Icons/categories.svg";
-import wHeart from '../../public/Icons/wHeart.svg'
-import blida from '../../public/Icons/Blida.svg'
+import wHeart from "../../public/Icons/wHeart.svg";
+import blida from "../../public/Icons/Blida.svg";
 import coursePerModule from "../../public/Icons/coursePerModule.svg";
+
+import blood from "../../public/Quiz/blood.svg";
+import clock from "../../public/Quiz/clock.svg";
+import headleft from "../../public/Quiz/headleft.svg";
+import headright from "../../public/Quiz/headright.svg";
+import heartQuiz from "../../public/Quiz/heart.svg";
+import mind from "../../public/Quiz/mind.svg";
 
 export const aside_links = [
   {
@@ -439,5 +446,34 @@ export const courses = [
     name: "Intro-Medical Semiotics",
     question: 19,
     accuracy: 63,
+  },
+];
+
+export const QuizImage = [
+  {
+    img: blood,
+    alt: "blood",
+    className: "absolute bottom-0 right-0 w-[100px]",
+  },
+  { img: mind, alt: "mind", className: "absolute w-[100px]" },
+  {
+    img: headleft,
+    alt: "headLeft",
+    className: "absolute top-[50%]  translate-y-[-50%] right-0 w-[60px]",
+  },
+  {
+    img: headright,
+    alt: "headRight",
+    className: "absolute top-[50%] translate-y-[-50%] left-0 w-[60px]",
+  },
+  {
+    img: clock,
+    alt: "clock",
+    className: "absolute bottom-0 left-[50%] translate-x-[-50%] w-[60px]",
+  },
+  {
+    img: heartQuiz,
+    alt: "heart",
+    className: "absolute bottom-0 left-0 w-[60px]",
   },
 ];

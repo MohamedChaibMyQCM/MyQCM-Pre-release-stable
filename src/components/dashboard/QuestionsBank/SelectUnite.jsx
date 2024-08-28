@@ -11,9 +11,9 @@ import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
 import arrow from "../../../../public/greyArrow.svg";
 
-const SelectUnite = ({ setSelectUnite }) => {
+const SelectUnite = ({ setselectunite }) => {
   return (
-    <div className="absolute box z-50 right-0 top-[60px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[200px]">
+    <div className="absolute box z-50 right-4 top-[60px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[200px]">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[#0C092A] font-Poppins font-semibold text-[14px]">
           Select Unit
@@ -22,7 +22,7 @@ const SelectUnite = ({ setSelectUnite }) => {
           src={exit}
           alt="exit"
           className=" cursor-pointer w-[16px]"
-          onClick={() => setSelectUnite(false)}
+          onClick={() => setselectunite(false)}
         />
       </div>
       <div>

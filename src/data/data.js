@@ -37,7 +37,6 @@ import clock from "../../public/Quiz/clock.svg";
 import headleft from "../../public/Quiz/headleft.svg";
 import headright from "../../public/Quiz/headright.svg";
 import heartQuiz from "../../public/Quiz/heart.svg";
-import mind from "../../public/Quiz/mind.svg";
 
 export const aside_links = [
   {
@@ -455,7 +454,6 @@ export const QuizImage = [
     alt: "blood",
     className: "absolute bottom-0 right-0 w-[100px]",
   },
-  { img: mind, alt: "mind", className: "absolute w-[100px]" },
   {
     img: headleft,
     alt: "headLeft",
@@ -475,5 +473,28 @@ export const QuizImage = [
     img: heartQuiz,
     alt: "heart",
     className: "absolute bottom-0 left-0 w-[60px]",
+  },
+];
+
+export const QuizQCMData = [
+  {
+    Option:
+      "A) In the absence of an inhibitor, the enzyme is characterized by a Km for the substrate of 1 µmol/L and a Vm of 2.5 mol/s.",
+  },
+  {
+    Option:
+      "B) Curve 2 indicates the presence of a competitive inhibitor, Curve 3 indicates the presence of an uncompetitive inhibitor, and Curve 4 indicates the presence of a non-competitive inhibitor.",
+  },
+  {
+    Option:
+      "C) Curve 2 indicates the presence of a non-competitive inhibitor, Curve 3 indicates the presence of a competitive inhibitor, and Curve 4 indicates the presence of an uncompetitive inhibitor.",
+  },
+  {
+    Option:
+      "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+  },
+  {
+    Option:
+      "E) Curve 3 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
   },
 ];

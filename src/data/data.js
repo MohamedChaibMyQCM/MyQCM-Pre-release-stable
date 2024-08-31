@@ -476,25 +476,162 @@ export const QuizImage = [
   },
 ];
 
-export const QuizQCMData = [
-  {
-    Option:
-      "A) In the absence of an inhibitor, the enzyme is characterized by a Km for the substrate of 1 µmol/L and a Vm of 2.5 mol/s.",
-  },
-  {
-    Option:
-      "B) Curve 2 indicates the presence of a competitive inhibitor, Curve 3 indicates the presence of an uncompetitive inhibitor, and Curve 4 indicates the presence of a non-competitive inhibitor.",
-  },
-  {
-    Option:
-      "C) Curve 2 indicates the presence of a non-competitive inhibitor, Curve 3 indicates the presence of a competitive inhibitor, and Curve 4 indicates the presence of an uncompetitive inhibitor.",
-  },
-  {
-    Option:
-      "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
-  },
-  {
-    Option:
-      "E) Curve 3 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
-  },
-];
+export const QuizData = {
+  type: "QROC",
+  Quiz: [
+    {
+      difficulty: "Easy",
+      time: 6,
+      text: "Given an enzymatic reaction with Michaelis-Menten kinetics, studied using a double-reciprocal plot. Curve 1 represents the variation of 1/V (s/mol) as a function of 1/S (L/µmol) in an environment without inhibitors. Curves 2, 3, and 4 are the results of experiments conducted under the same conditions but with inhibitors 2, 3, and 4 at a concentration of 8×10^(-5) mol/L in each case. Identify the true statements:",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Meduim",
+      time: 11,
+      text: "Name 3 beta-blockers used in heart failure.",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Easy",
+      time: 30,
+      text: "Given an enzymatic reaction with Michaelis-Menten kinetics, studied using a double-reciprocal plot. Curve 1 represents the variation of 1/V (s/mol) as a function of 1/S (L/µmol) in an environment without inhibitors. Curves 2, 3, and 4 are the results of experiments conducted under the same conditions but with inhibitors 2, 3, and 4 at a concentration of 8×10^(-5) mol/L in each case. Identify the true statements:",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Meduim",
+      time: 28,
+      text: "Name 3 beta-blockers used in heart failure.",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Easy",
+      time: 22,
+      text: "Given an enzymatic reaction with Michaelis-Menten kinetics, studied using a double-reciprocal plot. Curve 1 represents the variation of 1/V (s/mol) as a function of 1/S (L/µmol) in an environment without inhibitors. Curves 2, 3, and 4 are the results of experiments conducted under the same conditions but with inhibitors 2, 3, and 4 at a concentration of 8×10^(-5) mol/L in each case. Identify the true statements:",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Meduim",
+      time: 19,
+      text: "Name 3 beta-blockers used in heart failure.",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+    {
+      difficulty: "Easy",
+      time: 47,
+      text: "Given an enzymatic reaction with Michaelis-Menten kinetics, studied using a double-reciprocal plot. Curve 1 represents the variation of 1/V (s/mol) as a function of 1/S (L/µmol) in an environment without inhibitors. Curves 2, 3, and 4 are the results of experiments conducted under the same conditions but with inhibitors 2, 3, and 4 at a concentration of 8×10^(-5) mol/L in each case. Identify the true statements:",
+      options: [
+        { option: "A) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "B) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "C) Bisoprolol, Carvedilol, Metoprolol" },
+        {
+          option:
+            "D) Curve 4 corresponds to conditions where the enzyme's affinity for the substrate is the highest.",
+        },
+        { option: "E) Bisoprolol, Carvedilol, Metoprolol" },
+      ],
+      explanation:
+        "In heart failure, outside the acute phase, a decrease in cardiac output increases the secretion of catecholamines, which can cause cardiac arrhythmias (such as VT, VF). This is why beta-blockers are used to prevent this effect.",
+      analysis:
+        "Your answer demonstrates a solid understanding of beta-blockers in heart failure management. You correctly identified appropriate medications, and your response is both accurate and detailed, reflecting a good grasp of the underlying pharmacology.",
+    },
+  ],
+};

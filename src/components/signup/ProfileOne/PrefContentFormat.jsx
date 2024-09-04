@@ -12,16 +12,16 @@ import format from "../../../../public/Icons/Profile/PrefContentFormat.svg";
 import arrow from "../../../../public/Icons/Profile/ArrowProfile.svg";
 import Image from "next/image";
 
-const PrefContentFormat = () => {
+const PrefContentFormat = ({ name, value, setFieldValue }) => {
   return (
     <div className="w-[48%] flex flex-col gap-2">
       <label
-        htmlFor=""
+        htmlFor={name}
         className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
       >
         What’s Your Preferred Content Format?
       </label>
-      <Select>
+      <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={format} alt="format" />

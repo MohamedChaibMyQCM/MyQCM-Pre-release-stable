@@ -11,9 +11,10 @@ import { LoginSocialGoogle } from "reactjs-social-login";
 import logo from "../../../../public/logoMyqcm.svg";
 import { useState } from "react";
 import { useMutation } from "react-query";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
+import ErrorHandler from "@/components/ErrorHandler";
+import secureLocalStorage from "react-secure-storage";
 
 const Page = () => {
   const [user_name, setUserName] = useState("");
@@ -23,29 +24,31 @@ const Page = () => {
   const router = useRouter();
 
   const { mutate: checkEmail } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/api/users/checkEmail", data),
+    mutationFn: (data) => BaseUrl.post("/user/confirm-email", data),
     onSuccess: () => {
+      router.push(`/${locale}/signup/verification`)
       console.log("Email Sent Seccusefully");
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      return <ErrorHandler error={error} />
     },
   });
 
   const { mutate: signup } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/api/users/register", data),
-    onSuccess: () => {
+    mutationFn: (data) => BaseUrl.post("/user/signup", data),
+    onSuccess: ({ data }) => {
       checkEmail({ email: Email });
-      router.push(`/${locale}/signup/verification`);
+      secureLocalStorage.setItem("token", data.token);
+      router.push(`/${locale}/signup/setProfile`);
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      return <ErrorHandler error={error} />;
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = { user_name, email: Email, password };
+    let data = { full_name: user_name, email: Email, password };
     signup(data);
   };
 
@@ -102,7 +105,7 @@ const Page = () => {
           <Image src={email} alt="email icon" />
           <input
             type="email"
-            placeholder="Username or email"
+            placeholder="Email"
             className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
             value={Email}
             onChange={(e) => setEmail(e.target.value)}

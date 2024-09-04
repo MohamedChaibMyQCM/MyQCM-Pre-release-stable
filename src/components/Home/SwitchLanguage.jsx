@@ -33,7 +33,7 @@ const SwitchLanguage = () => {
       onValueChange={changeLanguageHandler}
       className="outline-none"
     >
-      <SelectTrigger className="w-[80px] font-Madani outline-none font-[400] switch-Language flex items-center gap-1">
+      <SelectTrigger className="w-[80px] font-Madani outline-none font-[400] inputs flex items-center gap-1">
         <SelectValue />
         <Image src={arrow} alt="arrow" className="w-[18px]" />
       </SelectTrigger>

@@ -12,6 +12,8 @@ import { useMutation } from "react-query";
 import { GoogleLoginButton } from "react-social-login-buttons";
 import { LoginSocialGoogle } from "reactjs-social-login";
 import BaseUrl from "@/components/BaseUrl";
+import secureLocalStorage from "react-secure-storage";
+import ErrorHandler from "@/components/ErrorHandler";
 
 const Page = () => {
   const [Email, setEmail] = useState("");
@@ -20,18 +22,19 @@ const Page = () => {
   const router = useRouter();
 
   const { mutate: login } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/api/users/login", data),
-    onSuccess: () => {
+    mutationFn: (data) => BaseUrl.post("/user/signin", data),
+    onSuccess: ({ data }) => {
+      secureLocalStorage.setItem("token", data.token);
       router.push(`/${locale}/dashboard`);
     },
     onError: (error) => {
-      toast.error(error.response.data);
+      return <ErrorHandler error={error} />;
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = { email: Email, password };
+    let data = { email: Email, password };
     login(data);
   };
 

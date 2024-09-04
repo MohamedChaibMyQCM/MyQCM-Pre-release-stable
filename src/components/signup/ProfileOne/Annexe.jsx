@@ -28,16 +28,16 @@ const annexes = [
   "Annexe Mascara",
 ];
 
-const Annexe = () => {
+const Annexe = ({ name, value, setFieldValue }) => {
   return (
     <div className="w-[48%] flex flex-col gap-2">
       <label
-        htmlFor=""
+        htmlFor={name}
         className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
       >
         Annexe/Faculte ?
       </label>
-      <Select>
+      <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={annexe} alt="annexe" />

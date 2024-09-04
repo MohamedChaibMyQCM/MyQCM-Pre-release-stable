@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-.switch-Language {
+.inputs {
   border: none !important;
   box-shadow: none !important;
 } 
 
-.switch-Language svg {
+.inputs svg {
   display: none !important;
 }
 

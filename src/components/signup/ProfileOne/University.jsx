@@ -26,16 +26,16 @@ const universities = [
   "University of Tizi Ouzou",
 ];
 
-const University = () => {
+const University = ({ name, value, setFieldValue }) => {
   return (
     <div className="w-[48%] flex flex-col gap-2">
       <label
-        htmlFor=""
+        htmlFor={name}
         className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
       >
         Institution/University ?
       </label>
-      <Select>
+      <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={university} alt="university" />
@@ -48,7 +48,7 @@ const University = () => {
             {universities.map((univer, index) => (
               <SelectItem
                 key={index}
-                value={univer} 
+                value={univer}
                 className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
               >
                 {univer}
@@ -60,5 +60,6 @@ const University = () => {
     </div>
   );
 };
+
 
 export default University;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useLocale } from "next-intl";
 import secureLocalStorage from "react-secure-storage";
 
 const BaseUrl = axios.create({
@@ -29,8 +30,9 @@ BaseUrl.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
+      const locale = useLocale();
       secureLocalStorage.removeItem("token");
-      window.location.href = "/";
+      window.location.href = `${locale}/login`;
     }
     return Promise.reject(error);
   }

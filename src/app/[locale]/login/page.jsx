@@ -13,7 +13,7 @@ import { GoogleLoginButton } from "react-social-login-buttons";
 import { LoginSocialGoogle } from "reactjs-social-login";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
-import ErrorHandler from "@/components/ErrorHandler";
+import ErrorHandler from "@/components/handleError";
 
 const Page = () => {
   const [Email, setEmail] = useState("");

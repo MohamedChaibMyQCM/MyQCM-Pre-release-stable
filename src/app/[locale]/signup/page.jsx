@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useMutation } from "react-query";
 import { useRouter } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
-import ErrorHandler from "@/components/ErrorHandler";
+import handleError from "@/components/handleError";
 import secureLocalStorage from "react-secure-storage";
 
 const Page = () => {
@@ -26,23 +26,22 @@ const Page = () => {
   const { mutate: checkEmail } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/confirm-email", data),
     onSuccess: () => {
-      router.push(`/${locale}/signup/verification`)
-      console.log("Email Sent Seccusefully");
+      console.log("Email Sent Successfully");
     },
     onError: (error) => {
-      return <ErrorHandler error={error} />
+      handleError(error);
     },
   });
 
   const { mutate: signup } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/signup", data),
     onSuccess: ({ data }) => {
-      checkEmail({ email: Email });
       secureLocalStorage.setItem("token", data.token);
-      router.push(`/${locale}/signup/setProfile`);
+      checkEmail({ email: Email });
+      window.location.href = `/${locale}/signup/verification`;
     },
     onError: (error) => {
-      return <ErrorHandler error={error} />;
+      handleError(error);
     },
   });
 

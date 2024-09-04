@@ -22,7 +22,7 @@ import AttentionSpan from "../../../../components/signup/ProfileTwo/AttentionSpa
 import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
-import ErrorHandler from "@/components/ErrorHandler";
+import handleError from "@/components/handleError";
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
@@ -30,11 +30,10 @@ const Page = () => {
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),
     onSuccess: ({ data }) => {
-      secureLocalStorage.setItem("token", data.token);
       router.push(`/${locale}/dashboard`);
     },
     onError: (error) => {
-      return <ErrorHandler error={error} />;
+      handleError(error);
     },
   });
 
@@ -57,7 +56,7 @@ const Page = () => {
       attention_span: "",
     },
     onSubmit: (values) => {
-      console.log(values);
+      setProfile(values);
     },
   });
 

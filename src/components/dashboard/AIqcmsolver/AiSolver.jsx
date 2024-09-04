@@ -2,7 +2,7 @@ import Image from "next/image";
 import QCM from "../../../../public/AI/QCM.svg";
 import QROC from "../../../../public/AI/QROC.svg";
 import Answer from "../../../../public/AI/Answer.svg";
-import Arrow from "../../../../public/AI/Arrow.svg";
+import Arrow from "../../../../public/AI/arrow.svg";
 
 const AiSolver = () => {
   return (
@@ -17,24 +17,24 @@ const AiSolver = () => {
       <div className="flex flex-col gap-6">
         <button className="flex items-center justify-between border border-[#A3A3A5]">
           <div className="flex items-center gap-3">
-            <Image src={QCM} alt="" />
+            <Image src={QCM} alt="qcm" />
             <span>Solve for Me an MCQ</span>
           </div>
-          <Image src={Arrow} alt="" />
+          <Image src={Arrow} alt="arrow" />
         </button>
         <button className="flex items-center justify-between border border-[#A3A3A5]">
           <div className="flex items-center gap-3">
-            <Image src={QROC} alt="" />
+            <Image src={QROC} alt="qroc" />
             <span>Solve for Me a QROC</span>
           </div>
-          <Image src={Arrow} alt="" />
+          <Image src={Arrow} alt="arrow" />
         </button>
         <button className="flex items-center justify-between border border-[#A3A3A5]">
           <div className="flex items-center gap-3">
-            <Image src={Answer} alt="" />
+            <Image src={Answer} alt="answer" />
             <span>Answer Me for this</span>
           </div>
-          <Image src={Arrow} alt="" />
+          <Image src={Arrow} alt="arrow" />
         </button>
       </div>
     </div>

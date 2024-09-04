@@ -7,7 +7,7 @@ import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "react-query";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import ErrorHandler from "@/components/ErrorHandler";
+import handleError from "@/components/handleError";
 import { useState } from "react";
 
 const EmailVerification = () => {
@@ -15,21 +15,21 @@ const EmailVerification = () => {
   const locale = useLocale();
   const router = useRouter();
 
-  const { mutate } = useMutation({
+  const { mutate: verifyCode } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/verify-email", data),
     onSuccess: () => {
       router.push(`/${locale}/signup/setProfile`);
-      console.log("Email Sent Successfully");
+      console.log("code succesfull");
     },
     onError: (error) => {
-      return <ErrorHandler error={error} />;
+      handleError(error);
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(code);
-    // mutate( code );
+    const data = { code };
+    verifyCode(data);
   };
 
   return (

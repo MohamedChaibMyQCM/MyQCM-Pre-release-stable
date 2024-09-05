@@ -50,7 +50,7 @@ const Page = () => {
       prefered_content: "",
       clinical_experience: "",
       certification_exam: "",
-      learning_goals: [],
+      learning_goals: "",
       learning_path: "",
       memory_retention: "",
       attention_span: "",

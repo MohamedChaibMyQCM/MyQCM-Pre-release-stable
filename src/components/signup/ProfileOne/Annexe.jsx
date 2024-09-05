@@ -10,25 +10,18 @@ import {
 import annexe from "../../../../public/Icons/Profile/university.svg";
 import arrow from "../../../../public/Icons/Profile/ArrowProfile.svg";
 import Image from "next/image";
-
-const annexes = [
-  "Annexe Boumerdes",
-  "Annexe Tipaza",
-  "Annexe Djelfa",
-  "Annexe Tiaret",
-  "Annexe Biskra",
-  "Annexe Chlef",
-  "Annexe M’sila",
-  "Annexe Skikda",
-  "Annexe Oum El Bouaghi",
-  "Annexe El Oued",
-  "Annexe Saida",
-  "Annexe Jijel",
-  "Annexe Adrar",
-  "Annexe Mascara",
-];
+import { useQuery } from "react-query";
+import BaseUrl from "@/components/BaseUrl";
 
 const Annexe = ({ name, value, setFieldValue }) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["faculties"],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/faculty");
+      return response.data.data;
+    },
+  });
+
   return (
     <div className="w-[48%] flex flex-col gap-2">
       <label
@@ -46,17 +39,23 @@ const Annexe = ({ name, value, setFieldValue }) => {
           <Image src={arrow} alt="arrow" />
         </SelectTrigger>
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
-          <SelectGroup>
-            {annexes.map((annexe, index) => (
-              <SelectItem
-                key={index}
-                value={annexe}
-                className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
-              >
-                {annexe}
-              </SelectItem>
-            ))}
-          </SelectGroup>
+          {isLoading ? (
+            <p className="p-4 text-gray-600">Loading universities...</p>
+          ) : error ? (
+            <p className="p-4 text-red-600">Error loading universities</p>
+          ) : (
+            <SelectGroup>
+              {data.map((annexe) => (
+                <SelectItem
+                  key={annexe.id}
+                  value={annexe.id}
+                  className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+                >
+                  {annexe.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
         </SelectContent>
       </Select>
     </div>

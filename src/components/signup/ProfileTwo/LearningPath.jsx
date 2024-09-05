@@ -32,13 +32,13 @@ const LearningPath = ({ name, value, setFieldValue }) => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="Free Path"
+              value="Free"
               className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Free Path (Self-directed learning)
             </SelectItem>
             <SelectItem
-              value="Supported Path"
+              value="Supported"
               className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Supported Path (Guided learning with feedback)

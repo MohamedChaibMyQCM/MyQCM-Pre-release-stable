@@ -32,19 +32,19 @@ const MemoryRetention = ({ name, value, setFieldValue }) => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="High Retention"
+              value="High"
               className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               High Retention
             </SelectItem>
             <SelectItem
-              value="Average Retention"
+              value="Average"
               className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Average Retention
             </SelectItem>
             <SelectItem
-              value="Low Retention"
+              value="Low"
               className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Low Retention

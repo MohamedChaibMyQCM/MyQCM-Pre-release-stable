@@ -1,8 +1,20 @@
+"use client"
+
+import BaseUrl from '@/components/BaseUrl';
 import { categories } from '@/data/data';
 import Image from 'next/image';
 import React from 'react'
+import { useQuery } from 'react-query';
 
 const Categories = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["subjects"],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/university");
+      return response.data.data;
+    },
+  });
+
   return (
     <div className='px-[30px] mb-[40px]'>
       <h3 className="text-[#565656] font-Poppins font-semibold text-[19px] mb-6">Categories ( Module )</h3>

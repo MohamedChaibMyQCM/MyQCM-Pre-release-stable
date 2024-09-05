@@ -29,8 +29,8 @@ const Page = () => {
 
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),
-    onSuccess: ({ data }) => {
-      router.push(`/${locale}/dashboard`);
+    onSuccess: () => {
+      window.location.href = `/${locale}/dashboard`;
     },
     onError: (error) => {
       handleError(error);
@@ -50,12 +50,13 @@ const Page = () => {
       prefered_content: "",
       clinical_experience: "",
       certification_exam: "",
-      learning_goals: "",
+      learning_goals: [],
       learning_path: "",
       memory_retention: "",
       attention_span: "",
     },
     onSubmit: (values) => {
+      console.log(values);
       setProfile(values);
     },
   });

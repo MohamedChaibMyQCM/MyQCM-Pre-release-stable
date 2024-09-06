@@ -6,7 +6,7 @@ const wait = async (ms) => {
 };
 
 const page = async () => {
-  await wait(10000);
+  await wait(2000);
   return (
     <div className="flex border-l border-[#E4E4E4]">
       <Welcome />

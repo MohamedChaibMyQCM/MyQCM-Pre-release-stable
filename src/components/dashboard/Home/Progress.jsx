@@ -1,8 +1,20 @@
+"use client"
+
 import { modules } from "@/data/data";
 import Image from "next/image";
 import arrow from "../../../../public/Icons/small right.svg";
+import BaseUrl from "@/components/BaseUrl";
+import { useQuery } from "react-query";
 
 const Progress = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["subjects"],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/subject/user");
+      return response.data.data;
+    },
+  });
+
   return (
     <div className="mb-[40px]">
       <div className="flex items-center justify-between mb-[24px]">

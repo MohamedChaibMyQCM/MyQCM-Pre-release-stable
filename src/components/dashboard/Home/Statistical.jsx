@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+
 import TimeLearning from "./TimeLearning";
 import Progress from "./Progress";
 import Search from "../Search";

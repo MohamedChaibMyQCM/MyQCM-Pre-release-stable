@@ -1,8 +1,20 @@
+"use client"
+
+import BaseUrl from '@/components/BaseUrl';
 import { cards } from '@/data/data';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useQuery } from 'react-query';
 
 const Cards = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["units"],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/unit/user");
+      return response.data.data;
+    },
+  });
+
   return (
     <div>
       <h1 className="text-[#11142D] font-Poppins text-[40px] font-[600] mb-[20px]">

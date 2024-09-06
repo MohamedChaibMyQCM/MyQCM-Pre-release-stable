@@ -7,10 +7,11 @@ import React from 'react'
 import { useQuery } from 'react-query';
 
 const Categories = () => {
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["subjects"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/university");
+      const response = await BaseUrl.get("/subject/user");
       return response.data.data;
     },
   });

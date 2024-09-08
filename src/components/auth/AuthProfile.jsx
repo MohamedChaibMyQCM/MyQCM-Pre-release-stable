@@ -9,7 +9,7 @@ import BaseUrl from "../BaseUrl";
 import { toast } from "react-toastify";
 
 const AuthProfile = (Component) => {
-  return (props) => {
+  const AuthenticatedComponent = (props) => {
     const router = useRouter();
     const locale = useLocale();
     const [auth, setAuth] = useState(false);
@@ -39,12 +39,19 @@ const AuthProfile = (Component) => {
 
     useEffect(() => {
       checkAuth();
-    }, [auth]);
+    }, []); // Only run once on mount
 
     if (authLoading) return <Loading />;
     if (auth) return <Component {...props} />;
     return null;
   };
+
+  // Provide a display name for the HOC
+  AuthenticatedComponent.displayName = `AuthProfile(${
+    Component.displayName || Component.name || "Component"
+  })`;
+
+  return AuthenticatedComponent;
 };
 
 export default AuthProfile;

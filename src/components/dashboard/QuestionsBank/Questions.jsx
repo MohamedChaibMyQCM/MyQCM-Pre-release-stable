@@ -8,12 +8,15 @@ import { useState } from "react";
 import TrainingSeason from "./TrainingSeason";
 import options from "../../../../public/Icons/greyOption.svg";
 import SelectUnite from "./SelectUnite";
+import Loading from "@/components/Loading";
 
-
-const Questions = ({ subjectId, data }) => {
+const Questions = ({ subjectId, data, isLoading, error }) => {
   const [popup, setPopup] = useState(false);
   const [selectUnite, setSelectUnite] = useState(false);
-  const [courseId, setCourseId] = useState('')
+  const [courseId, setCourseId] = useState("");
+
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="relative box py-[24px] px-[22px] rounded-[20px]">
@@ -35,7 +38,7 @@ const Questions = ({ subjectId, data }) => {
         {selectUnite && <SelectUnite setselectunite={setSelectUnite} />}
       </div>
       <ul className="flex flex-col gap-4">
-        {data.courses.map((item) => (
+        {data.map((item) => (
           <li
             className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px]"
             key={item.id}

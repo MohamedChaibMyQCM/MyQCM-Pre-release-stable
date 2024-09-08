@@ -94,7 +94,7 @@ const Quiz = ({ data, Progres }) => {
 
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
         <ul className="flex flex-col gap-4">
-          {data.type === "qcm" || data.type === "qcs" ? (
+          {data.type == "qcm" || data.type == "qcs" ? (
             data.options.map((item, index) => {
               const isSelected = selectedOptions.includes(item.id);
               return (
@@ -138,7 +138,7 @@ const Quiz = ({ data, Progres }) => {
               onClick={() => setSeeExplanation(true)}
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >
-              {data.type === "qcm" || data.type === "qcs"
+              {data.type == "qcm" || data.type == "qcs"
                 ? "See Explanation"
                 : "See Analyse"}
             </button>

@@ -13,7 +13,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[60%] p-[26px] rounded-[16px]">
         <div className="flex items-center justify-between">
           <span className="font-Poppins font-semibold text-[#0C092A]">
-            {type == "qcm" || type == "qcm"
+            {type == "qcm" || type == "qcs"
               ? "Answer Explanation"
               : "Answers Analyse"}
           </span>
@@ -27,7 +27,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
         <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
           QUESTION 7 OF 68
         </span>
-        {type == "qcm" ? (
+        {type == "qcm" || type == "qcs" ? (
           <>
             <div className="flex flex-col gap-2">
               <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
@@ -88,7 +88,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
         </div>
         <div
           className={`flex flex-col gap-2 ${
-            type == "qcm" ? "hidden" : "block"
+            type == "qcm" || type == "qcs" ? "hidden" : "block"
           }`}
         >
           <span className="block font-Poppins text-[#858494] text-[13px] font-medium">

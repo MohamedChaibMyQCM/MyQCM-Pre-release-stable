@@ -16,18 +16,18 @@ const Ready = () => {
       <p className="font-TTInterphases font-medium text-[#FFFFFF] z-50">
         Our platform provides access to top-tier medical education from the
         comfort of your home. Elevate your career today by engaging with
-        expertly <br /> designed MCQs and tutorials on MyQCM Aljaxayr
+        expertly <br /> designed MCQs and tutorials on MyQCM Aljazayr
       </p>
       <div className="flex items-center gap-6 justify-center mb-[40px] mt-[16px] z-50">
         <Link
           href={`${locale}/signup`}
-          className="bg-[#FFFFFF] py-[8px] px-[40px] rounded-[14px] text-[#F8589F] font-TTInterphases text-[14px] font-medium"
+          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] font-TTInterphases text-[14px] font-medium"
         >
           Get started
         </Link>
         <Link
           href=""
-          className="bg-[#FFFFFF] py-[8px] px-[40px] rounded-[14px] text-[#F8589F] font-TTInterphases text-[14px] font-medium"
+          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] font-TTInterphases text-[14px] font-medium"
         >
           Contact us
         </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { courses } from "@/data/data";
+import coursePerModule from "../../../../public/Icons/coursePerModule.svg";
 import Image from "next/image";
 import playSeason from "../../../../public/Icons/playSeason.svg";
 import inform from "../../../../public/Icons/inform.svg";
@@ -9,9 +9,11 @@ import TrainingSeason from "./TrainingSeason";
 import options from "../../../../public/Icons/greyOption.svg";
 import SelectUnite from "./SelectUnite";
 
-const Questions = () => {
+
+const Questions = ({ subjectId, data }) => {
   const [popup, setPopup] = useState(false);
   const [selectUnite, setSelectUnite] = useState(false);
+  const [courseId, setCourseId] = useState('')
 
   return (
     <div className="relative box py-[24px] px-[22px] rounded-[20px]">
@@ -33,19 +35,20 @@ const Questions = () => {
         {selectUnite && <SelectUnite setselectunite={setSelectUnite} />}
       </div>
       <ul className="flex flex-col gap-4">
-        {courses.map((item, index) => (
+        {data.courses.map((item) => (
           <li
             className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px]"
-            key={index}
+            key={item.id}
+            onClick={() => setCourseId(item.id)}
           >
             <div className="flex items-center gap-4">
-              <Image src={item.img} alt="module" className="w-[40px]" />
+              <Image src={coursePerModule} alt="module" className="w-[40px]" />
               <div className="flex flex-col gap-[2px]">
                 <span className="font-Poppins text-[#0C092A] font-semibold text-[14px]">
                   {item.name}
                 </span>
                 <span className="font-Poppins text-[#858494] text-[12px]">
-                  UI1 - Cardiology • {item.question} Question
+                  UI1 - Cardiology • {item.total_mcqs} Question
                 </span>
               </div>
             </div>
@@ -54,9 +57,13 @@ const Questions = () => {
                 Your accuracy in the lesson
               </span>
               <div className="flex items-center gap-2 mr-5">
-                <span className="relative block w-[200px] h-[16px] bg-[#E8E8E8] rounded-[16px] after:h-[16px] after:w-[100px] after:absolute after:left-0 after:rounded-[16px] after:bg-gradient-to-r after:from-[#FFC1DD] after:via-[#F8589F] after:to-[#EF0870]"></span>
+                <span
+                  className={`relative block w-[200px] h-[16px] bg-[#E8E8E8] rounded-[16px] after:h-[16px] after:w-[${
+                    item.average_accuracy * 100
+                  }px] after:absolute after:left-0 after:rounded-[16px] after:bg-gradient-to-r after:from-[#FFC1DD] after:via-[#F8589F] after:to-[#EF0870]`}
+                ></span>
                 <span className="text-[#808191] font-Inter font-medium text-[13px]">
-                  {item.accuracy}%
+                  {item.average_accuracy * 100}%
                 </span>
               </div>
               <button>
@@ -73,7 +80,7 @@ const Questions = () => {
           </li>
         ))}
       </ul>
-      {popup && <TrainingSeason />}
+      {popup && <TrainingSeason setPopup={setPopup} courseId={courseId} />}
     </div>
   );
 };

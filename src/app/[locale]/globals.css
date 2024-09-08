@@ -92,3 +92,7 @@
 .select .arrow {
   display: block !important;
 }
+
+.switch span {
+  background-color: #fff !important;
+}

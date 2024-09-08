@@ -15,7 +15,7 @@ import BaseUrl from "@/components/BaseUrl";
 
 const University = ({ name, value, setFieldValue }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["university"],
+    queryKey: ["universities"],
     queryFn: async () => {
       const response = await BaseUrl.get("/university");
       return response.data.data;
@@ -30,7 +30,11 @@ const University = ({ name, value, setFieldValue }) => {
       >
         Institution/University?
       </label>
-      <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
+      <Select
+        required
+        value={value}
+        onValueChange={(val) => setFieldValue(name, val)}
+      >
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={university} alt="university" />

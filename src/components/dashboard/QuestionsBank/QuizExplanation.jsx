@@ -3,14 +3,19 @@ import exit from "../../../../public/Icons/exit.svg";
 import right from "../../../../public/Quiz/true.svg";
 import notRight from "../../../../public/Quiz/false.svg";
 import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
+import { data } from "autoprefixer";
 
-const QuizExplanation = ({ QuizData, setSeeExplanation, type, activeQuiz }) => {
+const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
+  console.log(type);
+  
   return (
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D]">
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[60%] p-[26px] rounded-[16px]">
         <div className="flex items-center justify-between">
           <span className="font-Poppins font-semibold text-[#0C092A]">
-            {type === "QCM" ? "Answer Explanation" : "Answers Analyse"}
+            {type == "qcm" || type == "qcm"
+              ? "Answer Explanation"
+              : "Answers Analyse"}
           </span>
           <Image
             src={exit}
@@ -22,7 +27,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type, activeQuiz }) => {
         <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
           QUESTION 7 OF 68
         </span>
-        {type === "QCM" ? (
+        {type == "qcm" ? (
           <>
             <div className="flex flex-col gap-2">
               <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
@@ -73,25 +78,31 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type, activeQuiz }) => {
         )}
         <div className="flex flex-col gap-2">
           <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-            {type === "QCM" ? "EXPLANATION" : "Explanation of MyQCM Experts"}
+            {type == "qcm" || type == "qcs"
+              ? "EXPLANATION"
+              : "Explanation of MyQCM Experts"}
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.Quiz[activeQuiz].explanation}
+            {data.explanation}
           </p>
         </div>
         <div
           className={`flex flex-col gap-2 ${
-            type === "QCM" ? "hidden" : "block"
+            type == "qcm" ? "hidden" : "block"
           }`}
         >
           <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
             Analysis of MyQCM AI assistent
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.Quiz[activeQuiz].analysis}
+            {data.analysis}
           </p>
         </div>
-        <div className={`flex items-center justify-between mt-[20px] ${type == "QCM" ? "self-end" : ""}`}>
+        <div
+          className={`flex items-center justify-between mt-[20px] ${
+            type == "qcm" || type == "qcs" ? "self-end" : ""
+          }`}
+        >
           <span
             className={`text-center font-Poppins pl-[100px] font-medium text-[11px] text-[#858494] ${
               type == "QCM" ? "hidden" : "block"

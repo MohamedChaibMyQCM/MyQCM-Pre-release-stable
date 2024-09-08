@@ -21,7 +21,11 @@ const AttentionSpan = ({ name, value, setFieldValue }) => {
       >
         What&apos;s Your Attention Span?
       </label>
-      <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
+      <Select
+        required
+        value={value}
+        onValueChange={(val) => setFieldValue(name, val)}
+      >
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={attention} alt="attention" />

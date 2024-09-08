@@ -29,7 +29,7 @@ BaseUrl.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status == 401) {
       const locale = useLocale();
       secureLocalStorage.removeItem("token");
       window.location.href = `${locale}/login`;

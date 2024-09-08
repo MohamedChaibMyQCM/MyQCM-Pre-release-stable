@@ -1,15 +1,15 @@
-import Aside from '@/components/dashboard/Aside'
-import React from 'react'
+import AuthWrapper from "@/components/auth/AuthWrapper";
+import Aside from "@/components/dashboard/Aside";
 
-const layout = ({children}) => {
+const layout = ({ children }) => {
   return (
-    <main>
-      <Aside />
-      <div className='ml-60'>
-        {children}
-      </div>
-    </main>
-  )
-}
+    <AuthWrapper>
+      <main>
+        <Aside />
+        <div className="ml-60">{children}</div>
+      </main>
+    </AuthWrapper>
+  );
+};
 
-export default layout
+export default layout;

@@ -17,7 +17,7 @@ const Search = () => {
       <div className="bg-[#FFFFFF] w-[36px] h-[36px] rounded-full relative flex items-center justify-center cursor-pointer">
         <Image src={notification} alt="notification" className="w-[16px]" />
         <span className=" absolute bg-[#FF754C] text-[#FFFFFF] flex items-center justify-center font-Inter w-[16px] h-[16px] rounded-full text-[9.6px] right-[-6px] top-[-2px]">
-          2
+          0
         </span>
       </div>
     </div>

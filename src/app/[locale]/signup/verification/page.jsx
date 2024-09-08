@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import logo from "../../../../../public/Icons/logo Myqcm 1.svg";
 import Verification from "../../../../../public/Icons/verification.svg";
@@ -8,7 +9,7 @@ import { useMutation } from "react-query";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import handleError from "@/components/handleError";
-import { useState } from "react";
+import VerifyAuth from "@/components/auth/AuthEmail";
 
 const EmailVerification = () => {
   const [code, setCode] = useState("");
@@ -19,7 +20,7 @@ const EmailVerification = () => {
     mutationFn: (data) => BaseUrl.post("/user/verify-email", data),
     onSuccess: () => {
       router.push(`/${locale}/signup/setProfile`);
-      console.log("code succesfull");
+      console.log("code successful");
     },
     onError: (error) => {
       handleError(error);
@@ -73,4 +74,4 @@ const EmailVerification = () => {
   );
 };
 
-export default EmailVerification;
+export default VerifyAuth(EmailVerification);

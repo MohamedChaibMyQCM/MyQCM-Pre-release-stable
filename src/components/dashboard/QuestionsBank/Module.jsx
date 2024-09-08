@@ -4,8 +4,18 @@ import Avatar from "../../../../public/Icons/Avatar.svg";
 import qcm from "../../../../public/Icons/QCM.svg";
 import qroc from "../../../../public/Icons/Qroc.svg";
 import clinical from "../../../../public/Icons/casClinical.svg";
+import { useQuery } from "react-query";
+import BaseUrl from "@/components/BaseUrl";
 
-const Module = () => {
+const Module = ({ subjectId }) => {
+  // const { data, isLoading, error } = useQuery({
+  //   queryKey: ["subjects"],
+  //   queryFn: async () => {
+  //     const response = await BaseUrl.get("/subject/{subjectId}");
+  //     return response.data.data;
+  //   },
+  // });
+
   return (
     <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
       <Image src={stock} alt="stock" className="w-full" />

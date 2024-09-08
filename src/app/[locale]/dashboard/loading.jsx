@@ -1,13 +1,10 @@
-"use client"
-
-import { BounceLoader } from "react-spinners";
+import Loading from '@/components/Loading'
+import React from 'react'
 
 const loading = () => {
   return (
-    <div className="absolute h-[100%] w-[100%] top-0 left-0 bg-[#FFFFFF] flex items-center justify-center">
-      <BounceLoader color="#FF6EAF" />
-    </div>
-  );
-};
+    <Loading />
+  )
+}
 
-export default loading;
+export default loading

@@ -17,21 +17,15 @@ import logo3 from "../../public/logos/Ouikaya.svg";
 import logo4 from "../../public/logos/dr lekhal logo 1.svg";
 import logo5 from "../../public/logos/Educteck.svg";
 import logo6 from "../../public/logos/BlidaFac.svg";
-import module1 from "../../public/Icons/module (1).svg";
-import module2 from "../../public/Icons/module (2).svg";
-import module3 from "../../public/Icons/module (3).svg";
-import module4 from "../../public/Icons/module (4).svg";
-import heart from "../../public/heart.svg";
+
 import facebook from "../../public/social Media/FacebookLogo.svg";
 import instagram from "../../public/social Media/InstagramLogo.svg";
 import linkedin from "../../public/social Media/LinkedinLogo.svg";
 import tiktok from "../../public/social Media/TikTok.svg";
 import twitter from "../../public/social Media/Twitter.svg";
-import category from "../../public/Icons/categories.svg";
 import wHeart from "../../public/Icons/wHeart.svg";
 import blida from "../../public/Icons/Blida.svg";
 import coursePerModule from "../../public/Icons/coursePerModule.svg";
-
 import blood from "../../public/Quiz/blood.svg";
 import clock from "../../public/Quiz/clock.svg";
 import headleft from "../../public/Quiz/headleft.svg";
@@ -107,42 +101,6 @@ export const logos = [
   },
   {
     src: logo6,
-  },
-];
-
-export const cards = [
-  {
-    img: heart,
-    unite: "Unite 01: Cardio-respiratory and Medical Psychology",
-    description:
-      "Explore the cardiovascular and respiratory systems' relationship and the psychological aspects of medical care. This unit includes five modules: semiology, physiopathology, radiology, biochemistry, and medical psychology, providing a comprehensive understanding of their impact on patient health and treatment.",
-  },
-];
-
-export const modules = [
-  {
-    img: module4,
-    module: "Module Semiology Unite Cardio",
-    progress: 67,
-    color: "#ECD14E",
-  },
-  {
-    img: module3,
-    module: "Module Pathophysiology Unite Cardio",
-    progress: 90,
-    color: "#B2A4E4",
-  },
-  {
-    img: module2,
-    module: "Module Biochemistry Unite Cardio",
-    progress: 8,
-    color: "#82B304AB",
-  },
-  {
-    img: module1,
-    module: "Module Radiology Unite Cardio",
-    progress: 50,
-    color: "#25D9D7",
   },
 ];
 
@@ -229,19 +187,6 @@ export const socialMediaLogos = [
     src: twitter,
     href: "",
   },
-];
-
-export const categories = [
-  { name: "Semilogy", questions: 350, img: category },
-  { name: "Pathophysiology", questions: 350, img: category },
-  { name: "Biochemistry", questions: 350, img: category },
-  { name: "Radiology", questions: 350, img: category },
-  { name: "Medical Psychology", questions: 350, img: category },
-  { name: "Patho-Anatomy", questions: 350, img: category },
-  { name: "Pharmacology", questions: 350, img: category },
-  { name: "Parasitology", questions: 350, img: category },
-  { name: "Immunology", questions: 350, img: category },
-  { name: "Microbiology", questions: 350, img: category },
 ];
 
 export const exams = [
@@ -337,117 +282,6 @@ export const exams = [
   },
 ];
 
-export const courses = [
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Main Complementary Investigations",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Weight Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Clinical Reasoning",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Semiotics of Hydration Disorders",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-  {
-    img: coursePerModule,
-    name: "Intro-Medical Semiotics",
-    question: 19,
-    accuracy: 63,
-  },
-];
-
 export const QuizImage = [
   {
     img: blood,
@@ -477,7 +311,7 @@ export const QuizImage = [
 ];
 
 export const QuizData = {
-  type: "QROC",
+  type: "QCM",
   Quiz: [
     {
       difficulty: "Easy",

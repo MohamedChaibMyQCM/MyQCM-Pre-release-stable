@@ -117,10 +117,11 @@ const Quiz = ({ data, Progres }) => {
             />
           )}
         </ul>
-
         <div className="self-end flex items-center gap-4">
-          onClick={() => setSkip(true)}
-          <button className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]">
+          <button
+            onClick={() => setSkip(true)}
+            className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
+          >
             Skip Question
           </button>
           {checkAnswer ? (

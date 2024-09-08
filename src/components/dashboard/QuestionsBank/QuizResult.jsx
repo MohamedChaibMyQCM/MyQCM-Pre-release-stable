@@ -21,7 +21,12 @@ const QuizResult = ({ setSkip }) => {
       <div className="bg-[#ffffff] w-[340px] p-[30px] rounded-[16px] flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <span className="font-Poppins font-medium">Awesome Muhammad!</span>
-          <Image src={exit} alt="exit" onClick={() => setSkip(false)} />
+          <Image
+            src={exit}
+            alt="exit"
+            onClick={() => setSkip(false)}
+            className="cursor-pointer"
+          />
         </div>
         <Image src={result} alt="result" className="cursor-pointer" />
         <div className="flex items-center justify-between flex-wrap gap-3">

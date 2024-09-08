@@ -8,10 +8,15 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoIosPlayCircle } from "react-icons/io";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 const Header = () => {
   const t = useTranslations("home_page.header");
   const locale = useLocale()
+  const path = usePathname()
+
+  console.log(path);
+  
 
   return (
     <header
@@ -29,16 +34,18 @@ const Header = () => {
       <ul className="flex justify-between items-center basis-[50%]">
         <li className="">
           <a
-            href="#"
+            href=""
             className={` h-[22.5px] block text-[15px] text-[#191919] relative  
-            after:hidden after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-10px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
+             after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-11px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] ${
+               path == `/${locale}` ? "after:block" : "after:hidden"
+             }`}
           >
             {t("item_1")}
           </a>
         </li>
         <li className="">
           <a
-            href="#features"
+            href=""
             className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
           >
             {t("item_2")}
@@ -47,7 +54,7 @@ const Header = () => {
         </li>
         <li className="">
           <a
-            href="#pricing"
+            href=""
             className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
           >
             {t("item_3")}
@@ -56,7 +63,7 @@ const Header = () => {
         </li>
         <li className="">
           <a
-            href="#contact"
+            href=""
             className={`h-[22.5px] block text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-10px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
           >
             {t("item_4")}

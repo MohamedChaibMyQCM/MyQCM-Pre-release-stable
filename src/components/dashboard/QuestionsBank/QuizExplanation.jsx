@@ -103,7 +103,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
         >
           <span
             className={`text-center font-Poppins pl-[100px] font-medium text-[11px] text-[#858494] ${
-              type == "QCM" ? "hidden" : "block"
+              type == "qcm" || type == "qcs" ? "hidden" : "block"
             }`}
           >
             This answer has been reviewed and confirmed correct by MyQCM Experts

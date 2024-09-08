@@ -27,10 +27,10 @@ const AuthWrapper = ({ children }) => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      if (error.response?.data?.message === "Email not verified") {
+      if (error.response?.data?.message == "Email not verified") {
         router.push(`/${locale}/signup/verification`);
         toast.error("Verify your email");
-      } else if (error.response?.data?.message === "User profile not found") {
+      } else if (error.response?.data?.message == "User profile not found") {
         router.push(`/${locale}/signup/setProfile`);
         toast.error("Set up your profile");
       } else {

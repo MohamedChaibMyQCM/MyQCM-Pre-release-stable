@@ -17,15 +17,21 @@ const Quiz = ({ data, Progres }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [skip, setSkip] = useState(false);
   const [seeExplanation, setSeeExplanation] = useState(false);
-  const [response, setResponse] = useState('') 
+  const [response, setResponse] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
 
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
-      if (prevSelected.includes(option)) {
-        return prevSelected.filter((item) => item !== option);
+      const isAlreadySelected = prevSelected.some(
+        (selectedOption) => selectedOption.option === option.id
+      );
+      if (isAlreadySelected) {
+        return prevSelected.filter(
+          (selectedOption) => selectedOption.option !== option.id
+        );
+      } else {
+        return [...prevSelected, { option: option.id }];
       }
-      return [...prevSelected, option];
     });
   };
 
@@ -41,9 +47,9 @@ const Quiz = ({ data, Progres }) => {
     },
   });
 
-   useEffect(() => {
-     formik.setFieldValue("response_options", selectedOptions);
-   }, [selectedOptions]);
+  useEffect(() => {
+    formik.setFieldValue("response_options", selectedOptions);
+  }, [selectedOptions]);
 
   return (
     <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6">
@@ -93,27 +99,31 @@ const Quiz = ({ data, Progres }) => {
 
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
         <ul className="flex flex-col gap-4">
-          {data.type == "qcm" || data.type == "qcs" ? (
+          {(data.type == "qcm" || data.type == "qcs") &&
             data.options.map((item, index) => {
-              const isSelected = selectedOptions.includes(item.id);
+              // Check if the current item is selected
+              const isSelected = selectedOptions.some(
+                (selectedOption) => selectedOption.option === item.id
+              );
+
               return (
                 <li
                   key={index}
                   className={`text-[14px] font-Poppins font-semibold text-[#0C092A] border border-[#EFEEFC] rounded-[16px] px-[20px] py-[8px] cursor-pointer ${
                     isSelected ? "bg-[#FFF5FA] text-[#0C092A]" : ""
                   }`}
-                  onClick={() => handleOptionClick(item.id)}
+                  onClick={() => handleOptionClick(item)}
                 >
                   {item.content}
                 </li>
               );
-            })
-          ) : (
+            })}
+          {data.type !== "qcm" && data.type !== "qcs" && (
             <Input
               className="border-[1.6px] border-[#EFEEFC] text-[#49465F] font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px]"
               placeholder="Write Your Answer"
               value={response}
-              onValueChange={(e) => setResponse(e.target.value)}
+              onChange={(e) => setResponse(e.target.value)}
             />
           )}
         </ul>

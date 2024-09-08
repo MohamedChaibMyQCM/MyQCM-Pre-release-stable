@@ -97,7 +97,7 @@ const HeroSection = () => {
         </p>
         <div className="flex items-center gap-8">
           <Link
-            href={`${locale}/SignUp`}
+            href={`${locale}/signup`}
             className={`bg-[#F8589FCC] w-fit py-[8px] flex gap-3 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff] ${
               locale === "ar" ? "font-medium" : "font-semibold"
             }`}

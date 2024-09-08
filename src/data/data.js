@@ -170,22 +170,27 @@ export const socialMediaLogos = [
   {
     src: facebook,
     href: "",
+    width: 30
   },
   {
     src: instagram,
     href: "",
+    width: 30
   },
   {
     src: linkedin,
     href: "",
+    width: 30
   },
   {
     src: tiktok,
     href: "",
+    width: 20
   },
   {
     src: twitter,
     href: "",
+    width: 20
   },
 ];
 

@@ -52,7 +52,7 @@ const Footer = () => {
               return (
                 <li key={index}>
                   <Link href={item.href}>
-                    <Image src={item.src} alt='logo' className="w-[30px]" />
+                    <Image src={item.src} alt='logo' className={`w-[${item.width}px]`} />
                   </Link>
                 </li>
               );

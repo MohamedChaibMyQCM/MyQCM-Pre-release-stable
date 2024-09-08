@@ -2,8 +2,11 @@ import { logos } from "@/data/data";
 import Image from "next/image";
 import Link from "next/link";
 import patern from '../../../public/Patern.svg'
+import { useLocale } from "next-intl";
 
 const Ready = () => {
+  const locale = useLocale()
+
   return (
     <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4">
       <Image src={patern} alt="patern" className="absolute top-0 left-0" />
@@ -17,7 +20,7 @@ const Ready = () => {
       </p>
       <div className="flex items-center gap-6 justify-center mb-[40px] mt-[16px] z-50">
         <Link
-          href=""
+          href={`${locale}/signup`}
           className="bg-[#FFFFFF] py-[8px] px-[40px] rounded-[14px] text-[#F8589F] font-TTInterphases text-[14px] font-medium"
         >
           Get started

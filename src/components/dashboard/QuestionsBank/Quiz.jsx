@@ -14,9 +14,8 @@ import QuizExplanation from "./QuizExplanation";
 import { useFormik } from "formik";
 
 const Quiz = ({ data, Progres }) => {
-  console.log(data);
-  
   const [checkAnswer, setCheckAnswer] = useState(true);
+  const [skip, setSkip] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [response, setResponse] = useState('') 
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -121,7 +120,7 @@ const Quiz = ({ data, Progres }) => {
 
         <div className="self-end flex items-center gap-4">
           <button
-            type="submit"
+            
             className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
           >
             Skip Question
@@ -129,6 +128,7 @@ const Quiz = ({ data, Progres }) => {
           {checkAnswer ? (
             <button
               onClick={() => setCheckAnswer(false)}
+              type="submit"
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >
               Check Answer
@@ -157,7 +157,7 @@ const Quiz = ({ data, Progres }) => {
           type={data.type}
         />
       )}
-      {data == null && <QuizResult />}
+      {skip && <QuizResult />}
     </div>
   );
 };

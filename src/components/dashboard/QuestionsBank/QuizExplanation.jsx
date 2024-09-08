@@ -6,8 +6,6 @@ import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
 import { data } from "autoprefixer";
 
 const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
-  console.log(type);
-  
   return (
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D]">
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[60%] p-[26px] rounded-[16px]">
@@ -83,7 +81,7 @@ const QuizExplanation = ({ QuizData, setSeeExplanation, type }) => {
               : "Explanation of MyQCM Experts"}
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {data.explanation}
+            {QuizData.explanation}
           </p>
         </div>
         <div

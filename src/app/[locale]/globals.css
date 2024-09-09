@@ -96,3 +96,17 @@
 .switch span {
   background-color: #fff !important;
 }
+
+.feature_anim {
+  width: 0px;
+  animation: expand-width 5s forwards;
+}
+
+@keyframes expand-width {
+  from {
+    width: 0px;
+  }
+  to {
+    width: 480px;
+  }
+}

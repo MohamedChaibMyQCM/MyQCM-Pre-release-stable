@@ -48,6 +48,7 @@ const Quiz = ({ data, Progres }) => {
   });
 
   useEffect(() => {
+    formik.setFieldValue("mcq", data.id);
     formik.setFieldValue("response_options", selectedOptions);
   }, [selectedOptions]);
 

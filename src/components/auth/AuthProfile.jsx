@@ -15,23 +15,20 @@ const AuthProfile = (Component) => {
     const [auth, setAuth] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
 
-    const checkAuth = async () => {
+    const checkAuth = () => {
       if (!secureLocalStorage.getItem("token")) {
         setAuthLoading(false);
         router.push(`/${locale}/login`);
         toast.error("You need to login");
       } else {
         try {
-          const response = await BaseUrl.get("/user");
+          const response = BaseUrl.get("/user");
           setAuth(true);
         } catch (error) {
-          if (error.response?.data?.message === "Email not verified") {
+          if (error.status == 400 && error.response.data.message == "Email not verified") {
             setAuthLoading(false);
             router.push(`/${locale}/signup/verification`);
             toast.error("Verify your email");
-          } else {
-            setAuthLoading(false);
-            toast.error("An error occurred");
           }
         }
       }
@@ -39,14 +36,13 @@ const AuthProfile = (Component) => {
 
     useEffect(() => {
       checkAuth();
-    }, []); // Only run once on mount
+    }, [auth]);
 
     if (authLoading) return <Loading />;
     if (auth) return <Component {...props} />;
     return null;
   };
 
-  // Provide a display name for the HOC
   AuthenticatedComponent.displayName = `AuthProfile(${
     Component.displayName || Component.name || "Component"
   })`;

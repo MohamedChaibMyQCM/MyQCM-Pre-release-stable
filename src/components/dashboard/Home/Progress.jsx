@@ -16,8 +16,8 @@ const Progress = () => {
     },
   });
 
-  console.log(data);
-  
+  // console.log(unit);
+
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -53,9 +53,7 @@ const Progress = () => {
                       Your Progress:
                     </span>
                     <div className="relative h-[13px] w-[100px] rounded-[4px] bg-[#D9D9D9]">
-                      <div
-                        className="absolute left-0 top-0 h-[13px] rounded-[4px] w-[50px] bg-[#FD2E8A]"
-                      ></div>
+                      <div className="absolute left-0 top-0 h-[13px] rounded-[4px] w-[50px] bg-[#FD2E8A]"></div>
                     </div>
                     <span className="text-[12px] text-[#808191] font-Inter font-medium">
                       67%

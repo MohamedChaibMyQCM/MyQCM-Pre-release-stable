@@ -6,8 +6,12 @@ import Typewriter from "typewriter-effect";
 import { IoIosPlayCircle } from "react-icons/io";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
+import IntroVideo from "./IntroVideo";
 
 const HeroSection = () => {
+  const [video, setVideo] = useState(false)
+
   const t = useTranslations("home_page.hero");
   const locale = useLocale();
   const typewriterOptions = {
@@ -105,7 +109,10 @@ const HeroSection = () => {
             {t("try_now")}
             <IoIosArrowDropright className="text-[19px]" />
           </Link>
-          <button className="flex items-center gap-3">
+          <button
+            className="flex items-center gap-3"
+            onClick={() => setVideo(true)}
+          >
             <div className="relative wave_animation w-[30px] h-[30px] bg-[#EE459045] rounded-full flex items-center justify-center">
               <IoIosPlayCircle className="text-[#F8589FD6] text-[19px] absolute " />
             </div>
@@ -119,7 +126,12 @@ const HeroSection = () => {
           </button>
         </div>
       </div>
-      <Image src={doctors} alt="doctors" className="w-[580px] relative bottom-[-0.5px] self-end" />
+      {video && <IntroVideo setVideo={setVideo} />}
+      <Image
+        src={doctors}
+        alt="doctors"
+        className="w-[580px] relative bottom-[-0.5px] self-end"
+      />
     </section>
   );
 };

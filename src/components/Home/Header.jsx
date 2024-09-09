@@ -15,9 +15,6 @@ const Header = () => {
   const locale = useLocale()
   const path = usePathname()
 
-  console.log(path);
-  
-
   return (
     <header
       className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] ${
@@ -71,7 +68,7 @@ const Header = () => {
         </li>
       </ul>
       <div className="flex items-center gap-3">
-        <SwitchLanguage />
+        {/* <SwitchLanguage /> */}
         <Link
           href={`/${locale}/signup`}
           className="bg-[#F8589FCC] py-[8px] flex gap-2 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff]"

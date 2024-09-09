@@ -13,6 +13,9 @@ const Cards = () => {
       const response = await BaseUrl.get("/unit");
       return response.data.data;
     },
+    onSuccess: (data) => {
+      // setUnit(data[0].id);
+    },
   });
 
   if (isLoading) return <Loading />;

@@ -20,7 +20,7 @@ const Features = () => {
         <Image
           src={vector}
           alt="vector"
-          className="absolute bottom-[-16px] right-[56px] w-[480px]"
+          className="absolute bottom-[-16px] right-[56px] feature_anim"
         />
       </h2>
       <div className="flex items-center justify-between">

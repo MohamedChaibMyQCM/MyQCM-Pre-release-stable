@@ -14,32 +14,34 @@ const AuthWrapper = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAuth = async () => {
-    if (!secureLocalStorage.getItem("token")) {
-      setLoading(false);
-      router.push(`/${locale}/login`);
-      toast.error("You need to login");
-      return;
-    }
-    try {
-      const response = await BaseUrl.get("/user");
-      setAuth(true);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      if (error.response?.data?.message == "Email not verified") {
-        router.push(`/${locale}/signup/verification`);
-        toast.error("Verify your email");
-      } else if (error.response?.data?.message == "User profile not found") {
-        router.push(`/${locale}/signup/setProfile`);
-        toast.error("Set up your profile");
-      } else {
-        toast.error("An unexpected error occurred");
-      }
-    }
-  };
-
   useEffect(() => {
+    const checkAuth = () => {
+      if (!secureLocalStorage.getItem("token")) {
+        setLoading(false);
+        router.push(`/${locale}/login`);
+        toast.error("You need to login");
+        return;
+      }
+      try {
+        const response = BaseUrl.get("/user");
+        setAuth(true);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        const status = error.response?.status;
+        const message = error.response?.data?.message;
+        if (status === 400 && message === "Email not verified") {
+          router.push(`/${locale}/signup/verification`);
+          toast.error("Verify your email");
+        } else if (status === 400 && message === "User profile not found") {
+          router.push(`/${locale}/signup/setProfile`);
+          toast.error("Set up your profile");
+        } else {
+          console.error("Authentication error:", error);
+        }
+      }
+    };
+
     checkAuth();
   }, [auth]);
 

@@ -13,11 +13,11 @@ import Image from "next/image";
 import { useQuery } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 
-const Annexe = ({ name, value, setFieldValue }) => {
+const Annexe = ({ name, value, uniValue, setFieldValue }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["faculties"],
+    queryKey: ["faculties", uniValue],
     queryFn: async () => {
-      const response = await BaseUrl.get("/faculty");
+      const response = await BaseUrl.get(`/faculty?universityId=${uniValue}`);
       return response.data.data;
     },
   });
@@ -30,7 +30,11 @@ const Annexe = ({ name, value, setFieldValue }) => {
       >
         Annexe/Faculte ?
       </label>
-      <Select required value={value} onValueChange={(val) => setFieldValue(name, val)}>
+      <Select
+        required
+        value={value}
+        onValueChange={(val) => setFieldValue(name, val)}
+      >
         <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={annexe} alt="annexe" />

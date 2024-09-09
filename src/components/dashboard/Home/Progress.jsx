@@ -7,16 +7,17 @@ import BaseUrl from "@/components/BaseUrl";
 import { useQuery } from "react-query";
 import Loading from "@/components/Loading";
 
-const Progress = () => {
+const Progress = ({ unit }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["subjects"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/subject/user");
+      const response = await BaseUrl.get(`/subject?unitId=${unit}`);
+      console.log(response.request);
       return response.data.data;
     },
   });
 
-  // console.log(unit);
+  console.log(unit);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
@@ -30,11 +31,11 @@ const Progress = () => {
         <span className="font-Inter text-[12px] text-[#93959F]">See All</span>
       </div>
       <ul className="flex flex-col gap-3">
-        {data.map((item) => {
+        {data.slice(0, 4).map((item) => {
           return (
             <li
               key={item.id}
-              className="flex gap-4 items-center justify-between bg-[#bbe5fd] py-[12px] px-[20px] rounded-[10px]"
+              className="flex gap-4 items-center justify-between bg-[#FFFFFF] py-[12px] px-[20px] rounded-[10px]"
             >
               <div className="flex items-center gap-4">
                 <div className={`p-[8px] rounded-[10px] bg-yellow-300`}>

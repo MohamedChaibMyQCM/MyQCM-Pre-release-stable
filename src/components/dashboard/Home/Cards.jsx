@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useQuery } from "react-query";
 import Loading from "@/components/Loading";
 
-const Cards = () => {
+const Cards = ({ setUnit }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["units"],
     queryFn: async () => {
@@ -14,7 +14,7 @@ const Cards = () => {
       return response.data.data;
     },
     onSuccess: (data) => {
-      // setUnit(data[0].id);
+      setUnit(data[0].id);
     },
   });
 

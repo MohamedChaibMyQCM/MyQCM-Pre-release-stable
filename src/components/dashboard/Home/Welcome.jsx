@@ -2,10 +2,10 @@ import React from "react";
 import Cards from "./Cards";
 import Calender from "./Calender";
 
-const Welcome = () => {
+const Welcome = ({ setUnit }) => {
   return (
     <div className="pt-[10px] px-[30px] w-[60%]">
-      <Cards  />
+      <Cards setUnit={setUnit} />
       <Calender />
     </div>
   );

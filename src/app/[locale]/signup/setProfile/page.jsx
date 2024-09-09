@@ -23,14 +23,16 @@ import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
 import handleError from "@/components/handleError";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
+  const router = useRouter()
 
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),
     onSuccess: () => {
-      window.location.href = `/${locale}/dashboard`;
+      router.push(`/${locale}/dashboard`)
     },
     onError: (error) => {
       handleError(error);
@@ -56,8 +58,11 @@ const Page = () => {
       attention_span: "",
     },
     onSubmit: (values) => {
-      console.log(values);
-      setProfile(values);
+      const data = {
+        ...values,
+        learning_goals: ["Master Core Concepts", "Gain Practical Knowledge"],
+      };
+      setProfile(data);
     },
   });
 
@@ -88,6 +93,7 @@ const Page = () => {
               />
               <Annexe
                 name="faculty"
+                uniValue={formik.values.university}
                 value={formik.values.faculty}
                 setFieldValue={formik.setFieldValue}
               />

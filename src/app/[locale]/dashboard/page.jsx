@@ -4,7 +4,7 @@ import Statistical from "@/components/dashboard/Home/Statistical";
 import Welcome from "@/components/dashboard/Home/Welcome";
 import { useState } from "react";
 
-const page = async () => {
+const Page = async () => {
   const [unit, setUnit] = useState()
 
   return (
@@ -15,4 +15,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

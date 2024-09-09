@@ -15,20 +15,24 @@ const AuthProfile = (Component) => {
     const [auth, setAuth] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
 
-    const checkAuth = () => {
+    const checkAuth = async () => {
       if (!secureLocalStorage.getItem("token")) {
         setAuthLoading(false);
         router.push(`/${locale}/login`);
         toast.error("You need to login");
       } else {
         try {
-          const response = BaseUrl.get("/user");
+          const response = await BaseUrl.get("/user");
+          setAuthLoading(false)
           setAuth(true);
         } catch (error) {
           if (error.status == 400 && error.response.data.message == "Email not verified") {
             setAuthLoading(false);
             router.push(`/${locale}/signup/verification`);
             toast.error("Verify your email");
+          } else {
+            setAuthLoading(false);
+            setAuth(true);
           }
         }
       }
@@ -36,7 +40,7 @@ const AuthProfile = (Component) => {
 
     useEffect(() => {
       checkAuth();
-    }, [auth]);
+    }, []);
 
     if (authLoading) return <Loading />;
     if (auth) return <Component {...props} />;

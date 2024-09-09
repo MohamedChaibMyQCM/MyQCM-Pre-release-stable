@@ -15,33 +15,33 @@ const AuthWrapper = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       if (!secureLocalStorage.getItem("token")) {
         setLoading(false);
         router.push(`/${locale}/login`);
         toast.error("You need to login");
-        return;
       }
       try {
-        const response = BaseUrl.get("/user");
-        setAuth(true);
+        const response = await BaseUrl.get("/user");
         setLoading(false);
+        setAuth(true);
       } catch (error) {
         setLoading(false);
-        const status = error.response?.status;
-        const message = error.response?.data?.message;
-        if (status === 400 && message === "Email not verified") {
+        if (
+          error.status == 400 &&
+          error.response.data.message == "Email not verified"
+        ) {
           router.push(`/${locale}/signup/verification`);
           toast.error("Verify your email");
-        } else if (status === 400 && message === "User profile not found") {
+        } else if (
+          error.status == 400 &&
+          error.response.data.message == "User profile not found"
+        ) {
           router.push(`/${locale}/signup/setProfile`);
           toast.error("Set up your profile");
-        } else {
-          console.error("Authentication error:", error);
         }
       }
     };
-
     checkAuth();
   }, [auth]);
 

@@ -5,15 +5,12 @@ import timer from "../../../../public/Quiz/Timer.svg";
 import solver from "../../../../public/Aside/wsolver.svg";
 import mind from "../../../../public/Quiz/mind.svg";
 import { Input } from "@/components/ui/input";
-import { useQuery } from "react-query";
-import BaseUrl from "@/components/BaseUrl";
 import QuizExplanation from "./QuizExplanation";
 import trueQuiz from "../../../../public/Quiz/true.svg";
 import { useFormik } from "formik";
-import Loading from "@/components/Loading";
 import QuizResult from "./QuizResult";
 
-const Quiz = ({ data, Progress, answer, data1, setResult }) => {
+const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -21,6 +18,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   const [timeRemaining, setTimeRemaining] = useState(
     data[0]?.estimated_time || 0
   );
+  const [submittedAnswer, setSubmittedAnswer] = useState(null);
 
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
@@ -52,7 +50,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
       response: "",
       time_spent: data[selectedQuiz]?.estimated_time,
     },
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       let quizData = data[selectedQuiz];
       if (!quizData) {
         console.error("Selected quiz data is undefined");
@@ -74,7 +72,9 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
         };
       }
       console.log(submissionData);
-      Progress(submissionData);
+      const result = await Progress(submissionData);
+      setSubmittedAnswer(result);
+      setCheckAnswer(false);
     },
   });
 
@@ -105,15 +105,28 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   const handleSkipQuestion = () => {
     setSelectedQuiz(selectedQuiz + 1);
     setSelectedOptions([]);
+    setSubmittedAnswer(null);
     formik.resetForm();
   };
-
-  // if (isLoading) return <Loading />;
-  // if (error) return <></>;
 
   if (selectedQuiz >= data.length) {
     return <QuizResult data={data1} setResult={setResult} />;
   }
+
+  const getOptionBackgroundColor = (optionId) => {
+    if (!submittedAnswer) return "";
+    console.log(submittedAnswer.data.data);
+    console.log(submittedAnswer.data.data.selected_options);
+    const selectedOption = submittedAnswer.data.data.selected_options.find(
+      (option) => option.id == optionId
+    );
+    if (selectedOption) {
+      return selectedOption.is_correct
+        ? "bg-[#37FFB6] text-[#FFF]"
+        : "bg-[#FF3737] text-[#FFF]";
+    }
+    return "";
+  };
 
   return (
     <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6">
@@ -167,22 +180,23 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
               const isSelected = selectedOptions.some(
                 (selectedOption) => selectedOption.option == item.id
               );
+              const optionBgColor = getOptionBackgroundColor(item.id);
               return (
                 <li
                   key={index}
                   className={`text-[14px] flex items-center gap-2 font-Poppins font-semibold text-[#0C092A] border border-[#EFEEFC] rounded-[16px] px-[20px] py-[8px] cursor-pointer ${
                     isSelected ? "bg-[#FFF5FA] text-[#0C092A]" : ""
-                  }`}
+                  } ${optionBgColor}`}
                   onClick={() => handleOptionClick(item)}
                 >
                   {isSelected && (
                     <Image
                       src={trueQuiz}
                       alt="trueQuiz"
-                      className="bg-[#FF6EAF] w-[14px] h-[14px] rounded-full flex items-center justify-center"
+                      className="bg-[#FF6EAF] w-[12px] h-[12px] rounded-full flex items-center justify-center"
                     />
                   )}
-                  {item.content}
+                  <span className="text-[14px]">{item.content}</span>
                 </li>
               );
             })
@@ -211,7 +225,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
           </button>
           {checkAnswer ? (
             <button
-              onClick={() => setCheckAnswer(false)}
               type="submit"
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >
@@ -248,6 +261,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
           length={data.length}
           setCheckAnswer={setCheckAnswer}
           setSelectedOptions={setSelectedOptions}
+          setAnswer={setAnswer}
           formik={formik}
         />
       )}

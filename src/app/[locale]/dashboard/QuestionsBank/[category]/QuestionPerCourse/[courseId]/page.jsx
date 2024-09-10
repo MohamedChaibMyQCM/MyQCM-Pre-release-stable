@@ -60,6 +60,7 @@ const Page = () => {
         answer={answer}
         data1={data1}
         setResult={setResult}
+        setAnswer={setAnswer}
       />
       {QuizImage.map((item, index) => (
         <Image

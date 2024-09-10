@@ -13,7 +13,8 @@ const QuizExplanation = ({
   length,
   setSelectedQuiz,
   setCheckAnswer,
-  setSelectedOptions,
+  setSelectedOptions, 
+  setAnswer,
   formik,
 }) => {
   const handleNext = () => {
@@ -21,6 +22,7 @@ const QuizExplanation = ({
     setCheckAnswer(true);
     setSelectedQuiz((prevQuiz) => prevQuiz + 1);
     setSelectedOptions([]);
+    setAnswer('')
     formik.resetForm();
   };
 

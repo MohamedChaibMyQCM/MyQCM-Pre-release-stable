@@ -3,9 +3,23 @@
 import { useParams } from "next/navigation";
 import Courses from "@/components/dashboard/QuestionsBank/Courses";
 import Module from "@/components/dashboard/QuestionsBank/Module";
+import { useQuery } from "react-query";
+import BaseUrl from "@/components/BaseUrl";
+import Loading from "@/components/Loading";
 
 const Page = () => {
   const { category: subjectId } = useParams();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["subjects"],
+    queryFn: async () => {
+      const response = await BaseUrl.get(`/subject/${subjectId}`);
+      return response.data.data;
+    },
+  });
+
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="pt-[22px] pb-[40px] flex flex-col gap-8">
@@ -13,11 +27,11 @@ const Page = () => {
         Question Bank <span className="text-[12px]">/</span>
         <span className="text-[#FF95C4]">Categories</span>
         <span className="text-[12px]">/</span>
-        semilogy
+        {data.name}
       </span>
       <div className="flex justify-between items-start px-[40px]">
-        <Module subjectId={subjectId} />
-        <Courses subjectId={subjectId} />
+        <Module data={data} />
+        <Courses courses={data.courses} subjectId={subjectId} />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ const TimeLimit = ({ name, value, setFieldValue }) => {
       <Image src={checkbox} alt="checkbox" />
       <input
         type="number"
+        required
         className="w-[100%] outline-none text-[14px] font-Poppins font-medium"
         placeholder="Set Time limit"
         value={value}

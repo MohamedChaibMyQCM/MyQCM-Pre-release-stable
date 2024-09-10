@@ -5,23 +5,9 @@ import Image from "next/image";
 import play from "../../../../public/Icons/play.svg";
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import Loading from "@/components/Loading";
-import { useQuery } from "react-query";
-import BaseUrl from "@/components/BaseUrl";
 
-const Courses = ({ subjectId }) => {
+const Courses = ({ courses, subjectId }) => {
   const locale = useLocale();
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["courses"],
-    queryFn: async () => {
-      const response = await BaseUrl.get(`/course/?subjectId=${subjectId}`);
-      return response.data.data;
-    },
-  });
-
-  if (isLoading) return <Loading />;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[40%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px]">
@@ -37,14 +23,18 @@ const Courses = ({ subjectId }) => {
         </Link>
       </div>
       <ul className="flex flex-col gap-4 ">
-        {data.slice(0, 6).map((item) => {
+        {courses == "" || courses == undefined ? "" : courses.slice(0, 6).map((item) => {
           return (
             <li
               className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px]"
               key={item.id}
             >
               <div className="flex items-center gap-4">
-                <Image src={coursePerModule} alt="module" className="w-[40px]" />
+                <Image
+                  src={coursePerModule}
+                  alt="module"
+                  className="w-[40px]"
+                />
                 <div className="flex flex-col gap-[2px]">
                   <span className="font-Poppins text-[#0C092A] font-semibold text-[14px]">
                     {item.name}

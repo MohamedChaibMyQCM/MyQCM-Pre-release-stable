@@ -1,24 +1,24 @@
-"use client";
-
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import quiz from "../../../../public/Quiz/quiz.png";
 import timer from "../../../../public/Quiz/Timer.svg";
 import solver from "../../../../public/Aside/wsolver.svg";
 import mind from "../../../../public/Quiz/mind.svg";
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import QuizResult from "./QuizResult";
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import QuizExplanation from "./QuizExplanation";
+import trueQuiz from "../../../../public/Quiz/true.svg";
 import { useFormik } from "formik";
+import Loading from "@/components/Loading";
+import QuizResult from "./QuizResult"; // Import the QuizResult component
 
-const Quiz = ({ data, Progres }) => {
+const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [skip, setSkip] = useState(false);
   const [seeExplanation, setSeeExplanation] = useState(false);
-  const [response, setResponse] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedQuiz, setSelectedQuiz] = useState(0);
 
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
@@ -35,22 +35,67 @@ const Quiz = ({ data, Progres }) => {
     });
   };
 
+  const getBackgroundColor = (ratio) => {
+    if (ratio >= 0 && ratio < 30) return "bg-red-600";
+    if (ratio >= 30 && ratio < 70) return "bg-[#ECD14E]";
+    return "bg-[#53DF83]";
+  };
+  const bgColor = answer ? getBackgroundColor(answer.success_ratio) : "";
+
+  const {
+    data: options,
+    isLoading,
+    error,
+  } = useQuery({
+    queryFn: async () => {
+      const response = await BaseUrl.get(`/mcq/${data[selectedQuiz].id}`);
+      return response.data.data.options;
+    },
+  });
+
   const formik = useFormik({
     initialValues: {
-      mcq: data.id,
+      mcq: data[selectedQuiz]?.id,
       response_options: selectedOptions,
-      response: response,
-      time_spent: data.estimated_time,
+      response: "",
+      time_spent: data[selectedQuiz]?.estimated_time,
     },
     onSubmit: (values) => {
-      console.log(values);
+      let quizData = data[selectedQuiz];
+      if (!quizData) {
+        console.error("Selected quiz data is undefined");
+        return;
+      }
+
+      let submissionData = {};
+      if (quizData.type == "qcm" || quizData.type == "qcs") {
+        submissionData = {
+          mcq: values.mcq,
+          response_options: values.response_options,
+          time_spent: quizData.estimated_time,
+        };
+      } else {
+        submissionData = {
+          mcq: values.mcq,
+          response: values.response,
+          time_spent: quizData.estimated_time,
+        };
+      }
+      console.log(submissionData);
+      Progress(submissionData);
     },
   });
 
   useEffect(() => {
-    formik.setFieldValue("mcq", data.id);
     formik.setFieldValue("response_options", selectedOptions);
   }, [selectedOptions]);
+
+  if (isLoading) return <Loading />;
+  if (error) return <></>;
+
+  if (selectedQuiz >= data.length) {
+    return <QuizResult data={data1} setResult={setResult} />;
+  }
 
   return (
     <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6">
@@ -59,27 +104,27 @@ const Quiz = ({ data, Progres }) => {
           <div className="bg-[#FF6EAF] flex items-center gap-3 rounded-[12px] px-[16px] py-[8px]">
             <Image src={solver} alt="solver" />
             <span className="text-[13px] text-[#FFFFFF] font-Poppins font-medium">
-              Type: {data.type}
+              Type: {data[selectedQuiz].type}
             </span>
           </div>
           <span className="block relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] after:w-[40px] after:h-[8px] after:rounded-[20px] after:bg-[#FF6EAF] after:absolute after:left-0"></span>
           <span
             className={`px-[18px] py-[10px] rounded-[10px] text-[#FFFFFF] font-Poppins text-[14px] font-medium ${
-              data.difficulty == "easy"
+              data[selectedQuiz].difficulty == "easy"
                 ? "bg-[#39FF64]"
-                : data.difficulty == "medium"
+                : data[selectedQuiz].difficulty == "medium"
                 ? "bg-[#ECD14E]"
                 : "bg-red-600"
             }`}
           >
-            {data.difficulty}
+            {data[selectedQuiz].difficulty}
           </span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[14px] text-[#858494] font-Poppins font-light ">
             Time Remaining{" "}
             <span className="text-[#FF6EAF] font-semibold">
-              ({data.estimated_time}s)
+              ({data[selectedQuiz].estimated_time}s)
             </span>
           </span>
           <Image src={timer} alt="timer" className="w-[24px]" />
@@ -89,10 +134,10 @@ const Quiz = ({ data, Progres }) => {
       <div className="flex gap-8 justify-between">
         <div>
           <span className="block font-Poppins text-[#858494] text-[13px] font-medium mb-2">
-            {/* QUESTION {activeQuiz + 1} OF {QuizData.Quiz.length} */}
+            QUESTION {selectedQuiz + 1} OF {data.length}
           </span>
           <p className="font-Poppins text-[#0C092A] font-semibold">
-            {data.question}
+            {data[selectedQuiz].question}
           </p>
         </div>
         <Image src={quiz} alt="quiz image" className="w-[360px]" />
@@ -100,37 +145,54 @@ const Quiz = ({ data, Progres }) => {
 
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
         <ul className="flex flex-col gap-4">
-          {(data.type == "qcm" || data.type == "qcs") &&
-            data.options.map((item, index) => {
-              // Check if the current item is selected
+          {data[selectedQuiz].type === "qcm" ||
+          data[selectedQuiz].type === "qcs" ? (
+            options.map((item, index) => {
               const isSelected = selectedOptions.some(
                 (selectedOption) => selectedOption.option === item.id
               );
-
               return (
                 <li
                   key={index}
-                  className={`text-[14px] font-Poppins font-semibold text-[#0C092A] border border-[#EFEEFC] rounded-[16px] px-[20px] py-[8px] cursor-pointer ${
+                  className={`text-[14px] flex items-center gap-2 font-Poppins font-semibold text-[#0C092A] border border-[#EFEEFC] rounded-[16px] px-[20px] py-[8px] cursor-pointer ${
                     isSelected ? "bg-[#FFF5FA] text-[#0C092A]" : ""
                   }`}
                   onClick={() => handleOptionClick(item)}
                 >
+                  {isSelected && (
+                    <Image
+                      src={trueQuiz}
+                      alt="trueQuiz"
+                      className="bg-[#FF6EAF] w-[14px] h-[14px] rounded-full flex items-center justify-center"
+                    />
+                  )}
                   {item.content}
                 </li>
               );
-            })}
-          {data.type !== "qcm" && data.type !== "qcs" && (
+            })
+          ) : (
             <Input
-              className="border-[1.6px] border-[#EFEEFC] text-[#49465F] font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px]"
+              name="response"
+              className={`border-[1.6px] font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] ${
+                bgColor
+                  ? `${bgColor} text-[#FFFFFF] border-[${bgColor}]`
+                  : "text-[#49465F] border-[#EFEEFC]"
+              }`}
               placeholder="Write Your Answer"
-              value={response}
-              onChange={(e) => setResponse(e.target.value)}
+              value={formik.values.response}
+              onChange={formik.handleChange}
             />
           )}
         </ul>
+
         <div className="self-end flex items-center gap-4">
           <button
-            onClick={() => setSkip(true)}
+            type="button"
+            onClick={() => {
+              if (selectedQuiz < data.length - 1) {
+                setSelectedQuiz(selectedQuiz + 1);
+              }
+            }}
             className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
           >
             Skip Question
@@ -145,10 +207,14 @@ const Quiz = ({ data, Progres }) => {
             </button>
           ) : (
             <button
-              onClick={() => setSeeExplanation(true)}
+              onClick={() => {
+                setSeeExplanation(true);
+                setCheckAnswer(true);
+              }}
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >
-              {data.type == "qcm" || data.type == "qcs"
+              {data[selectedQuiz].type == "qcm" ||
+              data[selectedQuiz].type == "qcs"
                 ? "See Explanation"
                 : "See Analyse"}
             </button>
@@ -162,12 +228,15 @@ const Quiz = ({ data, Progres }) => {
       />
       {seeExplanation && (
         <QuizExplanation
-          QuizData={data}
+          selectedQuiz={selectedQuiz}
+          setSelectedQuiz={setSelectedQuiz}
+          QuizData={answer || []}
           setSeeExplanation={setSeeExplanation}
-          type={data.type}
+          type={data[selectedQuiz].type}
+          length={data.length}
+          setCheckAnswer={setCheckAnswer}
         />
       )}
-      {skip && <QuizResult setSkip={setSkip} />}
     </div>
   );
 };

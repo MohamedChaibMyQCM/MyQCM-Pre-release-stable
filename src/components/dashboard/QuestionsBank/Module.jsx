@@ -4,18 +4,8 @@ import Avatar from "../../../../public/Icons/Avatar.svg";
 import qcm from "../../../../public/Icons/QCM.svg";
 import qroc from "../../../../public/Icons/Qroc.svg";
 import clinical from "../../../../public/Icons/casClinical.svg";
-import { useQuery } from "react-query";
-import BaseUrl from "@/components/BaseUrl";
 
-const Module = ({ subjectId }) => {
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["subjects"],
-  //   queryFn: async () => {
-  //     const response = await BaseUrl.get("/subject/{subjectId}");
-  //     return response.data.data;
-  //   },
-  // });
-
+const Module = ({ data }) => {
   return (
     <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
       <Image src={stock} alt="stock" className="w-full" />
@@ -23,20 +13,20 @@ const Module = ({ subjectId }) => {
         Module
       </span>
       <span className="font-Poppins text-[20px] text-[#0C092A] font-semibold">
-        Semiology
+        {data.name}
       </span>
       <div className="w-full bg-[#FFF5FA] flex items-center justify-between px-[22px] py-[14px] rounded-[16px]">
         <div className="flex items-center gap-3">
           <Image src={qcm} alt="QCM + QCS" />
           <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
-            350 QCM + QCS
+            {data.qcm_count + data.qcs_count} QCM + QCS
           </span>
         </div>
         <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full"></span>
         <div className="flex items-center gap-3">
           <Image src={qroc} alt="QCM + QCS" />
           <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
-            70 QROC
+            {data.qroc_count} QROC
           </span>
         </div>
         <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full"></span>
@@ -52,10 +42,7 @@ const Module = ({ subjectId }) => {
           DESCRIPTION
         </span>
         <p className="font-Poppins text-[13px] text-[#49465F]">
-          Get ready for the semiology quiz season! This playlist features
-          questions from faculty resources—old exams, TDs, and books—plus
-          high-quality MyQCM AI-generated questions with detailed explanations
-          and references.
+          {data.description}
         </p>
       </div>
       <div className="flex items-center gap-3 pb-[22px] border-b-[2px]">

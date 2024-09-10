@@ -13,7 +13,7 @@ const Page = () => {
     queryKey: ["courses"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/course/subject/${subjectId}`);
-      return response.data.data.courses
+      return response.data.data.courses;
     },
   });
 
@@ -28,7 +28,11 @@ const Page = () => {
         <span className="text-[12px]">/</span>
         semilogy <span className="text-[12px]">/</span> Q/C per course
       </span>
-      <Questions subjectId={subjectId} data={data} isLoading={isLoading} error={error} />
+      <Questions
+        data={data}
+        isLoading={isLoading}
+        error={error}
+      />
     </div>
   );
 };

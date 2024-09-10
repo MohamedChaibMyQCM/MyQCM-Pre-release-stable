@@ -9,10 +9,10 @@ const layout = ({ children }) => {
     <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px]">
       {children}
       <div className="flex flex-col gap-4 self-end ml-[50px]">
-        <h1 className="font-Poppins text-[#FFFFFF] text-[30px] font-semibold w-[320px]">
+        <h1 className="font-Poppins text-[#FFFFFF] text-[30px] font-semibold w-[320px] leading-[36px]">
           Let&apos;s Customize Your Learning Experience
         </h1>
-        <p className="font-Poppins w-[300px] mb-[20px] text-[#FFFFFFD6] font-light text-[14px]">
+        <p className="font-Poppins w-[300px] mb-[14px] text-[#FFFFFFD6] font-light text-[14px]">
           Answer a few quick questions to help us tailor your medical education
           journey. Your personalized path to success starts here!
         </p>

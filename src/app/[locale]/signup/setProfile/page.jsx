@@ -24,10 +24,12 @@ import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
 import handleError from "@/components/handleError";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
   const router = useRouter()
+  const locale = useLocale()
 
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),

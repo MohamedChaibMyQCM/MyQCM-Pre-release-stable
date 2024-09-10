@@ -12,12 +12,9 @@ const Progress = ({ unit }) => {
     queryKey: ["subjects"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/subject?unitId=${unit}`);
-      console.log(response.request);
       return response.data.data;
     },
   });
-
-  console.log(unit);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
 import settings from "../../../../public/Quiz/settings.svg";
@@ -9,47 +11,47 @@ import RandomQuiz from "./TrainingInputs/RandomQuiz";
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "react-query";
-import handleError from "@/components/handleError";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import handleError from "@/components/handleError";
+import { quizStore } from "@/store/quiz";
+import { useStore } from "zustand";
 
 const TrainingSeason = ({ setPopup, courseId }) => {
   const { category: subjectId } = useParams();
+  const { quiz, updateQuiz } = useStore(quizStore);
   const router = useRouter();
   const locale = useLocale();
 
-  const { mutateAsync: TrainingSession } = useMutation({
-    mutationFn: (data) => BaseUrl.post(`/training-settings`, data),
-    onSuccess: () => {
-      console.log("good training");
+  const { mutate: TrainingSettings } = useMutation({
+    mutationFn: (data) => BaseUrl.post(`/course/next-mcqs/${courseId}`, data),
+    onSuccess: ({ data }) => {
+      updateQuiz(data.data);
       router.push(
-        `/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/Quiz?courseId=${courseId}`
+        `/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/${courseId}`
       );
     },
     onError: (error) => {
       handleError(error);
-      router.push(
-        `/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/Quiz?courseId=${courseId}`
-      );
     },
   });
 
   const formik = useFormik({
     initialValues: {
-      qcm: false,
-      qcs: false,
-      time_limit: "",
-      number_of_questions: "",
-      randomize_questions: false,
+      qcm: quiz.qcm || false,
+      qcs: quiz.qcs || false,
+      qroc: quiz.qroc || false,
+      time_limit: quiz.time_limit || "",
+      number_of_questions: quiz.number_of_questions || "",
+      randomize_questions: quiz.randomize_questions || false,
     },
     onSubmit: (values) => {
-      const formattedValues = {
+      const data = {
         ...values,
         time_limit: Number(values.time_limit),
         number_of_questions: Number(values.number_of_questions),
       };
-
-      TrainingSession(formattedValues);
+      TrainingSettings(data);
     },
   });
 
@@ -67,7 +69,7 @@ const TrainingSeason = ({ setPopup, courseId }) => {
           </span>
           <Image
             src={exit}
-            alt="settings"
+            alt="exit"
             onClick={() => setPopup(false)}
             className="cursor-pointer"
           />
@@ -83,8 +85,8 @@ const TrainingSeason = ({ setPopup, courseId }) => {
               setFieldValue={formik.setFieldValue}
             />
             <ShortAnswer
-              name="qcs"
-              value={formik.values.qcs}
+              name="qroc"
+              value={formik.values.qroc}
               setFieldValue={formik.setFieldValue}
             />
           </div>
@@ -119,10 +121,17 @@ const TrainingSeason = ({ setPopup, courseId }) => {
             />
           </div>
           <div className="flex items-center justify-between">
-            <button className="basis-[48%] font-Poppins font-medium text-[14px] bg-[#FFF5FA] text-[#FF6EAF] px-[20px] py-[10px] rounded-[16px]">
+            <button
+              type="button"
+              className="basis-[48%] font-Poppins font-medium text-[14px] bg-[#FFF5FA] text-[#FF6EAF] px-[20px] py-[10px] rounded-[16px]"
+              onClick={() => console.log("Schedule Season clicked")}
+            >
               Schedule Season
             </button>
-            <button className="basis-[48%] font-Poppins font-mediumtext-[14px] bg-[#FF6EAF] text-[#FFF5FA] p-[20px] py-[10px] rounded-[16px]">
+            <button
+              type="submit"
+              className="basis-[48%] font-Poppins font-medium text-[14px] bg-[#FF6EAF] text-[#FFF5FA] p-[20px] py-[10px] rounded-[16px]"
+            >
               Start Season
             </button>
           </div>

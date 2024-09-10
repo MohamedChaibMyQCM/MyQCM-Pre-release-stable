@@ -10,7 +10,7 @@ import options from "../../../../public/Icons/greyOption.svg";
 import SelectUnite from "./SelectUnite";
 import Loading from "@/components/Loading";
 
-const Questions = ({ subjectId, data, isLoading, error }) => {
+const Questions = ({ data, isLoading, error }) => {
   const [popup, setPopup] = useState(false);
   const [selectUnite, setSelectUnite] = useState(false);
   const [courseId, setCourseId] = useState("");
@@ -60,13 +60,14 @@ const Questions = ({ subjectId, data, isLoading, error }) => {
                 Your accuracy in the lesson
               </span>
               <div className="flex items-center gap-2 mr-5">
-                <span
-                  className={`relative block w-[200px] h-[16px] bg-[#E8E8E8] rounded-[16px] after:h-[16px] after:w-[${
-                    item.average_accuracy * 100
-                  }px] after:absolute after:left-0 after:rounded-[16px] after:bg-gradient-to-r after:from-[#FFC1DD] after:via-[#F8589F] after:to-[#EF0870]`}
-                ></span>
+                <span className="relative block w-[200px] h-[16px] bg-[#E8E8E8] rounded-[16px]">
+                  <span
+                    className="absolute left-0 h-[16px] rounded-[16px] bg-gradient-to-r from-[#FFC1DD] via-[#F8589F] to-[#EF0870]"
+                    style={{ width: `${item.average_accuracy * 100}%` }}
+                  ></span>
+                </span>
                 <span className="text-[#808191] font-Inter font-medium text-[13px]">
-                  {item.average_accuracy * 100}%
+                  {(item.average_accuracy * 100).toFixed(1)}%
                 </span>
               </div>
               <button>

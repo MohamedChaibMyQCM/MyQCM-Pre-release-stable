@@ -7,6 +7,7 @@ const NumberOfQuestion = ({ name, value, setFieldValue }) => {
       <Image src={checkbox} alt="checkbox" />
       <input
         type="number"
+        required
         className="w-[100%] outline-none text-[14px] font-Poppins font-medium"
         placeholder="Enter a number"
         value={value}

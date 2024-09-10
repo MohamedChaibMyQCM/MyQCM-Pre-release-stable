@@ -19,33 +19,31 @@ const Aside = () => {
       <Image src={logo} alt="logo" className="w-[180px] mx-auto" />
       <ul className="flex flex-col mb-[40px] gap-1">
         {aside_links.map((item, index) => {
+          // Exact match for home route, and startsWith for sub-paths
+          const isHome = item.href === ""; // assuming "" is used for the home route
+          const isActive =
+            (isHome && afterDashboard === "") ||
+            (!isHome && afterDashboard.startsWith(item.href));
+
           return (
             <li
               key={index}
               className={`rounded-r-[12px] py-[14px] pl-[16px] w-[88%] ${
-                afterDashboard == item.href ? "bg-[#F8589F]" : ""
+                isActive ? "bg-[#F8589F]" : ""
               }`}
             >
               <Link
                 href={`/${locale}/dashboard/${item.href}`}
                 className="text-[#808191] flex items-center gap-4"
               >
-                {afterDashboard === item.href ? (
-                  <Image
-                    src={item.hoverIcon}
-                    alt="icon"
-                    className="w-[20px] font-[500]"
-                  />
-                ) : (
-                  <Image
-                    src={item.icon}
-                    alt="icon"
-                    className="w-[20px] font-[500]"
-                  />
-                )}
+                <Image
+                  src={isActive ? item.hoverIcon : item.icon}
+                  alt="icon"
+                  className="w-[20px] font-[500]"
+                />
                 <span
                   className={`font-Poppins text-[14.6px] font-[500] ${
-                    afterDashboard == item.href ? "text-[#FFFFFF]" : ""
+                    isActive ? "text-[#FFFFFF]" : ""
                   }`}
                 >
                   {item.name}

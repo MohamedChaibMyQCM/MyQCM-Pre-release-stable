@@ -53,6 +53,8 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
     },
   });
 
+  console.log(options);
+
   const formik = useFormik({
     initialValues: {
       mcq: data[selectedQuiz]?.id,
@@ -88,7 +90,8 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
 
   useEffect(() => {
     formik.setFieldValue("response_options", selectedOptions);
-  }, [selectedOptions]);
+    formik.setFieldValue("mcq", data[selectedQuiz]?.id);
+  }, [selectedOptions, data[selectedQuiz]?.id]);
 
   if (isLoading) return <Loading />;
   if (error) return <></>;
@@ -210,6 +213,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
               onClick={() => {
                 setSeeExplanation(true);
                 setCheckAnswer(true);
+                setSelectedOptions([]);
               }}
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >

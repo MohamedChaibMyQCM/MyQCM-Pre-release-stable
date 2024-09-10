@@ -12,7 +12,7 @@ const layout = ({ children }) => {
         <h1 className="font-Poppins text-[#FFFFFF] text-[30px] font-semibold w-[320px] leading-[36px]">
           Let&apos;s Customize Your Learning Experience
         </h1>
-        <p className="font-Poppins w-[300px] mb-[14px] text-[#FFFFFFD6] font-light text-[14px]">
+        <p className="font-Poppins w-[300px] mb-[36px] text-[#FFFFFFD6] font-light text-[14px]">
           Answer a few quick questions to help us tailor your medical education
           journey. Your personalized path to success starts here!
         </p>

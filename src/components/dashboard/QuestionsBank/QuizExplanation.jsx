@@ -13,16 +13,21 @@ const QuizExplanation = ({
   length,
   setSelectedQuiz,
   setCheckAnswer,
+  setSelectedOptions,
+  formik,
 }) => {
   const handleNext = () => {
     setSeeExplanation(false);
     setCheckAnswer(true);
     setSelectedQuiz((prevQuiz) => prevQuiz + 1);
+    setSelectedOptions([]);
+    formik.resetForm();
   };
 
   const getBackgroundColor = (ratio) => {
-    if (ratio >= 0 && ratio < 30) return "bg-red-600";
-    if (ratio >= 30 && ratio < 70) return "bg-[#ECD14E]";
+    const res = ratio * 100
+    if (res >= 0 && res < 30) return "bg-red-600";
+    if (res >= 30 && res < 70) return "bg-[#ECD14E]";
     return "bg-[#53DF83]";
   };
   const bgColor = getBackgroundColor(QuizData.success_ratio);
@@ -97,11 +102,11 @@ const QuizExplanation = ({
                 <span
                   className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
                 >
-                  {QuizData.success_ratio}%
+                  {QuizData.success_ratio * 100}%
                 </span>
               </div>
               <span className="font-Poppins font-medium text-[14px] text-[#FFFFFF]">
-                Pourcentage of Accuracy of Your Answer: {QuizData.success_ratio}{" "}
+                Pourcentage of Accuracy of Your Answer: {QuizData.success_ratio * 100}{" "}
                 , No Errors
               </span>
               <Image

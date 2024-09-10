@@ -11,14 +11,16 @@ import QuizExplanation from "./QuizExplanation";
 import trueQuiz from "../../../../public/Quiz/true.svg";
 import { useFormik } from "formik";
 import Loading from "@/components/Loading";
-import QuizResult from "./QuizResult"; // Import the QuizResult component
+import QuizResult from "./QuizResult";
 
 const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
-  const [skip, setSkip] = useState(false);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(
+    data[0]?.estimated_time || 0
+  );
 
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
@@ -36,8 +38,9 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   };
 
   const getBackgroundColor = (ratio) => {
-    if (ratio >= 0 && ratio < 30) return "bg-red-600";
-    if (ratio >= 30 && ratio < 70) return "bg-[#ECD14E]";
+    const res = ratio * 100;
+    if (res >= 0 && res < 30) return "bg-red-600";
+    if (res >= 30 && res < 70) return "bg-[#ECD14E]";
     return "bg-[#53DF83]";
   };
   const bgColor = answer ? getBackgroundColor(answer.success_ratio) : "";
@@ -52,8 +55,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
       return response.data.data.options;
     },
   });
-
-  console.log(options);
 
   const formik = useFormik({
     initialValues: {
@@ -74,13 +75,13 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
         submissionData = {
           mcq: values.mcq,
           response_options: values.response_options,
-          time_spent: quizData.estimated_time,
+          time_spent: quizData.estimated_time - timeRemaining,
         };
       } else {
         submissionData = {
           mcq: values.mcq,
           response: values.response,
-          time_spent: quizData.estimated_time,
+          time_spent: quizData.estimated_time - timeRemaining,
         };
       }
       console.log(submissionData);
@@ -92,6 +93,36 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
     formik.setFieldValue("response_options", selectedOptions);
     formik.setFieldValue("mcq", data[selectedQuiz]?.id);
   }, [selectedOptions, data[selectedQuiz]?.id]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeRemaining((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          handleSkipQuestion();
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [selectedQuiz]);
+
+  useEffect(() => {
+    setTimeRemaining(data[selectedQuiz]?.estimated_time || 0);
+  }, [selectedQuiz]);
+
+  const handleSkipQuestion = () => {
+    if (selectedQuiz < data.length - 1) {
+      setSelectedQuiz(selectedQuiz + 1);
+      setSelectedOptions([]);
+      formik.resetForm();
+    } else {
+      // Handle end of quiz
+      console.log("Quiz completed");
+    }
+  };
 
   if (isLoading) return <Loading />;
   if (error) return <></>;
@@ -127,13 +158,12 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
           <span className="text-[14px] text-[#858494] font-Poppins font-light ">
             Time Remaining{" "}
             <span className="text-[#FF6EAF] font-semibold">
-              ({data[selectedQuiz].estimated_time}s)
+              ({timeRemaining}s)
             </span>
           </span>
           <Image src={timer} alt="timer" className="w-[24px]" />
         </div>
       </div>
-
       <div className="flex gap-8 justify-between">
         <div>
           <span className="block font-Poppins text-[#858494] text-[13px] font-medium mb-2">
@@ -145,14 +175,13 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
         </div>
         <Image src={quiz} alt="quiz image" className="w-[360px]" />
       </div>
-
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
         <ul className="flex flex-col gap-4">
           {data[selectedQuiz].type === "qcm" ||
           data[selectedQuiz].type === "qcs" ? (
             options.map((item, index) => {
               const isSelected = selectedOptions.some(
-                (selectedOption) => selectedOption.option === item.id
+                (selectedOption) => selectedOption.option == item.id
               );
               return (
                 <li
@@ -191,11 +220,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
         <div className="self-end flex items-center gap-4">
           <button
             type="button"
-            onClick={() => {
-              if (selectedQuiz < data.length - 1) {
-                setSelectedQuiz(selectedQuiz + 1);
-              }
-            }}
+            onClick={handleSkipQuestion}
             className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
           >
             Skip Question
@@ -213,7 +238,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
               onClick={() => {
                 setSeeExplanation(true);
                 setCheckAnswer(true);
-                setSelectedOptions([]);
               }}
               className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
             >
@@ -239,6 +263,8 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
           type={data[selectedQuiz].type}
           length={data.length}
           setCheckAnswer={setCheckAnswer}
+          setSelectedOptions={setSelectedOptions}
+          formik={formik}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import quiz from "../../../../public/Quiz/quiz.png";
 import timer from "../../../../public/Quiz/Timer.svg";
@@ -6,8 +6,8 @@ import solver from "../../../../public/Aside/wsolver.svg";
 import mind from "../../../../public/Quiz/mind.svg";
 import { Input } from "@/components/ui/input";
 import QuizExplanation from "./QuizExplanation";
-import trueQuiz from "../../../../public/Quiz/true.svg";
 import { useFormik } from "formik";
+import { IoIosCheckmarkCircle } from "react-icons/io";
 import QuizResult from "./QuizResult";
 
 const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
@@ -19,6 +19,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
     data[0]?.estimated_time || 0
   );
   const [submittedAnswer, setSubmittedAnswer] = useState(null);
+  const timerRef = useRef(null);
 
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
@@ -36,10 +37,14 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
   };
 
   const getBackgroundColor = (ratio) => {
-    const res = ratio * 100;
-    if (res >= 0 && res < 30) return "bg-red-600";
-    if (res >= 30 && res < 70) return "bg-[#ECD14E]";
-    return "bg-[#53DF83]";
+    if (submittedAnswer != null) {
+      const res = ratio * 100;
+      if (res >= 0 && res < 30) return "bg-red-600";
+      if (res >= 30 && res < 70) return "bg-[#ECD14E]";
+      return "bg-[#53DF83]";
+    } else {
+      return "bg-[#FFFFFF]";
+    }
   };
   const bgColor = answer ? getBackgroundColor(answer.success_ratio) : "";
 
@@ -51,6 +56,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
       time_spent: data[selectedQuiz]?.estimated_time,
     },
     onSubmit: async (values) => {
+      clearInterval(timerRef.current);
       let quizData = data[selectedQuiz];
       if (!quizData) {
         console.error("Selected quiz data is undefined");
@@ -84,10 +90,10 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
   }, [selectedOptions, data[selectedQuiz]?.id]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setTimeRemaining((prevTime) => {
         if (prevTime <= 1) {
-          clearInterval(timer);
+          clearInterval(timerRef.current);
           handleSkipQuestion();
           return 0;
         }
@@ -95,7 +101,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timerRef.current);
   }, [selectedQuiz]);
 
   useEffect(() => {
@@ -189,13 +195,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
                   } ${optionBgColor}`}
                   onClick={() => handleOptionClick(item)}
                 >
-                  {isSelected && (
-                    <Image
-                      src={trueQuiz}
-                      alt="trueQuiz"
-                      className="bg-[#FF6EAF] w-[12px] h-[12px] rounded-full flex items-center justify-center"
-                    />
-                  )}
+                  {isSelected && <IoIosCheckmarkCircle className="w-[20px]" />}
                   <span className="text-[14px]">{item.content}</span>
                 </li>
               );
@@ -203,10 +203,10 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
           ) : (
             <Input
               name="response"
-              className={`border-[1.6px] font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] ${
+              className={`font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] ${
                 bgColor
-                  ? `${bgColor} text-[#FFFFFF] border-[${bgColor}]`
-                  : "text-[#49465F] border-[#EFEEFC]"
+                  ? `${bgColor} text-[#FFFFFF]`
+                  : "text-[#49465F] border-[1.6px] border-[#EFEEFC]"
               }`}
               placeholder="Write Your Answer"
               value={formik.values.response}

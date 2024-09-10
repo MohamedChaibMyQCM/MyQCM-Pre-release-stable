@@ -45,17 +45,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   };
   const bgColor = answer ? getBackgroundColor(answer.success_ratio) : "";
 
-  const {
-    data: options,
-    isLoading,
-    error,
-  } = useQuery({
-    queryFn: async () => {
-      const response = await BaseUrl.get(`/mcq/${data[selectedQuiz].id}`);
-      return response.data.data.options;
-    },
-  });
-
   const formik = useFormik({
     initialValues: {
       mcq: data[selectedQuiz]?.id,
@@ -114,18 +103,13 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
   }, [selectedQuiz]);
 
   const handleSkipQuestion = () => {
-    if (selectedQuiz < data.length - 1) {
-      setSelectedQuiz(selectedQuiz + 1);
-      setSelectedOptions([]);
-      formik.resetForm();
-    } else {
-      // Handle end of quiz
-      console.log("Quiz completed");
-    }
+    setSelectedQuiz(selectedQuiz + 1);
+    setSelectedOptions([]);
+    formik.resetForm();
   };
 
-  if (isLoading) return <Loading />;
-  if (error) return <></>;
+  // if (isLoading) return <Loading />;
+  // if (error) return <></>;
 
   if (selectedQuiz >= data.length) {
     return <QuizResult data={data1} setResult={setResult} />;
@@ -179,7 +163,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult }) => {
         <ul className="flex flex-col gap-4">
           {data[selectedQuiz].type === "qcm" ||
           data[selectedQuiz].type === "qcs" ? (
-            options.map((item, index) => {
+            data[selectedQuiz].options.map((item, index) => {
               const isSelected = selectedOptions.some(
                 (selectedOption) => selectedOption.option == item.id
               );

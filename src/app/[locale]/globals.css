@@ -99,7 +99,7 @@
 
 .feature_anim {
   width: 0px;
-  animation: expand-width 5s forwards;
+  animation: expand-width 3s forwards;
 }
 
 @keyframes expand-width {

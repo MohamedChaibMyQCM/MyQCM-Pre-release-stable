@@ -30,7 +30,7 @@ const Cards = ({ setUnit }) => {
       <div>
         {data.map((item) => (
           <div
-            className="flex items-center bg-[#FD2E8A] rounded-[16px] px-[10px] py-[20px] mb-[60px]"
+            className="relative flex items-center bg-[#FD2E8A] rounded-[16px] px-[10px] py-[20px] mb-[60px] after:bg-[#FD2E8A8C] after:w-[96%] after:left-[50%] after:translate-x-[-50%] after:h-[100%] after:rounded-[16px] after:absolute after:bottom-[-10px] after:left-0 after:z-[-1] before:bg-[#FD2E8A5E] before:w-[92%] before:left-[50%] before:translate-x-[-50%] before:h-[100%] before:rounded-[16px] before:absolute before:bottom-[-20px] before:left-0 before:z-[-20]"
             key={item.id}
           >
             <Image src={heart} alt="image of the card" className="w-[300px]" />

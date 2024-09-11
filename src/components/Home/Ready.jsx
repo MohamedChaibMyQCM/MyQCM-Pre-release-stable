@@ -1,11 +1,11 @@
 import { logos } from "@/data/data";
 import Image from "next/image";
 import Link from "next/link";
-import patern from '../../../public/Patern.svg'
+import patern from "../../../public/Patern.svg";
 import { useLocale } from "next-intl";
 
 const Ready = () => {
-  const locale = useLocale()
+  const locale = useLocale();
 
   return (
     <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4">

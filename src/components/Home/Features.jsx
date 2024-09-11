@@ -1,14 +1,23 @@
+"use client";
+
 import Image from "next/image";
 import doctor from "../../../public/doctor.svg";
-import vector from '../../../public/vector.svg'
+import vector from "../../../public/vector.svg";
 import vector1 from "../../../public/Icons/vector1.svg";
 import vector2 from "../../../public/Icons/vector2.svg";
 import vector3 from "../../../public/Icons/vector3.svg";
 import vector4 from "../../../public/Icons/vector4.svg";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 const Features = () => {
+  useEffect(() => {
+    AOS.init({});
+  }, []);
+
   return (
-    <section className="py-[30px] px-[60px]">
+    <section className="py-[30px] px-[60px] overflow-hidden">
       <h4 className="uppercase text-center font-TTInterphases text-[#433E3E] font-bold text-[14px]">
         Features
       </h4>
@@ -25,7 +34,10 @@ const Features = () => {
       </h2>
       <div className="flex items-center justify-between">
         <div className="flex flex-col justify-between h-[300px] basis-[30%]">
-          <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-end">
+          <div
+            className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-end"
+            data-aos="fade-right"
+          >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Adaptive Learning Paths
             </h3>
@@ -38,7 +50,10 @@ const Features = () => {
               className="absolute w-[50px] top-[-24px] right-[-24px]"
             />
           </div>
-          <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-start">
+          <div
+            className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-start"
+            data-aos="fade-right"
+          >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Interactive Quizzes
             </h3>
@@ -59,7 +74,10 @@ const Features = () => {
             className="w-[400px] mt-[40px] mr-[30px]"
           />
         </div>
-        <div className="flex flex-col justify-between basis-[30%] h-[300px]">
+        <div
+          className="flex flex-col justify-between basis-[30%] h-[300px]"
+          data-aos="fade-left"
+        >
           <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px]">
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Video Library
@@ -73,7 +91,10 @@ const Features = () => {
               className="absolute w-[50px] top-[-24px] left-[-24px]"
             />
           </div>
-          <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-end">
+          <div
+            className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-end"
+            data-aos="fade-left"
+          >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Detailed Analytics
             </h3>

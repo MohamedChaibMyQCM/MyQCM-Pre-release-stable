@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import doctors from "../../../public/Doctors.svg";
 import { IoIosArrowDropright } from "react-icons/io";
@@ -8,10 +9,16 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import IntroVideo from "./IntroVideo";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 const HeroSection = () => {
-  const [video, setVideo] = useState(false)
+  useEffect(() => {
+    AOS.init({});
+  }, []);
 
+  const [video, setVideo] = useState(false)
   const t = useTranslations("home_page.hero");
   const locale = useLocale();
   const typewriterOptions = {
@@ -22,13 +29,16 @@ const HeroSection = () => {
 
   return (
     <section
-      className={`h-[88vh] bg-[#F8F8F8] flex items-center justify-between ${
+      className={`h-[88vh] overflow-hidden bg-[#F8F8F8] flex items-center justify-between ${
         locale == "ar"
           ? "pr-[100px] pl-[60px] font-Madani"
           : "pl-[100px] font-TTInterphases"
       }`}
     >
-      <div className={`flex flex-col ${locale == "ar" ? "gap-6" : "gap-4"}`}>
+      <div
+        data-aos="fade-right"
+        className={`flex flex-col ${locale == "ar" ? "gap-6" : "gap-4"}`}
+      >
         <h1
           className={`text-[70px]  leading-[80px] ${
             locale == "ar"
@@ -130,7 +140,8 @@ const HeroSection = () => {
       <Image
         src={doctors}
         alt="doctors"
-        className="w-[580px] relative bottom-[-0.5px] self-end"
+        data-aos="fade-left"
+        className="w-[580px] relative bottom-[-0.5px] self-end fade-left"
       />
     </section>
   );

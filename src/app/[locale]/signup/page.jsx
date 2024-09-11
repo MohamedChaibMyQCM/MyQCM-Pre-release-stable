@@ -15,6 +15,7 @@ import BaseUrl from "@/components/BaseUrl";
 import handleError from "@/components/handleError";
 import secureLocalStorage from "react-secure-storage";
 import doctors from "../../../../public/ShapeDocters.svg";
+import GoogleAuthButton from "../comp/google-auth.button";
 
 const Page = () => {
   const [user_name, setUserName] = useState("");
@@ -51,6 +52,7 @@ const Page = () => {
   };
 
   return (
+
     <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px]">
       <div className="flex flex-col gap-4 self-end">
         <h1 className="font-Poppins text-[#FFFFFF] text-[30px] font-semibold w-[300px] leading-[36px]">
@@ -79,19 +81,7 @@ const Page = () => {
           </Link>
         </div>
         <div className="w-[567.09px] flex items-center justify-center bg-transparent">
-          <LoginSocialGoogle
-            className="w-[100%] flex items-center justify-center font-Inter font-semibold text-[15px] social"
-            client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
-            onResolve={({ provider, data }) => {
-              console.log(provider, data);
-            }}
-            onReject={(err) => {
-              console.log(err);
-            }}
-          >
-            <GoogleLoginButton />
-            <span>Continue With Google</span>
-          </LoginSocialGoogle>
+        <GoogleAuthButton locale={locale}/>
         </div>
         <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
           OR

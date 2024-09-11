@@ -14,6 +14,7 @@ import { LoginSocialGoogle } from "reactjs-social-login";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
 import handleError from "@/components/handleError";
+import GoogleAuthButton from "../comp/google-auth.button";
 
 const Page = () => {
   const [Email, setEmail] = useState("");
@@ -37,7 +38,6 @@ const Page = () => {
     let data = { email: Email, password };
     login(data);
   };
-
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
       <Image src={logo} alt="logo" />
@@ -56,19 +56,7 @@ const Page = () => {
         </Link>
       </div>
       <div className="w-[567.09px] flex items-center justify-center bg-transparent">
-        <LoginSocialGoogle
-          className="w-[100%] flex items-center justify-center font-Inter font-semibold text-[15px] social"
-          client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
-          onResolve={({ provider, data }) => {
-            console.log(provider, data);
-          }}
-          onReject={(err) => {
-            console.log(err);
-          }}
-        >
-          <GoogleLoginButton />
-          <span>Continue With Google</span>
-        </LoginSocialGoogle>
+      <GoogleAuthButton locale={locale}/>
       </div>
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
         OR

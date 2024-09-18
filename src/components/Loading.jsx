@@ -1,11 +1,10 @@
-"use client";
-
-import { BounceLoader } from "react-spinners";
+import Image from "next/image";
+import logo from "../../public/logoMyqcm.svg";
 
 const Loading = () => {
   return (
-    <div className="absolute h-[100%] w-[100%] top-0 left-0 bg-[#FFFFFF] flex items-center justify-center z-[100]">
-      <BounceLoader color="#FF6EAF" />
+    <div className="absolute h-[100%] w-[100%] top-0 left-0 bg-[#FFFFFF] flex items-center justify-center z-[100] animate-pulse">
+      <Image src={logo} alt="logo" />
     </div>
   );
 };

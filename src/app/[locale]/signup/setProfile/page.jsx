@@ -83,7 +83,11 @@ const Page = () => {
       <h2 className="font-Inter bg-[#F8589F] text-[15px] font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px]">
         Setting Up Your Profile
       </h2>
-      <div className="h-[16px] w-[420px] bg-[#f7f3f4] rounded-[16px]"></div>
+      <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] my-[16px]">
+        <div className="bg-[#F8589F] w-[250px] h-[100%] rounded-[16px] flex items-center justify-center font-Poppins font-medium text-[#FFF] text-[11px] absolute left-0 top-0 ">
+          50% completed
+        </div>
+      </div>
       <form className="w-[100%] px-[40px]" onSubmit={formik.handleSubmit}>
         {currentStep == "SetProfileOne" && (
           <div className="w-[100%] flex flex-col justify-center items-center">

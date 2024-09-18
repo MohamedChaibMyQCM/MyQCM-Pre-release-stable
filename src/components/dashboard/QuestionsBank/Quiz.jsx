@@ -121,15 +121,13 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
 
   const getOptionBackgroundColor = (optionId) => {
     if (!submittedAnswer) return "";
-    console.log(submittedAnswer.data.data);
-    console.log(submittedAnswer.data.data.selected_options);
     const selectedOption = submittedAnswer.data.data.selected_options.find(
       (option) => option.id == optionId
     );
     if (selectedOption) {
       return selectedOption.is_correct
-        ? "bg-[#37FFB6] text-[#FFF]"
-        : "bg-[#FF3737] text-[#FFF]";
+        ? "!bg-[#37FFB6] !text-[#FFF]"
+        : "!bg-[#FF3737] !text-[#FFF]";
     }
     return "";
   };
@@ -187,6 +185,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
                 (selectedOption) => selectedOption.option == item.id
               );
               const optionBgColor = getOptionBackgroundColor(item.id);
+              console.log(optionBgColor);
               return (
                 <li
                   key={index}

@@ -12,7 +12,6 @@ import handleError from "@/components/handleError";
 import { useStore } from "zustand";
 import { quizStore } from "@/store/quiz";
 import QuizResult from "@/components/dashboard/QuestionsBank/QuizResult";
-import axios from "axios";
 
 const Page = () => {
   const [answer, setAnswer] = useState();

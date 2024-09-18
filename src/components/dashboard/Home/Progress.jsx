@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import module from "../../../../public/Icons/module (4).svg";
 import Image from "next/image";
@@ -19,6 +19,8 @@ const Progress = ({ unit }) => {
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
+  const subjects = Array.isArray(data) ? data : [];
+
   return (
     <div className="mb-[40px]">
       <div className="flex items-center justify-between mb-[24px]">
@@ -28,41 +30,39 @@ const Progress = ({ unit }) => {
         <span className="font-Inter text-[12px] text-[#93959F]">See All</span>
       </div>
       <ul className="flex flex-col gap-3">
-        {data.slice(0, 4).map((item) => {
-          return (
-            <li
-              key={item.id}
-              className="flex gap-4 items-center justify-between bg-[#FFFFFF] py-[12px] px-[20px] rounded-[10px]"
-            >
-              <div className="flex items-center gap-4">
-                <div className={`p-[8px] rounded-[10px] bg-yellow-300`}>
-                  <Image
-                    src={module}
-                    alt="icon"
-                    className="bg-[#fff] rounded-[30px] p-[2px] w-[30px]"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <h4 className="font-Inter text-[#11142D] text-[14px] font-semibold">
-                    {item.name}
-                  </h4>
-                  <div className="h-[20px] flex items-center gap-2">
-                    <span className="font-Inter text-[#808191] text-[12px] font-medium">
-                      Your Progress:
-                    </span>
-                    <div className="relative h-[13px] w-[100px] rounded-[4px] bg-[#D9D9D9]">
-                      <div className="absolute left-0 top-0 h-[13px] rounded-[4px] w-[50px] bg-[#FD2E8A]"></div>
-                    </div>
-                    <span className="text-[12px] text-[#808191] font-Inter font-medium">
-                      67%
-                    </span>
+        {subjects.slice(0, 4).map((item) => (
+          <li
+            key={item.id}
+            className="flex gap-4 items-center justify-between bg-[#FFFFFF] py-[12px] px-[20px] rounded-[10px]"
+          >
+            <div className="flex items-center gap-4">
+              <div className={`p-[8px] rounded-[10px] bg-yellow-300`}>
+                <Image
+                  src={module}
+                  alt="icon"
+                  className="bg-[#fff] rounded-[30px] p-[2px] w-[30px]"
+                />
+              </div>
+              <div className="flex flex-col">
+                <h4 className="font-Inter text-[#11142D] text-[14px] font-semibold">
+                  {item.name}
+                </h4>
+                <div className="h-[20px] flex items-center gap-2">
+                  <span className="font-Inter text-[#808191] text-[12px] font-medium">
+                    Your Progress:
+                  </span>
+                  <div className="relative h-[13px] w-[100px] rounded-[4px] bg-[#D9D9D9]">
+                    <div className="absolute left-0 top-0 h-[13px] rounded-[4px] w-[50px] bg-[#FD2E8A]"></div>
                   </div>
+                  <span className="text-[12px] text-[#808191] font-Inter font-medium">
+                    67%
+                  </span>
                 </div>
               </div>
-              <Image src={arrow} alt="arrow" />
-            </li>
-          );
-        })}
+            </div>
+            <Image src={arrow} alt="arrow" />
+          </li>
+        ))}
       </ul>
     </div>
   );

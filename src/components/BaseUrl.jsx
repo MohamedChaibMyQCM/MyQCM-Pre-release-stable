@@ -32,7 +32,7 @@ BaseUrl.interceptors.response.use(
     if (error.response && error.response.status == 401) {
       const locale = useLocale();
       secureLocalStorage.removeItem("token");
-      window.location.href = `${locale}/login`;
+      window.location.href = `/${locale}/login`;
     }
     return Promise.reject(error);
   }

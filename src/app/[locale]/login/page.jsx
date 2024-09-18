@@ -9,8 +9,6 @@ import lock from "../../../../public/Icons/lock.svg";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "react-query";
-import { GoogleLoginButton } from "react-social-login-buttons";
-import { LoginSocialGoogle } from "reactjs-social-login";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
 import handleError from "@/components/handleError";

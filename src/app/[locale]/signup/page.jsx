@@ -6,8 +6,6 @@ import { useLocale } from "next-intl";
 import user from "../../../../public/Icons/user.svg";
 import email from "../../../../public/Icons/email.svg";
 import lock from "../../../../public/Icons/lock.svg";
-import { GoogleLoginButton } from "react-social-login-buttons";
-import { LoginSocialGoogle } from "reactjs-social-login";
 import logo from "../../../../public/logoMyqcm.svg";
 import { useState } from "react";
 import { useMutation } from "react-query";

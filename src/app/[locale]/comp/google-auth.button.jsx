@@ -1,6 +1,4 @@
-// components/GoogleLoginButton.js
 import Image from 'next/image';
-import React from 'react';
 import google from "../../../../public/Icons/google.svg"
 const GoogleAuthButton = ({locale}) => {
     const handleGoogleAuth = () => {

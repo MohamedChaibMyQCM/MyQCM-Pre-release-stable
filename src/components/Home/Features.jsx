@@ -17,7 +17,7 @@ const Features = () => {
   }, []);
 
   return (
-    <section className="py-[30px] px-[60px] overflow-hidden">
+    <section className="pt-[30px] mb-[-0.7px] px-[60px] overflow-hidden">
       <h4 className="uppercase text-center font-TTInterphases text-[#433E3E] font-bold text-[14px]">
         Features
       </h4>

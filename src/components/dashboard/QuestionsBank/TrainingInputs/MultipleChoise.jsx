@@ -9,7 +9,7 @@ const MultipleChoise = ({ name, value, setFieldValue }) => {
       <Switch
         checked={value}
         onCheckedChange={(checked) => setFieldValue(name, checked)}
-        className="!bg-[#FF6EAF] switch"
+        className={`switch ${value == false ? "!bg-[grey]" : "!bg-[#FF6EAF]"}`}
       />
     </div>
   );

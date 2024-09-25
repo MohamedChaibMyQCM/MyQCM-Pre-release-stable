@@ -5,7 +5,7 @@ import Image from "next/image";
 import logo from "../../../../../public/Icons/logo Myqcm 1.svg";
 import Verification from "../../../../../public/Icons/verification.svg";
 import BaseUrl from "@/components/BaseUrl";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import handleError from "@/components/handleError";
@@ -24,6 +24,13 @@ const EmailVerification = () => {
     },
     onError: (error) => {
       handleError(error);
+    },
+  });
+
+  const { data: name } = useQuery({
+    queryFn: async () => {
+      const response = await BaseUrl.get("/user/fullname");
+      return response.data.data;
     },
   });
 
@@ -47,8 +54,8 @@ const EmailVerification = () => {
         Email Verification
       </h3>
       <p className="text-center font-Poppins text-[#B6ACB399] text-[14px] w-[420px] leading-[26px]">
-        Dear Doctor [Import Full Name], <br /> Please check your email inbox
-        (and spam folder) and enter the code to activate your MyQCM account.
+        Dear Doctor {name}, <br /> Please check your email inbox (and spam
+        folder) and enter the code to activate your MyQCM account.
       </p>
       <form
         onSubmit={handleSubmit}

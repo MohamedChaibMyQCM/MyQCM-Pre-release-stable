@@ -36,6 +36,7 @@ const Page = () => {
     let data = { email: Email, password };
     login(data);
   };
+  
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
       <Image src={logo} alt="logo" />

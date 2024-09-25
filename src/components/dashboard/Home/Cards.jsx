@@ -18,13 +18,20 @@ const Cards = ({ setUnit }) => {
     },
   });
 
+  const { data: name } = useQuery({
+    queryFn: async () => {
+      const response = await BaseUrl.get("/user/fullname");
+      return response.data.data;
+    },
+  });
+
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
       <h1 className="text-[#11142D] font-Poppins text-[40px] font-[600] mb-[20px]">
-        <span className="text-[20px] font-[500]">Hi Mohammed,</span> <br />
+        <span className="text-[20px] font-[500]">Hi {name},</span> <br />
         What will you learn today?
       </h1>
       <div>

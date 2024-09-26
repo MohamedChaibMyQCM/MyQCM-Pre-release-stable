@@ -11,10 +11,11 @@ const Footer = () => {
         <div className="flex flex-col gap-4">
           <Image src={logo} alt="logo" className="w-[130px]" />
           <p className="w-[410px] text-[#FFFFFF] text-[15px] font-TTInterphases font-medium">
-            MyQCM est une plateforme d'apprentissage en ligne avancée, pilotée
-            par l'IA, conçue pour révolutionner l'éducation médicale. Nous
-            offrons un contenu personnalisé, des retours en temps réel et une
-            gamification pour rendre l'apprentissage engageant et efficace.{" "}
+            MyQCM est une plateforme d&apos;apprentissage en ligne avancée,
+            pilotée par l&apos;IA, conçue pour révolutionner l&apos;éducation
+            médicale. Nous offrons un contenu personnalisé, des retours en temps
+            réel et une gamification pour rendre l&apos;apprentissage engageant
+            et efficace.{" "}
           </p>
         </div>
         <div className="flex gap-20">

@@ -42,7 +42,7 @@ const Features = () => {
               Parcours adaptatifs
             </h3>
             <p className="font-TTInterphases text-[14px]">
-              Parcours d'apprentissage personnalisés pour les étudiants.
+              Parcours d&apos;apprentissage personnalisés pour les étudiants.
             </p>
             <Image
               src={vector3}

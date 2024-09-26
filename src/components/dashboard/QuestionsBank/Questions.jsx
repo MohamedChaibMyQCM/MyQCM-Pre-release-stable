@@ -22,11 +22,11 @@ const Questions = ({ data, isLoading, error }) => {
     <div className="relative box py-[24px] px-[22px] rounded-[20px]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-center font-Poppins font-semibold text-[22px] text-[#0C092A]">
-          Questions per course
+          Questions par cours
         </h1>
         <div className="flex items-center gap-4">
           <span className="text-[#858494] font-Poppins font-semibold text-[13px]">
-            Select Unit
+            Sélectionner l'unité
           </span>
           <Image
             src={options}

@@ -9,12 +9,12 @@ const QuestionsHead = () => {
     <header className="flex items-center justify-between border-b border-[#E4E4E4] px-[40px] py-[10px]">
       <div>
         <h2 className="text-[#565656] font-Poppins font-semibold text-[26px]">
-          Questions Bank
+          Banque De Questions
         </h2>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-[#565656] font-Poppins font-medium">
-          Your Credits:
+          Vos crédits :
         </span>
         <div className="flex items-center gap-[2px]">
           <span className="text-[#181818] font-Poppins font-semibold">+</span>

@@ -33,7 +33,7 @@ const Module = ({ data }) => {
         <div className="flex items-center gap-3">
           <Image src={clinical} alt="QCM + QCS" />
           <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
-            30 Cas Clinique
+            0 Cas Clinique
           </span>
         </div>
       </div>
@@ -58,10 +58,10 @@ const Module = ({ data }) => {
       </div>
       <div className="flex self-end gap-12 mt-[16px]">
         <button className="font-Poppins text-[#F8589F] text-[14px] font-medium">
-          Play by Unite
+          Jouer par Unite
         </button>
         <button className="font-Poppins font-medium bg-[#FF95C4] rounded-[16px] px-[20px] py-[10px] text-[14px] text-[#FFFFFF]">
-          Simulation for all Unites
+          Simulation pour toutes les unités.
         </button>
       </div>
     </div>

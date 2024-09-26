@@ -53,11 +53,11 @@ const Page = () => {
     <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px]">
       <div className="flex flex-col gap-4 self-end">
         <h1 className="font-Poppins text-[#FFFFFF] text-[30px] font-semibold w-[300px] leading-[36px]">
-          Start Your Medical Journey now
+          Commencez votre parcours médical 
         </h1>
         <p className="font-Poppins w-[280px] mb-[14px] text-[#FFFFFFD6] font-light text-[14px]">
-          Sign up today to embark on a personalized, creative learning journey
-          in the field you&apos;re passionate about!
+          Inscrivez-vous aujourd'hui pour un apprentissage personnalisé dans
+          votre domaine passion !
         </p>
         <Image src={doctors} alt="doctors" className="w-[620px] ml-[-40px]" />
       </div>
@@ -78,7 +78,7 @@ const Page = () => {
           </Link>
         </div>
         <div className="w-[567.09px] flex items-center justify-center bg-transparent">
-        <GoogleAuthButton locale={locale}/>
+          <GoogleAuthButton locale={locale} />
         </div>
         <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
           OR

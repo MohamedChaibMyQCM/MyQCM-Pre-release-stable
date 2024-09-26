@@ -7,9 +7,9 @@ const Exams = () => {
     <div className="mx-[28px] px-[30px] py-[20px] border border-[#E4E4E4] rounded-[16px] box mb-[20px]">
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-Poppins text-[#0C092A] font-semibold">
-          Old Exames ( And simulations )
+          Anciens examens (et simulations)
         </h3>
-        <span className="text-[13px] font-Poppins text-[#FF95C4]">See All</span>
+        <span className="text-[13px] font-Poppins text-[#FF95C4]">Voir Tout</span>
       </div>
       <ul className="flex items-center justify-between flex-wrap gap-5">
         {exams.map((item, index) => {

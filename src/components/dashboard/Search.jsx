@@ -5,12 +5,12 @@ import { Input } from "../ui/input";
 
 const Search = () => {
   return (
-    <div className="flex items-center justify-between mb-[20px] pr-[20px]">
+    <div className="flex items-center justify-between mb-[80px] pr-[20px]">
       <form className="flex items-center gap-4 w-[80%]">
         <Image src={search} alt="search" className="w-[20px]" />
         <Input
           type="text"
-          placeholder="Search"
+          placeholder="Recherche"
           className="w-[80%] bg-transparent inputs font-Inter text-[#808191] text-[13px] font-Inter outline-none"
         />
       </form>

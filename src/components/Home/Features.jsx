@@ -19,17 +19,17 @@ const Features = () => {
   return (
     <section className="pt-[30px] mb-[-0.7px] px-[60px] overflow-hidden">
       <h4 className="uppercase text-center font-TTInterphases text-[#433E3E] font-bold text-[14px]">
-        Features
+        Fonctionnalités
       </h4>
-      <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[800px] leading-[66px] text-center mx-auto text-[#000000C7]">
+      <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7]">
         <span className="stroke text-[#838383]">
-          Discover Your Medical Expertise{" "}
+          Découvrez votre expertise médicale{" "}
         </span>
-        in Every Corner of the World
+        dans chaque coin du monde
         <Image
           src={vector}
           alt="vector"
-          className="absolute bottom-[-16px] right-[56px] feature_anim"
+          className="absolute bottom-[-16px] right-[110px] feature_anim !w-[360px]"
         />
       </h2>
       <div className="flex items-center justify-between">
@@ -39,10 +39,10 @@ const Features = () => {
             data-aos="fade-right"
           >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
-              Adaptive Learning Paths
+              Parcours adaptatifs
             </h3>
             <p className="font-TTInterphases text-[14px]">
-              Customized learning journeys for students.
+              Parcours d'apprentissage personnalisés pour les étudiants.
             </p>
             <Image
               src={vector3}
@@ -55,10 +55,10 @@ const Features = () => {
             data-aos="fade-right"
           >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
-              Interactive Quizzes
+              Quiz interactifs
             </h3>
             <p className="font-TTInterphases text-[14px]">
-              Engaging quizzes with instant feedback
+              Quiz engageants avec retours instantanés.
             </p>
             <Image
               src={vector4}
@@ -80,10 +80,10 @@ const Features = () => {
         >
           <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px]">
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
-              Video Library
+              Bibliothèque de vidéos
             </h3>
             <p className="font-TTInterphases text-[14px]">
-              Videos divided into topic-specific segments
+              Vidéos divisées en segments spécifiques par sujet.
             </p>
             <Image
               src={vector2}
@@ -96,10 +96,10 @@ const Features = () => {
             data-aos="fade-left"
           >
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
-              Detailed Analytics
+              Analytique détaillée
             </h3>
             <p className="font-TTInterphases text-[14px]">
-              In-depth performance insights and reports
+              Informations et rapports de performance approfondis.
             </p>
             <Image
               src={vector1}

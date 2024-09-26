@@ -16,7 +16,7 @@ const Categories = () => {
     queryKey: ["subjects"],
     queryFn: async () => {
       const response = await BaseUrl.get("/subject/user");
-      return response.data.data; // Ensure this returns an array
+      return response.data.data;
     },
   });
 
@@ -41,11 +41,11 @@ const Categories = () => {
             >
               <Link
                 href={`/${locale}/dashboard/QuestionsBank/${item.id}`}
-                className="flex items-center gap-4 bg-[#FF95C4] px-[20px] py-[20px] rounded-[20px] cursor-pointer"
+                className="flex items-center h-[90px] gap-4 bg-[#FF95C4] px-[20px] rounded-[20px] cursor-pointer"
               >
                 <Image src={category} alt="module logo" />
                 <div className="flex flex-col gap-1">
-                  <span className="text-[#FFFFFF] font-Poppins font-semibold text-[15px]">
+                  <span className="text-[#FFFFFF] font-Poppins font-semibold text-[14px]">
                     {item.name}
                   </span>
                   <span className="text-[#FFFFFF] font-Poppins font-extralight text-[12px]">

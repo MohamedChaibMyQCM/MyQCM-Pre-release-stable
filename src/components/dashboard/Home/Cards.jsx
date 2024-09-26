@@ -30,9 +30,9 @@ const Cards = ({ setUnit }) => {
 
   return (
     <div>
-      <h1 className="text-[#11142D] font-Poppins text-[40px] font-[600] mb-[20px]">
-        <span className="text-[20px] font-[500]">Hi {name},</span> <br />
-        What will you learn today?
+      <h1 className="text-[#11142D] font-Poppins text-[38px] font-[600] mb-[20px]">
+        <span className="text-[20px] font-[500]">Salut {name},</span> <br />
+        Que vas-tu apprendre aujourd'hui ?
       </h1>
       <div>
         {data.slice(0, 1).map((item) => (
@@ -51,15 +51,15 @@ const Cards = ({ setUnit }) => {
               <div className="flex items-center gap-4">
                 <Link
                   href={``}
-                  className="font-Inter bg-[#FFFFFF] text-[#11142D] rounded-[20px] py-[8px] px-[22px] box text-[13px] font-semibold"
+                  className="font-Inter bg-[#FFFFFF] text-[#11142D] rounded-[20px] py-[8px] px-[22px] box text-[12px] font-semibold"
                 >
-                  Quick Exam Simulation
+                  Simulation rapide d'examen
                 </Link>
                 <Link
                   href={``}
-                  className="font-Inter bg-[#FF26A1] text-[#FFFFFF] rounded-[20px] py-[8px] px-[22px] text-[13px] box font-semibold"
+                  className="font-Inter bg-[#FF26A1] text-[#FFFFFF] rounded-[20px] py-[8px] px-[22px] text-[12px] box font-semibold"
                 >
-                  Start Unit
+                  Commencer l'unité
                 </Link>
               </div>
             </div>

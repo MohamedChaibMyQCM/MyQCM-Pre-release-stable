@@ -15,12 +15,11 @@ const Aside = () => {
   const afterDashboard = path.split("/dashboard/")[1] || "";
 
   return (
-    <aside className="fixed w-60 h-screen justify-between flex flex-col pt-[30px] pb-[18px] fixed top-0 left-0">
+    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] fixed top-0 left-0">
       <Image src={logo} alt="logo" className="w-[180px] mx-auto" />
       <ul className="flex flex-col mb-[40px] gap-1">
         {aside_links.map((item, index) => {
-          // Exact match for home route, and startsWith for sub-paths
-          const isHome = item.href === ""; // assuming "" is used for the home route
+          const isHome = item.href === "";
           const isActive =
             (isHome && afterDashboard === "") ||
             (!isHome && afterDashboard.startsWith(item.href));
@@ -42,7 +41,7 @@ const Aside = () => {
                   className="w-[20px] font-[500]"
                 />
                 <span
-                  className={`font-Poppins text-[14.6px] font-[500] ${
+                  className={`font-Poppins text-[13.7px] font-[500] ${
                     isActive ? "text-[#FFFFFF]" : ""
                   }`}
                 >
@@ -60,7 +59,7 @@ const Aside = () => {
             Chaib Mohamed
           </span>
           <span className="text-[12.4px] text-[#808191] font-[500]">
-            Premium +AI account
+            Compte Premium + IA
           </span>
         </div>
         <button>

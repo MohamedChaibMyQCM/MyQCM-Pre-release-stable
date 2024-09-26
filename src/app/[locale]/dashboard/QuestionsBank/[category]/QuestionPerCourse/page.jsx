@@ -9,7 +9,15 @@ import Loading from "@/components/Loading";
 const Page = () => {
   const { category: subjectId } = useParams();
 
-  const { data, isLoading, error } = useQuery({
+  const { data: data1 } = useQuery({
+    queryKey: ["subjects"],
+    queryFn: async () => {
+      const response = await BaseUrl.get(`/subject/${subjectId}`);
+      return response.data.data;
+    },
+  });
+
+  const { data: data2, isLoading, error } = useQuery({
     queryKey: ["courses"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/course/subject/${subjectId}`);
@@ -26,10 +34,10 @@ const Page = () => {
         Question Bank <span className="text-[12px]">/</span>
         <span className="text-[#FF95C4]">Categories</span>
         <span className="text-[12px]">/</span>
-        semilogy <span className="text-[12px]">/</span> Q/C per course
+        {data1.name} <span className="text-[12px]">/</span> Q/C per course
       </span>
       <Questions
-        data={data}
+        data={data2}
         isLoading={isLoading}
         error={error}
       />

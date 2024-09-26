@@ -19,7 +19,7 @@ const Courses = ({ courses, subjectId }) => {
           href={`/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse`}
           className="text-[13px] font-Poppins font-medium text-[#FF95C4] cursor-pointer"
         >
-          See All
+          Voir Tout 
         </Link>
       </div>
       <ul className="flex flex-col gap-4 ">

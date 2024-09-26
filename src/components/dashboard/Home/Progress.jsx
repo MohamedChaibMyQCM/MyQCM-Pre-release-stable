@@ -6,8 +6,12 @@ import arrow from "../../../../public/Icons/small right.svg";
 import BaseUrl from "@/components/BaseUrl";
 import { useQuery } from "react-query";
 import Loading from "@/components/Loading";
+import Link from "next/link";
+import { useLocale } from "next-intl";
 
 const Progress = ({ unit }) => {
+  const locale = useLocale()
+  
   const { data, isLoading, error } = useQuery({
     queryKey: ["subjects"],
     queryFn: async () => {
@@ -24,10 +28,15 @@ const Progress = ({ unit }) => {
   return (
     <div className="mb-[40px]">
       <div className="flex items-center justify-between mb-[24px]">
-        <h2 className="text-[#11142D] font-Inter text-[16px] font-[600] ">
-          Modules In Progress
+        <h2 className="text-[#11142D] font-Inter text-[17px] font-[700] ">
+          Modules en cours
         </h2>
-        <span className="font-Inter text-[12px] text-[#93959F]">See All</span>
+        <Link
+          href={`/${locale}/dashboard/QuestionsBank`}
+          className="font-Inter text-[12px] text-[#93959F] cursor-pointer"
+        >
+          Voir tout
+        </Link>
       </div>
       <ul className="flex flex-col gap-3">
         {subjects.slice(0, 4).map((item) => (

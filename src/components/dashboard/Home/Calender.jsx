@@ -64,7 +64,7 @@ const Calendar = () => {
   return (
     <div className="mb-[30px]">
       <h2 className="font-Inter text-[#121212] font-bold text-[17px] mb-5">
-        Your learning path
+        Votre parcours d'apprentissage
       </h2>
       <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px]">
         <div className="flex items-center justify-between mb-4">
@@ -73,7 +73,9 @@ const Calendar = () => {
             onClick={() => changeMonth(-1)}
           />
           <span className="font-Poppins text-[#4A5660] font-medium text-[15px]">
-            {`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
+            {`${
+              monthNames[currentDate.getMonth()]
+            } ${currentDate.getFullYear()}`}
           </span>
           <MdOutlineKeyboardArrowRight
             className="text-[#B5BEC6] text-[20px] cursor-pointer"
@@ -84,8 +86,11 @@ const Calendar = () => {
           <table className="w-[100%]">
             <thead className="w-full">
               <tr className="flex justify-between items-center mb-2 w-[100%]">
-                {daysOfWeek.map(day => (
-                  <th key={day} className="text-[12px] text-[#B5BEC6] font-Poppins font-medium w-[40px]">
+                {daysOfWeek.map((day) => (
+                  <th
+                    key={day}
+                    className="text-[12px] text-[#B5BEC6] font-Poppins font-medium w-[40px]"
+                  >
                     {day}
                   </th>
                 ))}

@@ -17,7 +17,6 @@ import logo3 from "../../public/logos/Ouikaya.svg";
 import logo4 from "../../public/logos/dr lekhal logo 1.svg";
 import logo5 from "../../public/logos/Educteck.svg";
 import logo6 from "../../public/logos/BlidaFac.svg";
-
 import facebook from "../../public/social Media/FacebookLogo.svg";
 import instagram from "../../public/social Media/InstagramLogo.svg";
 import linkedin from "../../public/social Media/LinkedinLogo.svg";
@@ -25,7 +24,6 @@ import tiktok from "../../public/social Media/TikTok.svg";
 import twitter from "../../public/social Media/Twitter.svg";
 import wHeart from "../../public/Icons/wHeart.svg";
 import blida from "../../public/Icons/Blida.svg";
-import coursePerModule from "../../public/Icons/coursePerModule.svg";
 import blood from "../../public/Quiz/blood.svg";
 import clock from "../../public/Quiz/clock.svg";
 import headleft from "../../public/Quiz/headleft.svg";
@@ -34,49 +32,49 @@ import heartQuiz from "../../public/Quiz/heart.svg";
 
 export const aside_links = [
   {
-    name: "Home",
+    name: "Accueil",
     icon: homePic,
     hoverIcon: homeWhite,
     href: "",
   },
   {
-    name: "My Courses",
+    name: "Mes Cours",
     icon: course,
     hoverIcon: wcourse,
     href: "MyCourses",
   },
   {
-    name: "Videos library",
+    name: "Bibliothèque de Vidéos",
     icon: video,
     hoverIcon: wvideo,
     href: "VideoLibrary",
   },
   {
-    name: "Questions Bank",
+    name: "Banque de Questions",
     icon: playlist,
     hoverIcon: wvideo,
     href: "QuestionsBank",
   },
   {
-    name: "AI QCM Solver",
+    name: "Qmed Bot",
     icon: solver,
     hoverIcon: wsolver,
     href: "AiQcmSolver",
   },
   {
-    name: "My Progress",
+    name: "Ma Progression",
     icon: progres,
     hoverIcon: homeWhite,
     href: "MyProgress",
   },
   {
-    name: "MyQCM Community",
+    name: "Communauté MyQCM",
     icon: community,
     hoverIcon: homeWhite,
     href: "MyQcmCommunity",
   },
   {
-    name: "Settings",
+    name: "Paramètres",
     icon: settings,
     hoverIcon: wsettings,
     href: "settings",
@@ -109,40 +107,40 @@ export const fouterLinks = [
     title: "Pages",
     links: [
       {
-        name: "Home",
+        name: "Accueil",
         href: "",
       },
       {
-        name: "Pricing",
+        name: "Tarification",
         href: "",
       },
       {
-        name: "Features",
+        name: "Fonctionnalités",
         href: "",
       },
       {
-        name: "Authors",
+        name: "Auteurs",
         href: "",
       },
       {
-        name: "About Us",
+        name: "À propos de nous",
         href: "",
       },
       {
-        name: "Be a MyQCM freelencer",
+        name: "Devenez freelance MyQCM",
         href: "",
       },
     ],
   },
   {
-    title: "Company",
+    title: "Entreprise",
     links: [
       {
-        name: "Terms Conditions",
+        name: "Conditions générales",
         href: "",
       },
       {
-        name: "Privacy Policy",
+        name: "Politique de confidentialité",
         href: "",
       },
       {
@@ -152,10 +150,10 @@ export const fouterLinks = [
     ],
   },
   {
-    title: "Community",
+    title: "Communauté",
     links: [
       {
-        name: "Help Center",
+        name: "Centre d'aide",
         href: "",
       },
       {

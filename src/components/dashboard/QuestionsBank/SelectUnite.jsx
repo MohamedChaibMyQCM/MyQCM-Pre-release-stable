@@ -16,7 +16,7 @@ const SelectUnite = ({ setselectunite }) => {
     <div className="absolute box z-50 right-4 top-[60px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[200px]">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[#0C092A] font-Poppins font-semibold text-[14px]">
-          Select  Unit 
+          Select Unit 
         </span>
         <Image
           src={exit}

@@ -26,7 +26,7 @@ const Questions = ({ data, isLoading, error }) => {
         </h1>
         <div className="flex items-center gap-4">
           <span className="text-[#858494] font-Poppins font-semibold text-[13px]">
-            Sélectionner l'unité
+            Sélectionner l&apos;unité
           </span>
           <Image
             src={options}

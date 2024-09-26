@@ -10,8 +10,8 @@ const layout = ({ children }) => {
           Commencez votre parcours médical
         </h1>
         <p className="font-Poppins w-[280px] mb-[14px] text-[#FFFFFFD6] font-light text-[14px]">
-          Connectez-vous aujourd'hui pour un apprentissage personnalisé dans
-          votre domaine passion !
+          Connectez-vous aujourd&apos;hui pour un apprentissage personnalisé
+          dans votre domaine passion !
         </p>
         <Image src={doctors} alt="doctors" className="w-[620px] ml-[-40px]" />
       </div>

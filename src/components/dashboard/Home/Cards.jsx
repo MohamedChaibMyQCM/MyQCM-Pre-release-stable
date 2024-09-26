@@ -32,7 +32,7 @@ const Cards = ({ setUnit }) => {
     <div>
       <h1 className="text-[#11142D] font-Poppins text-[38px] font-[600] mb-[20px]">
         <span className="text-[20px] font-[500]">Salut {name},</span> <br />
-        Que vas-tu apprendre aujourd'hui ?
+        Que vas-tu apprendre aujourd&apos;hui ?
       </h1>
       <div>
         {data.slice(0, 1).map((item) => (
@@ -53,13 +53,13 @@ const Cards = ({ setUnit }) => {
                   href={``}
                   className="font-Inter bg-[#FFFFFF] text-[#11142D] rounded-[20px] py-[8px] px-[22px] box text-[12px] font-semibold"
                 >
-                  Simulation rapide d'examen
+                  Simulation rapide d&apos;examen
                 </Link>
                 <Link
                   href={``}
                   className="font-Inter bg-[#FF26A1] text-[#FFFFFF] rounded-[20px] py-[8px] px-[22px] text-[12px] box font-semibold"
                 >
-                  Commencer l'unité
+                  Commencer l&apos;unité
                 </Link>
               </div>
             </div>

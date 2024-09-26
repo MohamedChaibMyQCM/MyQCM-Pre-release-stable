@@ -64,7 +64,7 @@ const Calendar = () => {
   return (
     <div className="mb-[30px]">
       <h2 className="font-Inter text-[#121212] font-bold text-[17px] mb-5">
-        Votre parcours d'apprentissage
+        Votre parcours d&apos;apprentissage
       </h2>
       <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px]">
         <div className="flex items-center justify-between mb-4">

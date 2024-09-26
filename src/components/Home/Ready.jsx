@@ -34,7 +34,7 @@ const Ready = () => {
           Contactez-nous
         </Link>
       </div>
-      <ul className="flex items-center gap-8">
+      <ul className="flex items-center justify-between gap-8">
         {logos.map((item, index) => {
           return (
             <li key={index}>

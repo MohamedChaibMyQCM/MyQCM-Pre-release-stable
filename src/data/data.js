@@ -12,8 +12,6 @@ import solver from "../../public/Aside/solver.svg";
 import wsolver from "../../public/Aside/wsolver.svg";
 import playlist from "../../public/Aside/playlist.svg";
 import logo1 from "../../public/logos/OpenAi.svg";
-import logo2 from "../../public/logos/ANPT.svg";
-import logo3 from "../../public/logos/Ouikaya.svg";
 import logo4 from "../../public/logos/dr lekhal logo 1.svg";
 import logo5 from "../../public/logos/Educteck.svg";
 import logo6 from "../../public/logos/BlidaFac.svg";
@@ -84,12 +82,6 @@ export const aside_links = [
 export const logos = [
   {
     src: logo1,
-  },
-  {
-    src: logo2,
-  },
-  {
-    src: logo3,
   },
   {
     src: logo4,

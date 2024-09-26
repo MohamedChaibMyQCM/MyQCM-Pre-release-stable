@@ -15,7 +15,7 @@ const Ready = () => {
         progresser votre carrière
       </h2>
       <p className="font-TTInterphases font-medium text-[#FFFFFF] z-50 w-[1000px] mx-auto">
-        Notre plateforme vous offre un accès à une éducation médicale de premier
+        Notre plateforme vous offre un accès  à une éducation médicale de premier
         plan depuis le confort de votre domicile. Faites progresser votre
         carrière dès aujourd&apos;hui en vous engageant avec des QCM et des
         tutoriels soigneusement conçus sur MyQCM Aljazayr.

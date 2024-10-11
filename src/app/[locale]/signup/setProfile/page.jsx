@@ -70,7 +70,7 @@ const Page = () => {
 
   return (
     <div
-      className={`bg-[#FFF9F9] w-full h-full overflow-hidden overflow-y-scroll rounded-[16px] flex flex-col items-center justify-center gap-4 ${
+      className={`bg-[#FFF9F9] w-[100%] overflow-y-scroll rounded-[16px] flex flex-col items-center justify-center gap-4 ${
         currentStep == "SetProfileOne"
           ? "pb-[20px] pt-[300px]"
           : "pb-[20px] pt-[140px]"
@@ -81,11 +81,11 @@ const Page = () => {
         <Image src={profile} alt="profile picture" className="pb-[12px]" />
       </div>
       <h2 className="font-Inter bg-[#F8589F] text-[15px] font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px]">
-        Setting Up Your Profile
+        Configuration de votre profil
       </h2>
       <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] my-[16px]">
         <div className="bg-[#F8589F] w-[250px] h-[100%] rounded-[16px] flex items-center justify-center font-Poppins font-medium text-[#FFF] text-[11px] absolute left-0 top-0 ">
-          50% completed
+          50% terminé
         </div>
       </div>
       <form className="w-[100%] px-[40px]" onSubmit={formik.handleSubmit}>
@@ -208,14 +208,14 @@ const Page = () => {
               )
             }
           >
-            {currentStep === "SetProfileOne" ? "Next" : "Back"}
+            {currentStep === "SetProfileOne" ? "Suivant" : "Retour"}
           </button>
           {currentStep === "SetProfileTwo" && (
             <button
               className="self-end bg-[#F8589F] rounded-[10px] text-[15px] font-Inter text-[#FFFFFF] font-medium py-[8px] px-[50px]"
               type="submit"
             >
-              Next
+              Suivant
             </button>
           )}
         </div>

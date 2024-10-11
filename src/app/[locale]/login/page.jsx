@@ -45,17 +45,17 @@ const Page = () => {
           href={`/${locale}/login`}
           className="py-[8px] bg-[#FEFEFE] box text-[#232627] font-semibold text-[14px] font-Inter flex items-center justify-center basis-1/2 rounded-[10px]"
         >
-          Sign in
+          Se connecter
         </Link>
         <Link
           href={`/${locale}/signup`}
           className="py-[8px] text-[#6C7275] font-semibold font-Inter text-[14px] basis-1/2 flex items-center justify-center"
         >
-          Create account
+          Créer un compte
         </Link>
       </div>
       <div className="w-[567.09px] flex items-center justify-center bg-transparent">
-      <GoogleAuthButton locale={locale}/>
+        <GoogleAuthButton locale={locale} />
       </div>
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
         OR
@@ -68,7 +68,7 @@ const Page = () => {
           <Image src={email} alt="Email icon" />
           <input
             type="email"
-            placeholder="Username or email"
+            placeholder="Email"
             className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
             value={Email}
             onChange={(e) => setEmail(e.target.value)}
@@ -78,7 +78,7 @@ const Page = () => {
           <Image src={lock} alt="Lock icon" />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Mot de passe"
             className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -88,13 +88,13 @@ const Page = () => {
           href={`/${locale}/login/reset`}
           className="text-[#F8589F] font-Inter self-start text-[14px] font-medium mb-2"
         >
-          Forgot password?
+          Mot de passe oublié ?
         </Link>
         <button
           type="submit"
           className="bg-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[10px] font-Inter font-medium"
         >
-          Sign In with MyQcm Aljazayr
+          Se connecter avec MyQcm Aljazayr
         </button>
       </form>
     </div>

@@ -68,20 +68,20 @@ const Page = () => {
             href={`/${locale}/login`}
             className="py-[8px] text-[#6C7275] font-semibold font-Inter text-[14px] basis-1/2 flex items-center justify-center"
           >
-            Sign in
+            Se connecter
           </Link>
           <Link
             href={`/${locale}/signup`}
             className="py-[8px] bg-[#FEFEFE] box text-[#232627] font-semibold text-[14px] font-Inter flex items-center justify-center basis-1/2 rounded-[10px]"
           >
-            Create account
+            Créer un compte
           </Link>
         </div>
         <div className="w-[567.09px] flex items-center justify-center bg-transparent">
           <GoogleAuthButton locale={locale} />
         </div>
         <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
-          OR
+          OU
         </span>
         <form
           className="w-[567.09px] flex flex-col items-center gap-4"
@@ -91,7 +91,7 @@ const Page = () => {
             <Image src={user} alt="user icon" />
             <input
               type="text"
-              placeholder="Full name"
+              placeholder="Nom complet"
               className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
               value={user_name}
               onChange={(e) => setUserName(e.target.value)}
@@ -111,7 +111,7 @@ const Page = () => {
             <Image src={lock} alt="lock icon" />
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Mot de passe"
               className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -121,19 +121,19 @@ const Page = () => {
             type="submit"
             className="bg-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[10px] font-Inter font-medium"
           >
-            Sign Up with MyQcm Aljazayr
+            Connexion avec MyQcm Aljazayr
           </button>
         </form>
-        <span className="text-[#6C7275] font-Inter text-[13px]">
-          By creating an account, you agree to our
+        <span className="text-[#6C7275] font-Inter text-[13px] w-[567.09px] text-center">
+          En créant un compte, vous acceptez nos
           <span className="text-[#F8589F] font-semibold">
             {" "}
-            Terms of Service{" "}
+            Conditions d&apos;utilisation{" "}
           </span>{" "}
-          and
+          et
           <span className="text-[#F8589F] font-semibold">
             {" "}
-            Privacy & Cookie Statement
+            Déclaration de confidentialité et de cookies
           </span>
           .
         </span>

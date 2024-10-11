@@ -51,11 +51,11 @@ const EmailVerification = () => {
         />
       </div>
       <h3 className="text-[#141718] font-Inter font-semibold text-[19px]">
-        Email Verification
+        Vérification de l&apos;email
       </h3>
       <p className="text-center font-Poppins text-[#B6ACB399] text-[14px] w-[420px] leading-[26px]">
-        Dear Doctor {name}, <br /> Please check your email inbox (and spam
-        folder) and enter the code to activate your MyQCM account.
+        Cher Docteur {name}, <br /> Veuillez vérifier votre boîte de réception
+        (et le dossier spam) et entrer le code pour activer votre compte MyQCM.
       </p>
       <form
         onSubmit={handleSubmit}
@@ -72,9 +72,9 @@ const EmailVerification = () => {
         />
         <button
           type="submit"
-          className="bg-[#53DF83] w-24 text-[12px] text-white font-Poppins font-medium text-[16px] py-[6px] px-[14px] rounded-[8px] mt-4"
+          className="bg-[#F8589F] w-24 text-[12px] text-white font-Poppins font-medium text-[16px] py-[6px] px-[14px] rounded-[8px] mt-4"
         >
-          Send
+          Envoyer
         </button>
       </form>
     </div>

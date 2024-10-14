@@ -10,7 +10,7 @@ const Page = () => {
   const { category: subjectId } = useParams();
 
   const { data: data1 } = useQuery({
-    queryKey: ["subjects"],
+    queryKey: ["subject"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/subject/${subjectId}`);
       return response.data.data;
@@ -18,7 +18,7 @@ const Page = () => {
   });
 
   const { data: data2, isLoading, error } = useQuery({
-    queryKey: ["courses"],
+    queryKey: ["courses"],  
     queryFn: async () => {
       const response = await BaseUrl.get(`/course/subject/${subjectId}`);
       return response.data.data.courses;

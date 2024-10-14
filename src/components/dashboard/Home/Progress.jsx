@@ -9,13 +9,13 @@ import Loading from "@/components/Loading";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 
-const Progress = ({ unit }) => {
+const  Progress = () => {
   const locale = useLocale()
   
   const { data, isLoading, error } = useQuery({
     queryKey: ["subjects"],
     queryFn: async () => {
-      const response = await BaseUrl.get(`/subject?unitId=${unit}`);
+      const response = await BaseUrl.get(`/subject/user`);
       return response.data.data;
     },
   });

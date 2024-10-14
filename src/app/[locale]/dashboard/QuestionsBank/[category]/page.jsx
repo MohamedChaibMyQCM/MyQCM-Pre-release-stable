@@ -11,7 +11,7 @@ const Page = () => {
   const { category: subjectId } = useParams();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["subjects"],
+    queryKey: ["subject"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/subject/${subjectId}`);
       return response.data.data;

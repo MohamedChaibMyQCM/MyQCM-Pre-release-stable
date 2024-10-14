@@ -5,10 +5,10 @@ import qcm from "../../../../public/Icons/QCM.svg";
 import qroc from "../../../../public/Icons/Qroc.svg";
 import clinical from "../../../../public/Icons/casClinical.svg";
 
-const Module = ({ data }) => {
+const Module = ({ data }) => { 
   return (
     <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
-      <Image src={stock} alt="stock" className="w-full" />
+      <Image src={data.attachment} width={400} height={200} alt="stock" className="w-full" />
       <span className="font-Poppins text-[14px] text-[#858494] font-medium">
         Module
       </span>

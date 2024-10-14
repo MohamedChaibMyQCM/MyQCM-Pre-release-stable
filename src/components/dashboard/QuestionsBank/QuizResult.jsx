@@ -10,6 +10,8 @@ const QuizResult = ({ data, setSkip }) => {
   const locale = useLocale()
   const {category} = useParams()
 
+  console.log(data);
+
   return (
     <div className="bg-[#0000004D] w fixed top-0 left-0 h-full w-full flex items-center justify-center">
       <div className="bg-[#ffffff] w-[340px] p-[30px] rounded-[16px] flex flex-col gap-4">

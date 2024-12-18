@@ -8,8 +8,11 @@ import Link from "next/link";
 import { aside_links } from "@/data/data";
 import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
+import ProfilePopup from "./ProfilePopup";
+import { useState } from "react";
 
 const Aside = () => {
+  const[popup, setPopup] = useState(false)
   const locale = useLocale();
   const path = usePathname();
   const afterDashboard = path.split("/dashboard/")[1] || "";
@@ -52,19 +55,22 @@ const Aside = () => {
           );
         })}
       </ul>
-      <div className="flex gap-2 items-center mx-auto">
-        <Image src={user} alt="user" className="w-[44px]" />
-        <div className="flex flex-col font-Inter">
-          <span className="text-[13.4px] text-[#11142D] font-[600]">
-            Chaib Mohamed
-          </span>
-          <span className="text-[12.4px] text-[#808191] font-[500]">
-            Compte Premium + IA
-          </span>
+      <div className="relative flex gap-1 items-center pl-3">
+        <div className="flex items-center gap-1">
+          <Image src={user} alt="user" className="w-[42px]" />
+          <div className="flex flex-col font-Inter">
+            <span className="text-[13.4px] text-[#11142D] font-[600]">
+              Chaib Mohamed
+            </span>
+            <span className="text-[12.4px] text-[#808191] font-[500]">
+              Compte Premium + IA
+            </span>
+          </div>
         </div>
-        <button>
+        <button onClick={() => setPopup(!popup)}>
           <Image src={arrows} alt="arrows" className="w-[24px]" />
         </button>
+        {popup && <ProfilePopup />}
       </div>
     </aside>
   );

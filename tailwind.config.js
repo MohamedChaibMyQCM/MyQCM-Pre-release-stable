@@ -72,10 +72,8 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        TTInterphases: ["var(--font-TT-Interphases)"],
         Genty: ["var(--font-Genty)"],
         Madani: ["var(--font-Madani)"],
-        Inter: ["var(--font-inter)"],
         Poppins: ["var(--font-poppins)"],
       },
     },

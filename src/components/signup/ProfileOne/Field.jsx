@@ -17,7 +17,7 @@ const Field = ({ name, value, setFieldValue }) => {
     <div className="w-[48%] flex flex-col gap-2">
       <label
         htmlFor={name}
-        className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
+        className="text-[#6C7275C4] text-[19px] font-semibold"
       >
         Choose Your Field of Study
       </label>
@@ -26,7 +26,7 @@ const Field = ({ name, value, setFieldValue }) => {
         value={value}
         onValueChange={(val) => setFieldValue(name, val)}
       >
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={field} alt="field" />
             <SelectValue placeholder="Select your specialization or field" />
@@ -37,25 +37,25 @@ const Field = ({ name, value, setFieldValue }) => {
           <SelectGroup>
             <SelectItem
               value="General Medicine"
-              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               General Medicine
             </SelectItem>
             <SelectItem
               value="Dentistry"
-              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Dentistry
             </SelectItem>
             <SelectItem
               value="Pharmacy"
-              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Pharmacy
             </SelectItem>
             <SelectItem
               value="Nursing"
-              className="!bg-[#FFE7F2] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#FFFFFF] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Nursing
             </SelectItem>

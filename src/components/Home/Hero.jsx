@@ -30,9 +30,7 @@ const HeroSection = () => {
   return (
     <section
       className={`h-[88vh] overflow-hidden bg-[#F8F8F8] flex items-center justify-between ${
-        locale == "ar"
-          ? "pr-[100px] pl-[60px] font-Madani"
-          : "pl-[100px] font-TTInterphases"
+        locale == "ar" ? "pr-[100px] pl-[60px] font-Madani" : "pl-[100px]"
       }`}
     >
       <div
@@ -40,7 +38,7 @@ const HeroSection = () => {
         className={`flex flex-col ${locale == "ar" ? "gap-6" : "gap-4"}`}
       >
         <h1
-          className={`text-[70px]  leading-[80px] ${
+          className={`text-[70px] leading-[80px] ${
             locale == "ar"
               ? "font-Madani leading-[90px] font-medium"
               : "font-Genty leading-[80px]"
@@ -113,7 +111,7 @@ const HeroSection = () => {
           <Link
             href={`${locale}/signup`}
             className={`bg-[#F8589FCC] w-fit py-[8px] flex gap-3 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff] ${
-              locale === "ar" ? "font-medium" : "font-semibold"
+              locale === "ar" ? "font-medium" : "font-[500]"
             }`}
           >
             {t("try_now")}

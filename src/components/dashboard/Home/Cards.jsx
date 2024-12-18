@@ -1,4 +1,5 @@
 "use client";
+
 import BaseUrl from "@/components/BaseUrl";
 import heart from "../../../../public/heart.svg";
 import Image from "next/image";
@@ -10,7 +11,7 @@ const Cards = ({ setUnit }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["units"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/unit");
+      const response = await BaseUrl.get("/unit/user");
       return response.data.data;
     },
     onSuccess: (data) => {
@@ -51,13 +52,13 @@ const Cards = ({ setUnit }) => {
               <div className="flex items-center gap-4">
                 <Link
                   href={``}
-                  className="font-Inter bg-[#FFFFFF] text-[#11142D] rounded-[20px] py-[8px] px-[22px] box text-[12px] font-semibold"
+                  className="font-Inter bg-[#FFFFFF] text-[#11142D] rounded-[20px] py-[8px] px-[20px] box text-[12px] font-semibold"
                 >
                   Simulation rapide d&apos;examen
                 </Link>
                 <Link
                   href={``}
-                  className="font-Inter bg-[#FF26A1] text-[#FFFFFF] rounded-[20px] py-[8px] px-[22px] text-[12px] box font-semibold"
+                  className="font-Inter bg-[#FF26A1] text-[#FFFFFF] rounded-[20px] py-[8px] px-[20px] text-[12px] box font-semibold"
                 >
                   Commencer l&apos;unité
                 </Link>

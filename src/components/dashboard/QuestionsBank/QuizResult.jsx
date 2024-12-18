@@ -1,7 +1,6 @@
 import Image from "next/image";
 import result from "../../../../public/Quiz/Good Job.svg";
 import exit from "../../../../public/Icons/exit.svg";
-
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useParams } from "next/navigation";
@@ -9,8 +8,6 @@ import { useParams } from "next/navigation";
 const QuizResult = ({ data, setSkip }) => {
   const locale = useLocale()
   const {category} = useParams()
-
-  console.log(data);
 
   return (
     <div className="bg-[#0000004D] w fixed top-0 left-0 h-full w-full flex items-center justify-center">

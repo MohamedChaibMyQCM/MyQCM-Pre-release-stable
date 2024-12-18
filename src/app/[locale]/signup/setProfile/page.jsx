@@ -22,22 +22,26 @@ import AttentionSpan from "../../../../components/signup/ProfileTwo/AttentionSpa
 import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
-import handleError from "@/components/handleError";
+import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
-  const router = useRouter()
-  const locale = useLocale()
+  const router = useRouter();
+  const locale = useLocale();
 
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),
     onSuccess: () => {
-      router.push(`/${locale}/dashboard`)
+      router.push(`/${locale}/dashboard`);
     },
     onError: (error) => {
-      handleError(error);
+      const message = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message[0]
+        : error?.response?.data?.message || "Set Profile Failed";
+
+      toast.error(message);
     },
   });
 
@@ -60,17 +64,14 @@ const Page = () => {
       attention_span: "",
     },
     onSubmit: (values) => {
-      const data = {
-        ...values,
-        learning_goals: ["Master Core Concepts", "Gain Practical Knowledge"],
-      };
-      setProfile(data);
+      console.log(values);
+      setProfile(values);
     },
   });
 
   return (
     <div
-      className={`bg-[#FFF9F9] w-[100%] overflow-y-scroll rounded-[16px] flex flex-col items-center justify-center gap-4 ${
+      className={`bg-[#FFF9F9] w-[100%] h-[100%] overflow-y-scroll rounded-[16px] flex flex-col items-center justify-center ${
         currentStep == "SetProfileOne"
           ? "pb-[20px] pt-[300px]"
           : "pb-[20px] pt-[140px]"
@@ -80,11 +81,11 @@ const Page = () => {
         <Image src={logo} alt="logo" />
         <Image src={profile} alt="profile picture" className="pb-[12px]" />
       </div>
-      <h2 className="font-Inter bg-[#F8589F] text-[15px] font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px]">
+      <h2 className="bg-[#F8589F] text-[15px] mb-3 font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px]">
         Configuration de votre profil
       </h2>
-      <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] my-[16px]">
-        <div className="bg-[#F8589F] w-[250px] h-[100%] rounded-[16px] flex items-center justify-center font-Poppins font-medium text-[#FFF] text-[11px] absolute left-0 top-0 ">
+      <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] mt-[16px] mb-[24px]">
+        <div className="bg-[#F8589F] w-[250px] h-[100%] rounded-[16px] flex items-center justify-center font-medium text-[#FFF] text-[11px] absolute left-0 top-0 ">
           50% terminé
         </div>
       </div>
@@ -119,7 +120,7 @@ const Page = () => {
                 setFieldValue={formik.setFieldValue}
               />
             </div>
-            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
               Learning Preferences
             </span>
             <div className="flex items-center justify-between flex-wrap w-[100%] gap-5 mb-16">
@@ -160,7 +161,7 @@ const Page = () => {
                 setFieldValue={formik.setFieldValue}
               />
             </div>
-            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
               Goals and Objectives
             </span>
             <div className="flex items-center justify-between flex-wrap w-[100%] gap-5">
@@ -175,7 +176,7 @@ const Page = () => {
                 setFieldValue={formik.setFieldValue}
               />
             </div>
-            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[38%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[38%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[38%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[38%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
               Cognitive and Behavioral Data
             </span>
             <div className="flex items-center justify-between flex-wrap w-[100%] gap-5 mb-16">
@@ -194,7 +195,7 @@ const Page = () => {
         )}
         <div className="flex items-center justify-end gap-10 mt-5">
           <button
-            className={`text-[15px] font-Inter font-medium ${
+            className={`text-[15px] font-medium ${
               currentStep === "SetProfileOne"
                 ? "self-end bg-[#F8589F] rounded-[10px] text-[#FFFFFF] py-[8px] px-[50px]"
                 : "text-[#F8589F]"
@@ -212,7 +213,7 @@ const Page = () => {
           </button>
           {currentStep === "SetProfileTwo" && (
             <button
-              className="self-end bg-[#F8589F] rounded-[10px] text-[15px] font-Inter text-[#FFFFFF] font-medium py-[8px] px-[50px]"
+              className="self-end bg-[#F8589F] rounded-[10px] text-[15px] text-[#FFFFFF] font-medium py-[8px] px-[50px]"
               type="submit"
             >
               Suivant

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import secureLocalStorage from "react-secure-storage";
 import { useLocale } from "next-intl";
 import Loading from "../Loading";
 import BaseUrl from "../BaseUrl";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AuthProfile = (Component) => {
   const AuthenticatedComponent = (props) => {
@@ -14,25 +14,35 @@ const AuthProfile = (Component) => {
     const locale = useLocale();
     const [auth, setAuth] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const toastShownRef = useRef(false);
 
     const checkAuth = async () => {
       if (!secureLocalStorage.getItem("token")) {
+        if (!toastShownRef.current) {
+          router.push(`/${locale}/login`);
+          toast.error("You need to login");
+          toastShownRef.current = true;
+        }
         setAuthLoading(false);
-        router.push(`/${locale}/login`);
-        toast.error("You need to login");
       } else {
         try {
           const response = await BaseUrl.get("/user");
-          setAuthLoading(false)
+          setAuthLoading(false);
           setAuth(true);
         } catch (error) {
-          if (error.status == 400 && error.response.data.message == "Email not verified") {
-            setAuthLoading(false);
-            router.push(`/${locale}/signup/verification`);
-            toast.error("Verify your email");
-          } else {
-            setAuthLoading(false);
-            setAuth(true);
+          setAuthLoading(false);
+
+          if (!toastShownRef.current) {
+            if (
+              error.status == 400 &&
+              error.response.data.message == "Email not verified"
+            ) {
+              router.push(`/${locale}/signup/verification`);
+              toast.error("Verify your email");
+              toastShownRef.current = true;
+            } else {
+              setAuth(true);
+            }
           }
         }
       }

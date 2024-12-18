@@ -13,9 +13,9 @@ import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import handleError from "@/components/handleError";
 import { quizStore } from "@/store/quiz";
 import { useStore } from "zustand";
+import toast from "react-hot-toast";
 
 const TrainingSeason = ({ setPopup, courseId }) => {
   const { category: subjectId } = useParams();
@@ -32,14 +32,18 @@ const TrainingSeason = ({ setPopup, courseId }) => {
       );
     },
     onError: (error) => {
-      handleError(error);
+      const message = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message[0]
+        : error?.response?.data?.message || "Set Profile Failed";
+
+      toast.error(message);
     },
   });
 
   const formik = useFormik({
     initialValues: {
       qcm: quiz.qcm || false,
-      qcs: quiz.qcs || false,
+      qcs: true,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
@@ -51,6 +55,7 @@ const TrainingSeason = ({ setPopup, courseId }) => {
         time_limit: Number(values.time_limit),
         number_of_questions: Number(values.number_of_questions),
       };
+      console.log(data);
       TrainingSettings(data);
     },
   });

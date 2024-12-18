@@ -16,7 +16,7 @@ const LearningGoals = ({ name, value, setFieldValue }) => {
     <div className="w-[48%] flex flex-col gap-2">
       <label
         htmlFor={name}
-        className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
+        className="text-[#6C7275C4]  text-[19px] font-semibold"
       >
         Learning Goals
       </label>
@@ -25,7 +25,7 @@ const LearningGoals = ({ name, value, setFieldValue }) => {
         value={value}
         onValueChange={(val) => setFieldValue(name, val)}
       >
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4]  font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={goals} alt="goals" />
             <SelectValue placeholder="Set Your Learning Goals" />
@@ -35,32 +35,32 @@ const LearningGoals = ({ name, value, setFieldValue }) => {
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           <SelectGroup>
             <SelectItem
-              value="Master core concepts"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              value="Master Core Concepts"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Master core concepts
             </SelectItem>
             <SelectItem
-              value="Improve test scores"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              value="Improve Test Scores"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Improve test scores
             </SelectItem>
             <SelectItem
-              value="Enhance clinical skills"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              value="Enhance Clinical Skills"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Enhance clinical skills
             </SelectItem>
             <SelectItem
-              value="Gain practical knowledge"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              value="Gain Practical Knowledge"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Gain practical knowledge
             </SelectItem>
             <SelectItem
-              value="Advance in specialty"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              value="Advance in Specialty"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Advance in specialty
             </SelectItem>

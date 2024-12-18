@@ -1,41 +1,5 @@
 import localFont from "next/font/local";
 
-const TTInterphases = localFont({
-  src: [
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial ExtraLight.ttf",
-      weight: "200",
-      style: "normal",
-    },
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial DemiBold.ttf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "../../public/Fonts/TT Interphases Pro/TT Interphases Pro Trial Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-TT-Interphases",
-});
-
 const Genty = localFont({
   src: [
     {
@@ -88,4 +52,4 @@ const Madani = localFont({
   variable: "--font-Madani",
 });
 
-export { TTInterphases, Genty, Madani };
+export { Genty, Madani };

@@ -10,7 +10,7 @@ const Footer = () => {
       <div className="px-[100px] flex justify-between border-b-[2px] border-b-[#FFFFFF] pb-[50px]">
         <div className="flex flex-col gap-4">
           <Image src={logo} alt="logo" className="w-[130px]" />
-          <p className="w-[410px] text-[#FFFFFF] text-[15px] font-TTInterphases font-medium">
+          <p className="w-[410px] text-[#FFFFFF] text-[15px] font-medium">
             MyQCM est une plateforme d&apos;apprentissage en ligne avancée,
             pilotée par l&apos;IA, conçue pour révolutionner l&apos;éducation
             médicale. Nous offrons un contenu personnalisé, des retours en temps
@@ -22,7 +22,7 @@ const Footer = () => {
           {fouterLinks.map((item, index) => {
             return (
               <div className="" key={index}>
-                <h3 className="text-[#FFFFFF] font-TTInterphases pb-2 font-medium text-[18px]">
+                <h3 className="text-[#FFFFFF] pb-2 font-medium text-[18px]">
                   {item.title}
                 </h3>
                 <ul className="flex flex-col gap-2">
@@ -31,7 +31,7 @@ const Footer = () => {
                       <li key={index}>
                         <Link
                           href={item.href}
-                          className="text-[#FFFFFF] font-TTInterphases text-[14px] font-medium"
+                          className="text-[#FFFFFF] text-[14px] font-medium"
                         >
                           {item.name}
                         </Link>
@@ -48,7 +48,7 @@ const Footer = () => {
         <div className="flex items-center">
           <Image src={Tahsin} alt="tahsin olus logo" className="w-[120px]" />
           <span className="w-[2px] h-[46px] bg-[#FFFFFF] rounded-[4px]"></span>
-          <span className="text-[#FFFFFF] font-TTInterphases font-medium pl-[10px] text-[15px]">
+          <span className="text-[#FFFFFF] font-medium pl-[10px] text-[15px]">
             ©2024 Tahsin healthcare group. Tous droits réservés.
           </span>
         </div>

@@ -8,7 +8,7 @@ import BaseUrl from "@/components/BaseUrl";
 import { useMutation, useQuery } from "react-query";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import handleError from "@/components/handleError";
+import toast from "react-hot-toast";
 import VerifyAuth from "@/components/auth/AuthEmail";
 
 const EmailVerification = () => {
@@ -20,10 +20,9 @@ const EmailVerification = () => {
     mutationFn: (data) => BaseUrl.post("/user/verify-email", data),
     onSuccess: () => {
       router.push(`/${locale}/signup/setProfile`);
-      console.log("code successful");
     },
     onError: (error) => {
-      handleError(error);
+      toast.error(error?.response?.data?.message || "Verification failed");
     },
   });
 
@@ -37,7 +36,7 @@ const EmailVerification = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = { code };
-    verifyCode(data);
+    verifyCode(data)
   };
 
   return (
@@ -50,10 +49,10 @@ const EmailVerification = () => {
           className="ml-[20px] mb-[12px]"
         />
       </div>
-      <h3 className="text-[#141718] font-Inter font-semibold text-[19px]">
+      <h3 className="text-[#141718] font-semibold text-[19px]">
         Vérification de l&apos;email
       </h3>
-      <p className="text-center font-Poppins text-[#B6ACB399] text-[14px] w-[420px] leading-[26px]">
+      <p className="text-center text-[#B6ACB399] text-[14px] w-[420px] leading-[26px]">
         Cher Docteur {name}, <br /> Veuillez vérifier votre boîte de réception
         (et le dossier spam) et entrer le code pour activer votre compte MyQCM.
       </p>
@@ -63,7 +62,7 @@ const EmailVerification = () => {
       >
         <input
           type="text"
-          className="bg-[#B6ACB399] text-[14px] w-[420px] outline-none font-medium placeholder:text-[#FFFFFF] px-[20px] py-[8px] text-[#FFFFFF] font-Poppins rounded-[12px]"
+          className="bg-[#B6ACB399] text-[14px] w-[420px] outline-none font-medium placeholder:text-[#FFFFFF] px-[20px] py-[8px] text-[#FFFFFF] rounded-[12px]"
           placeholder="Enter the code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -72,7 +71,7 @@ const EmailVerification = () => {
         />
         <button
           type="submit"
-          className="bg-[#F8589F] w-24 text-[12px] text-white font-Poppins font-medium text-[16px] py-[6px] px-[14px] rounded-[8px] mt-4"
+          className="bg-[#F8589F] w-24 text-[12px] text-white font-medium text-[16px] py-[6px] px-[14px] rounded-[8px] mt-4"
         >
           Envoyer
         </button>

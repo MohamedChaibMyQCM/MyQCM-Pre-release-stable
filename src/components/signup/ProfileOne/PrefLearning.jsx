@@ -17,7 +17,7 @@ const PrefLearning = ({ name, value, setFieldValue }) => {
     <div className="w-[48%] flex flex-col gap-2">
       <label
         htmlFor={name}
-        className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
+        className="text-[#6C7275C4] text-[19px] font-semibold"
       >
         Preferred Learning Style
       </label>
@@ -26,7 +26,7 @@ const PrefLearning = ({ name, value, setFieldValue }) => {
         value={value}
         onValueChange={(val) => setFieldValue(name, val)}
       >
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580]  font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={prefLearning} alt="prefLearning" />
             <SelectValue placeholder="What's Your Preferred Learning Style?" />
@@ -37,49 +37,49 @@ const PrefLearning = ({ name, value, setFieldValue }) => {
           <SelectGroup>
             <SelectItem
               value="Repetitive Learning"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Repetitive Learning (Flashcards, Repetition Drills)
             </SelectItem>
             <SelectItem
               value="Visual Aids"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Visual Aids (Diagrams, Flowcharts)
             </SelectItem>
             <SelectItem
               value="Problem-Based Learning"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Problem-Based Learning
             </SelectItem>
             <SelectItem
               value="Case Study Analysis"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Case Study Analysis
             </SelectItem>
             <SelectItem
               value="Interactive Learning"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Interactive Learning (Quizzes, Gamified Content)
             </SelectItem>
             <SelectItem
               value="Short, Engaging Content"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Short, Engaging Content (Microlearning)
             </SelectItem>
             <SelectItem
               value="Focused on Details"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Focused on Details (Detailed Notes, Annotated Diagrams)
             </SelectItem>
             <SelectItem
               value="Needs Help Connecting Concepts"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Needs Help Connecting Concepts (Mind Maps)
             </SelectItem>

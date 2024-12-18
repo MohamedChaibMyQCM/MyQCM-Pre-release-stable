@@ -8,10 +8,10 @@ import BaseUrl from "@/components/BaseUrl";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import handleError from "@/components/handleError";
 import { useStore } from "zustand";
 import { quizStore } from "@/store/quiz";
 import QuizResult from "@/components/dashboard/QuestionsBank/QuizResult";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [answer, setAnswer] = useState();
@@ -26,7 +26,11 @@ const Page = () => {
       setAnswer(data.data.data);
     },
     onError: (error) => {
-      handleError(error);
+      const message = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message[0]
+        : error?.response?.data?.message || "SignUp failed";
+
+      toast.error(message);
     },
   });
 

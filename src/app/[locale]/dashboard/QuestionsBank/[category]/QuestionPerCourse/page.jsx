@@ -17,13 +17,19 @@ const Page = () => {
     },
   });
 
-  const { data: data2, isLoading, error } = useQuery({
-    queryKey: ["courses"],  
+  const {
+    data: data2,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["courses"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/course/subject/${subjectId}`);
       return response.data.data.courses;
     },
   });
+
+  console.log(data2);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
@@ -34,13 +40,10 @@ const Page = () => {
         Question Bank <span className="text-[12px]">/</span>
         <span className="text-[#FF95C4]">Categories</span>
         <span className="text-[12px]">/</span>
-        {data1.name} <span className="text-[12px]">/</span> Q/C per course
+        {data1 && data1.name} <span className="text-[12px]">/</span> Q/C per
+        course
       </span>
-      <Questions
-        data={data2}
-        isLoading={isLoading}
-        error={error}
-      />
+      <Questions data={data2} isLoading={isLoading} error={error} />
     </div>
   );
 };

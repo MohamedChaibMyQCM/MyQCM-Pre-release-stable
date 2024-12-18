@@ -1,11 +1,11 @@
-"use client";
+// "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import secureLocalStorage from "react-secure-storage";
 import { useLocale } from "next-intl";
 import Loading from "../Loading";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AuthEmail = (Component) => {
   const AuthWrapper = (props) => {
@@ -13,20 +13,24 @@ const AuthEmail = (Component) => {
     const locale = useLocale();
     const [auth, setAuth] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const errorShownRef = useRef(false);
 
     const checkAuth = async () => {
       if (secureLocalStorage.getItem("token")) {
         setAuth(true);
       } else {
-        router.push(`/${locale}/login`);
-        toast.error("You need to login");
+        if (!errorShownRef.current) {
+          errorShownRef.current = true;
+          router.push(`/${locale}/login`);
+          toast.error("You need to login");
+        }
       }
       setAuthLoading(false);
     };
 
     useEffect(() => {
       checkAuth();
-    }, [auth]);
+    }, []);
 
     if (authLoading) return <Loading />;
     if (auth) return <Component {...props} />;

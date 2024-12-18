@@ -18,9 +18,7 @@ const Header = () => {
   return (
     <header
       className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] ${
-        locale == "ar"
-          ? "font-Madani font-[500]"
-          : "font-TTInterphases font-[600]"
+        locale == "ar" ? "font-Madani font-[500]" : "font-[600]"
       }`}
     >
       {locale == "ar" ? (
@@ -34,7 +32,9 @@ const Header = () => {
             href=""
             className={` h-[22.5px] block text-[15px] text-[#191919] relative  
              after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-11px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] ${
-               path == `/${locale}` ? "after:block" : "after:hidden"
+               path == `/${locale}`
+                 ? "after:block text-[#F8589F]"
+                 : "after:hidden"
              }`}
           >
             {t("item_1")}
@@ -43,7 +43,7 @@ const Header = () => {
         <li className="">
           <a
             href=""
-            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
+            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
           >
             {t("item_2")}
             <MdKeyboardArrowDown className="text-[18px] mt-[2.2px]" />
@@ -52,7 +52,7 @@ const Header = () => {
         <li className="">
           <a
             href=""
-            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
+            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
           >
             {t("item_3")}
             <MdKeyboardArrowDown className="mt-[2.2px] text-[18px]" />
@@ -61,7 +61,7 @@ const Header = () => {
         <li className="">
           <a
             href=""
-            className={`h-[22.5px] block text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-10px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
+            className={`h-[22.5px] block text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-10px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
           >
             {t("item_4")}
           </a>

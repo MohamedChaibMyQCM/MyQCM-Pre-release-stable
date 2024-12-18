@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
-import handleError from "@/components/handleError";
+import toast from "react-hot-toast";
 import GoogleAuthButton from "../comp/google-auth.button";
 
 const Page = () => {
@@ -27,7 +27,11 @@ const Page = () => {
       router.push(`/${locale}/dashboard`);
     },
     onError: (error) => {
-      handleError(error)
+      const message = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message[0]
+        : error?.response?.data?.message || "SignIn failed";
+
+      toast.error(message);
     },
   });
 
@@ -36,7 +40,7 @@ const Page = () => {
     let data = { email: Email, password };
     login(data);
   };
-  
+
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
       <Image src={logo} alt="logo" />

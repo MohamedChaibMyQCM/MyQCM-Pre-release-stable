@@ -77,7 +77,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
           time_spent: quizData.estimated_time - timeRemaining,
         };
       }
-      console.log(submissionData);
       const result = await Progress(submissionData);
       setSubmittedAnswer(result);
       setCheckAnswer(false);
@@ -185,7 +184,6 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
                 (selectedOption) => selectedOption.option == item.id
               );
               const optionBgColor = getOptionBackgroundColor(item.id);
-              console.log(optionBgColor);
               return (
                 <li
                   key={index}

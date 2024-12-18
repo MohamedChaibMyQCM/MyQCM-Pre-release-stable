@@ -17,7 +17,7 @@ const CertOrExam = ({ name, value, setFieldValue }) => {
     <div className="w-[48%] flex flex-col gap-2">
       <label
         htmlFor={name}
-        className="text-[#6C7275C4] font-Inter text-[19px] font-semibold"
+        className="text-[#6C7275C4]  text-[19px] font-semibold"
       >
         Any Certifications or Exams?
       </label>
@@ -26,7 +26,7 @@ const CertOrExam = ({ name, value, setFieldValue }) => {
         value={value}
         onValueChange={(val) => setFieldValue(name, val)}
       >
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4] font-Inter font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C7275C4]  font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={exam} alt="exam" />
             <SelectValue placeholder="Select any type of exam you prepare for" />
@@ -37,31 +37,31 @@ const CertOrExam = ({ name, value, setFieldValue }) => {
           <SelectGroup>
             <SelectItem
               value="Unite Exam"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Unite Exam
             </SelectItem>
             <SelectItem
               value="Module Exam"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Module Exam
             </SelectItem>
             <SelectItem
               value="Residency Exam"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               Residency Exam
             </SelectItem>
             <SelectItem
               value="TP (Travaux Pratiques) Evaluation"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               TP (Travaux Pratiques) Evaluation
             </SelectItem>
             <SelectItem
               value="ECOS (Examen Clinique Objectif Structuré)"
-              className="!bg-[#FFE7F2] text-[#ffffff] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+              className="!bg-[#FFE7F2] text-[#ffffff]  font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
             >
               ECOS (Examen Clinique Objectif Structuré)
             </SelectItem>

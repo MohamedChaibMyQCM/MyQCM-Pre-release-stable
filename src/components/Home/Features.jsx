@@ -18,7 +18,7 @@ const Features = () => {
 
   return (
     <section className="pt-[30px] mb-[-0.7px] px-[60px] overflow-hidden">
-      <h4 className="uppercase text-center font-TTInterphases text-[#433E3E] font-bold text-[14px]">
+      <h4 className="uppercase text-center font-Poppins text-[#433E3E] font-semibold text-[16px]">
         Fonctionnalités
       </h4>
       <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7]">
@@ -41,7 +41,7 @@ const Features = () => {
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Parcours adaptatifs
             </h3>
-            <p className="font-TTInterphases text-[14px]">
+            <p className="text-[14px]">
               Parcours d&apos;apprentissage personnalisés pour les étudiants.
             </p>
             <Image
@@ -57,7 +57,7 @@ const Features = () => {
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Quiz interactifs
             </h3>
-            <p className="font-TTInterphases text-[14px]">
+            <p className="text-[14px]">
               Quiz engageants avec retours instantanés.
             </p>
             <Image
@@ -82,7 +82,7 @@ const Features = () => {
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Bibliothèque de vidéos
             </h3>
-            <p className="font-TTInterphases text-[14px]">
+            <p className="text-[14px]">
               Vidéos divisées en segments spécifiques par sujet.
             </p>
             <Image
@@ -98,7 +98,7 @@ const Features = () => {
             <h3 className="font-Genty text-[#000000C7] text-[20px] mb-2">
               Analytique détaillée
             </h3>
-            <p className="font-TTInterphases text-[14px]">
+            <p className="text-[14px]">
               Informations et rapports de performance approfondis.
             </p>
             <Image

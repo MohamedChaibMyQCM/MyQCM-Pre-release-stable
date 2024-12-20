@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import Loading from "../Loading";
 import BaseUrl from "../BaseUrl";
 import toast from "react-hot-toast";
+import { useMutation } from "react-query";
 
 const AuthWrapper = ({ children }) => {
   const locale = useLocale();
@@ -14,6 +15,17 @@ const AuthWrapper = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const toastShownRef = useRef(false);
+
+  const { mutate: checkEmail } = useMutation({
+    mutationFn: (data) => BaseUrl.post("/user/confirm-email", data),
+    onError: (error) => {
+      const message = Array.isArray(error?.response?.data?.message)
+        ? error.response.data.message[0]
+        : error?.response?.data?.message || "SignIn failed";
+
+      toast.error(message);
+    },
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,6 +49,7 @@ const AuthWrapper = ({ children }) => {
           if (!toastShownRef.current) {
             switch (error.response.data.message) {
               case "Email not verified":
+                checkEmail();
                 router.push(`/${locale}/signup/verification`);
                 toast.error("Verify your email");
                 toastShownRef.current = true;

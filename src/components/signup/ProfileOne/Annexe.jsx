@@ -44,16 +44,16 @@ const Annexe = ({ name, value, uniValue, setFieldValue }) => {
         </SelectTrigger>
         <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
           {isLoading ? (
-            <p className="p-4 text-gray-600">Loading universities...</p>
+            <p className="p-4 text-gray-600">Loading Annexe...</p>
           ) : error ? (
-            <p className="p-4 text-red-600">Error loading universities</p>
+            <p className="p-4 text-red-600">Error loading Annexe</p>
           ) : (
             <SelectGroup>
               {data.map((annexe) => (
                 <SelectItem
                   key={annexe.id}
                   value={annexe.id}
-                  className="!bg-[#FFE7F2] text-[#FFFFFF] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+                  className="!bg-[#FFE7F2] text-[#fafafa] font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
                 >
                   {annexe.name}
                 </SelectItem>

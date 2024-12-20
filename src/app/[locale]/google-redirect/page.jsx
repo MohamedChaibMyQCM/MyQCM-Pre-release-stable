@@ -21,7 +21,7 @@ const GoogleRedirect = () => {
       // Store the token in localStorage or cookies
       secureLocalStorage.setItem("token", token);
       // Redirect to dashboard or another page
-      router.push(`/${locale}/signup/setProfile`);
+      router.push(`/${locale}/dashboard`);
     }
   }, [searchParams, router, locale]);
 

@@ -1,9 +1,9 @@
 import Image from "next/image";
 import google from "../../../../public/Icons/google.svg";
 
-const GoogleAuthButton = ({ locale }) => {
+const GoogleAuthButton = ({ locale, action }) => {
   const handleGoogleAuth = () => {
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/user/google/auth?locale=${locale}`;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/user/google/auth?locale=${locale}&action=${action}`;
     window.location.href = url;
   };
 

@@ -11,6 +11,8 @@ import { IoIosCheckmarkCircle } from "react-icons/io";
 import QuizResult from "./QuizResult";
 
 const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
+  console.log(data);
+
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -173,7 +175,15 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
             {data[selectedQuiz].question}
           </p>
         </div>
-        <Image src={quiz} alt="quiz image" className="w-[360px]" />
+        {data[selectedQuiz].attachment && (
+          <Image
+            src={data[selectedQuiz].attachment}
+            alt="quiz image"
+            className="w-[360px]"
+            width={360}
+            height={240}
+          />
+        )}
       </div>
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
         <ul className="flex flex-col gap-4">

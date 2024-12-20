@@ -69,6 +69,16 @@ const Page = () => {
     },
   });
 
+  const calculateProgress = () => {
+    const totalFields = 15;
+    const filledFields = Object.values(formik.values).filter(
+      (value) => value
+    ).length;
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
+  const progress = calculateProgress();
+
   return (
     <div
       className={`bg-[#FFF9F9] w-[100%] h-[100%] overflow-y-scroll rounded-[16px] flex flex-col items-center justify-center ${
@@ -85,8 +95,11 @@ const Page = () => {
         Configuration de votre profil
       </h2>
       <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] mt-[16px] mb-[24px]">
-        <div className="bg-[#F8589F] w-[250px] h-[100%] rounded-[16px] flex items-center justify-center font-medium text-[#FFF] text-[11px] absolute left-0 top-0 ">
-          50% terminé
+        <div
+          className="bg-[#F8589F] h-[100%] rounded-[16px] flex items-center justify-center font-medium text-[#FFF] text-[11px] absolute left-0 top-0 transition-all duration-500 ease-in-out"
+          style={{ width: `${progress}%` }}
+        >
+          {progress > 20 && `${progress}% terminé`}
         </div>
       </div>
       <form className="w-[100%] px-[40px]" onSubmit={formik.handleSubmit}>

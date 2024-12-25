@@ -3,20 +3,31 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
 import arrow from "../../../../public/greyArrow.svg";
+import { useQuery } from "react-query";
+import BaseUrl from "@/components/BaseUrl";
 
 const SelectUnite = ({ setselectunite }) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["units"],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/unit/user");
+      return response.data.data;
+    },
+  });
+
+  console.log(data);
+
   return (
-    <div className="absolute box z-50 right-4 top-[60px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[200px]">
+    <div className="absolute box z-50 right-0 top-[40px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[220px]">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[#0C092A] font-Poppins font-semibold text-[14px]">
-          Select Unit 
+          Select Unit
         </span>
         <Image
           src={exit}
@@ -35,30 +46,15 @@ const SelectUnite = ({ setselectunite }) => {
           </SelectTrigger>
           <SelectContent className="bg-[#E8E8E8] rounded-[8px]">
             <SelectGroup>
-              <SelectItem
-                value="General Medicine"
-                className="!bg-[#E8E8E8] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
-              >
-                General Medicine
-              </SelectItem>
-              <SelectItem
-                value="Dentistry"
-                className="!bg-[#E8E8E8] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
-              >
-                Dentistry
-              </SelectItem>
-              <SelectItem
-                value="Pharmacy"
-                className="!bg-[#E8E8E8] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
-              >
-                Pharmacy
-              </SelectItem>
-              <SelectItem
-                value="Nursing"
-                className="!bg-[#E8E8E8] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
-              >
-                Nursing
-              </SelectItem>
+              {data?.map((item) => (
+                <SelectItem
+                  key={item.id}
+                  value={item.id}
+                  className="!bg-[#E8E8E8] text-[#FFFFFF] font-Inter font-medium duration-300 hover:!bg-[#ffffff] rounded-[8px]"
+                >
+                  {item.name}
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>

@@ -109,7 +109,6 @@ const QuizExplanation = ({
               </div>
               <span className="font-Poppins font-medium text-[14px] text-[#FFFFFF]">
                 Pourcentage of Accuracy of Your Answer: {QuizData.success_ratio * 100}{" "}
-                , No Errors
               </span>
               <Image
                 src={accuracyPic}
@@ -126,7 +125,7 @@ const QuizExplanation = ({
               : "Explanation of MyQCM Experts"}
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.explanation}
+            {QuizData.answer}
           </p>
         </div>
         <div
@@ -138,7 +137,7 @@ const QuizExplanation = ({
             Analysis of MyQCM AI assistent
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {data.analysis}
+            {QuizData.feedback}
           </p>
         </div>
         <div

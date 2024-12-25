@@ -6,13 +6,10 @@ import playSeason from "../../../../public/Icons/playSeason.svg";
 import inform from "../../../../public/Icons/inform.svg";
 import { useState } from "react";
 import TrainingSeason from "./TrainingSeason";
-import options from "../../../../public/Icons/greyOption.svg";
-import SelectUnite from "./SelectUnite";
 import Loading from "@/components/Loading";
 
 const Questions = ({ data, isLoading, error }) => {
   const [popup, setPopup] = useState(false);
-  const [selectUnite, setSelectUnite] = useState(false);
   const [courseId, setCourseId] = useState("");
 
   if (isLoading) return <Loading />;
@@ -24,21 +21,10 @@ const Questions = ({ data, isLoading, error }) => {
         <h1 className="text-center font-Poppins font-semibold text-[22px] text-[#0C092A]">
           Questions par cours
         </h1>
-        <div className="flex items-center gap-4">
-          <span className="text-[#858494] font-Poppins font-semibold text-[13px]">
-            Sélectionner l&apos;unité
-          </span>
-          <Image
-            src={options}
-            alt="options"
-            className=" cursor-pointer"
-            onClick={() => setSelectUnite(true)}
-          />
-        </div>
-        {selectUnite && <SelectUnite setselectunite={setSelectUnite} />}
+        
       </div>
       <ul className="flex flex-col gap-4">
-        {data.map((item) => (
+        {data && data.map((item) => (
           <li
             className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px]"
             key={item.id}

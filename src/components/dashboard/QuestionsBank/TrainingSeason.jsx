@@ -55,7 +55,6 @@ const TrainingSeason = ({ setPopup, courseId }) => {
         time_limit: Number(values.time_limit),
         number_of_questions: Number(values.number_of_questions),
       };
-      console.log(data);
       TrainingSettings(data);
     },
   });

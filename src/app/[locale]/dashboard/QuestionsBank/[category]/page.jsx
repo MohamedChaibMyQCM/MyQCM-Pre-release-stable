@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Courses from "@/components/dashboard/QuestionsBank/Courses";
 import Module from "@/components/dashboard/QuestionsBank/Module";
@@ -16,7 +17,7 @@ const Page = () => {
       const response = await BaseUrl.get(`/subject/${subjectId}`);
       return response.data.data;
     },
-  });
+  });  
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;

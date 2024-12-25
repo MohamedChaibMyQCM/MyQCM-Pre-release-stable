@@ -5,21 +5,24 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useParams } from "next/navigation";
 
-const QuizResult = ({ data, setSkip }) => {
-  const locale = useLocale()
-  const {category} = useParams()
+const QuizResult = ({ data }) => {
+  const locale = useLocale();
+  const { category } = useParams();
 
   return (
     <div className="bg-[#0000004D] w fixed top-0 left-0 h-full w-full flex items-center justify-center">
       <div className="bg-[#ffffff] w-[340px] p-[30px] rounded-[16px] flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <span className="font-Poppins font-medium">Awesome Muhammad!</span>
-          <Image
-            src={exit}
-            alt="exit"
-            onClick={() => setSkip(false)}
-            className="cursor-pointer"
-          />
+          <span className="font-Poppins font-medium">Awesome!</span>
+          <Link
+            href={`/${locale}/dashboard/QuestionsBank/${category}/QuestionPerCourse`}
+          >
+            <Image
+              src={exit}
+              alt="exit"
+              className="cursor-pointer"
+            />
+          </Link>
         </div>
         <Image src={result} alt="result" className="cursor-pointer" />
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -28,7 +31,7 @@ const QuizResult = ({ data, setSkip }) => {
               COMPLETION
             </span>
             <span className="text-[#0C092A] font-Poppins font-medium text-[12px]">
-              {(data.average_accuracy * 100).toFixed(2)}%
+              {data.mcqs_average.toFixed(2)}%
             </span>
           </div>
           <div className="basis-[40%] flex flex-col">
@@ -36,7 +39,7 @@ const QuizResult = ({ data, setSkip }) => {
               CORRECT ANSWER
             </span>
             <span className="text-[#0C092A] font-Poppins font-medium text-[12px]">
-              17 questions
+              {data.mcqs_success} questions
             </span>
           </div>
           <div className="basis-[40%] flex flex-col">
@@ -44,7 +47,7 @@ const QuizResult = ({ data, setSkip }) => {
               SKIPPED
             </span>
             <span className="text-[#0C092A] font-Poppins font-medium text-[12px]">
-              {data.attempted_mcqs}
+              {data.mcqs_skipped} questions
             </span>
           </div>
           <div className="basis-[40%] flex flex-col">
@@ -52,7 +55,7 @@ const QuizResult = ({ data, setSkip }) => {
               INCORRECT ANSWER
             </span>
             <span className="text-[#0C092A] font-Poppins font-medium text-[12px]">
-              1
+              {data.mcqs_failed} questions
             </span>
           </div>
         </div>

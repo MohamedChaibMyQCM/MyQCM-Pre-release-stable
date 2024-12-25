@@ -18,7 +18,7 @@ const Page = () => {
   const router = useRouter();
 
   const { mutate: changePassword } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/user/reset-password", data),
+    mutationFn: (data) => BaseUrl.post("/user/forgot-password/reset", data),
     onSuccess: ({ data }) => {
       router.push(`/${locale}/login`);
       toast.success("Successfully reset password");

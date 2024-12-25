@@ -10,9 +10,15 @@ import { useFormik } from "formik";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import QuizResult from "./QuizResult";
 
-const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
-  console.log(data);
-
+const Quiz = ({
+  data,
+  Progress,
+  answer,
+  data1,
+  setData,
+  setResult,
+  setAnswer,
+}) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -21,6 +27,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
     data[0]?.estimated_time || 0
   );
   const [submittedAnswer, setSubmittedAnswer] = useState(null);
+  const [processedAnswers] = useState(new Set()); // Track processed answers
   const timerRef = useRef(null);
 
   const handleOptionClick = (option) => {
@@ -82,6 +89,21 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
       const result = await Progress(submissionData);
       setSubmittedAnswer(result);
       setCheckAnswer(false);
+
+      if (!processedAnswers.has(quizData.id)) {
+        if (result.data.data.success_ratio == 1) {
+          setData((prevData) => ({
+            ...prevData,
+            mcqs_success: prevData.mcqs_success + 1,
+          }));
+        } else if (result.data.data.success_ratio == 0) {
+          setData((prevData) => ({
+            ...prevData,
+            mcqs_failed: prevData.mcqs_failed + 1,
+          }));
+        }
+        processedAnswers.add(quizData.id); 
+      }
     },
   });
 
@@ -110,9 +132,17 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
   }, [selectedQuiz]);
 
   const handleSkipQuestion = () => {
-    setSelectedQuiz(selectedQuiz + 1);
+    if (selectedQuiz >= data.length) {
+      console.log("No more questions to skip!");
+      return;
+    }
+    setSelectedQuiz((prevQuiz) => prevQuiz + 1);
     setSelectedOptions([]);
     setSubmittedAnswer(null);
+    setData((prevData) => ({
+      ...prevData,
+      mcqs_skipped: prevData.mcqs_skipped + 1,
+    }));
     formik.resetForm();
   };
 
@@ -131,6 +161,16 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
         : "!bg-[#FF3737] !text-[#FFF]";
     }
     return "";
+  };
+
+  const handleNextQuestion = () => {
+    setSelectedQuiz((prevQuiz) => prevQuiz + 1);
+    setSelectedOptions([]);
+    setSubmittedAnswer(null);
+    setSeeExplanation(false);
+    setCheckAnswer(true);
+    setAnswer(null);
+    formik.resetForm();
   };
 
   return (
@@ -227,6 +267,7 @@ const Quiz = ({ data, Progress, answer, data1, setResult, setAnswer }) => {
             type="button"
             onClick={handleSkipQuestion}
             className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
+            disabled={!checkAnswer}
           >
             Skip Question
           </button>

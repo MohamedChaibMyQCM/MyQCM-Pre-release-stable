@@ -1,6 +1,5 @@
 import Categories from "@/components/dashboard/QuestionsBank/Categories";
 import Exams from "@/components/dashboard/QuestionsBank/Exams";
-import React from "react";
 
 const page = () => {
   return (

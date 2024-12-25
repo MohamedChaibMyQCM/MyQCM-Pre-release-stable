@@ -18,7 +18,7 @@ const Page = () => {
   const router = useRouter();
 
   const { mutate: resetPassword } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/user/request-reset-password", data),
+    mutationFn: (data) => BaseUrl.post("/user/forgot-password/request", data),
     onSuccess: ({}) => {
       router.push(`/${locale}/login/reset/change-password`);
       toast.success("Check Your Email");
@@ -33,7 +33,7 @@ const Page = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    resetPassword(Email);
+    resetPassword({ email: Email });	
   };
 
   return (

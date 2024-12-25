@@ -25,11 +25,9 @@ const Page = () => {
     queryKey: ["courses"],
     queryFn: async () => {
       const response = await BaseUrl.get(`/course/subject/${subjectId}`);
-      return response.data.data.courses;
+      return response.data.data;
     },
   });
-
-  console.log(data2);
 
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;

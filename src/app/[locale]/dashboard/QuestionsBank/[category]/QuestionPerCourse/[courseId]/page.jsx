@@ -1,3 +1,4 @@
+// Page.jsx
 "use client";
 
 import Image from "next/image";
@@ -5,9 +6,9 @@ import logo from "../../../../../../../../public/whiteLogo.svg";
 import { QuizImage } from "@/data/data";
 import Quiz from "@/components/dashboard/QuestionsBank/Quiz";
 import BaseUrl from "@/components/BaseUrl";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "zustand";
 import { quizStore } from "@/store/quiz";
 import QuizResult from "@/components/dashboard/QuestionsBank/QuizResult";
@@ -22,29 +23,36 @@ const Page = () => {
   const { mutateAsync: Progress } = useMutation({
     mutationFn: (data) => BaseUrl.post(`/progress`, data),
     onSuccess: (data) => {
-      console.log(data.data.data);
       setAnswer(data.data.data);
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
-        : error?.response?.data?.message || "SignUp failed";
+        : error?.response?.data?.message || "Send Response failed";
 
       toast.error(message);
     },
   });
 
-  const {
-    data: data1,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["courseResult", courseId],
-    queryFn: async () => {
-      const response = await BaseUrl.get(`/course/result/${courseId}`) 
-      return response.data.data
-    },
+  const [data, setData] = useState({
+    total_mcqs: quiz.quiz_data?.length || 0,
+    mcqs_success: 0,
+    mcqs_failed: 0,
+    mcqs_skipped: 0,
+    mcqs_average: 0,
   });
+
+  useEffect(() => {
+    const totalAnswered = data.mcqs_success;
+    const totalSkipped = data.mcqs_skipped;
+    setData((prev) => ({
+      ...prev,
+      mcqs_average:
+        prev.total_mcqs > 0
+          ? (totalAnswered / (prev.total_mcqs - totalSkipped)) * 100
+          : 0,
+    }));
+  }, [data.mcqs_success, data.mcqs_failed, data.mcqs_skipped]);
 
   return (
     <div className="absolute min-h-[100vh] w-[100%] z-50 top-0 left-0 bg-[#FF6FAF] px-[80px] py-[30px] pb-[100px] flex flex-col gap-10">
@@ -61,7 +69,8 @@ const Page = () => {
         data={quiz.quiz_data || []}
         Progress={Progress}
         answer={answer}
-        data1={data1}
+        data1={data}
+        setData={setData}
         setResult={setResult}
         setAnswer={setAnswer}
       />
@@ -73,7 +82,7 @@ const Page = () => {
           className={item.className}
         />
       ))}
-      {result && <QuizResult data={data1} setResult={setResult} />}
+      {result && <QuizResult data={data} setResult={setResult} />}
     </div>
   );
 };

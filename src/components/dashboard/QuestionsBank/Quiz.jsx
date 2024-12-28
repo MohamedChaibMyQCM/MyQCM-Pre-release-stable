@@ -192,7 +192,14 @@ const Quiz = ({
               Type: {data[selectedQuiz].type}
             </span>
           </div>
-          <span className="block relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] after:w-[40px] after:h-[8px] after:rounded-[20px] after:bg-[#FF6EAF] after:absolute after:left-0"></span>
+          <div className="relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-500 ease-in-out"
+              style={{
+                width: `${((selectedQuiz + 1) / data.length) * 100}%`,
+              }}
+            ></div>
+          </div>
           <span
             className={`px-[18px] py-[10px] rounded-[10px] text-[#FFFFFF] font-Poppins text-[14px] font-medium ${
               data[selectedQuiz].difficulty == "easy"

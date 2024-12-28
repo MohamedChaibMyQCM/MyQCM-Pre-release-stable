@@ -4,6 +4,7 @@ import right from "../../../../public/Quiz/true.svg";
 import notRight from "../../../../public/Quiz/false.svg";
 import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
 import { data } from "autoprefixer";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const QuizExplanation = ({
   QuizData,
@@ -126,7 +127,9 @@ const QuizExplanation = ({
               : "Explanation of MyQCM Experts"}
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.explanation ? QuizData.explanation : QuizData.answer}
+            <div className="h-[100px] rounded-[14px] border-[1px] border-[#858494] px-[20px] py-[10px] overflow-y-scroll custom-scrool">
+              {QuizData.explanation ? QuizData.explanation : QuizData.answer}
+            </div>
           </p>
         </div>
         <div
@@ -138,7 +141,9 @@ const QuizExplanation = ({
             Analysis of MyQCM AI assistent
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.feedback}
+            <div className="h-[100px] rounded-[14px] border-[1px] border-[#858494] px-[20px] py-[14px] overflow-y-scroll custom-scrool">
+              {QuizData.feedback}
+            </div>
           </p>
         </div>
         <div

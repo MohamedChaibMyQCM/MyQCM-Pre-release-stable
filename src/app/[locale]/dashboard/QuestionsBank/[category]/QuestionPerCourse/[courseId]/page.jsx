@@ -1,4 +1,3 @@
-// Page.jsx
 "use client";
 
 import Image from "next/image";
@@ -24,6 +23,7 @@ const Page = () => {
     mutationFn: (data) => BaseUrl.post(`/progress`, data),
     onSuccess: (data) => {
       setAnswer(data.data.data);
+      console.log("1");
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)

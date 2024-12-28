@@ -13,7 +13,7 @@ const QuizExplanation = ({
   length,
   setSelectedQuiz,
   setCheckAnswer,
-  setSelectedOptions, 
+  setSelectedOptions,
   setAnswer,
   formik,
 }) => {
@@ -22,12 +22,12 @@ const QuizExplanation = ({
     setCheckAnswer(true);
     setSelectedQuiz((prevQuiz) => prevQuiz + 1);
     setSelectedOptions([]);
-    setAnswer('')
+    setAnswer("");
     formik.resetForm();
   };
 
   const getBackgroundColor = (ratio) => {
-    const res = ratio * 100
+    const res = ratio * 100;
     if (res >= 0 && res < 30) return "bg-red-600";
     if (res >= 30 && res < 70) return "bg-[#ECD14E]";
     return "bg-[#53DF83]";
@@ -108,7 +108,8 @@ const QuizExplanation = ({
                 </span>
               </div>
               <span className="font-Poppins font-medium text-[14px] text-[#FFFFFF]">
-                Pourcentage of Accuracy of Your Answer: {QuizData.success_ratio * 100}{" "}
+                Pourcentage of Accuracy of Your Answer:{" "}
+                {QuizData.success_ratio * 100}{" "}
               </span>
               <Image
                 src={accuracyPic}
@@ -125,7 +126,7 @@ const QuizExplanation = ({
               : "Explanation of MyQCM Experts"}
           </span>
           <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            {QuizData.answer}
+            {QuizData.explanation ? QuizData.explanation : QuizData.answer}
           </p>
         </div>
         <div

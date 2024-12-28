@@ -30,6 +30,8 @@ const Quiz = ({
   const [processedAnswers] = useState(new Set()); // Track processed answers
   const timerRef = useRef(null);
 
+  console.log(answer);
+
   const handleOptionClick = (option) => {
     setSelectedOptions((prevSelected) => {
       const isAlreadySelected = prevSelected.some(
@@ -65,15 +67,18 @@ const Quiz = ({
       time_spent: data[selectedQuiz]?.estimated_time,
     },
     onSubmit: async (values) => {
+      if (processedAnswers.has(data[selectedQuiz]?.id)) {
+        return;
+      }
+
       clearInterval(timerRef.current);
       let quizData = data[selectedQuiz];
       if (!quizData) {
-        console.error("Selected quiz data is undefined");
         return;
       }
 
       let submissionData = {};
-      if (quizData.type == "qcm" || quizData.type == "qcs") {
+      if (quizData.type === "qcm" || quizData.type === "qcs") {
         submissionData = {
           mcq: values.mcq,
           response_options: values.response_options,
@@ -86,23 +91,28 @@ const Quiz = ({
           time_spent: quizData.estimated_time - timeRemaining,
         };
       }
-      const result = await Progress(submissionData);
-      setSubmittedAnswer(result);
-      setCheckAnswer(false);
 
-      if (!processedAnswers.has(quizData.id)) {
-        if (result.data.data.success_ratio == 1) {
-          setData((prevData) => ({
-            ...prevData,
-            mcqs_success: prevData.mcqs_success + 1,
-          }));
-        } else if (result.data.data.success_ratio == 0) {
-          setData((prevData) => ({
-            ...prevData,
-            mcqs_failed: prevData.mcqs_failed + 1,
-          }));
+      try {
+        const result = await Progress(submissionData);
+        setSubmittedAnswer(result);
+        setCheckAnswer(false);
+
+        if (!processedAnswers.has(quizData.id)) {
+          if (result.data.data.success_ratio === 1) {
+            setData((prevData) => ({
+              ...prevData,
+              mcqs_success: prevData.mcqs_success + 1,
+            }));
+          } else if (result.data.data.success_ratio < 1) {
+            setData((prevData) => ({
+              ...prevData,
+              mcqs_failed: prevData.mcqs_failed + 1,
+            }));
+          }
+          processedAnswers.add(quizData.id);
         }
-        processedAnswers.add(quizData.id); 
+      } catch (error) {
+        console.error("Error submitting answer:", error);
       }
     },
   });
@@ -133,7 +143,6 @@ const Quiz = ({
 
   const handleSkipQuestion = () => {
     if (selectedQuiz >= data.length) {
-      console.log("No more questions to skip!");
       return;
     }
     setSelectedQuiz((prevQuiz) => prevQuiz + 1);

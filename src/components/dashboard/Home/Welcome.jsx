@@ -4,7 +4,7 @@ import Calender from "./Calender";
 
 const Welcome = ({ setUnit }) => {
   return (
-    <div className="pt-[10px] px-[30px] w-[60%]">
+    <div className="pt-[10px] px-[30px] w-[60%] max-md:w-[100%]">
       <Cards setUnit={setUnit} />
       <Calender />
     </div>

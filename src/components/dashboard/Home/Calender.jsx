@@ -66,7 +66,7 @@ const Calendar = () => {
       <h2 className="font-Inter text-[#121212] font-bold text-[17px] mb-5">
         Votre parcours d&apos;apprentissage
       </h2>
-      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px]">
+      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0">
         <div className="flex items-center justify-between mb-4">
           <MdOutlineKeyboardArrowLeft
             className="text-[#B5BEC6] text-[20px] cursor-pointer"

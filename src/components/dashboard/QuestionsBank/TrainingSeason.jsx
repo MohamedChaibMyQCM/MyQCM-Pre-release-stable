@@ -60,8 +60,8 @@ const TrainingSeason = ({ setPopup, courseId }) => {
   });
 
   return (
-    <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center">
-      <div className="bg-[#FFFFFF] w-[400px] h-[500px] rounded-[16px] p-[20px] flex flex-col gap-4">
+    <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-50">
+      <div className="bg-[#FFFFFF] w-[400px] h-[500px] rounded-[16px] p-[20px] flex flex-col gap-4 max-md:w-[92%]">
         <div className="flex items-center justify-between">
           <Image
             src={settings}

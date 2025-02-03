@@ -55,9 +55,9 @@ const Page = () => {
   }, [data.mcqs_success, data.mcqs_failed, data.mcqs_skipped]);
 
   return (
-    <div className="absolute min-h-[100vh] w-[100%] z-50 top-0 left-0 bg-[#FF6FAF] px-[80px] py-[30px] pb-[100px] flex flex-col gap-10">
+    <div className="absolute min-h-[100vh] w-screen z-50 top-0 left-0 bg-[#FF6FAF] px-[80px] py-[30px] pb-[100px] flex flex-col gap-10 max-md:px-[20px]">
       <div className="flex items-center justify-between">
-        <Image src={logo} alt="logo" className="w-[140px]" />
+        <Image src={logo} alt="logo" className="w-[140px] max-md:w-[120px]" />
         <button
           onClick={() => setResult(true)}
           className="font-Inter font-medium text-[13px] text-[#FFFFFF] rounded-[12px] px-[12px] py-[6px] border-[2px] border-[#FFFFFF]"

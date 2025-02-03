@@ -8,7 +8,7 @@ const Page = async () => {
   const [unit, setUnit] = useState()
 
   return (
-    <div className="flex border-l border-[#E4E4E4]">
+    <div className="flex border-l border-[#E4E4E4] max-md:flex-col-reverse">
       <Welcome setUnit={setUnit} />
       <Statistical unit={unit} />
     </div>

@@ -29,7 +29,7 @@ const HeroSection = () => {
 
   return (
     <section
-      className={`h-[88vh] overflow-hidden bg-[#F8F8F8] flex items-center justify-between ${
+      className={`h-[88vh] overflow-hidden bg-[#F8F8F8] flex items-center justify-between max-md:px-[20px] max-md:block max-md:h-[44vh] max-md:pt-10 ${
         locale == "ar" ? "pr-[100px] pl-[60px] font-Madani" : "pl-[100px]"
       }`}
     >
@@ -38,7 +38,7 @@ const HeroSection = () => {
         className={`flex flex-col ${locale == "ar" ? "gap-6" : "gap-4"}`}
       >
         <h1
-          className={`text-[70px] leading-[80px] ${
+          className={`text-[70px] leading-[80px] max-md:text-[40px] max-md:hidden ${
             locale == "ar"
               ? "font-Madani leading-[90px] font-medium"
               : "font-Genty leading-[80px]"
@@ -60,7 +60,9 @@ const HeroSection = () => {
         </h1>
         <p
           className={`text-[17px] text-[#000] font-[300] ${
-            locale == "ar" ? "max-w-[440px] " : "max-w-[464px]"
+            locale == "ar"
+              ? "max-w-[440px] max-md:w-full"
+              : "max-w-[464px] max-md:w-full"
           }`}
         >
           {t("paragraph_part_1")}{" "}
@@ -107,7 +109,7 @@ const HeroSection = () => {
             {t("paragraph_part_12")}
           </span>
         </p>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-8 max-md:flex-col max-md:items-start max-md:mt-4">
           <Link
             href={`${locale}/signup`}
             className={`bg-[#F8589FCC] w-fit py-[8px] flex gap-3 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff] ${
@@ -118,7 +120,7 @@ const HeroSection = () => {
             <IoIosArrowDropright className="text-[19px]" />
           </Link>
           <button
-            className="flex items-center gap-3"
+            className="flex items-center gap-3 max-md:hidden"
             onClick={() => setVideo(true)}
           >
             <div className="relative wave_animation w-[30px] h-[30px] bg-[#EE459045] rounded-full flex items-center justify-center">
@@ -139,7 +141,7 @@ const HeroSection = () => {
         src={doctors}
         alt="doctors"
         data-aos="fade-left"
-        className="w-[580px] relative bottom-[-0.5px] self-end fade-left"
+        className="w-[580px] relative bottom-[-0.5px] self-end fade-left max-md:hidden"
       />
     </section>
   );

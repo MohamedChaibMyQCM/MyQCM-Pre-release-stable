@@ -17,11 +17,11 @@ const Features = () => {
   }, []);
 
   return (
-    <section className="pt-[30px] mb-[-0.7px] px-[60px] overflow-hidden">
+    <section className="pt-[30px] mb-[-0.7px] px-[60px] overflow-hidden max-md:px-[20px] max-md:my-16">
       <h4 className="uppercase text-center font-Poppins text-[#433E3E] font-semibold text-[16px]">
         Fonctionnalités
       </h4>
-      <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7]">
+      <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7] max-md:mb-8 max-md:text-[40px] max-md:w-full">
         <span className="stroke text-[#838383]">
           Découvrez votre expertise médicale{" "}
         </span>
@@ -29,11 +29,11 @@ const Features = () => {
         <Image
           src={vector}
           alt="vector"
-          className="absolute bottom-[-16px] right-[110px] feature_anim !w-[360px]"
+          className="absolute bottom-[-16px] right-[110px] feature_anim !w-[360px] max-md:hidden"
         />
       </h2>
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col justify-between h-[300px] basis-[30%]">
+      <div className="flex items-center justify-between max-md:flex-col max-md:gap-12 max-md:pb-4">
+        <div className="flex flex-col justify-between h-[300px] basis-[30%] max-md:gap-16">
           <div
             className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px] self-end"
             data-aos="fade-right"
@@ -71,11 +71,11 @@ const Features = () => {
           <Image
             src={doctor}
             alt="doctor"
-            className="w-[400px] mt-[40px] mr-[30px]"
+            className="w-[400px] mt-[40px] mr-[30px] max-md:hidden"
           />
         </div>
         <div
-          className="flex flex-col justify-between basis-[30%] h-[300px]"
+          className="flex flex-col justify-between basis-[30%] h-[300px] max-md:gap-16"
           data-aos="fade-left"
         >
           <div className="relative w-[300px] py-[18px] px-[30px] box rounded-[10px]">

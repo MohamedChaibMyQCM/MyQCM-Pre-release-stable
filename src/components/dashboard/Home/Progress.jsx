@@ -62,7 +62,7 @@ const Progress = () => {
                     {item.name}
                   </h4>
                   <div className="h-[20px] flex items-center gap-2">
-                    <span className="font-Inter text-[#808191] text-[12px] font-medium">
+                    <span className="font-Inter text-[#808191] text-[12px] font-medium max-md:text-[10px]">
                       Your Progress:
                     </span>
                     <div className="relative h-[13px] w-[100px] rounded-[4px] bg-[#D9D9D9]">

@@ -8,31 +8,37 @@ import clinical from "../../../../public/Icons/casClinical.svg";
 const Module = ({ data }) => { 
   return (
     <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
-      <Image src={data.attachment} width={400} height={200} alt="stock" className="w-full" />
+      <Image
+        src={data.attachment}
+        width={400}
+        height={200}
+        alt="stock"
+        className="w-full"
+      />
       <span className="font-Poppins text-[14px] text-[#858494] font-medium">
         Module
       </span>
       <span className="font-Poppins text-[20px] text-[#0C092A] font-semibold">
         {data.name}
       </span>
-      <div className="w-full bg-[#FFF5FA] flex items-center justify-between px-[22px] py-[14px] rounded-[16px]">
-        <div className="flex items-center gap-3">
+      <div className="w-full bg-[#FFF5FA] flex items-center justify-between px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]">
+        <div className="flex items-center gap-3 max-md:flex-col">
           <Image src={qcm} alt="QCM + QCS" />
-          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
+          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A] max-md:text-[12px]">
             {data.qcm_count + data.qcs_count} QCM + QCS
           </span>
         </div>
-        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full"></span>
-        <div className="flex items-center gap-3">
+        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
+        <div className="flex items-center gap-3 max-md:flex-col">
           <Image src={qroc} alt="QCM + QCS" />
-          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
+          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A] max-md:text-[12px]">
             {data.qroc_count} QROC
           </span>
         </div>
-        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full"></span>
-        <div className="flex items-center gap-3">
+        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
+        <div className="flex items-center gap-3 max-md:flex-col">
           <Image src={clinical} alt="QCM + QCS" />
-          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A]">
+          <span className="font-Poppins font-semibold text-[14px] text-[#0C092A] max-md:text-[12px]">
             0 Cas Clinique
           </span>
         </div>
@@ -57,10 +63,10 @@ const Module = ({ data }) => {
         </div>
       </div>
       <div className="flex self-end gap-12 mt-[16px]">
-        <button className="font-Poppins text-[#F8589F] text-[14px] font-medium">
+        <button className="font-Poppins text-[#F8589F] text-[14px] font-medium max-md:text-[12px]">
           Jouer par Unite
         </button>
-        <button className="font-Poppins font-medium bg-[#FF95C4] rounded-[16px] px-[20px] py-[10px] text-[14px] text-[#FFFFFF]">
+        <button className="font-Poppins font-medium bg-[#FF95C4] rounded-[16px] px-[20px] py-[10px] text-[14px] text-[#FFFFFF] max-md:text-[12px]">
           Simulation pour toutes les unités.
         </button>
       </div>

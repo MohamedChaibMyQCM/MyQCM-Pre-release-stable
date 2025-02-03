@@ -14,7 +14,7 @@ import Image from "next/image";
 
 const PrefContentFormat = ({ name, value, setFieldValue }) => {
   return (
-    <div className="w-[48%] flex flex-col gap-2">
+    <div className="w-[48%] flex flex-col gap-2 max-md:w-full">
       <label
         htmlFor={name}
         className="text-[#6C7275C4]  text-[19px] font-semibold"

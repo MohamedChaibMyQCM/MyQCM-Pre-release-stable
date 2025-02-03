@@ -17,7 +17,7 @@ const Header = () => {
 
   return (
     <header
-      className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] ${
+      className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] max-md:px-[20px] ${
         locale == "ar" ? "font-Madani font-[500]" : "font-[600]"
       }`}
     >
@@ -26,7 +26,7 @@ const Header = () => {
       ) : (
         <Image src={logo} alt="logo" className="w-[150px]" />
       )}
-      <ul className="flex justify-between items-center basis-[50%]">
+      <ul className="flex justify-between items-center basis-[50%] max-md:hidden">
         <li className="">
           <a
             href=""

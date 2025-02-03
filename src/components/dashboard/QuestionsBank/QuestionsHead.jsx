@@ -18,18 +18,18 @@ const QuestionsHead = () => {
   });
 
   return (
-    <header className="flex items-center justify-between border-b border-[#E4E4E4] px-[40px] py-[10px]">
+    <header className="flex items-center justify-between border-b border-[#E4E4E4] px-[40px] py-[10px] max-md:px-[20px]">
       <div>
-        <h2 className="text-[#565656] font-Poppins font-semibold text-[26px]">
+        <h2 className="text-[#565656] font-Poppins font-semibold text-[26px] max-md:text-[18px]">
           Banque De Questions
         </h2>
       </div>
-      <div className="flex items-center gap-4">
-        <span className="text-[#565656] font-Poppins font-medium">
+      <div className="flex items-center gap-4 max-md:gap-3">
+        <span className="text-[#565656] font-Poppins font-medium max-md:hidden">
           Vos crédits :
         </span>
         <div className="flex items-center gap-[2px]">
-          <span className="text-[#181818] font-Poppins font-semibold">
+          <span className="text-[#181818] font-Poppins font-semibold max-md:text-[15px]">
             {data && data.mcqs == null ? (
               <Image src={infinite} alt="infinite" className="w-[28px]" />
             ) : (
@@ -37,15 +37,19 @@ const QuestionsHead = () => {
             )}
           </span>
         </div>
-        <Image src={list} alt="list" className="w-[22px]" />
-        <span className="text-[#181818] font-Poppins font-semibold">
+        <Image src={list} alt="list" className="w-[22px] max-md:w-[20px]" />
+        <span className="text-[#181818] font-Poppins font-semibold max-md:text-[15px]">
           {data && data.qrocs == null ? (
-            <Image src={infinite} alt="infinite" className="w-[28px]" />
+            <Image src={infinite} alt="infinite" className="w-[28px] " />
           ) : (
             data?.qrocs
           )}
         </span>
-        <Image src={question} alt="question" className="w-[24px]" />
+        <Image
+          src={question}
+          alt="question"
+          className="w-[24px] max-md:w-[20px]"
+        />
         {/* <div className="flex items-center gap-[2px]">
           <Image src={infinite} alt="infinite" className="w-[28px]" />
           <span className="text-[#181818] font-Poppins font-semibold">

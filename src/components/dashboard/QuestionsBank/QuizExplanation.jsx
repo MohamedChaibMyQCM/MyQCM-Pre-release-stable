@@ -152,7 +152,7 @@ const QuizExplanation = ({
           }`}
         >
           <span
-            className={`text-center font-Poppins pl-[100px] font-medium text-[11px] text-[#858494] ${
+            className={`text-center font-Poppins pl-[100px] font-medium text-[11px] text-[#858494] max-md:hidden ${
               type == "qcm" || type == "qcs" ? "hidden" : "block"
             }`}
           >

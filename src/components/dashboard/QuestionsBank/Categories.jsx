@@ -29,9 +29,9 @@ const Categories = () => {
   const subjects = Array.isArray(data) ? data : [];
 
   return (
-    <div className="px-[30px] mb-[40px]">
+    <div className="px-[30px] mb-[40px] max-md:px-[20px]">
       <div className="relative flex items-center justify-between mb-6">
-        <h3 className="text-[#565656] font-Poppins font-semibold text-[19px] ">
+        <h3 className="text-[#565656] font-Poppins font-semibold text-[19px] max-md:text-[16px]">
           Categories (Module)
         </h3>
         <div className="flex items-center gap-4">

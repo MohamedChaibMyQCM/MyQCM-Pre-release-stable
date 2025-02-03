@@ -3,7 +3,7 @@ import checkbox from "../../../../../public/Quiz/Checkbox.svg";
 
 const TimeLimit = ({ name, value, setFieldValue }) => {
   return (
-    <div className="rounded-[14px] w-[320px] px-[12px] py-[8px] border border-[#EFEEFC] flex items-center gap-3">
+    <div className="rounded-[14px] w-[320px] px-[12px] py-[8px] border border-[#EFEEFC] flex items-center gap-3 max-md:w-full">
       <Image src={checkbox} alt="checkbox" />
       <input
         type="number"

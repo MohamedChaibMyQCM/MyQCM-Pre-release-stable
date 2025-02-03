@@ -44,7 +44,7 @@ const Page = () => {
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
       <Image src={logo} alt="logo" />
-      <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px]">
+      <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
         <Link
           href={`/${locale}/login`}
           className="py-[8px] bg-[#FEFEFE] box text-[#232627] font-semibold text-[14px] font-Inter flex items-center justify-center basis-1/2 rounded-[10px]"
@@ -58,14 +58,14 @@ const Page = () => {
           Créer un compte
         </Link>
       </div>
-      <div className="w-[567.09px] flex items-center justify-center bg-transparent">
+      <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-[90%]">
         <GoogleAuthButton locale={locale} />
       </div>
-      <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+      <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] font-Inter text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:max-md:w-[120px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:max-md:w-[120px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%] max-md:w-[90%]">
         OR
       </span>
       <form
-        className="w-[567.09px] flex flex-col items-center gap-4"
+        className="w-[567.09px] flex flex-col items-center gap-4 max-md:w-[90%]"
         onSubmit={handleSubmit}
       >
         <div className="bg-[#FFE7F2] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[10px]">

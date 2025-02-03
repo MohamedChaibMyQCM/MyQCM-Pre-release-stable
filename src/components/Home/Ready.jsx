@@ -8,13 +8,13 @@ const Ready = () => {
   const locale = useLocale();
 
   return (
-    <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4">
+    <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4 max-md:px-5">
       <Image src={patern} alt="patern" className="absolute top-0 left-0" />
-      <h2 className="font-Genty text-[59px] stroke text-[#FFFFFF] leading-[69px] z-50">
+      <h2 className="font-Genty text-[59px] stroke text-[#FFFFFF] leading-[69px] z-50 max-md:hidden">
         Prêt à améliorer vos connaissances médicales <br /> et à faire
         progresser votre carrière
       </h2>
-      <p className="font-medium text-[#FFFFFF] z-50 w-[1000px] mx-auto">
+      <p className="font-medium text-[#FFFFFF] z-50 w-[1000px] mx-auto max-md:w-full">
         Notre plateforme vous offre un accès  à une éducation médicale de premier
         plan depuis le confort de votre domicile. Faites progresser votre
         carrière dès aujourd&apos;hui en vous engageant avec des QCM et des
@@ -29,12 +29,13 @@ const Ready = () => {
         </Link>
         <Link
           href=""
-          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] text-[14px] font-medium"
+          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] text-[14px] font-medium "
         >
-          Contactez-nous
+          {/* Contactez-nous */}
+          Contactez
         </Link>
       </div>
-      <ul className="flex items-center justify-between gap-8">
+      <ul className="flex items-center justify-between gap-8 max-md:hidden">
         {logos.map((item, index) => {
           return (
             <li key={index}>

@@ -10,7 +10,7 @@ const Courses = ({ courses, subjectId }) => {
   const locale = useLocale();
 
   return (
-    <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[40%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px]">
+    <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[40%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%]">
       <div className="flex items-center justify-between mb-5">
         <h3 className="#0C092A font-Poppins font-semibold text-[18px]">
           Q/C per course
@@ -26,7 +26,7 @@ const Courses = ({ courses, subjectId }) => {
         {courses == "" || courses == undefined ? "" : courses.slice(0, 6).map((item) => {
           return (
             <li
-              className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px]"
+              className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px]"
               key={item.id}
             >
               <div className="flex items-center gap-4">
@@ -39,13 +39,13 @@ const Courses = ({ courses, subjectId }) => {
                   <span className="font-Poppins text-[#0C092A] font-semibold text-[14px]">
                     {item.name}
                   </span>
-                  <span className="font-Poppins text-[#858494] text-[12px]">
+                  <span className="font-Poppins text-[#858494] text-[12px] max-md:text-[11px]">
                     {item.description} • {item.question} Question
                   </span>
                 </div>
               </div>
               <button>
-                <Image src={play} alt="play" />
+                <Image src={play} alt="play" className="max-md:w-[30px]" />
               </button>
             </li>
           );

@@ -40,9 +40,9 @@
 const TimeLearning = () => {
   return (
     <div>
-      <h2 className="text-[#11142D] font-Inter text-[17px] font-[700] mb-5">
+      {/* <h2 className="text-[#11142D] font-Inter text-[17px] font-[700] mb-5">
         Votre temps d&apos;apprentissage moyen (en heures)
-      </h2>
+      </h2> */}
       {/* <Card className="bg-[#FD7DB6]">
         <CardContent className="pt-[40px]">
           <ChartContainer config={chartConfig}>

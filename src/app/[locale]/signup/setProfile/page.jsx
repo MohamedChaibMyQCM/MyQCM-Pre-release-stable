@@ -87,14 +87,14 @@ const Page = () => {
           : "pb-[20px] pt-[140px]"
       }`}
     >
-      <div className="flex items-center gap-5 mb-[10px]">
+      <div className="flex items-center gap-5 mb-[10px] max-md:mt-[200px]">
         <Image src={logo} alt="logo" />
         <Image src={profile} alt="profile picture" className="pb-[12px]" />
       </div>
-      <h2 className="bg-[#F8589F] text-[15px] mb-3 font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px]">
+      <h2 className="bg-[#F8589F] text-[15px] mb-3 font-medium text-[#FFFFFF] w-[70%] text-center py-[8px] rounded-[12px] max-md:mb-8">
         Configuration de votre profil
       </h2>
-      <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] mt-[16px] mb-[24px]">
+      <div className="relative w-[420px] py-[10px] bg-[#f7f3f4] rounded-[16px] mt-[16px] mb-[24px] max-md:hidden">
         <div
           className="bg-[#F8589F] h-[100%] rounded-[16px] flex items-center justify-center font-medium text-[#FFF] text-[11px] absolute left-0 top-0 transition-all duration-500 ease-in-out"
           style={{ width: `${progress}%` }}
@@ -102,7 +102,7 @@ const Page = () => {
           {progress > 20 && `${progress}% terminé`}
         </div>
       </div>
-      <form className="w-[100%] px-[40px]" onSubmit={formik.handleSubmit}>
+      <form className="w-[100%] px-[40px] max-md:px-[20px]" onSubmit={formik.handleSubmit}>
         {currentStep == "SetProfileOne" && (
           <div className="w-[100%] flex flex-col justify-center items-center">
             <div className="flex items-center justify-between flex-wrap w-[100%] gap-5">
@@ -133,7 +133,7 @@ const Page = () => {
                 setFieldValue={formik.setFieldValue}
               />
             </div>
-            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+            <span className="relative w-[100%] my-2 flex items-center justify-center my-5 text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[41%] after:max-md:w-[24%] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[41%] before:w-[26%] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
               Learning Preferences
             </span>
             <div className="flex items-center justify-between flex-wrap w-[100%] gap-5 mb-16">

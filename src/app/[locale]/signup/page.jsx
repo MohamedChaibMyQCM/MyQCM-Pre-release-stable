@@ -61,8 +61,8 @@ const Page = () => {
   };
 
   return (
-    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px]">
-      <div className="flex flex-col gap-4 self-end">
+    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px]">
+      <div className="flex flex-col gap-4 self-end max-md:hidden">
         <h1 className="text-[#FFFFFF] text-[30px] font-semibold w-[300px] leading-[36px]">
           Commencez votre parcours médical
         </h1>
@@ -74,7 +74,7 @@ const Page = () => {
       </div>
       <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
         <Image src={logo} alt="logo" />
-        <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px]">
+        <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
           <Link
             href={`/${locale}/login`}
             className="py-[8px] text-[#6C7275] font-semibold text-[14px] basis-1/2 flex items-center justify-center"
@@ -88,14 +88,14 @@ const Page = () => {
             Créer un compte
           </Link>
         </div>
-        <div className="w-[567.09px] flex items-center justify-center bg-transparent">
+        <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-[90%]">
           <GoogleAuthButton locale={locale} />
         </div>
-        <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%]">
+        <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[250px] after:max-md:w-[120px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[250px] before:max-md:w-[120px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%] max-md:w-[90%]">
           OU
         </span>
         <form
-          className="w-[567.09px] flex flex-col items-center gap-4"
+          className="w-[567.09px] flex flex-col items-center gap-4  max-md:w-[90%]"
           onSubmit={handleSubmit}
         >
           <div className="bg-[#FFE7F2] flex items-center gap-4 w-full px-[16px] py-[14px] rounded-[10px]">
@@ -143,7 +143,7 @@ const Page = () => {
             Connexion avec MyQcm Aljazayr
           </button>
         </form>
-        <span className="text-[#6C7275] text-[13px] w-[567.09px] text-center">
+        <span className="text-[#6C7275] text-[13px] w-[567.09px] text-center  max-md:w-[90%]">
           En créant un compte, vous acceptez nos
           <a href="" className="text-[#F8589F] font-semibold">
             {" "}

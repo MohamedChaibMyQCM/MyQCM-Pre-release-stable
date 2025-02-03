@@ -183,7 +183,7 @@ const Quiz = ({
   };
 
   return (
-    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6">
+    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] max-md:">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="bg-[#FF6EAF] flex items-center gap-3 rounded-[12px] px-[16px] py-[8px]">
@@ -192,7 +192,7 @@ const Quiz = ({
               Type: {data[selectedQuiz].type}
             </span>
           </div>
-          <div className="relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] overflow-hidden">
+          <div className="relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] overflow-hidden max-md:hidden">
             <div
               className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-500 ease-in-out"
               style={{
@@ -201,7 +201,7 @@ const Quiz = ({
             ></div>
           </div>
           <span
-            className={`px-[18px] py-[10px] rounded-[10px] text-[#FFFFFF] font-Poppins text-[14px] font-medium ${
+            className={`px-[18px] py-[10px] rounded-[10px] text-[#FFFFFF] font-Poppins text-[14px] font-medium max-md:hidden ${
               data[selectedQuiz].difficulty == "easy"
                 ? "bg-[#39FF64]"
                 : data[selectedQuiz].difficulty == "medium"
@@ -219,7 +219,7 @@ const Quiz = ({
               ({timeRemaining}s)
             </span>
           </span>
-          <Image src={timer} alt="timer" className="w-[24px]" />
+          <Image src={timer} alt="timer" className="w-[24px] max-md:hidden" />
         </div>
       </div>
       <div className="flex gap-8 justify-between">

@@ -41,7 +41,7 @@ const EmailVerification = () => {
 
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-4">
-      <div className="flex items-center justify-center mr-[60px]">
+      <div className="flex items-center justify-center">
         <Image src={logo} alt="logo" />
         <Image
           src={Verification}
@@ -52,17 +52,17 @@ const EmailVerification = () => {
       <h3 className="text-[#141718] font-semibold text-[19px]">
         Vérification de l&apos;email
       </h3>
-      <p className="text-center text-[#B6ACB399] text-[14px] w-[420px] leading-[26px]">
+      <p className="text-center text-[#B6ACB399] text-[14px] w-[420px] leading-[26px] max-md:w-[90%]">
         Cher Docteur {name}, <br /> Veuillez vérifier votre boîte de réception
         (et le dossier spam) et entrer le code pour activer votre compte MyQCM.
       </p>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-1 items-center mt-[16px]"
+        className="flex flex-col gap-1 items-center mt-[16px] w-[100%]>"
       >
         <input
           type="text"
-          className="bg-[#B6ACB399] text-[14px] w-[420px] outline-none font-medium placeholder:text-[#FFFFFF] px-[20px] py-[8px] text-[#FFFFFF] rounded-[12px]"
+          className="bg-[#B6ACB399] text-[14px] w-[420px] outline-none font-medium placeholder:text-[#FFFFFF] px-[20px] py-[8px] text-[#FFFFFF] rounded-[12px] max-md:w-[100%]"
           placeholder="Enter the code"
           value={code}
           onChange={(e) => setCode(e.target.value)}

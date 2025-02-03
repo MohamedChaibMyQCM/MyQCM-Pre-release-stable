@@ -33,8 +33,8 @@ const Page = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="pt-[22px] pb-[40px] flex flex-col gap-8 px-[40px] overflow-hidden">
-      <span className="font-Poppins font-semibold text-[#858494] text-[15px] flex items-center gap-2">
+    <div className="pt-[22px] pb-[40px] flex flex-col gap-8 px-[40px] overflow-hidden max-md:px-[20px]">
+      <span className="font-Poppins font-semibold text-[#858494] text-[15px] flex items-center gap-2 max-md:text-[12px]">
         Question Bank <span className="text-[12px]">/</span>
         <span className="text-[#FF95C4]">Categories</span>
         <span className="text-[12px]">/</span>

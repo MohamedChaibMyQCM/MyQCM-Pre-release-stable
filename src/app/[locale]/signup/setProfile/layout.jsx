@@ -6,9 +6,9 @@ import AuthProfile from "@/components/auth/AuthProfile";
 
 const Layout = ({ children }) => {
   return (
-    <section className="h-screen w-[100%] flex bg-[#FB63A6] p-[26px] px-[40px]">
+    <section className="h-screen w-[100%] flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px]">
       {children}
-      <div className="flex flex-col gap-4 self-end ml-[50px]">
+      <div className="flex flex-col gap-4 self-end ml-[50px] max-md:hidden">
         <h1 className="text-[#FFFFFF] text-[30px] font-semibold w-[300px] leading-[36px]">
           Personnalisons votre expérience d&apos;apprentissage
         </h1>

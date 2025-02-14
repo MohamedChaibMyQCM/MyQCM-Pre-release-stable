@@ -11,7 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
 const Header = () => {
-  const t = useTranslations("home_page.header");
+  const t = useTranslations("home_page.header")
   const locale = useLocale()
   const path = usePathname()
 

@@ -6,7 +6,9 @@ const layout = ({ children }) => {
     <AuthWrapper>
       <main className="">
         <Aside />
-        <div className="ml-60 max-md:ml-0 max-md:mt-[70px]">{children}</div>
+        <div className="ml-[248px] max-md:ml-0 max-md:mt-[70px] h-[100vh]">
+          {children}
+        </div>
       </main>
     </AuthWrapper>
   );

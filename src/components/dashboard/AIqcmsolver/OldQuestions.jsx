@@ -1,5 +1,4 @@
 import React from "react";
-import Search from "../Search";
 
 const Question = [
   {
@@ -39,7 +38,6 @@ const Question = [
 const OldQuestions = () => {
   return (
     <div className="bg-[#FFF5FA] py-[30px] px-[20px] flex-1">
-      <Search />
       <div className="flex flex-col gap-4">
         <h2 className="font-Poppins font-semibold text-[20px] text-[#121212] mb-[12px]">
           My Old Questions

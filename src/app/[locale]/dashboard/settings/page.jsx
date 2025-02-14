@@ -1,9 +1,16 @@
-import React from 'react'
+import Personal_Info from "@/components/dashboard/settings/Personal_Info";
+import Reward from "@/components/dashboard/settings/Reward";
+import Link from "next/link";
+import React from "react";
 
 const page = () => {
   return (
-    <div>page</div>
-  )
-}
+    <div className="">
+     
+      <Reward />
+      <Personal_Info />
+    </div>
+  );
+};
 
-export default page
+export default page;

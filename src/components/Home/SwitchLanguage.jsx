@@ -1,6 +1,5 @@
 "use client";
 
-import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import {
@@ -14,7 +13,6 @@ import Image from "next/image";
 import arrow from '../../../public/arrow.svg'
 
 const SwitchLanguage = () => {
-  const currentLocale = useLocale();
   const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState(currentLocale);
 

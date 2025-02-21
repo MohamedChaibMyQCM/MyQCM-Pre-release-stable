@@ -9,7 +9,7 @@ const Settings_Links = () => {
       <li>
         <Link
           href={`/${locale}/dashboard/settings`}
-          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[14px]"
+          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Profile info
         </Link>
@@ -17,7 +17,7 @@ const Settings_Links = () => {
       <li>
         <Link
           href={`/${locale}/dashboard/settings/change-password`}
-          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[14px]"
+          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Change password
         </Link>
@@ -33,7 +33,7 @@ const Settings_Links = () => {
       <li>
         <Link
           href={`/${locale}/dashboard/settings/question-bank`}
-          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[14px]"
+          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Question bank
         </Link>
@@ -41,7 +41,7 @@ const Settings_Links = () => {
       <li>
         <Link
           href={`/${locale}/dashboard/settings/notification`}
-          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[14px]"
+          className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Notification
         </Link>

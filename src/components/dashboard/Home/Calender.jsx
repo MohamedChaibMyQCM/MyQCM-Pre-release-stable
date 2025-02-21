@@ -1,20 +1,37 @@
 "use client"
-import React, { useState } from "react";
-import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from "react-icons/md";
+
+import  { useState } from "react";
+import {
+  MdOutlineKeyboardArrowLeft,
+  MdOutlineKeyboardArrowRight,
+} from "react-icons/md";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getDaysInMonth = (year, month) =>
+    new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
   const changeMonth = (increment) => {
-    setCurrentDate(prevDate => {
+    setCurrentDate((prevDate) => {
       const newDate = new Date(prevDate);
       newDate.setMonth(newDate.getMonth() + increment);
       return newDate;
@@ -62,11 +79,11 @@ const Calendar = () => {
   };
 
   return (
-    <div className="mb-[30px]">
-      <h2 className="font-Inter text-[#121212] font-bold text-[17px] mb-5">
+    <div className="w-full">
+      <h2 className="text-[#191919] font-[500] text-[17px] mb-6">
         Votre parcours d&apos;apprentissage
       </h2>
-      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0">
+      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-full h-[288.5px]">
         <div className="flex items-center justify-between mb-4">
           <MdOutlineKeyboardArrowLeft
             className="text-[#B5BEC6] text-[20px] cursor-pointer"
@@ -82,10 +99,10 @@ const Calendar = () => {
             onClick={() => changeMonth(1)}
           />
         </div>
-        <div className="w-[80%] mx-auto">
-          <table className="w-[100%]">
+        <div className="w-full">
+          <table className="w-full">
             <thead className="w-full">
-              <tr className="flex justify-between items-center mb-2 w-[100%]">
+              <tr className="flex justify-between items-center mb-2 w-full">
                 {daysOfWeek.map((day) => (
                   <th
                     key={day}

@@ -13,10 +13,11 @@ const Reward = () => {
         Discover all the incredible rewards you can unlock with your points!
         From exclusive discounts and limited-time offers to premium products and
         top-tier services, your points are your key to a world of exciting
-        possibilities. Whether you're looking to save on your favorite items,
-        enjoy VIP experiences, or access unique perks, there's something for
-        everyone. Start exploring today and turn your points into unforgettable
-        rewards. Don’t wait—your next great adventure is just a few clicks away!
+        possibilities. Whether you&apos;re looking to save on your favorite
+        items, enjoy VIP experiences, or access unique perks, there&apos;s
+        something for everyone. Start exploring today and turn your points into
+        unforgettable rewards. Don&apos;t wait—your next great adventure is just
+        a few clicks away!
       </p>
       <button className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500]">
         See all rewards

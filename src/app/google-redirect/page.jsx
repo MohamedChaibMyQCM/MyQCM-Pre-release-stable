@@ -1,34 +1,39 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import secureLocalStorage from 'react-secure-storage';
-import { useLocale } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import logo from '../../../../public/logoMyqcm.svg';
+import { useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import secureLocalStorage from "react-secure-storage";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import logo from "../../../public/logoMyqcm.svg";
+import Loading from "@/components/Loading";
 
-const GoogleRedirect = () => {
-  const locale = useLocale();
+const GoogleRedirectContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
 
     if (token) {
-      console.log("token", token);
-      // Store the token in localStorage or cookies
       secureLocalStorage.setItem("token", token);
-      // Redirect to dashboard or another page
-      router.push(`/${locale}/dashboard`);
+      router.push(`/dashboard`);
     }
-  }, [searchParams, router, locale]);
+  }, [searchParams, router]);
 
   return (
-    <div className='h-screen w-screen flex items-center justify-center animate-pulse'>
+    <div className="h-screen w-screen flex items-center justify-center animate-pulse">
       <Image src={logo} alt="logo" />
     </div>
   );
 };
+
+const GoogleRedirect = () => {
+  return (
+    <Suspense fallback={<Loading />}>
+      <GoogleRedirectContent />
+    </Suspense>
+  );
+};
+
 export default GoogleRedirect;

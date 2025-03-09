@@ -1,36 +1,36 @@
 "use client";
 
 import Image from "next/image";
-import profile from "../../../../../public/Icons/Profile.svg";
-import logo from "../../../../../public/Icons/logo Myqcm 1.svg";
+import profile from "../../../../public/Icons/Profile.svg";
+import logo from "../../../../public/Icons/logo Myqcm 1.svg";
 import { useState } from "react";
-import University from "../../../../components/signup/ProfileOne/University";
-import Field from "../../../../components/signup/ProfileOne/Field";
-import Annexe from "../../../../components/signup/ProfileOne/Annexe";
-import Year from "../../../../components/signup/ProfileOne/Year";
-import Feedback from "../../../../components/signup/ProfileOne/Feedback";
-import PrefLearning from "../../../../components/signup/ProfileOne/PrefLearning";
-import LearningPace from "../../../../components/signup/ProfileOne/LearningPace";
-import StudyHabits from "../../../../components/signup/ProfileOne/StudyHabits";
-import PrefContentFormat from "../../../../components/signup/ProfileOne/PrefContentFormat";
-import ClinicalExperience from "../../../../components/signup/ProfileTwo/ClinicalExperience";
-import CertOrExam from "../../../../components/signup/ProfileTwo/CertOrExam";
-import LearningGoals from "../../../../components/signup/ProfileTwo/LearningGoals";
-import LearningPath from "../../../../components/signup/ProfileTwo/LearningPath";
-import MemoryRetention from "../../../../components/signup/ProfileTwo/MemoryRetention";
-import AttentionSpan from "../../../../components/signup/ProfileTwo/AttentionSpan";
+import University from "../../../components/signup/ProfileOne/University";
+import Field from "../../../components/signup/ProfileOne/Field";
+import Annexe from "../../../components/signup/ProfileOne/Annexe";
+import Year from "../../../components/signup/ProfileOne/Year";
+import Feedback from "../../../components/signup/ProfileOne/Feedback";
+import PrefLearning from "../../../components/signup/ProfileOne/PrefLearning";
+import LearningPace from "../../../components/signup/ProfileOne/LearningPace";
+import StudyHabits from "../../../components/signup/ProfileOne/StudyHabits";
+import PrefContentFormat from "../../../components/signup/ProfileOne/PrefContentFormat";
+import ClinicalExperience from "../../../components/signup/ProfileTwo/ClinicalExperience";
+import CertOrExam from "../../../components/signup/ProfileTwo/CertOrExam";
+import LearningGoals from "../../../components/signup/ProfileTwo/LearningGoals";
+import LearningPath from "../../../components/signup/ProfileTwo/LearningPath";
+import MemoryRetention from "../../../components/signup/ProfileTwo/MemoryRetention";
+import AttentionSpan from "../../../components/signup/ProfileTwo/AttentionSpan";
 import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
   const router = useRouter();
-  const locale = useLocale();
 
+  
   const { mutate: setProfile } = useMutation({
     mutationFn: (data) => BaseUrl.post("/user/profile", data),
     onSuccess: () => {

@@ -12,7 +12,6 @@ import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
 import { quizStore } from "@/store/quiz";
 import { useStore } from "zustand";
 import toast from "react-hot-toast";
@@ -21,14 +20,14 @@ const TrainingSeason = ({ setPopup, courseId }) => {
   const { category: subjectId } = useParams();
   const { quiz, updateQuiz } = useStore(quizStore);
   const router = useRouter();
-  const locale = useLocale();
+
 
   const { mutate: TrainingSettings } = useMutation({
     mutationFn: (data) => BaseUrl.post(`/course/next-mcqs/${courseId}`, data),
     onSuccess: ({ data }) => {
       updateQuiz(data.data);
       router.push(
-        `/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/${courseId}`
+        `/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/${courseId}`
       );
     },
     onError: (error) => {

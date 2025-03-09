@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import logo from "../../../../../public/Icons/logo Myqcm 1.svg";
-import Verification from "../../../../../public/Icons/verification.svg";
+import logo from "../../../../public/Icons/logo Myqcm 1.svg";
+import Verification from "../../../../public/Icons/verification.svg";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation, useQuery } from "react-query";
 import { useRouter } from "next/navigation";

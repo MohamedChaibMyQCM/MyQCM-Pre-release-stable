@@ -5,7 +5,6 @@ import logo from "../../../public/logoMyqcm.svg";
 import Link from "next/link";
 import { aside_links } from "@/data/data";
 import { usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { FiMenu } from "react-icons/fi";
 import settings from "../../../public/Aside/settings.svg";
@@ -15,7 +14,6 @@ import secureLocalStorage from "react-secure-storage";
 
 const Aside = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const locale = useLocale();
   const path = usePathname();
   const afterDashboard = path.split("/dashboard/")[1] || "";
 
@@ -25,7 +23,7 @@ const Aside = () => {
 
   const handleLogout = () => {
     secureLocalStorage.removeItem("token");
-    window.location.href = `/${locale}`;
+    window.location.href = `/`;
   };
 
   const isSettingsActive = afterDashboard.startsWith("settings");
@@ -63,7 +61,7 @@ const Aside = () => {
               }`}
             >
               <Link
-                href={`/${locale}/dashboard/${item.href}`}
+                href={`/dashboard/${item.href}`}
                 className="text-[#324054] flex items-center gap-4"
               >
                 <Image
@@ -90,7 +88,7 @@ const Aside = () => {
           }`}
         >
           <Link
-            href={`/${locale}/dashboard/settings`}
+            href={`/dashboard/settings`}
             className="text-[#324054] flex items-center gap-4"
           >
             <Image

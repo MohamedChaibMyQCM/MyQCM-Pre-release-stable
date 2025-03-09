@@ -8,7 +8,7 @@ const Ready = () => {
   return (
     <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4 max-md:px-5">
       <Image src={patern} alt="patern" className="absolute top-0 left-0" />
-      <h2 className="font-Genty text-[59px] stroke text-[#FFFFFF] leading-[69px] z-50 max-md:hidden">
+      <h2 className="text-[54px] font-[600] text-[#FFFFFF] leading-[69px] z-50 max-md:hidden">
         Prêt à améliorer vos connaissances médicales <br /> et à faire
         progresser votre carrière
       </h2>

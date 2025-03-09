@@ -1,6 +1,5 @@
 "use client";
 
-import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import { useState, useEffect, useRef } from "react";
@@ -10,7 +9,6 @@ import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 
 const AuthWrapper = ({ children }) => {
-  const locale = useLocale();
   const router = useRouter();
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -31,7 +29,7 @@ const AuthWrapper = ({ children }) => {
     const checkAuth = async () => {
       if (!secureLocalStorage.getItem("token")) {
         if (!toastShownRef.current) {
-          router.push(`/${locale}/login`);
+          router.push(`/login`);
           toast.error("You need to login");
           toastShownRef.current = true;
         }
@@ -50,12 +48,12 @@ const AuthWrapper = ({ children }) => {
             switch (error.response.data.message) {
               case "Email not verified":
                 checkEmail();
-                router.push(`/${locale}/signup/verification`);
+                router.push(`/signup/verification`);
                 toast.error("Verify your email");
                 toastShownRef.current = true;
                 break;
               case "User profile not found":
-                router.push(`/${locale}/signup/setProfile`);
+                router.push(`/signup/setProfile`);
                 toast.error("Set up your profile");
                 toastShownRef.current = true;
                 break;
@@ -68,7 +66,7 @@ const AuthWrapper = ({ children }) => {
       }
     };
     checkAuth();
-  }, [locale, router]);
+  }, [router]);
 
   if (loading) return <Loading />;
   if (auth) return <>{children}</>;

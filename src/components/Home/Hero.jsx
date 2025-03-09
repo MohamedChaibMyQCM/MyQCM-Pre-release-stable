@@ -36,10 +36,10 @@ const HeroSection = () => {
     >
       <div data-aos="fade-right" className={`flex flex-col gap-4 px-[100px]`}>
         <h1
-          className={`text-[70px] leading-[80px] max-md:text-[40px] max-md:hidden`}
+          className={`text-[64px] font-[600] leading-[80px] max-md:text-[40px] max-md:hidden`}
         >
           <span
-            className={`text-[#00000078] stroke block h-[160px] text-[#00000078] w-[800px]`}
+            className={`text-[#00000078] block h-[160px] text-[#00000078] w-[800px]`}
           >
             <Typewriter options={typewriterOptions} />
           </span>

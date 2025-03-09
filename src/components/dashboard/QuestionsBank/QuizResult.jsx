@@ -2,11 +2,9 @@ import Image from "next/image";
 import result from "../../../../public/Quiz/Good Job.svg";
 import exit from "../../../../public/Icons/exit.svg";
 import Link from "next/link";
-import { useLocale } from "next-intl";
 import { useParams } from "next/navigation";
 
 const QuizResult = ({ data }) => {
-  const locale = useLocale();
   const { category } = useParams();
 
   return (
@@ -15,7 +13,7 @@ const QuizResult = ({ data }) => {
         <div className="flex items-center justify-between">
           <span className="font-Poppins font-medium">Awesome!</span>
           <Link
-            href={`/${locale}/dashboard/QuestionsBank/${category}/QuestionPerCourse`}
+            href={`/dashboard/QuestionsBank/${category}/QuestionPerCourse`}
           >
             <Image
               src={exit}
@@ -64,7 +62,7 @@ const QuizResult = ({ data }) => {
             Share
           </button>
           <Link
-            href={`/${locale}/dashboard/QuestionsBank/${category}/QuestionPerCourse`}
+            href={`/dashboard/QuestionsBank/${category}/QuestionPerCourse`}
             className="basis-[48%] text-center font-Poppins font-medium text-[14px] bg-[#FF6EAF] text-[#FFF5FA] p-[20px] py-[10px] rounded-[16px]"
           >
             Done

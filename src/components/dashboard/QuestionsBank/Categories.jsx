@@ -6,13 +6,11 @@ import category from "../../../../public/Icons/categories.svg";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { useLocale } from "next-intl";
 import options from "../../../../public/Icons/greyOption.svg";
 import Link from "next/link";
 import SelectUnite from "@/components/dashboard/QuestionsBank/SelectUnite";
 
 const Categories = () => {
-  const locale = useLocale();
   const [selectUnite, setSelectUnite] = useState(false);
 
   const { data, isLoading, error } = useQuery({
@@ -57,7 +55,7 @@ const Categories = () => {
               className="basis-[24%] max-md:basis-[100%] max-xl:basis-[48%]"
             >
               <Link
-                href={`/${locale}/dashboard/QuestionsBank/${item.id}`}
+                href={`/dashboard/QuestionsBank/${item.id}`}
                 className="flex items-center h-[90px] gap-4 bg-[#FF95C4] px-[20px] rounded-[20px] cursor-pointer"
               >
                 <Image src={category} alt="module logo" />

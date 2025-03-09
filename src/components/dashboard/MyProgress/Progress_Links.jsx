@@ -1,17 +1,14 @@
-import { useLocale } from "next-intl";
 import Link from "next/link";
 import calender from "../../../../public/Icons/calender.svg";
 import Image from "next/image";
 
 const Progress_Links = () => {
-  const locale = useLocale();
-
   return (
     <div className="flex items-center justify-between mt-6  px-5 ">
       <ul className="flex items-center gap-4">
         <li>
           <Link
-            href={`/${locale}/dashboard/MyProgress`}
+            href={`/dashboard/MyProgress`}
             className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
           >
             Summary
@@ -19,7 +16,7 @@ const Progress_Links = () => {
         </li>
         <li>
           <Link
-            href={`/${locale}/dashboard/MyProgress/progress`}
+            href={`/dashboard/MyProgress/progress`}
             className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
           >
             Progress

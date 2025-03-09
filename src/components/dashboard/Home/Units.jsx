@@ -10,11 +10,11 @@ const Units = () => {
           Unite 01: Cardio-respiratory and Medical Psychology
         </h2>
         <p className="text-[13px] text-[#FFFFFF] mt-2 mb-5 font-[400]">
-          Explore the cardiovascular and respiratory systems' relationship and
-          the psychological aspects of medical care. This unit <br /> includes
-          five modules: semiology, physiopathology, radiology, biochemistry, and
-          medical psychology, providing a <br /> comprehensive understanding of
-          their impact on patient health and treatment.
+          Explore the cardiovascular and respiratory systems&apos; relationship
+          and the psychological aspects of medical care. This unit <br />{" "}
+          includes five modules: semiology, physiopathology, radiology,
+          biochemistry, and medical psychology, providing a <br /> comprehensive
+          understanding of their impact on patient health and treatment.
         </p>
         <div className="flex items-center gap-5">
           <button className="flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500]">

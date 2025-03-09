@@ -42,7 +42,7 @@ const Annexe = ({ name, value, uniValue, setFieldValue }) => {
           </div>
           <Image src={arrow} alt="arrow" />
         </SelectTrigger>
-        <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
+        <SelectContent className="bg-[#FFE7F2] rounded-[8px] border-none">
           {isLoading ? (
             <p className="p-4 text-gray-600">Loading Annexe...</p>
           ) : error ? (

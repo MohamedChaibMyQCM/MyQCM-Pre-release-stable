@@ -32,7 +32,7 @@ const LearningGoals = ({ name, value, setFieldValue }) => {
           </div>
           <Image src={arrow} alt="arrow" />
         </SelectTrigger>
-        <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
+        <SelectContent className="bg-[#FFE7F2] rounded-[8px] border-none">
           <SelectGroup>
             <SelectItem
               value="Master Core Concepts"

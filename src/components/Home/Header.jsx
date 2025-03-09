@@ -23,7 +23,7 @@ const Header = () => {
             className={` h-[22.5px] block text-[15px] text-[#191919] relative  
              after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-11px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
           >
-            Page d'accueil
+            Page d&apos;accueil
           </a>
         </li>
         <li className="">

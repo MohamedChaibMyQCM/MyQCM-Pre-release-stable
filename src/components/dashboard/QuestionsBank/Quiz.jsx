@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import quiz from "../../../../public/Quiz/quiz.png";
 import timer from "../../../../public/Quiz/Timer.svg";
-import solver from "../../../../public/Aside/wsolver.svg";
+import solver from "../../../../public/Aside/Pqmed.svg";
 import mind from "../../../../public/Quiz/mind.svg";
 import { Input } from "@/components/ui/input";
 import QuizExplanation from "./QuizExplanation";
@@ -27,7 +27,7 @@ const Quiz = ({
     data[0]?.estimated_time || 0
   );
   const [submittedAnswer, setSubmittedAnswer] = useState(null);
-  const [processedAnswers] = useState(new Set()); // Track processed answers
+  const [processedAnswers] = useState(new Set());
   const timerRef = useRef(null);
 
   console.log(answer);

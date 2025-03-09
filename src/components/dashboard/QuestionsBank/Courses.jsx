@@ -4,10 +4,8 @@ import coursePerModule from "../../../../public/Icons/coursePerModule.svg";
 import Image from "next/image";
 import play from "../../../../public/Icons/play.svg";
 import Link from "next/link";
-import { useLocale } from "next-intl";
 
 const Courses = ({ courses, subjectId }) => {
-  const locale = useLocale();
 
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[40%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%]">
@@ -16,7 +14,7 @@ const Courses = ({ courses, subjectId }) => {
           Q/C per course
         </h3>
         <Link
-          href={`/${locale}/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse`}
+          href={`/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse`}
           className="text-[13px] font-Poppins font-medium text-[#FF95C4] cursor-pointer"
         >
           Voir Tout 

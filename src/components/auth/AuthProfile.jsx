@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import secureLocalStorage from "react-secure-storage";
-import { useLocale } from "next-intl";
 import Loading from "../Loading";
 import BaseUrl from "../BaseUrl";
 import toast from "react-hot-toast";
@@ -12,7 +11,6 @@ import { useMutation } from "react-query";
 const AuthProfile = (Component) => {
   const AuthenticatedComponent = (props) => {
     const router = useRouter();
-    const locale = useLocale();
     const [auth, setAuth] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
     const toastShownRef = useRef(false);
@@ -31,7 +29,7 @@ const AuthProfile = (Component) => {
     const checkAuth = async () => {
       if (!secureLocalStorage.getItem("token")) {
         if (!toastShownRef.current) {
-          router.push(`/${locale}/login`);
+          router.push(`/login`);
           toast.error("You need to login");
           toastShownRef.current = true;
         }
@@ -50,7 +48,7 @@ const AuthProfile = (Component) => {
               error.response.data.message == "Email not verified"
             ) {
               checkEmail();
-              router.push(`/${locale}/signup/verification`);
+              router.push(`/signup/verification`);
               toast.error("Verify your email");
               toastShownRef.current = true;
             } else {

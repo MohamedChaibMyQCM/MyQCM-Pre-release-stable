@@ -1,5 +1,5 @@
 import Image from "next/image";
-import password from "../../../../../../public/settings/password.svg";
+import password from "../../../../../public/settings/password.svg";
 
 const page = () => {
   return (

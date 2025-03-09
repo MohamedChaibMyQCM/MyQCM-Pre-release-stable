@@ -44,12 +44,12 @@ const Path_Settings = () => {
             <p className="text-[13px] text-[#666666] pl-[34px]">
               In Intelligent Mode,{" "}
               <span className="text-[#F8589F]">Synergy</span> - our advanced
-              learning engine - personalizes your experience. It's like <br />{" "}
-              having a dedicated tutor who understands your strengths,
+              learning engine - personalizes your experience. It&apos;s like{" "}
+              <br /> having a dedicated tutor who understands your strengths,
               weaknesses, and learning style. Synergy <br /> adapts in
               real-time, focusing on what you need to master, making every study
-              session incredibly <br /> effective. It's the fastest way to build
-              confidence and achieve true understanding.
+              session incredibly <br /> effective. It&apos;s the fastest way to
+              build confidence and achieve true understanding.
             </p>
           </div>
 
@@ -75,12 +75,12 @@ const Path_Settings = () => {
               </Label>
             </div>
             <p className="text-[13px] text-[#B5BEC6] pl-[34px]">
-              In Guided Mode, you're in control of the direction, while still
-              benefiting from Synergy's intelligent <br /> question selection.
-              Perfect for when you want to focus on specific areas, like
-              preparing for an <br /> upcoming exam or reinforcing your
-              knowledge of a particular module. We'll help you make every <br />{" "}
-              minute count.
+              In Guided Mode, you&apos;re in control of the direction, while
+              still benefiting from Synergy&apos;s intelligent <br /> question
+              selection. Perfect for when you want to focus on specific areas,
+              like preparing for an <br /> upcoming exam or reinforcing your
+              knowledge of a particular module. We&apos;ll help you make every{" "}
+              <br /> minute count.
             </p>
           </div>
 

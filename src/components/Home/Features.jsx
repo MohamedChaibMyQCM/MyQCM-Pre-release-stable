@@ -21,8 +21,8 @@ const Features = () => {
       <h4 className="uppercase text-center font-Poppins text-[#433E3E] font-semibold text-[16px]">
         Fonctionnalités
       </h4>
-      <h2 className="relative font-Genty text-center mt-[30px] text-[50px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7] max-md:mb-8 max-md:text-[40px] max-md:w-full">
-        <span className="stroke text-[#838383]">
+      <h2 className="relative text-center mt-[30px] font-[600] text-[46px] w-[900px] leading-[66px] text-center mx-auto text-[#000000C7] max-md:mb-8 max-md:text-[40px] max-md:w-full">
+        <span className="text-[#838383]">
           Découvrez votre expertise médicale{" "}
         </span>
         dans chaque coin du monde

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import notification from "../../../../../../public/settings/notification.svg";
+import notification from "../../../../../public/settings/notification.svg";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";

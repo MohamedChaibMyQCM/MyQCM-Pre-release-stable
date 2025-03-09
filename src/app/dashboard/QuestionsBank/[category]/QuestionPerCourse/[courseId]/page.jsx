@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../../../../../../public/whiteLogo.svg";
+import logo from "../../../../../../../public/whiteLogo.svg";
 import { QuizImage } from "@/data/data";
 import Quiz from "@/components/dashboard/QuestionsBank/Quiz";
 import BaseUrl from "@/components/BaseUrl";

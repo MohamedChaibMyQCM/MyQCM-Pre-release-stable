@@ -1,14 +1,11 @@
-import { useLocale } from "next-intl";
 import Link from "next/link";
 
 const Settings_Links = () => {
-  const locale = useLocale();
-
   return (
     <ul className="flex items-center gap-4 px-5 mt-6">
       <li>
         <Link
-          href={`/${locale}/dashboard/settings`}
+          href={`/dashboard/settings`}
           className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Profile info
@@ -16,7 +13,7 @@ const Settings_Links = () => {
       </li>
       <li>
         <Link
-          href={`/${locale}/dashboard/settings/change-password`}
+          href={`/dashboard/settings/change-password`}
           className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Change password
@@ -24,7 +21,7 @@ const Settings_Links = () => {
       </li>
       {/* <li>
         <Link
-          href={`/${locale}/dashboard/settings/change-password`}
+          href={`/dashboard/settings/change-password`}
           className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[14px]"
         >
           Upgrade account
@@ -32,7 +29,7 @@ const Settings_Links = () => {
       </li> */}
       <li>
         <Link
-          href={`/${locale}/dashboard/settings/question-bank`}
+          href={`/dashboard/settings/question-bank`}
           className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Question bank
@@ -40,7 +37,7 @@ const Settings_Links = () => {
       </li>
       <li>
         <Link
-          href={`/${locale}/dashboard/settings/notification`}
+          href={`/dashboard/settings/notification`}
           className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
         >
           Notification

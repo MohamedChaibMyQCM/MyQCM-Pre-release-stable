@@ -35,14 +35,14 @@ const University = ({ name, value, setFieldValue }) => {
         value={value}
         onValueChange={(val) => setFieldValue(name, val)}
       >
-        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] border-none text-[#6C727580] font-medium py-6 px-[20px] select">
+        <SelectTrigger className="rounded-[8px] items-center bg-[#FFE7F2] !border-none text-[#6C727580] font-medium py-6 px-[20px] select">
           <div className="flex items-center gap-3">
             <Image src={university} alt="university" />
             <SelectValue placeholder="Select your Institution/University" />
           </div>
           <Image src={arrow} alt="arrow" />
         </SelectTrigger>
-        <SelectContent className="bg-[#FFE7F2] rounded-[8px]">
+        <SelectContent className="bg-[#FFE7F2] rounded-[8px] border-none">
           {isLoading ? (
             <p className="p-4 text-gray-600">Loading universities...</p>
           ) : error ? (

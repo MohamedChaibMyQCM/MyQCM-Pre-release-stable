@@ -5,7 +5,7 @@
 .inputs {
   border: none !important;
   box-shadow: none !important;
-} 
+}
 
 .inputs svg {
   display: none !important;
@@ -20,7 +20,7 @@
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -76,11 +76,11 @@
 }
 
 .box {
-  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.06);
+  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
 }
 
 .social {
-  border: solid 2px #E8ECEF !important;
+  border: solid 2px #e8ecef !important;
   height: 48px !important;
   border-radius: 10px;
   cursor: pointer;
@@ -88,12 +88,12 @@
 
 .social button {
   width: 50px !important;
-  background: #FFF9F9 !important;
+  background: #fff9f9 !important;
   box-shadow: none !important;
   height: 30px !important;
 }
 
-.social button div div:nth-child(3){
+.social button div div:nth-child(3) {
   display: none;
 }
 
@@ -123,7 +123,8 @@
   }
 }
 
-@layer base {}
+@layer base {
+}
 
 @layer base {
   * {
@@ -135,10 +136,26 @@
 }
 
 .recharts-responsive-container {
-  height: 288.5px !important;
-  padding-top: 10px !important;
+  height: 290px !important;
+  padding-top: 1px !important;
 }
 
+.recharts-surface {
+  height: 328px !important;
+}
+
+.shape {
+  clip-path: polygon(50% 0%, 100% 0%, 50% 100%, 0 100%);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none; 
+}
 
 /* @layer base {
   :root {

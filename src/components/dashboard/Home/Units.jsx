@@ -28,7 +28,7 @@ const Units = () => {
       <Image
         src={heart}
         alt="heart"
-        className="absolute w-[220px] right-2 bottom-[-40px]"
+        className="absolute w-[220px] right-2 bottom-[-40px] max-md:hidden"
       />
     </div>
   );

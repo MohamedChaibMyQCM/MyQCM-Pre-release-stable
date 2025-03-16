@@ -8,14 +8,14 @@ const Page = async () => {
   return (
     <div className="bg-[#F7F8FA] pb-8">
       <Dash_Header />
-      <div className="px-6">
+      <div className="px-6 mt-4 max-md:mt-0">
         <Units />
         <Modules />
-        <div className="flex items-start gap-6 mt-12">
-          <div className="flex-1">
+        <div className="flex items-start gap-6 mt-12 max-md:flex-col w-[100%]">
+          <div className="flex-1 w-[100%]">
             <Calendar />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <Study_time />
           </div>
         </div>

@@ -1,6 +1,13 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import Image from "next/image";
@@ -22,7 +29,7 @@ const Study_time = () => {
       <h3 className="font-[500] text-[17px] mb-6 text-[#191919]">
         Studying time
       </h3>
-      <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box">
+      <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full">
         <Card className="border-none p-0 w-full shadow-none">
           <CardContent className="border-none p-0">
             <ChartContainer config={{}}>
@@ -35,6 +42,7 @@ const Study_time = () => {
                   left: 20,
                   bottom: 20,
                 }}
+                height={220}
                 barCategoryGap="20%"
               >
                 <CartesianGrid vertical={false} />
@@ -48,6 +56,10 @@ const Study_time = () => {
                     fontWeight: 500,
                     fontFamily: "inherit",
                   }}
+                />
+                <YAxis
+                  domain={[0, 2]} // Adjust the Y-axis domain to fit the bars
+                  hide // Hide the Y-axis
                 />
                 <Bar dataKey="hours" fill="#F8589F" radius={8}>
                   <LabelList
@@ -73,8 +85,8 @@ const Study_time = () => {
             </ChartContainer>
           </CardContent>
         </Card>
-        <div className="h-[288.5px] w-[1px] bg-[#E4E4E4]" />
-        <div className="flex flex-col items-center text-center gap-2 w-[140px]">
+        <div className="h-[316px] w-[1px] bg-[#E4E4E4] max-md:hidden" />
+        <div className="flex flex-col items-center text-center gap-2 w-[140px] max-md:hidden">
           <span className="text-[18px] text-[#F8589F] font-[600]">
             3 <br /> days <br /> Streak
           </span>

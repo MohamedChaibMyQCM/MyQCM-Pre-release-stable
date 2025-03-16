@@ -2,16 +2,17 @@ import Features from "./Features";
 import Footer from "./Footer";
 import Header from "./Header";
 import HeroSection from "./Hero";
+import Problem from "./Problem";
 import Ready from "./Ready";
-import Trust from "./Trust";
+import About from "./About";
 
 const HomePage = () => {
   return (
     <>
       <Header />
       <HeroSection />
-      <Trust />
-      <Features />
+      <About />
+      <Problem />
       <Ready />
       <Footer />
     </>

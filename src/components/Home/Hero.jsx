@@ -1,84 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import doctors from "../../../public/Doctors.svg";
-import { IoIosArrowDropright } from "react-icons/io";
-import Typewriter from "typewriter-effect";
-import { IoIosPlayCircle } from "react-icons/io";
-import Link from "next/link";
-import { useState } from "react";
-import IntroVideo from "./IntroVideo";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { useEffect } from "react";
+import play from "../../../public/Icons/play.svg";
 
 const HeroSection = () => {
-  useEffect(() => {
-    AOS.init({});
-  }, []);
-
-   const typewriterOptions = {
-     strings: [
-       "Personnalisez vos sessions",
-       "Questions adaptatives personnalisées",
-       "Tutorat médical personnalisé",
-       "Améliorez votre apprentissage médical",
-     ],
-     autoStart: true,
-     loop: true,
-   };
-
-  const [video, setVideo] = useState(false)
-
   return (
-    <section
-      className={`h-[88vh] overflow-hidden bg-[#F8F8F8] flex items-center justify-between max-md:px-[20px] max-md:block max-md:h-[44vh] max-md:pt-10`}
-    >
-      <div data-aos="fade-right" className={`flex flex-col gap-4 px-[100px]`}>
-        <h1
-          className={`text-[64px] font-[600] leading-[80px] max-md:text-[40px] max-md:hidden`}
-        >
-          <span
-            className={`text-[#00000078] block h-[160px] text-[#00000078] w-[800px]`}
-          >
-            <Typewriter options={typewriterOptions} />
-          </span>
-          <span className="text-[#000000C7] mt-[-72px] block">
-            {" "}
-            <br />
-            avec <span className="text-[#F8589FC9]">MY</span>QCM <br />{" "}
-            Aljazayr.
-          </span>
+    <section className="px-[100px] py-[60px] mt-[60px]">
+      <div className="flex flex-col justify-center items-center">
+        <h1 className="text-[#191919] font-[700] text-[56px] italic">
+          With MYQCM Aljazayr
         </h1>
-
-        <div className="flex items-center gap-8 max-md:flex-col max-md:items-start max-md:mt-4">
-          <Link
-            href={`/signup`}
-            className={`bg-[#F8589FCC] w-fit py-[8px] flex gap-3 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff] font-[500] `}
-          >
-            Essayez-le maintenant gratuitement
-            <IoIosArrowDropright className="text-[19px]" />
-          </Link>
-          <button
-            className="flex items-center gap-3 max-md:hidden"
-            onClick={() => setVideo(true)}
-          >
-            <div className="relative wave_animation w-[30px] h-[30px] bg-[#EE459045] rounded-full flex items-center justify-center">
-              <IoIosPlayCircle className="text-[#F8589FD6] text-[19px] absolute " />
-            </div>
-            <span className={`text-[14px] text-[#433E3E] font-semibold `}>
-             Regarder la présentation !
-            </span>
-          </button>
-        </div>
+        <p className="text-center text-[#666666] text-[15px] mt-2 mb-8">
+          Enhance your learning experience with adaptive MCQ&apos;S designed to
+          tailor <br /> each session to your individual needs, and intelligent
+          tutoring systems that <br /> provide personalized feedback and
+          guidance to help you understand <br /> complex concepts more
+          effectively.
+        </p>
+        <button className="text-[#F8589F] font-[600] text-[14px] px-[28px] py-[10px] flex items-center gap-2 border border-[#F8589F] rounded-[16px]">
+          <Image src={play} alt="play" className="w-[20px]" />
+          Watch introduction video
+        </button>
       </div>
-      {video && <IntroVideo setVideo={setVideo} />}
-      <Image
-        src={doctors}
-        alt="doctors"
-        data-aos="fade-left"
-        className="w-[580px] relative bottom-[-0.5px] self-end fade-left max-md:hidden"
-      />
     </section>
   );
 };

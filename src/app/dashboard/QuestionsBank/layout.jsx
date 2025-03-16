@@ -1,9 +1,9 @@
-import QuestionsHead from '@/components/dashboard/QuestionsBank/QuestionsHead';
+import Dash_Header from '@/components/dashboard/Dash_Header';
 
 const layout = ({children}) => {
   return (
-    <div className="border-l border-t border-[#E4E4E4] mt-[16px] min-h-[calc(100vh-16px)] rounded-tl-[18px]">
-      <QuestionsHead />
+    <div className="bg-[#F7F8FA] min-h-[calc(100vh-16px)]">
+      <Dash_Header path={"/Question bank"} sub_path={""} />
       {children}
     </div>
   );

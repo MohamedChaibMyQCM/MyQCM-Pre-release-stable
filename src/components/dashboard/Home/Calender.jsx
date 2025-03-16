@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import  { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   MdOutlineKeyboardArrowLeft,
   MdOutlineKeyboardArrowRight,
 } from "react-icons/md";
+import SchedulePopup from "./SchedulePopup"; 
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null); 
+  const [isPopupOpen, setIsPopupOpen] = useState(false); 
 
   const monthNames = [
     "January",
@@ -26,9 +29,14 @@ const Calendar = () => {
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  const getDaysInMonth = (year, month) =>
-    new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+  const { daysInMonth, firstDay } = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    return {
+      daysInMonth: new Date(year, month + 1, 0).getDate(),
+      firstDay: new Date(year, month, 1).getDay(),
+    };
+  }, [currentDate]);
 
   const changeMonth = (increment) => {
     setCurrentDate((prevDate) => {
@@ -38,23 +46,30 @@ const Calendar = () => {
     });
   };
 
+  const handleDateClick = (day) => {
+    const selected = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
+    setSelectedDate(selected);
+    setIsPopupOpen(true);
+  };
+
   const renderCalendar = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = getDaysInMonth(year, month);
-    const firstDay = getFirstDayOfMonth(year, month);
     const totalCells = 42;
     const days = [];
 
     for (let i = 0; i < firstDay; i++) {
-      days.push(<td key={`empty-start-${i}`} className="w-[40px]"></td>);
+      days.push(<td key={`empty-start-${i}`} className="w-[30px]"></td>);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(
         <td
           key={`day-${day}`}
-          className="text-[14px] text-[#4A5660] font-Poppins font-medium w-[40px] text-center"
+          className="text-[14px] text-[#4A5660] font-Poppins font-medium w-[30px] h-[30px] flex items-center justify-center cursor-pointer hover:bg-[#F8589F] hover:text-white rounded-full"
+          onClick={() => handleDateClick(day)}
         >
           {day}
         </td>
@@ -63,7 +78,7 @@ const Calendar = () => {
 
     const remainingCells = totalCells - days.length;
     for (let i = 0; i < remainingCells; i++) {
-      days.push(<td key={`empty-end-${i}`} className="w-[40px]"></td>);
+      days.push(<td key={`empty-end-${i}`} className="w-[30px]"></td>);
     }
 
     const rows = [];
@@ -79,11 +94,11 @@ const Calendar = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-[100%]">
       <h2 className="text-[#191919] font-[500] text-[17px] mb-6">
         Votre parcours d&apos;apprentissage
       </h2>
-      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-full h-[288.5px]">
+      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-[100%] h-[316px]">
         <div className="flex items-center justify-between mb-4">
           <MdOutlineKeyboardArrowLeft
             className="text-[#B5BEC6] text-[20px] cursor-pointer"
@@ -106,7 +121,7 @@ const Calendar = () => {
                 {daysOfWeek.map((day) => (
                   <th
                     key={day}
-                    className="text-[12px] text-[#B5BEC6] font-Poppins font-medium w-[40px]"
+                    className="text-[12px] text-[#B5BEC6] font-medium w-[30px]"
                   >
                     {day}
                   </th>
@@ -117,6 +132,13 @@ const Calendar = () => {
           </table>
         </div>
       </div>
+
+      {isPopupOpen && (
+        <SchedulePopup
+          selectedDate={selectedDate}
+          onClose={() => setIsPopupOpen(false)}
+        />
+      )}
     </div>
   );
 };

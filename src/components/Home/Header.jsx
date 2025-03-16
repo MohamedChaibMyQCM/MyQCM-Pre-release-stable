@@ -2,63 +2,52 @@
 
 import Image from "next/image";
 import logo from "../../../public/logoMyqcm.svg";
-import SwitchLanguage from "./SwitchLanguage";
-import { MdKeyboardArrowDown } from "react-icons/md";
-import { IoIosPlayCircle } from "react-icons/io";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import signup from "../../../public/Landing/signup.svg";
+import Line from "../../../public/Landing/Line.svg";
 
 const Header = () => {
   const path = usePathname();
+
+  const navLinks = [
+    { name: "About", href: "/about" },
+    { name: "Features", href: "/features" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   return (
     <header
       className={`flex justify-between items-center h-[12vh] px-[100px] py-[20px] max-md:px-[20px] font-[600]`}
     >
-      <Image src={logo} alt="logo" className="w-[150px]" />
-      <ul className="flex justify-between items-center basis-[50%] max-md:hidden">
-        <li className="">
-          <a
-            href=""
-            className={` h-[22.5px] block text-[15px] text-[#191919] relative  
-             after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-11px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%]`}
-          >
-            Page d&apos;accueil
-          </a>
-        </li>
-        <li className="">
-          <a
-            href=""
-            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
-          >
-            Fonctionnalités
-            <MdKeyboardArrowDown className="text-[18px] mt-[2.2px]" />
-          </a>
-        </li>
-        <li className="">
-          <a
-            href=""
-            className={`text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] flex items-center gap-2 after:absolute after:bottom-[-10px] after:left-[50%] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
-          >
-            Tarification
-            <MdKeyboardArrowDown className="mt-[2.2px] text-[18px]" />
-          </a>
-        </li>
-        <li className="">
-          <a
-            href=""
-            className={`h-[22.5px] block text-[15px] text-[#191919] relative after:hidden after:w-[8px] after:h-[8px] after:absolute after:left-[50%] after:bottom-[-10px] after:translate-x-[-50%] after:bg-[#F8589F] after:rounded-[50%] duration-300 hover:text-[#F8589F]`}
-          >
-            Contactez-nous
-          </a>
-        </li>
-      </ul>
+      <Image src={logo} alt="logo" className="w-[100px]" />
+      <nav>
+        <ul className="flex items-center gap-10 max-md:hidden">
+          {navLinks.map((link, index) => (
+            <li key={index} className="relative flex items-center">
+              <Link
+                href={link.href}
+                className={`font-[500] text-[16px] ${
+                  path === link.href ? "text-[#F8589F]" : "text-[#191919]"
+                } relative hover:text-[#F8589F] transition duration-300`}
+              >
+                {link.name}
+              </Link>
+
+              {/* {index !== navLinks.length - 1 && (
+                <Image src={Line} alt="line" className="w-[2.3px] mx-6" />
+              )} */}
+            </li>
+          ))}
+        </ul>
+      </nav>
       <div className="flex items-center gap-3">
         <Link
           href={`/signup`}
-          className="bg-[#F8589FCC] py-[8px] flex gap-2 items-center px-[20px] rounded-[10px] text-[14px] text-[#fff]"
+          className="bg-[#F8589FCC] py-[8px] font-[500] flex gap-3 items-center px-[20px] text-[14px] text-[#FFFFFF] rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] hover:from-[#FD2E8A] hover:to-[#F8589F] transition-all duration-300"
         >
-          Inscrivez-vous <IoIosPlayCircle className="text-[18px]" />
+          Sign up <Image src={signup} alt="signup" />
         </Link>
       </div>
     </header>

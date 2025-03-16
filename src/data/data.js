@@ -2,11 +2,6 @@ import logo1 from "../../public/logos/OpenAi.svg";
 import logo4 from "../../public/logos/dr lekhal logo 1.svg";
 import logo5 from "../../public/logos/Educteck.svg";
 import logo6 from "../../public/logos/BlidaFac.svg";
-import facebook from "../../public/social Media/FacebookLogo.svg";
-import instagram from "../../public/social Media/InstagramLogo.svg";
-import linkedin from "../../public/social Media/LinkedinLogo.svg";
-import tiktok from "../../public/social Media/TikTok.svg";
-import twitter from "../../public/social Media/Twitter.svg";
 import wHeart from "../../public/Icons/wHeart.svg";
 import blida from "../../public/Icons/Blida.svg";
 import blood from "../../public/Quiz/blood.svg";
@@ -86,96 +81,6 @@ export const logos = [
   },
   {
     src: logo6,
-  },
-];
-
-export const fouterLinks = [
-  {
-    title: "Pages",
-    links: [
-      {
-        name: "Accueil",
-        href: "",
-      },
-      {
-        name: "Tarification",
-        href: "",
-      },
-      {
-        name: "Fonctionnalités",
-        href: "",
-      },
-      {
-        name: "Auteurs",
-        href: "",
-      },
-      {
-        name: "À propos de nous",
-        href: "",
-      },
-      {
-        name: "Devenez freelance MyQCM",
-        href: "",
-      },
-    ],
-  },
-  {
-    title: "Entreprise",
-    links: [
-      {
-        name: "Conditions générales",
-        href: "",
-      },
-      {
-        name: "Politique de confidentialité",
-        href: "",
-      },
-      {
-        name: "Cookies",
-        href: "",
-      },
-    ],
-  },
-  {
-    title: "Communauté",
-    links: [
-      {
-        name: "Centre d'aide",
-        href: "",
-      },
-      {
-        name: "FAQ",
-        href: "",
-      },
-    ],
-  },
-];
-
-export const socialMediaLogos = [
-  {
-    src: facebook,
-    href: "",
-    width: 30,
-  },
-  {
-    src: instagram,
-    href: "https://www.instagram.com/myqcm.aljazayr",
-    width: 30,
-  },
-  {
-    src: linkedin,
-    href: "",
-    width: 30,
-  },
-  {
-    src: tiktok,
-    href: "",
-    width: 20,
-  },
-  {
-    src: twitter,
-    href: "",
-    width: 20,
   },
 ];
 

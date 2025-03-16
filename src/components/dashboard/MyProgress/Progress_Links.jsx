@@ -1,27 +1,38 @@
+"use client"
+
 import Link from "next/link";
+import { usePathname } from "next/navigation"; 
 import calender from "../../../../public/Icons/calender.svg";
 import Image from "next/image";
 
 const Progress_Links = () => {
+  const pathname = usePathname(); 
+
+  const links = [
+    { href: "/dashboard/MyProgress", label: "Summary" },
+    { href: "/dashboard/MyProgress/progress", label: "Progress" },
+  ];
+
   return (
-    <div className="flex items-center justify-between mt-6  px-5 ">
+    <div className="flex items-center justify-between mt-6 px-5">
       <ul className="flex items-center gap-4">
-        <li>
-          <Link
-            href={`/dashboard/MyProgress`}
-            className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
-          >
-            Summary
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/dashboard/MyProgress/progress`}
-            className="bg-[#F8589F] text-[#FFFFFF] px-4 py-2 rounded-[20px] text-[13px] font-[500]"
-          >
-            Progress
-          </Link>
-        </li>
+        {links.map((link) => {
+          const isActive = pathname === link.href; 
+          return (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className={`${
+                  isActive
+                    ? "bg-[#F8589F] text-[#FFFFFF]"
+                    : "bg-[#FFFFFF] text-[#191919]"
+                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box`}
+              >
+                {link.label}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
       <div className="flex items-center gap-3 cursor-pointer">
         <div className="bg-[#FFFFFF] px-4 py-2 rounded-[20px]">

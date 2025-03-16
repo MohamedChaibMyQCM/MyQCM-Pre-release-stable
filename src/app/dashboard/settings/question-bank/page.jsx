@@ -1,12 +1,19 @@
-import Intelligent_Mode from "@/components/dashboard/settings/Intelligent_Mode";
-import Path_Settings from "@/components/dashboard/settings/Path_Settings";
-import React from "react";
+"use client"
 
-const page = () => {
+import Path_Mode from "@/components/dashboard/settings/Path_Mode";
+import Path_Settings from "@/components/dashboard/settings/Path_Settings";
+import React, { useState } from "react";
+
+const Page = () => {
+  const [selectedMode, setSelectedMode] = useState("intelligent");
+
   return (
     <div className="px-6">
-      <Path_Settings />
-      <Intelligent_Mode />
+      <Path_Settings
+        selectedMode={selectedMode} 
+        onModeChange={setSelectedMode}
+      />
+      <Path_Mode selectedMode={selectedMode} />
       <div className="mt-8 flex justify-end items-center gap-6">
         <button className="text-[#F8589F] text-[13px] font-[500]">
           Return
@@ -19,4 +26,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

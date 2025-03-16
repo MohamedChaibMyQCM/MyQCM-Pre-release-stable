@@ -1,77 +1,53 @@
-import Image from 'next/image';
-import logo from '../../../public/whiteLogo.svg'
-import { fouterLinks, socialMediaLogos } from '@/data/data';
-import Link from 'next/link';
-import Tahsin from "../../../public/TAHSIN Healthcare group 1.svg";
+import Image from "next/image";
+import Link from "next/link";
+import facebook from "../../../public/Landing/facebook.svg";
+import instagram from "../../../public/Landing/instagram.svg";
+import linkedin from "../../../public/Landing/linkedin.svg";
+import twitter from "../../../public/Landing/twitter.svg";
+import tiktok from "../../../public/Landing/tiktok.svg";
 
 const Footer = () => {
   return (
-    <footer className="flex flex-col bg-[#F8589F] py-[20px]">
-      <div className="px-[100px] flex justify-between border-b-[2px] border-b-[#FFFFFF] pb-[50px] max-md:px-[20px] max-md:flex-col">
-        <div className="flex flex-col gap-4 max-md:mb-12">
-          <Image src={logo} alt="logo" className="w-[130px]" />
-          <p className="w-[410px] text-[#FFFFFF] text-[15px] font-medium max-md:w-full">
-            MyQCM est une plateforme d&apos;apprentissage en ligne avancée,
-            pilotée par l&apos;IA, conçue pour révolutionner l&apos;éducation
-            médicale. Nous offrons un contenu personnalisé, des retours en temps
-            réel et une gamification pour rendre l&apos;apprentissage engageant
-            et efficace.{" "}
-          </p>
-        </div>
-        <div className="flex gap-20 max-md:flex-col max-md:gap-12">
-          {fouterLinks.map((item, index) => {
-            return (
-              <div className="" key={index}>
-                <h3 className="text-[#FFFFFF] pb-2 font-medium text-[18px]">
-                  {item.title}
-                </h3>
-                <ul className="flex flex-col gap-2">
-                  {item.links.map((item, index) => {
-                    return (
-                      <li key={index}>
-                        <Link
-                          href={item.href}
-                          className="text-[#FFFFFF] text-[14px] font-medium"
-                        >
-                          {item.name}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
+    <footer className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] flex items-center justify-between px-[100px] py-[26px]">
+      <div>
+        <span className="text-[#FFDDEC] text-[14px]">
+          ©2024 myqcm Group. All rights reserved.
+        </span>
       </div>
-      <div className="px-[100px] flex justify-between pt-[30px] max-md:px-5">
-        <div className="flex items-center">
-          <Image src={Tahsin} alt="tahsin olus logo" className="w-[120px]" />
-          <span className="w-[2px] h-[46px] bg-[#FFFFFF] rounded-[4px]"></span>
-          <span className="text-[#FFFFFF] font-medium pl-[10px] text-[15px]">
-            ©2024 Tahsin healthcare group. Tous droits réservés.
-          </span>
-        </div>
-        <div>
-          <ul className="flex items-center gap-12 max-md:hidden">
-            {socialMediaLogos.map((item, index) => {
-              return (
-                <li key={index}>
-                  <Link href={item.href}>
-                    <Image
-                      src={item.src}
-                      alt="logo"
-                      className={`w-[${item.width}px]`}
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+      <div className="flex items-center gap-6">
+        <span className="text-white italic font-semibold text-[20px] tracking-[-0.04px] mt-[6.6px]">
+          Follow us
+        </span>
+        <ul className="flex items-center gap-5">
+          <li>
+            <Link href="">
+              <Image src={facebook} alt="facebook" className="w-[13px]" />
+            </Link>
+          </li>
+          <li>
+            <Link href="">
+              <Image src={instagram} alt="instagram" className="w-[20px]" />
+            </Link>
+          </li>
+          <li>
+            <Link href="">
+              <Image src={tiktok} alt="tiktok" className="w-[18px]" />
+            </Link>
+          </li>
+          <li>
+            <Link href="">
+              <Image src={linkedin} alt="linkedin" className="w-[20px]" />
+            </Link>
+          </li>
+          <li>
+            <Link href="">
+              <Image src={twitter} alt="twitter" className="w-[18px]" />
+            </Link>
+          </li>
+        </ul>
       </div>
     </footer>
   );
-}
+};
 
-export default Footer
+export default Footer;

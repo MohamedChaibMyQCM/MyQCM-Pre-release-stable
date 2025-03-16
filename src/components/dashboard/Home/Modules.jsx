@@ -62,7 +62,7 @@ const Modules = () => {
           <Image src={rigth_arrow} alt="arrow" className="cursor-pointer" />
         </div>
       </div>
-      <ul className="flex gap-4">
+      <ul className="flex gap-4 max-md:flex-col">
         {modulesData.map((module) => (
           <li
             key={module.id}

@@ -60,7 +60,7 @@ const Page = () => {
         <Image src={logo} alt="logo" className="w-[140px] max-md:w-[120px]" />
         <button
           onClick={() => setResult(true)}
-          className="font-Inter font-medium text-[13px] text-[#FFFFFF] rounded-[12px] px-[12px] py-[6px] border-[2px] border-[#FFFFFF]"
+          className="font-Inter font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF]"
         >
           End Season
         </button>

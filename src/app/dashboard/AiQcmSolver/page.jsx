@@ -4,7 +4,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="flex border-l border-[#E4E4E4] h-screen">
+    <div className="flex h-screen">
       <AiSolver />
       <OldQuestions />
     </div>

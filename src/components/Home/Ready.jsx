@@ -1,45 +1,95 @@
-import { logos } from "@/data/data";
 import Image from "next/image";
 import Link from "next/link";
-import patern from "../../../public/Patern.svg";
+import logo from "../../../public/logoMyqcm.svg";
+
+const data = {
+  footerLinks: [
+    {
+      title: "Sections",
+      links: [
+        { text: "Home", href: "#" },
+        { text: "Features", href: "#" },
+        { text: "Pricing", href: "#" },
+        { text: "Contact", href: "#" },
+      ],
+    },
+    {
+      title: "Get to know us",
+      links: [
+        { text: "About us", href: "#" },
+        { text: "Problem", href: "#" },
+        { text: "Solution", href: "#" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { text: "FAQ", href: "#" },
+        { text: "User guide", href: "#" },
+      ],
+    },
+    {
+      title: "Confidentiality",
+      links: [
+        { text: "Privacy policy", href: "#" },
+        { text: "Terms and conditions", href: "#" },
+      ],
+    },
+    {
+      title: "Support",
+      links: [
+        {
+          text: "support.myqcm@myqcm.dz",
+          href: "mailto:support.myqcm@myqcm.dz",
+        },
+        { text: "+213 677890976", href: "tel:+213677890976" },
+        { text: "+213 578908832", href: "tel:+213578908832" },
+      ],
+    },
+  ],
+};
 
 const Ready = () => {
-
   return (
-    <section className="relative bg-[#F8589F] px-[100px] pt-[60px] pb-[40px] text-center flex flex-col gap-4 max-md:px-5">
-      <Image src={patern} alt="patern" className="absolute top-0 left-0" />
-      <h2 className="text-[54px] font-[600] text-[#FFFFFF] leading-[69px] z-50 max-md:hidden">
-        Prêt à améliorer vos connaissances médicales <br /> et à faire
-        progresser votre carrière
-      </h2>
-      <p className="font-medium text-[#FFFFFF] z-50 w-[1000px] mx-auto max-md:w-full">
-        Notre plateforme vous offre un accès  à une éducation médicale de premier
-        plan depuis le confort de votre domicile. Faites progresser votre
-        carrière dès aujourd&apos;hui en vous engageant avec des QCM et des
-        tutoriels soigneusement conçus sur MyQCM Aljazayr.
-      </p>
-      <div className="flex items-center gap-6 justify-center mb-[40px] mt-[16px] z-50">
+    <section className="bg-[#FFF5FA] px-[100px] py-[60px]">
+      <div className="flex flex-col justify-center items-center">
+        <Image
+          src={logo}
+          alt="logo"
+          width={340}
+          height={100}
+          className="w-[340px]"
+        />
+        <p className="text-[#191919] font-medium text-[15px] text-center mb-4 mt-10">
+          Ready to enhance your medical knowledge and advance your career.
+        </p>
         <Link
-          href={`/signup`}
-          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] text-[14px] font-medium"
+          href="/signup"
+          className="rounded-[16px] text-white text-[14px] w-fit bg-gradient-to-r from-[#F8589F] via-[#FD2E8A] to-[#FD2E8A] py-[8px] px-[22px] hover:shadow-lg hover:scale-105 transition-all duration-300"
         >
-          Commencez
-        </Link>
-        <Link
-          href=""
-          className="bg-[#FFFFFF] py-[8px] px-[40px] font-semibold rounded-[14px] text-[#F8589F] text-[14px] font-medium "
-        >
-          Contactez
+          Start now
         </Link>
       </div>
-      <ul className="flex items-center justify-between gap-8 max-md:hidden">
-        {logos.map((item, index) => {
-          return (
-            <li key={index}>
-              <Image src={item.src} alt="logo" />
-            </li>
-          );
-        })}
+      <ul className="flex justify-between mt-12">
+        {data.footerLinks.map((category, index) => (
+          <li key={index}>
+            <h3 className="text-[#F8589F] mb-4 font-semibold text-[26px]">
+              {category.title}
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {category.links.map((link, idx) => (
+                <li key={idx}>
+                  <Link
+                    href={link.href}
+                    className="text-[#191919] text-[15px] hover:text-[#F8589F] transition-colors duration-300"
+                  >
+                    {link.text}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
       </ul>
     </section>
   );

@@ -11,7 +11,8 @@ const poppins = Poppins({
 
 export const metadata = {
   title: "MY QCM",
-  description: "Elearn Plateform",
+  description:
+    "Enhance your learning experience with adaptive MCQ’S designed to tailor each session to your individual needs, and intelligent tutoring systems that provide personalized feedback and guidance to help you understand complex concepts more effectively.",
 };
 
 export default async function RootLayout({ children }) {

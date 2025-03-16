@@ -27,14 +27,13 @@ const Aside = () => {
   };
 
   const isSettingsActive = afterDashboard.startsWith("settings");
-  console.log(isSettingsActive);
 
   return (
-    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md">
+    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[20px] max-md:py-0">
       <Image
         src={logo}
         alt="logo"
-        className="w-[180px] mx-auto max-md:mx-0 max-md:w-[100px]"
+        className="w-[120px] mx-auto max-md:mx-0 max-md:w-[80px]"
       />
       <FiMenu
         className="md:hidden cursor-pointer"
@@ -81,7 +80,7 @@ const Aside = () => {
           );
         })}
       </ul>
-      <div className="relative flex flex-col gap-1 pl-5">
+      <div className="relative flex flex-col gap-1 pl-5 max-md:hidden">
         <div
           className={`rounded-r-[12px] py-[14px] w-[88%] max-md:rounded-[12px] ${
             isSettingsActive ? "text-[#F8589F]" : ""
@@ -111,7 +110,9 @@ const Aside = () => {
           onClick={handleLogout}
         >
           <Image src={logout} alt="logout" className="w-[16px] font-[500]" />
-          <span className="text-[14.5px] font-[500] text-[#F64C4C]">Logout</span>
+          <span className="text-[14.5px] font-[500] text-[#F64C4C]">
+            Logout
+          </span>
         </button>
       </div>
     </aside>

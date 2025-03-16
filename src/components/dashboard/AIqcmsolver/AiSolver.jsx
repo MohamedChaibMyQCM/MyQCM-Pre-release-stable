@@ -8,7 +8,7 @@ import add from "../../../../public/AI/add.svg";
 
 const AiSolver = () => {
   return (
-    <div className="pt-[50px] py-[20px] px-[30px] w-[60%] flex flex-col">
+    <div className="pt-[50px] py-[20px] px-[30px] w-[60%] flex flex-col bg-[#F7F8FA]">
       <div className="mb-[100px]">
         <h1 className="font-Poppins text-center text-[#11142D] font-semibold text-[30px]">
           Unclock the power of Medical AI

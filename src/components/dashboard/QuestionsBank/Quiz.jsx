@@ -10,7 +10,7 @@ import { useFormik } from "formik";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import QuizResult from "./QuizResult";
 
-const Quiz = ({
+const  Quiz = ({
   data,
   Progress,
   answer,

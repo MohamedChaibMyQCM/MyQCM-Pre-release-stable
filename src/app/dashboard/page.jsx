@@ -6,12 +6,12 @@ import Units from "@/components/dashboard/Home/Units";
 
 const Page = async () => {
   return (
-    <div className="bg-[#F7F8FA] pb-8">
+    <div className="bg-[#F7F8FA] pb-10">
       <Dash_Header />
       <div className="px-6 mt-4 max-md:mt-0">
         <Units />
         <Modules />
-        <div className="flex items-start gap-6 mt-12 max-md:flex-col w-[100%]">
+        <div className="flex items-start gap-6 mt-12 max-md:flex-col w-[100%] max-md:mt-6">
           <div className="flex-1 w-[100%]">
             <Calendar />
           </div>

@@ -95,10 +95,10 @@ const Calendar = () => {
 
   return (
     <div className="w-[100%]">
-      <h2 className="text-[#191919] font-[500] text-[17px] mb-6">
-        Votre parcours d&apos;apprentissage
+      <h2 className="text-[#191919] font-[500] text-[17px] mb-6 max-md:mb-4">
+        Schedule your learning
       </h2>
-      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-[100%] h-[316px]">
+      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-[100%] h-[316px] max-md:px-[20px]">
         <div className="flex items-center justify-between mb-4">
           <MdOutlineKeyboardArrowLeft
             className="text-[#B5BEC6] text-[20px] cursor-pointer"

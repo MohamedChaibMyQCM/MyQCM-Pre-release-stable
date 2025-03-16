@@ -3,39 +3,39 @@ import password from "../../../../../public/settings/password.svg";
 
 const page = () => {
   return (
-    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-12 rounded-[16px] box">
+    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-12 rounded-[16px] box max-md:mt-6">
       <h3 className="text-[#191919] font-[500] mb-1">New password</h3>
       <p className="text-[#666666] text-[13.6px]">
         Update your password to keep your account secure. Choose a strong,
         unique password to protect your information and <br /> maintain privacy.
       </p>
       <form className="mt-6">
-        <div className="flex flex-col mb-6">
+        <div className="flex flex-col mb-6 max-md:w-full">
           <span className="text-[#F8589F] text-[14px] mb-1">
             Current password
           </span>
           <input
             type="password"
-            className="border border-[#E4E7EB] w-[48%] rounded-[16px] py-[6px] px-4 outline-none"
+            className="border border-[#E4E7EB] w-[48%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
           />
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col w-[48%]">
+        <div className="flex items-center justify-between max-md:flex-col max-md:gap-6">
+          <div className="flex flex-col w-[48%] max-md:w-full">
             <span className="text-[#F8589F] text-[14px] mb-1">
               New password
             </span>
             <input
               type="password"
-              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none"
+              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
             />
           </div>
-          <div className="flex flex-col w-[48%]">
+          <div className="flex flex-col w-[48%] max-md:w-full">
             <span className="text-[#F8589F] text-[14px] mb-1">
               Confirm new password
             </span>
             <input
               type="password"
-              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none"
+              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
             />
           </div>
         </div>

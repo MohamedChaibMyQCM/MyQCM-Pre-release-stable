@@ -26,10 +26,10 @@ const chartData = [
 const Study_time = () => {
   return (
     <div className="w-full">
-      <h3 className="font-[500] text-[17px] mb-6 text-[#191919]">
+      <h3 className="font-[500] text-[17px] mb-6 text-[#191919] max-md:mb-4">
         Studying time
       </h3>
-      <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full">
+      <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full max-md:h-[320px] max-md:px-0">
         <Card className="border-none p-0 w-full shadow-none">
           <CardContent className="border-none p-0">
             <ChartContainer config={{}}>

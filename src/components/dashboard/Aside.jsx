@@ -6,10 +6,13 @@ import Link from "next/link";
 import { aside_links } from "@/data/data";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { FiMenu } from "react-icons/fi";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
 import logout from "../../../public/Aside/logout.svg";
+import menu from "../../../public/Home/menu.svg";
+import notification from "../../../public/Icons/notification.svg";
+import { X } from "lucide-react"; // Import the X icon
+import streak from "../../../public/Icons/streak.svg"; // Import the streak icon
 import secureLocalStorage from "react-secure-storage";
 
 const Aside = () => {
@@ -29,16 +32,44 @@ const Aside = () => {
   const isSettingsActive = afterDashboard.startsWith("settings");
 
   return (
-    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[20px] max-md:py-0">
-      <Image
-        src={logo}
-        alt="logo"
-        className="w-[120px] mx-auto max-md:mx-0 max-md:w-[80px]"
-      />
-      <FiMenu
-        className="md:hidden cursor-pointer"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-      />
+    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[24px] max-md:py-0">
+      {isMenuOpen ? (
+        <div className="flex items-center gap-2">
+          <span className="text-[#191919] font-[500] text-[18px]">
+            200<span className="text-[#F8589F]">XP</span>
+          </span>
+          <div className="flex items-center gap-[2px]">
+            <span className="text-[#191919] font-[500] text-[18px]">3</span>
+            <Image src={streak} alt="streak" className="w-[13px]" />
+          </div>
+        </div>
+      ) : (
+        <Image
+          src={logo}
+          alt="logo"
+          className="w-[120px] mx-auto max-md:mx-0 max-md:w-[80px]"
+        />
+      )}
+      <div className="flex items-center gap-4 md:hidden">
+        {!isMenuOpen && (
+          <Image
+            src={notification}
+            alt="notification"
+            className="w-[16px] cursor-pointer"
+          />
+        )}
+
+        <div
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="cursor-pointer"
+        >
+          {isMenuOpen ? (
+            <X size={26} className="text-[#F8589F]" />
+          ) : (
+            <Image src={menu} alt="menu" className="w-[16px]" />
+          )}
+        </div>
+      </div>
       <ul
         className={`flex flex-col mb-[40px] gap-1 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
           isMenuOpen
@@ -55,7 +86,7 @@ const Aside = () => {
           return (
             <li
               key={index}
-              className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] ${
+              className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 ${
                 isActive ? "text-[#F8589F]" : ""
               }`}
             >
@@ -79,6 +110,40 @@ const Aside = () => {
             </li>
           );
         })}
+        <li
+          className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 md:hidden ${
+            isSettingsActive ? "text-[#F8589F]" : ""
+          }`}
+        >
+          <Link
+            href={`/dashboard/settings`}
+            className="text-[#324054] flex items-center gap-4"
+          >
+            <Image
+              src={isSettingsActive ? Psettings : settings}
+              alt="settings"
+              className="w-[16px] font-[500]"
+            />
+            <span
+              className={`text-[13.8px] font-[500] ${
+                isSettingsActive ? "text-[#F8589F]" : ""
+              }`}
+            >
+              Settings
+            </span>
+          </Link>
+        </li>
+        <li className="rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 md:hidden">
+          <button
+            className="text-[#324054] flex items-center gap-4"
+            onClick={handleLogout}
+          >
+            <Image src={logout} alt="logout" className="w-[16px] font-[500]" />
+            <span className="text-[13.8px] font-[500] text-[#F64C4C]">
+              Logout
+            </span>
+          </button>
+        </li>
       </ul>
       <div className="relative flex flex-col gap-1 pl-5 max-md:hidden">
         <div
@@ -104,7 +169,6 @@ const Aside = () => {
             </span>
           </Link>
         </div>
-
         <button
           className={`rounded-r-[12px] py-[14px] w-[88%] max-md:rounded-[12px] text-[#324054] flex items-center gap-4`}
           onClick={handleLogout}

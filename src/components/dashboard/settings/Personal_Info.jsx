@@ -10,7 +10,7 @@ const Personal_Info = () => {
         <Image
           src={background_profile}
           alt="vector"
-          className="absolute w-full top-[-50px] max-md:top-[0px]"
+          className="absolute w-full top-[0px] max-md:top-[0px]"
         />
         <div className="flex items-center justify-between px-6 mt-[86px] max-md:mt-10">
           <div className="flex items-center gap-4">

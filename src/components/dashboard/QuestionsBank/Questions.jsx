@@ -30,7 +30,7 @@ const Questions = ({ data, isLoading, error }) => {
               key={item.id}
               onClick={() => setCourseId(item.id)}
             >
-              <div className="basis-[34%] flex items-center gap-4 max-md:gap-3">
+              <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[80%]">
                 <Image
                   src={coursePerModule}
                   alt="module"

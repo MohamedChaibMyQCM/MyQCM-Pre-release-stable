@@ -6,10 +6,10 @@ import year from "../../../../public/Question_Bank/year.svg";
 
 const Exams = () => {
   return (
-    <div className="mx-[28px] py-[20px] rounded-[16px] max-md:px-[20px] max-md:mx-[20px]">
+    <div className="mx-[28px] py-[20px] rounded-[16px]">
       <div className="flex justify-between items-center mb-5">
         <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
-          Old exams and simulations
+          Old exams
         </h3>
         <div className="flex items-center gap-4">
           <div className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box">

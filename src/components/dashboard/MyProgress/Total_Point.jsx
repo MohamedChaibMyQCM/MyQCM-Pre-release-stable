@@ -2,7 +2,7 @@ import React from "react";
 
 const Total_Point = () => {
   return (
-    <div className="w-[190px]">
+    <div className="w-[190px] max-md:w-full">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Total points
       </h3>

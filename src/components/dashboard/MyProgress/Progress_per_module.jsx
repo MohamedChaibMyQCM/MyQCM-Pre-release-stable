@@ -17,7 +17,7 @@ const chartData = [
 
 const Progress_per_module = () => {
   return (
-    <div className="flex-1">
+    <div className="flex-1 max-md:w-full">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Progress by Module
       </h3>

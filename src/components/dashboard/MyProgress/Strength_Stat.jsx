@@ -6,7 +6,7 @@ import Ranking from './Ranking';
 
 const Strength_Stat = () => {
   return (
-    <div className='flex mt-8 gap-6'>
+    <div className='flex mt-8 gap-6 max-md:flex-col'>
       <Stren_Weakn />
       <Study_time />
       <div className='flex flex-col'>

@@ -2,7 +2,7 @@ import React from "react";
 
 const Ranking = () => {
   return (
-    <div className="mt-6 w-[190px]">
+    <div className="mt-6 w-[190px] max-md:w-full">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">Ranking</h3>
       <div className="bg-[#FFFFFF] flex flex-col box p-4 rounded-[16px]">
         <span className="text-[14px] text-[#B5BEC6] font-[500]">You are</span>

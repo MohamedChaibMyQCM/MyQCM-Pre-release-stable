@@ -6,9 +6,6 @@ import play from "../../../../public/Icons/play.svg";
 import Link from "next/link";
 
 const Courses = ({ courses, subjectId }) => {
-
-  console.log(courses);
-
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%]">
       <div className="flex items-center justify-between mb-5">
@@ -31,7 +28,7 @@ const Courses = ({ courses, subjectId }) => {
                   className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px]"
                   key={item.id}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 max-md:w-[80%]">
                     <Image
                       src={coursePerModule}
                       alt="module"

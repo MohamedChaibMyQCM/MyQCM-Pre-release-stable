@@ -9,6 +9,7 @@ const Settings_Links = () => {
   const links = [
     { href: "/dashboard/settings", label: "Profile info" },
     { href: "/dashboard/settings/change-password", label: "Change password" },
+    { href: "/dashboard/settings/upgrade-account", label: "Upgrade account" },
     { href: "/dashboard/settings/question-bank", label: "Question bank" },
     { href: "/dashboard/settings/notification", label: "Notification" },
   ];

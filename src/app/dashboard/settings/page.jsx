@@ -1,6 +1,5 @@
 import Personal_Info from "@/components/dashboard/settings/Personal_Info";
 import Reward from "@/components/dashboard/settings/Reward";
-import Link from "next/link";
 import React from "react";
 
 const page = () => {

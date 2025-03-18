@@ -157,6 +157,12 @@
   scrollbar-width: none; 
 }
 
+/* .recharts-wrapper {
+  width: 400px !important;
+  height: 300px !important;
+  padding-left: -20px;
+} */
+
 /* @layer base {
   :root {
     --background: 0 0% 100%;

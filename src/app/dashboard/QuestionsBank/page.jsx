@@ -3,7 +3,7 @@ import Exams from "@/components/dashboard/QuestionsBank/Exams";
 
 const page = () => {
   return (
-    <div className="py-[26px]">
+    <div className="py-[26px] max-md:py-4">
       <Categories />
       <Exams />
     </div>

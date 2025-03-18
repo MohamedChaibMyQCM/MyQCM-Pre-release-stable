@@ -7,7 +7,7 @@ import React from 'react'
 const page = () => {
   return (
     <div className='px-6 mt-8'>
-      <div className='flex items-center gap-6'>
+      <div className='flex items-center gap-6 max-md:flex-col'>
         <Progress_per_module />
         <Performance />
         <Recent_Quiz />

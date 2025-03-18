@@ -9,10 +9,10 @@ import { useState, useEffect } from "react";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
 import logout from "../../../public/Aside/logout.svg";
-import menu from "../../../public/Home/menu.svg";
+import menu from "../../../public/Home/Menu.svg";
 import notification from "../../../public/Icons/notification.svg";
-import { X } from "lucide-react"; // Import the X icon
-import streak from "../../../public/Icons/streak.svg"; // Import the streak icon
+import { X } from "lucide-react";
+import streak from "../../../public/Icons/streak.svg"; 
 import secureLocalStorage from "react-secure-storage";
 
 const Aside = () => {

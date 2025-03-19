@@ -4,8 +4,19 @@ import coursePerModule from "../../../../public/Icons/coursePerModule.svg";
 import Image from "next/image";
 import play from "../../../../public/Icons/play.svg";
 import Link from "next/link";
+import { useState } from "react";
+import TrainingSeason from "./TrainingSeason"; // Import the TrainingSeason component
 
 const Courses = ({ courses, subjectId }) => {
+  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+  const [selectedCourseId, setSelectedCourseId] = useState(null); // State to store the selected course ID
+
+  // Function to handle the "play" button click
+  const handlePlayClick = (courseId) => {
+    setSelectedCourseId(courseId); // Set the selected course ID
+    setShowPopup(true); // Show the popup
+  };
+
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%]">
       <div className="flex items-center justify-between mb-5">
@@ -48,7 +59,9 @@ const Courses = ({ courses, subjectId }) => {
                       </span>
                     </div>
                   </div>
-                  <button>
+                  <button onClick={() => handlePlayClick(item.id)}>
+                    {" "}
+                    {/* Pass the course ID to the handler */}
                     <Image
                       src={play}
                       alt="play"
@@ -59,6 +72,13 @@ const Courses = ({ courses, subjectId }) => {
               );
             })}
       </ul>
+
+      {showPopup && (
+        <TrainingSeason
+          setPopup={setShowPopup}
+          courseId={selectedCourseId}
+        />
+      )}
     </div>
   );
 };

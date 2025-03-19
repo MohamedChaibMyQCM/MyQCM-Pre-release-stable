@@ -1,31 +1,168 @@
 "use client";
 
+import { X } from "phosphor-react";
+import * as React from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const SchedulePopup = ({ selectedDate, onClose }) => {
+  // Example data for units, modules, and courses
+  const units = [
+    { id: "1", name: "Unit 1" },
+    { id: "2", name: "Unit 2" },
+    { id: "3", name: "Unit 3" },
+  ];
+
+  const modules = [
+    { id: "1", name: "Module 1" },
+    { id: "2", name: "Module 2" },
+    { id: "3", name: "Module 3" },
+  ];
+
+  const courses = [
+    { id: "1", name: "Course 1" },
+    { id: "2", name: "Course 2" },
+    { id: "3", name: "Course 3" },
+  ];
+
+  const [selectedUnit, setSelectedUnit] = React.useState("");
+  const [selectedModule, setSelectedModule] = React.useState("");
+  const [selectedCourse, setSelectedCourse] = React.useState("");
+  const [selectedDateInput, setSelectedDateInput] = React.useState("");
+  const [selectedTimeInput, setSelectedTimeInput] = React.useState("");
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-[300px]">
-        <h3 className="text-[#191919] font-[500] text-[18px] mb-4">
-          Schedule for {selectedDate.toDateString()}
-        </h3>
-        <textarea
-          placeholder="Add your schedule..."
-          className="w-full h-[100px] p-2 border border-[#B5BEC6] rounded-lg mb-4"
-        />
-        <div className="flex justify-end gap-2">
+      <div className="bg-white rounded-[16px] p-6 w-[600px]">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[#FD2E8A] font-[500] text-[17px]">
+            Schedule season
+          </h3>
+          <X
+            size={24}
+            className="text-[#B5BEC6] font-[600] cursor-pointer"
+            onClick={onClose}
+          />
+        </div>
+        <div className="mb-6">
+          <span className="font-[500] text-[#191919] mb-3 block">Unit</span>
+          <Select
+            value={selectedUnit}
+            onValueChange={(val) => setSelectedUnit(val)}
+          >
+            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+              <SelectValue placeholder="Select a Unit" />
+            </SelectTrigger>
+            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+              <SelectGroup>
+                {units.map((unit) => (
+                  <SelectItem
+                    key={unit.id}
+                    value={unit.id}
+                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                  >
+                    {unit.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="mb-6">
+          <span className="font-[500] text-[#191919] mb-4 block">Module</span>
+          <Select
+            value={selectedModule}
+            onValueChange={(val) => setSelectedModule(val)}
+          >
+            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+              <SelectValue placeholder="Select a Module" />
+            </SelectTrigger>
+            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+              <SelectGroup>
+                {modules.map((module) => (
+                  <SelectItem
+                    key={module.id}
+                    value={module.id}
+                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                  >
+                    {module.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="mb-6">
+          <span className="font-[500] text-[#191919] mb-4 block">Course</span>
+          <Select
+            value={selectedCourse}
+            onValueChange={(val) => setSelectedCourse(val)}
+          >
+            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+              <SelectValue placeholder="Select a Course" />
+            </SelectTrigger>
+            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+              <SelectGroup>
+                {courses.map((course) => (
+                  <SelectItem
+                    key={course.id}
+                    value={course.id}
+                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                  >
+                    {course.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1">
+            <span className="font-[500] text-[#191919]">Date</span>
+            <input
+              type="date"
+              value={selectedDateInput}
+              onChange={(e) => setSelectedDateInput(e.target.value)}
+              className="w-full rounded-[20px] bg-white border border-[#E0E0E0] text-[#191919] text-[14px]  py-2 px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
+            />
+          </div>
+          <div className="flex-1">
+            <span className="font-[500] text-[#191919]">Time</span>
+            <input
+              type="time"
+              value={selectedTimeInput}
+              onChange={(e) => setSelectedTimeInput(e.target.value)}
+              className="w-full rounded-[20px] bg-white border border-[#E0E0E0] text-[#191919] text-[14px]  py-2 px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
+            />
+          </div>
+        </div>
+        <div className="flex justify-center gap-6">
           <button
             onClick={onClose}
-            className="bg-[#B5BEC6] text-white px-4 py-2 rounded-lg"
+            className="text-[#F8589F] px-4 py-2 rounded-lg text-[14px] font-[500]"
           >
             Cancel
           </button>
           <button
             onClick={() => {
-              
+              console.log({
+                unit: selectedUnit,
+                module: selectedModule,
+                course: selectedCourse,
+                date: selectedDateInput,
+                time: selectedTimeInput,
+              });
               onClose();
             }}
-            className="bg-[#F8589F] text-white px-4 py-2 rounded-lg"
+            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-[1px] rounded-[20px]"
           >
-            Save
+            Add
           </button>
         </div>
       </div>

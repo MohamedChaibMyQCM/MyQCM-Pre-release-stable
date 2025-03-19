@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image";
-import search from "../../../public/Icons/search.svg";
+// import search from "../../../public/Icons/search.svg";
 import streak from "../../../public/Icons/streak.svg";
 import notification from "../../../public/Icons/notification.svg";
 import Notification from "./Notification";
@@ -24,7 +24,7 @@ const Dash_Header = ({ path, sub_path }) => {
         Welcome Back <span className="text-[#F8589F]">Raouf!</span>
       </span>
       <div className="flex items-center gap-6 max-md:hidden">
-        <Image src={search} alt="search" className="w-[17px] cursor-pointer" />
+        {/* <Image src={search} alt="search" className="w-[17px] cursor-pointer" /> */}
         <Image
           src={notification}
           alt="notification"

@@ -7,32 +7,36 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-// Adjust these values to match exactly the shape of your screenshot
 const chartData = [
-  { axis: "Cardio", value: 80 },
-  { axis: "Radio", value: 60 },
-  { axis: "Neuro", value: 30 },
-  { axis: "Chemistry", value: 50 },
-  { axis: "Derma", value: 70 },
-  { axis: "Strong", value: 90 }, // Added a sixth data point
+  { axis: "Cardio", value: 60, strength: 90 },
+  { axis: "Endurance", value: 85, strength: 60 }, 
+  { axis: "Radio", value: 60, strength: 80 },
+  { axis: "Neuro", value: 90, strength: 40 },
+  { axis: "Chemistry", value: 50, strength: 80 },
+  { axis: "Derma", value: 35, strength: 70 },
 ];
 
 const Stren_Weakn = () => {
   return (
-    <div className="flex-1">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <div className="flex-1 weak">
+      <h3 className="font-medium text-lg mb-4 text-gray-900">
         Strengths & Weaknesses
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-6 box">
-        <Card className="border-none shadow-none ">
+      <div className="bg-white rounded-2xl px-6 py-6 box h-[327px]">
+        <Card className="border-none shadow-none">
           <CardHeader className="p-0">
-            <CardTitle className="flex items-center gap-4">
-              <span className="text-[14px] text-[#F64C4C] font-[500]">
-                Weak
-              </span>
-              <span className="text-[14px] text-[#47B881] font-[500]">
-                Strong
-              </span>
+            <CardTitle className="flex items-center gap-8 relative">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-[#F64C4C]">Weak</span>
+                <span className="h-2 w-2 rounded-full bg-[#F64C4C]"></span>
+              </div>
+              <span className="w-[32px] bg-[#E7E7E7] h-[1.6px] absolute left-[54px]"></span>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#47B881]"></span>
+                <span className="text-sm font-medium text-[#47B881]">
+                  Strong
+                </span>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-0">
@@ -40,23 +44,38 @@ const Stren_Weakn = () => {
               config={{}}
               className="mx-auto aspect-square max-h-[250px]"
             >
-              <RadarChart data={chartData}>
-                {/* Tooltip for hovering over the points */}
+              <RadarChart data={chartData} outerRadius={90}>
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                {/* Axis labels (e.g., Cardio, Radio, etc.) */}
-                <PolarAngleAxis dataKey="axis" />
-                {/* Hexagonal grid lines */}
-                <PolarGrid radialLines={false} />
-                {/* Single radar polygon, styled in pink/purple */}
+                <PolarAngleAxis
+                  dataKey="axis"
+                  tick={{ fill: "#000", fontSize: 12 }}
+                />
+                <PolarGrid
+                  gridType="polygon"
+                  radialLines={true}
+                  stroke="#e0e0e0"
+                  strokeDasharray="3 3"
+                />
                 <Radar
+                  name="Weaknesses"
                   dataKey="value"
-                  fill="#8884d8" // Adjust color to match the image
-                  fillOpacity={0.2} // slight fill to mimic the image
-                  stroke="#8884d8" // outline color
+                  fill="#F64C4C"
+                  fillOpacity={0.2}
+                  stroke="#F64C4C"
                   strokeWidth={2}
+                  dot={{ fill: "#F64C4C", r: 3 }}
+                />
+                <Radar
+                  name="Strengths"
+                  dataKey="strength"
+                  fill="#47B881"
+                  fillOpacity={0.2}
+                  stroke="#47B881"
+                  strokeWidth={2}
+                  dot={{ fill: "#47B881", r: 3 }}
                 />
               </RadarChart>
             </ChartContainer>

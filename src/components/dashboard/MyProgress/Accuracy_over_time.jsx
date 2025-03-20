@@ -1,52 +1,38 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, Line } from "recharts";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChartContainer } from "@/components/ui/chart";
 
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { month: "January", volume1: 186, volume2: 120, volume3: 150 },
+  { month: "February", volume1: 305, volume2: 200, volume3: 250 },
+  { month: "March", volume1: 237, volume2: 150, volume3: 200 },
+  { month: "April", volume1: 73, volume2: 90, volume3: 100 },
+  { month: "May", volume1: 209, volume2: 180, volume3: 220 },
+  { month: "June", volume1: 214, volume2: 160, volume3: 210 },
 ];
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
+  volume1: {
+    color: "#F64C4C",
   },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
+  volume2: {
+    color: "#F8589F",
   },
-}
+  volume3: {
+    color: "#00FF00", 
+  },
+};
 
 const Accuracy_over_time = () => {
   return (
-    <div className="flex-1">
+    <div className="flex-1 accuracy">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Accuracy over time
       </h3>
-      <div className="bg-[#FFFFFF] box">
-        <Card>
+      <div className="bg-[#FFFFFF] box overflow-hidden rounded-[16px] h-[320px]">
+        <Card className="border-none shadow-none h-[280px]">
           <CardContent className="p-0">
             <ChartContainer config={chartConfig}>
               <AreaChart
@@ -56,43 +42,63 @@ const Accuracy_over_time = () => {
                   left: 12,
                   right: 12,
                 }}
+                height={300}
               >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
+                <defs>
+                  <linearGradient id="gradient1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#F9ADE7" />
+                    <stop offset="100%" stopColor="rgba(249, 173, 231, 0.00)" />
+                  </linearGradient>
+                  <linearGradient id="gradient2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFE1F0" />
+                    <stop offset="100%" stopColor="#FFF" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  vertical={true}
+                  horizontal={false}
+                  stroke="#E0E0E0"
                 />
                 <Area
-                  dataKey="mobile"
-                  type="natural"
-                  fill="var(--color-mobile)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-mobile)"
+                  dataKey="volume1"
+                  type="monotone"
+                  fill="url(#gradient2)"
+                  fillOpacity={1}
+                  stroke="#F64C4C"
+                  strokeWidth={2}
                   stackId="a"
                 />
                 <Area
-                  dataKey="desktop"
-                  type="natural"
-                  fill="var(--color-desktop)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-desktop)"
+                  dataKey="volume2"
+                  type="monotone" // More curved line
+                  fill="url(#gradient1)"
+                  fillOpacity={1}
+                  stroke="#F8589F"
+                  strokeWidth={2}
                   stackId="a"
                 />
-                <ChartLegend content={<ChartLegendContent />} />
+                <Line
+                  dataKey="volume3"
+                  type="monotone" // More curved line
+                  stroke="#00FF00" // Color for the additional line
+                  strokeWidth={2}
+                  dot={false} // Remove dots if needed
+                />
               </AreaChart>
             </ChartContainer>
           </CardContent>
         </Card>
+        <div className="flex items-center justify-center gap-16 z-[50] mt-[8px]">
+          <span className="block relative text-[#191919] font-[500] text-[13px] after:w-[8px] after:h-[8px] after:rounded-[50%] after:bg-[#F8589F] after:absolute after:left-[-12px] after:top-[50%] after:translate-y-[-50%]">
+            Your accuracy
+          </span>
+          <span className="block relative text-[#191919] font-[500] text-[13px] after:w-[8px] after:h-[8px] after:rounded-[50%] after:bg-[#F64C4C] after:absolute after:left-[-12px] after:top-[50%] after:translate-y-[-50%]">
+            Your average
+          </span>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export default Accuracy_over_time
+export default Accuracy_over_time;

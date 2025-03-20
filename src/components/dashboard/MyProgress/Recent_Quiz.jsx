@@ -1,6 +1,6 @@
 import React from "react";
 
-const Recent_Quiz = () => {
+const  Recent_Quiz = () => {
   // Quiz data
   const quizData = [
     {

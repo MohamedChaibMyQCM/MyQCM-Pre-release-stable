@@ -21,20 +21,20 @@ const data = [
 
 const Study_time = () => {
   return (
-    <div className="flex-1">
+    <div className="flex-1 study_time">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Studying time
       </h3>
       <div className="bg-[#FFFFFF] rounded-[16px] box">
         <ComposedChart
-          width={500}
+          width={700}
           height={400}
           data={data}
           margin={{
             top: 20,
             right: 20,
             bottom: 20,
-            left: 20,
+            left: 0,
           }}
         >
           <CartesianGrid stroke="#f5f5f5" vertical={false} horizontal={true} />
@@ -42,12 +42,12 @@ const Study_time = () => {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#B5BEC6", fontSize: 12, fontWeight: 500 }}
+            tick={{ fill: "#B5BEC6", fontSize: 12, fontWeight: 500 }} // Medium font weight
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#B5BEC6", fontSize: 12, fontWeight: 500 }}
+            tick={{ fill: "#B5BEC6", fontSize: 12, fontWeight: 500 }} // Medium font weight
             ticks={[2, 4, 6, 8]}
             tickFormatter={(value) => `${value}h`}
           />

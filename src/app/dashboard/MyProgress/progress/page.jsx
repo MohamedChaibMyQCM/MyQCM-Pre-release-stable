@@ -1,20 +1,22 @@
-import Learning_calender from '@/components/dashboard/MyProgress/Learning_calender'
-import Performance from '@/components/dashboard/MyProgress/Performance'
-import Progress_per_module from '@/components/dashboard/MyProgress/Progress_per_module'
-import Recent_Quiz from '@/components/dashboard/MyProgress/Recent_Quiz'
-import React from 'react'
+"use client";
 
-const page = () => {
+import React from "react";
+import Learning_calendar from "@/components/dashboard/MyProgress/Learning_calender";
+import Performance from "@/components/dashboard/MyProgress/Performance";
+import Progress_per_module from "@/components/dashboard/MyProgress/Progress_per_module";
+import Recent_Quiz from "@/components/dashboard/MyProgress/Recent_Quiz";
+
+const Page = () => {
   return (
-    <div className='px-6 mt-8'>
-      <div className='flex items-center gap-6 max-md:flex-col'>
+    <div className="space-y-8 p-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Progress_per_module />
         <Performance />
         <Recent_Quiz />
       </div>
-      <Learning_calender />
+      <Learning_calendar />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default Page;

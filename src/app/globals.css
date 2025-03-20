@@ -135,14 +135,7 @@
   }
 }
 
-.recharts-responsive-container {
-  height: 290px !important;
-  padding-top: 1px !important;
-}
 
-.recharts-surface {
-  height: 328px !important;
-}
 
 .shape {
   clip-path: polygon(50% 0%, 100% 0%, 50% 100%, 0 100%);
@@ -157,12 +150,34 @@
   scrollbar-width: none; 
 }
 
-/* .recharts-wrapper {
-  width: 400px !important;
-  height: 300px !important;
-  padding-left: -20px;
-} */
+.recharts-responsive-container {
+  height: 290px !important;
+  padding-top: 1px !important;
+}
 
+.recharts-surface {
+  height: 328px !important;
+}
+
+.study_time .recharts-wrapper {
+  padding-top: 14px;
+  width: 540px !important;
+  height: 327px !important;
+  /* margin-left: -20px; */
+}
+
+.accuracy .recharts-surface {
+  height: 280px !important;
+}
+
+.weak .recharts-surface {
+  height: 290px !important;
+  width: 300px !important;
+}
+
+.weak > div > div > div > div {
+  width: 300px !important;
+}
 /* @layer base {
   :root {
     --background: 0 0% 100%;

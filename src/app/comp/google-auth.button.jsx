@@ -10,10 +10,10 @@ const GoogleAuthButton = () => {
   return (
     <button
       onClick={handleGoogleAuth}
-      className="flex items-center gap-5 justify-center w-full py-[10px] rounded-xl shadow-sm border transition duration-300 border-[#E4E7EB]"
+      className="flex items-center gap-5 justify-center w-full py-[10px] rounded-xl shadow-sm border transition duration-300 border-[#E4E4E4]"
     >
       <Image src={google} alt="google" />
-      <span className=" whitespace-nowrap text-[15px] font-[600] text-black">
+      <span className="text-[15px] font-[500] text-[#191919]">
         Continue Avec Google
       </span>
     </button>

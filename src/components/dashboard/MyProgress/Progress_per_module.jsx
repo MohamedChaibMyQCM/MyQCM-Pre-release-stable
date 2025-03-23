@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Progress_per_module = () => {
   return (
@@ -9,7 +9,7 @@ const Progress_per_module = () => {
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Progress by Module
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px]">
+      <div className="bg-[#FFFFFF] rounded-[16px] py-4 box h-[390px]">
         <Card className="overflow-hidden border-none shadow-none">
           <CardContent>
             <div className="relative flex items-center justify-center mb-6">
@@ -33,7 +33,7 @@ const Progress_per_module = () => {
                     strokeDasharray="282.6"
                     strokeDashoffset="141.3"
                     strokeLinecap="round"
-                    transform="rotate(-90 50 50)"
+                    transform="rotate(90 50 50)"
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -43,15 +43,19 @@ const Progress_per_module = () => {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Cardio</span>
-                  <span>90%</span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    Cardio
+                  </span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    90%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-pink-500 h-2 rounded-full"
+                    className="bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] h-2 rounded-full"
                     style={{ width: "90%" }}
                   ></div>
                 </div>
@@ -59,12 +63,16 @@ const Progress_per_module = () => {
 
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Chest Imaging</span>
-                  <span>33%</span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    Chest Imaging
+                  </span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    33%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-pink-500 h-2 rounded-full"
+                    className="bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] h-2 rounded-full"
                     style={{ width: "33%" }}
                   ></div>
                 </div>
@@ -72,12 +80,16 @@ const Progress_per_module = () => {
 
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Cardio</span>
-                  <span>60%</span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    Cardio
+                  </span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    60%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-pink-500 h-2 rounded-full"
+                    className="bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] h-2 rounded-full"
                     style={{ width: "60%" }}
                   ></div>
                 </div>
@@ -85,12 +97,16 @@ const Progress_per_module = () => {
 
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Cardio</span>
-                  <span>90%</span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    Cardio
+                  </span>
+                  <span className="text-[14px] text-[#191919] font-[500]">
+                    90%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-pink-500 h-2 rounded-full"
+                    className="bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] h-2 rounded-full"
                     style={{ width: "90%" }}
                   ></div>
                 </div>

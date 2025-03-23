@@ -6,15 +6,15 @@ import activation_card from "../../../../public/settings/activation_card.svg";
 import dahabia from "../../../../public/settings/dahabia.svg";
 import { CheckCircle, XCircle } from "phosphor-react";
 
-const PlanCard = ({ plan, isSelected, onClick }) => {
+const PlanCard = ({ plan, isSelected, onClick, isDisabled }) => {
   const { title, price, features, recommended } = plan;
 
   return (
     <div
       className={`flex-1 box rounded-[12px] px-4 py-5 border-[2px] max-md:w-full ${
         isSelected ? "border-[#F8589F] bg-[#FFF5FA]" : "border-transparent"
-      } cursor-pointer`}
-      onClick={onClick}
+      } ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+      onClick={!isDisabled ? onClick : undefined}
     >
       <div className="flex items-center gap-6">
         <span className="font-[500] text-[22px]">{price}</span>
@@ -103,16 +103,16 @@ const Choose_plan = () => {
 
   const paymentMethods = [
     {
-      id: "activation_card",
-      icon: activation_card,
-      title: "Activation Card",
-      description: "Continue payment with Activation Card",
-    },
-    {
       id: "dahabia",
       icon: dahabia,
       title: "El Dhahabia",
       description: "Continue payment with El Dhahabia",
+    },
+    {
+      id: "activation_card",
+      icon: activation_card,
+      title: "Activation Card",
+      description: "Continue payment with Activation Card",
     },
   ];
 
@@ -124,46 +124,11 @@ const Choose_plan = () => {
     alert("Proceeding to the next step!");
   };
 
+  // Check if Activation Card is selected
+  const isActivationCardSelected = selectedPaymentMethod === "activation_card";
+
   return (
     <div>
-      <div className="mt-8">
-        <h3 className="text-[#191919] text-[17px] font-[500]">
-          Choose your next offer
-        </h3>
-        <div className="flex items-center my-4 gap-6 max-md:flex-col">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              isSelected={selectedPlan === plan.id}
-              onClick={() => setSelectedPlan(plan.id)}
-            />
-          ))}
-        </div>
-        <span className="text-[#B5BEC6] text-[13px]">
-          Your new plan is set to start on{" "}
-          <span className="text-[#F8589F]">February 2</span>, right after your
-          current one ends. Get ready for an upgraded experience!
-        </span>
-      </div>
-      <div className="mt-8">
-        <h3 className="text-[#191919] text-[17px] font-[500]">Duration</h3>
-        <div className="flex items-center gap-4 mt-3">
-          {["6 months", "1 year"].map((duration) => (
-            <button
-              key={duration}
-              className={`box ${
-                selectedDuration === duration
-                  ? "bg-[#FFF5FA] text-[#F8589F] border border-[#F8589F]"
-                  : ""
-              } px-4 py-1 text-[#191919] text-[14px] rounded-[16px]`}
-              onClick={() => setSelectedDuration(duration)}
-            >
-              {duration}
-            </button>
-          ))}
-        </div>
-      </div>
       <div className="mt-8">
         <h3 className="text-[#191919] text-[17px] font-[500]">
           Choose payment method
@@ -180,11 +145,62 @@ const Choose_plan = () => {
         </div>
       </div>
 
-      {/* Next Button */}
+      {/* Disable "Choose your next offer" section if Activation Card is selected */}
+      <div
+        className={`mt-8 ${
+          isActivationCardSelected ? "opacity-50 pointer-events-none" : ""
+        }`}
+      >
+        <h3 className="text-[#191919] text-[17px] font-[500]">
+          Choose your next offer
+        </h3>
+        <div className="flex items-center my-4 gap-6 max-md:flex-col">
+          {plans.map((plan) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              isSelected={selectedPlan === plan.id}
+              onClick={() => setSelectedPlan(plan.id)}
+              isDisabled={isActivationCardSelected}
+            />
+          ))}
+        </div>
+        <span className="text-[#B5BEC6] text-[13px]">
+          Your new plan is set to start on{" "}
+          <span className="text-[#F8589F]">February 2</span>, right after your
+          current one ends. Get ready for an upgraded experience!
+        </span>
+      </div>
+
+      {/* Disable "Duration" section if Activation Card is selected */}
+      <div
+        className={`mt-8 ${
+          isActivationCardSelected ? "opacity-50 pointer-events-none" : ""
+        }`}
+      >
+        <h3 className="text-[#191919] text-[17px] font-[500]">Duration</h3>
+        <div className="flex items-center gap-4 mt-3">
+          {["6 months", "1 year"].map((duration) => (
+            <button
+              key={duration}
+              className={`box ${
+                selectedDuration === duration
+                  ? "bg-[#FFF5FA] text-[#F8589F] border border-[#F8589F]"
+                  : ""
+              } px-4 py-1 text-[#191919] text-[14px] rounded-[16px]`}
+              onClick={() => setSelectedDuration(duration)}
+              disabled={isActivationCardSelected}
+            >
+              {duration}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex justify-end mt-8">
         <button
           onClick={handleNext}
-          className="bg-[#F8589F] text-[#FFFFFF] px-[20px] py-[8px] rounded-[16px] text-[14px] font-[500] hover:bg-[#FD2E8A] transition-all"
+          className="bg-[#F8589F] text-[#FFFFFF] px-[30px] py-[6px] rounded-[20px] text-[14px] font-[500] hover:bg-[#FD2E8A] transition-all"
         >
           Next
         </button>

@@ -34,7 +34,7 @@ const Path_Settings = ({ selectedMode, onModeChange }) => {
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Choose your path to mastery
       </h3>
-      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box border border-[#E4E4E4]">
+      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box ">
         <form className="w-full">
           {modes.map((mode) => (
             <div

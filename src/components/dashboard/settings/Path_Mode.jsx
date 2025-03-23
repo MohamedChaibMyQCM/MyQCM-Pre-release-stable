@@ -2,15 +2,26 @@ import IntelligentMode from "./IntelligentMode";
 import GuidedMode from "./GuidedMode";
 import CustomMode from "./CustomMode";
 
-const Path_Mode = ({ selectedMode, name, value, setFieldValue }) => {
+const Path_Mode = ({ selectedMode, settings, onChange }) => {
   return (
     <div className="mt-8">
-      {selectedMode === "intelligent" && <IntelligentMode />}
+      {selectedMode === "intelligent" && (
+        <IntelligentMode
+          settings={settings}
+          onChange={(field, value) => onChange(field, value)}
+        />
+      )}
       {selectedMode === "guided" && (
-        <GuidedMode name={name} value={value} setFieldValue={setFieldValue} />
+        <GuidedMode
+          settings={settings}
+          onChange={(field, value) => onChange(field, value)}
+        />
       )}
       {selectedMode === "custom" && (
-        <CustomMode name={name} value={value} setFieldValue={setFieldValue} />
+        <CustomMode
+          settings={settings}
+          onChange={(field, value) => onChange(field, value)}
+        />
       )}
     </div>
   );

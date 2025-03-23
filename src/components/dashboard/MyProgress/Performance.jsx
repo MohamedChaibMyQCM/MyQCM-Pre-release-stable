@@ -1,75 +1,110 @@
 "use client";
 
-import React from "react";
+import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+const chartData = [
+  {
+    month: "january",
+    correct: 68,
+    incorrect: 32,
+    questions: 120,
+    growth: 3.4,
+  },
+];
 
 const Performance = () => {
+  const totalQuestions = chartData[0].questions;
+
   return (
-    <div className="flex-1">
+    <div className="flex-1 performance">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Performance
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px]">
+      <div className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px]">
         <Card className="border-none shadow-none">
           <CardContent>
             <div className="relative flex items-center justify-center">
-              <svg viewBox="0 0 200 200" width="200" height="200">
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#f0f0f0"
-                  strokeWidth="20"
-                />
-
-                {/* Red portion (32%) */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#ff5252"
-                  strokeWidth="20"
-                  strokeDasharray="502.4"
-                  strokeDashoffset="341.6"
-                  transform="rotate(-90 100 100)"
-                />
-
-                {/* Pink portion */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#F8589F"
-                  strokeWidth="20"
-                  strokeDasharray="502.4"
-                  strokeDashoffset="151.6"
-                  strokeLinecap="round"
-                  transform="rotate(25 100 100)"
-                />
-              </svg>
-
-              <div className="absolute flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold">120</span>
-                <span className="text-gray-400 text-sm">
-                  Questions attempted
-                </span>
-                <span className="text-green-500 text-sm mt-1">
-                  +3.4% from last month
-                </span>
-              </div>
+              <ChartContainer
+                config={{}}
+                className="mx-auto aspect-square w-full max-w-[300px]"
+              >
+                <RadialBarChart
+                  data={chartData}
+                  startAngle={90}
+                  endAngle={-270}
+                  innerRadius={160}
+                  outerRadius={96}
+                >
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
+                  <PolarRadiusAxis
+                    tick={false}
+                    tickLine={false}
+                    axisLine={false}
+                  >
+                    <Label
+                      content={({ viewBox }) => {
+                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                          return (
+                            <foreignObject
+                              x={(viewBox.cx || 0) - 100}
+                              y={(viewBox.cy || 0) - 50}
+                              width={200}
+                              height={140}
+                            >
+                              <div className="flex flex-col items-center justify-center h-full text-center">
+                                <span className="text-[30px] text-[#191919] font-bold">
+                                  {totalQuestions.toLocaleString()}
+                                </span>
+                                <span className="text-[#B5BEC6] text-[18px] font-[500] my-2 leading-tight">
+                                  Questions attempted
+                                </span>
+                                <span className="inline-block text-[#47B881] px-[12px] py-[3px] rounded-[16px] text-[13px] font-[500] bg-[#E8F7F0] mt-1">
+                                  +{chartData[0].growth}% from last month
+                                </span>
+                              </div>
+                            </foreignObject>
+                          );
+                        }
+                      }}
+                    />
+                  </PolarRadiusAxis>
+                  <RadialBar
+                    dataKey="correct"
+                    stackId="a"
+                    cornerRadius={5}
+                    fill="#F8589F"
+                    className="stroke-transparent stroke-2"
+                  />
+                  <RadialBar
+                    dataKey="incorrect"
+                    fill="#F64C4C"
+                    stackId="a"
+                    cornerRadius={5}
+                    className="stroke-transparent stroke-2"
+                  />
+                </RadialBarChart>
+              </ChartContainer>
             </div>
 
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between mt-14">
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
-                <span className="text-sm">Incorrect answers</span>
+                <span className="text-sm bg-[#FFEBEE] py-[3px] px-[16px] rounded-[16px] text-[#F64C4C] font-[500]">
+                  Incorrect answers
+                </span>
               </div>
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-pink-500 rounded-full mr-2"></div>
-                <span className="text-sm">Correct answers</span>
+                <span className="text-sm bg-[#FFF5FA] py-[3px] px-[16px] rounded-[16px] text-[#F8589F] font-[500]">
+                  Correct answers
+                </span>
               </div>
             </div>
           </CardContent>

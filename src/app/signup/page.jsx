@@ -8,8 +8,8 @@ import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
 import toast from "react-hot-toast";
 import user from "../../../public/Icons/user.svg";
-import email from "../../../public/Icons/email.svg";
-import lock from "../../../public/Icons/lock.svg";
+import email from "../../../public/auth/email.svg";
+import pass from "../../../public/auth/password.svg";
 import logo from "../../../public/logoMyqcm.svg";
 import doctors from "../../../public/ShapeDocters.svg";
 import GoogleAuthButton from "../comp/google-auth.button";
@@ -75,13 +75,13 @@ const Page = () => {
         <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
           <Link
             href={`/login`}
-            className="py-[8px] text-[#6C7275] font-semibold text-[14px] basis-1/2 flex items-center justify-center"
+            className="py-[8px] text-[#666666] font-semibold text-[14px] basis-1/2 flex items-center justify-center"
           >
             Se connecter
           </Link>
           <Link
             href={`/signup`}
-            className="py-[8px] bg-[#FEFEFE] box text-[#232627] font-semibold text-[14px] flex items-center justify-center basis-1/2 rounded-[10px]"
+            className="py-[8px] bg-[#FFFFFF] box text-[#191919] font-semibold text-[14px] flex items-center justify-center basis-1/2 rounded-[10px]"
           >
             Créer un compte
           </Link>
@@ -118,7 +118,7 @@ const Page = () => {
           </div>
           <div className="bg-[#FFE7F2] w-full flex flex-col gap-2 px-[16px] py-[14px] rounded-[10px]">
             <div className="flex items-center gap-4">
-              <Image src={lock} alt="lock icon" />
+              <Image src={password} alt="lock icon" />
               <input
                 type="password"
                 placeholder="Mot de passe"

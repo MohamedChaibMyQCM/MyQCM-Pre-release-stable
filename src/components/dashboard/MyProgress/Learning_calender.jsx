@@ -9,7 +9,7 @@ const Learning_calendar = () => {
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Learning calendar
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[300px]">
+      <div className="bg-[#FFFFFF] rounded-[16px] p-6 box h-[300px]">
         <Card className="border-none shadow-none">
           <CardContent>
             <div className="flex items-center mb-4">
@@ -63,66 +63,63 @@ const Learning_calendar = () => {
                 <div className="w-full border-t border-dashed border-gray-200"></div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center relative">
                 <div className="w-16 text-right text-gray-500 text-sm pr-4">
                   4 PM
                 </div>
-                <div className="w-full border-t border-dashed border-gray-200 relative">
-                  <div className="absolute -top-2 left-0 right-0 flex space-x-1">
-                    {Array(14)
-                      .fill(0)
-                      .map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-4 h-4 rounded-full bg-pink-500"
-                        ></div>
-                      ))}
-                  </div>
-                  <div className="absolute top-1 right-8 text-pink-500 font-medium">
-                    14
-                  </div>
+                <div className="w-full border-t border-dashed border-gray-200"></div>
+                <div className="absolute left-16 right-0 top-0 flex space-x-1">
+                  {Array(14)
+                    .fill(0)
+                    .map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-4 h-4 rounded-full bg-pink-500"
+                      ></div>
+                    ))}
+                </div>
+                <div className="absolute top-0 right-8 text-pink-500 font-medium">
+                  14
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center relative">
                 <div className="w-16 text-right text-gray-500 text-sm pr-4">
                   6 PM
                 </div>
-                <div className="w-full border-t border-dashed border-gray-200 relative">
-                  <div className="absolute -top-2 left-0 right-0 flex space-x-1">
-                    {Array(18)
-                      .fill(0)
-                      .map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-4 h-4 rounded-full bg-pink-500"
-                        ></div>
-                      ))}
-                  </div>
-                  <div className="absolute top-1 right-8 text-pink-500 font-medium">
-                    18
-                  </div>
+                <div className="w-full border-t border-dashed border-gray-200"></div>
+                <div className="absolute left-16 right-0 top-0 flex space-x-1">
+                  {Array(18)
+                    .fill(0)
+                    .map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-4 h-4 rounded-full bg-pink-500"
+                      ></div>
+                    ))}
+                </div>
+                <div className="absolute top-0 right-8 text-pink-500 font-medium">
+                  18
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center relative">
                 <div className="w-16 text-right text-gray-500 text-sm pr-4">
                   8 PM
                 </div>
-                <div className="w-full border-t border-dashed border-gray-200 relative">
-                  <div className="absolute -top-2 left-0 right-56 flex space-x-1">
-                    {Array(10)
-                      .fill(0)
-                      .map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-4 h-4 rounded-full bg-pink-500"
-                        ></div>
-                      ))}
-                  </div>
-                  <div className="absolute top-1 right-8 text-pink-500 font-medium">
-                    10
-                  </div>
+                <div className="w-full border-t border-dashed border-gray-200"></div>
+                <div className="absolute left-16 right-56 top-0 flex space-x-1">
+                  {Array(10)
+                    .fill(0)
+                    .map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-4 h-4 rounded-full bg-pink-500"
+                      ></div>
+                    ))}
+                </div>
+                <div className="absolute top-0 right-8 text-pink-500 font-medium">
+                  10
                 </div>
               </div>
 

@@ -2,17 +2,23 @@
 
 import Image from "next/image";
 import logo from "../../../../../public/logoMyqcm.svg";
-import lock from "../../../../../public/Icons/lock.svg";
+import lock from "../../../../../public/auth/password.svg";
 import { useState } from "react";
 import { useMutation } from "react-query";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { CaretLeft, Eye, EyeSlash } from "phosphor-react";
+import Link from "next/link";
 
 const Page = () => {
-  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [code, setCode] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false); 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
   const router = useRouter();
 
   const { mutate: changePassword } = useMutation({
@@ -41,59 +47,125 @@ const Page = () => {
     }
   };
 
+  const validateConfirmPassword = (confirmPassword) => {
+    if (confirmPassword !== newPassword) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (passwordError) {
+    if (passwordError || confirmPasswordError) {
       toast.error("Please correct the password errors");
       return;
     }
-    const data = { code, password };
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    const data = { code, password: newPassword };
     changePassword(data);
   };
 
   return (
     <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
-      <Image src={logo} alt="logo" />
-      <div className="flex items-center gap-4 self-start w-[567.09px] mx-auto">
-        <span className="font-Inter text-[20px] font-semibold text-[#141718]">
-          Reset your password
-        </span>
+      <Image src={logo} alt="logo" className="w-[140px] mb-6" />
+      <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto">
+        <Link href={`/login`} className="flex items-center gap-1">
+          <CaretLeft size={16} className="text-[#F8589F]" />
+          <span className="text-[15px] font-[500] text-[#F8589F]">Retour</span>
+        </Link>
+      </div>
+      <div className=" w-[567.09px] mx-auto">
+        <h2 className="text-[#191919] font-[500] text-[20px]">
+          Reset Password
+        </h2>
+        <p className="text-[#666666] text-[13px] mt-2">
+          Choose a strong password to keep your account secure. Make sure
+          it&apos;s unique, hard to guess, and something you can remember
+        </p>
       </div>
       <form
-        className="w-[567.09px] flex flex-col items-center gap-4"
+        className="w-[567.09px] flex flex-col items-center gap-6"
         onSubmit={handleSubmit}
       >
-        <div className="bg-[#FFE7F2] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[10px]">
-          <Image src={lock} alt="Lock icon" />
-          <input
-            type="text"
-            placeholder="The Token"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
-          />
-        </div>
-        <div className="bg-[#FFE7F2] w-full flex flex-col gap-2 px-[16px] py-[14px] rounded-[10px]">
-          <div className="flex items-center gap-4">
-            <Image src={lock} alt="Lock icon" />
+        <div className="w-full flex flex-col gap-2">
+          <label
+            htmlFor="newPassword"
+            className="text-[#191919] text-[15px] font-medium"
+          >
+            New Password
+          </label>
+          <div className="bg-[#FFF] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[12px] border border-[#E4E4E4]">
+            <Image src={lock} alt="password icon" />
             <input
-              type="password"
-              placeholder="New Password"
-              value={password}
+              type={showNewPassword ? "text" : "password"}
+              id="newPassword"
+              placeholder="Enter New Password"
+              value={newPassword}
               onChange={(e) => {
-                setPassword(e.target.value);
+                setNewPassword(e.target.value);
                 validatePassword(e.target.value);
               }}
               className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
             />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              className="text-[#666666] hover:text-[#FD2E8A] transition-colors"
+            >
+              {showNewPassword ? (
+                <EyeSlash size={20} className="text-[#B5BEC6]" />
+              ) : (
+                <Eye size={20} className="text-[#B5BEC6]" />
+              )}{" "}
+            </button>
           </div>
+          {passwordError && (
+            <p className="text-red-500 text-[12px]">{passwordError}</p>
+          )}
         </div>
-        {passwordError && (
-          <p className="text-red-500 text-[12px]">{passwordError}</p>
-        )}
+        <div className="w-full flex flex-col gap-2">
+          <label
+            htmlFor="confirmPassword"
+            className="text-[#191919] text-[15px] font-medium"
+          >
+            Confirm New Password
+          </label>
+          <div className="bg-[#FFF] w-full flex items-center gap-4 px-[16px] py-[14px] rounded-[12px] border border-[#E4E4E4]">
+            <Image src={lock} alt="password icon" />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                validateConfirmPassword(e.target.value);
+              }}
+              className="text-[#6C727580] text-[14px] font-Inter bg-transparent outline-none w-full"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="text-[#666666] hover:text-[#FD2E8A] transition-colors"
+            >
+              {showConfirmPassword ? (
+                <EyeSlash size={20} className="text-[#B5BEC6]" />
+              ) : (
+                <Eye size={20} className="text-[#B5BEC6]" />
+              )}{" "}
+            </button>
+          </div>
+          {confirmPasswordError && (
+            <p className="text-red-500 text-[12px]">{confirmPasswordError}</p>
+          )}
+        </div>
         <button
           type="submit"
-          className="bg-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[10px] font-Inter font-medium"
+          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4"
         >
           Reset Password
         </button>

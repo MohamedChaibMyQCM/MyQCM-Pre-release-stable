@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import doctors from "../../../../public/ShapeDocters.svg";
-import AuthEmail from "@/components/auth/AuthEmail";
 
 const Layout = ({ children }) => {
   return (
@@ -13,8 +12,7 @@ const Layout = ({ children }) => {
         </h1>
         <p className="w-[280px] mb-[14px] text-[#FFFFFFD6] font-light text-[14px]">
           Inscrivez-vous dès aujourd&apos;hui pour entreprendre un parcours
-          d&apos;apprentissage personnalisé et créatif dans le domaine qui vous
-          passionne !
+          d&apos;apprentissage personnalisé!
         </p>
         <Image src={doctors} alt="doctors" className="w-[620px] ml-[-40px]" />
       </div>
@@ -23,4 +21,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default AuthEmail(Layout);
+export default Layout

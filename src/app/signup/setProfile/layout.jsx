@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import doctor1 from "../../../../public/doctor1.svg";
-import AuthProfile from "@/components/auth/AuthProfile";
 
 const Layout = ({ children }) => {
   return (
@@ -28,4 +27,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default AuthProfile(Layout);
+export default Layout

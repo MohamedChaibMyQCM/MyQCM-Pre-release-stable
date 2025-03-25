@@ -1,20 +1,21 @@
 import { useState, useRef, useEffect } from "react";
-import year from "../../../../public/auth/year.svg";
+import unitIcon from "../../../../public/auth/unit.svg";
 import Image from "next/image";
 import { CaretDown } from "phosphor-react";
 
-const Year = ({ name, value, setFieldValue }) => {
+const CurrentUnit = ({ name, value, setFieldValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const years = [
-    "First Year",
-    "Second Year",
-    "Third Year",
-    "Fourth Year",
-    "Fifth Year",
-    "Sixth Year",
-    "Seventh Year",
+  const units = [
+    "Unit 1",
+    "Unit 2",
+    "Unit 3",
+    "Unit 4",
+    "Unit 5",
+    "Unit 6",
+    "Unit 7",
+    "Unit 8",
   ];
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const Year = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label className="text-[#191919] text-[16px] font-[500]">
-        Year of study?
+        Current Unit
       </label>
 
       <div
@@ -41,9 +42,9 @@ const Year = ({ name, value, setFieldValue }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Image src={year} alt="year" className="w-[18px]" />
+          <Image src={unitIcon} alt="unit" className="w-[18px]" />
           <span className="truncate text-[14px]">
-            {value || "Indicate your current year of study"}
+            {value || "Select your current unit"}
           </span>
           <CaretDown
             size={20}
@@ -58,20 +59,20 @@ const Year = ({ name, value, setFieldValue }) => {
       {isOpen && (
         <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
           <ul>
-            {years.map((yearOption) => (
+            {units.map((unit) => (
               <li
-                key={yearOption}
+                key={unit}
                 className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
-                  value === yearOption
+                  value === unit
                     ? "bg-[#FFE7F2] text-[#F8589F]"
                     : "text-[#191919]"
                 }`}
                 onClick={() => {
-                  setFieldValue(name, yearOption);
+                  setFieldValue(name, unit);
                   setIsOpen(false);
                 }}
               >
-                {yearOption}
+                {unit}
               </li>
             ))}
           </ul>
@@ -81,4 +82,4 @@ const Year = ({ name, value, setFieldValue }) => {
   );
 };
 
-export default Year;
+export default CurrentUnit;

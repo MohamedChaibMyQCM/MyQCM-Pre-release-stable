@@ -71,8 +71,7 @@ const PaymentMethodCard = ({ method, isSelected, onClick }) => {
 const Choose_plan = () => {
   const [selectedPlan, setSelectedPlan] = useState("basic");
   const [selectedDuration, setSelectedDuration] = useState("6 months");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState("activation_card");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("dahabia");
 
   const plans = [
     {

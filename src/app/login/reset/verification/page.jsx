@@ -67,7 +67,7 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-[#FFF9F9] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
+    <div className="bg-[#FFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6">
       <Image src={logo} alt="logo" className="w-[140px] mb-6" />
       <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto">
         <Link href={`/login`} className="flex items-center gap-1">
@@ -102,7 +102,7 @@ const Page = () => {
         </div>
         <button
           type="submit"
-          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F]  text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-Inter font-medium mt-4"
+          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-Inter font-medium mt-4"
         >
           Verify Account
         </button>

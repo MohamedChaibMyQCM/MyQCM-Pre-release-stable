@@ -3,7 +3,7 @@
 import coursePerModule from "../../../../public/Icons/coursePerModule.svg";
 import Image from "next/image";
 import playSeason from "../../../../public/Icons/play.svg";
-import inform from "../../../../public/Icons/inform.svg";
+// import inform from "../../../../public/Icons/inform.svg";
 import { useState } from "react";
 import TrainingSeason from "./TrainingSeason";
 import Loading from "@/components/Loading";
@@ -68,11 +68,11 @@ const Questions = ({ data, isLoading, error }) => {
               </div>
               <div className="flex items-center gap-4">
                 <button>
-                  <Image
+                  {/* <Image
                     src={inform}
                     alt="inform"
                     className="w-[22px] max-md:w-[18px]"
-                  />
+                  /> */}
                 </button>
                 <button onClick={() => setPopup(true)}>
                   <Image

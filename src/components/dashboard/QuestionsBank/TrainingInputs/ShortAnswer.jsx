@@ -1,19 +1,33 @@
 "use client";
 
-import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 const ShortAnswer = ({ name, value, setFieldValue }) => {
+  const [isOptionOneChecked, setIsOptionOneChecked] = useState(false);
+
+  const toggleRadio = () => {
+    setIsOptionOneChecked(!isOptionOneChecked);
+  };
+
   return (
-    <div className="flex items-center justify-between">
-      <span className="font-Poppins text-[13px] text-[#0C092A] font-semibold">
-        Short Answer (QROCs)
-      </span>
-      <Switch
-        checked={value}
-        onCheckedChange={(checked) => setFieldValue(name, checked)}
-        className={`switch ${value == false ? "!bg-[grey]" : "!bg-[#FF6EAF]"}`}
-      />
+    <div className="flex flex-col gap-4">
+      <div className="flex space-x-2 items-center">
+        <button
+          type="button"
+          onClick={toggleRadio}
+          className={`w-[14px] h-[14px] rounded-full border-2 border-[#FD2E8A] cursor-pointer transition-colors ${
+            isOptionOneChecked
+              ? "bg-[#FD2E8A] border-[#FD2E8A]"
+              : "bg-transparent"
+          }`}
+        />
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="option-one" className="text-[#FD2E8A] font-[500]">
+            QROCs
+          </Label>
+        </div>
+      </div>
     </div>
   );
 };

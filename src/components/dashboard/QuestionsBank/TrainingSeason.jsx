@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import exit from "../../../../public/Icons/exit.svg";
-import settings from "../../../../public/Quiz/settings.svg";
-import MultipleChoise from "./TrainingInputs/MultipleChoise";
+import MultipleChoice from "./TrainingInputs/MultipleChoise";
 import ShortAnswer from "./TrainingInputs/ShortAnswer";
 import TimeLimit from "./TrainingInputs/TimeLimit";
 import NumberOfQuestion from "./TrainingInputs/NumberOfQuestion";
@@ -15,12 +13,17 @@ import { useParams, useRouter } from "next/navigation";
 import { quizStore } from "@/store/quiz";
 import { useStore } from "zustand";
 import toast from "react-hot-toast";
+import { X } from "phosphor-react";
+import RandomOptions from "./TrainingInputs/RandomOptions";
+import TrainingDate from "./TrainingInputs/TrainingDate";
+import { useState } from "react";
+import Title from "./TrainingInputs/Title";
 
 const TrainingSeason = ({ setPopup, courseId }) => {
+  const [isShedule, setIsShedule] = useState(false);
   const { category: subjectId } = useParams();
   const { quiz, updateQuiz } = useStore(quizStore);
   const router = useRouter();
-
 
   const { mutate: TrainingSettings } = useMutation({
     mutationFn: (data) => BaseUrl.post(`/course/next-mcqs/${courseId}`, data),
@@ -34,19 +37,22 @@ const TrainingSeason = ({ setPopup, courseId }) => {
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
         : error?.response?.data?.message || "Set Profile Failed";
-
       toast.error(message);
     },
   });
 
   const formik = useFormik({
     initialValues: {
+      title: quiz.title || "",
       qcm: quiz.qcm || false,
       qcs: true,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
       randomize_questions: quiz.randomize_questions || false,
+      randomize_options: quiz.options_questions || false,
+      date: quiz.date || null,
+      time: "",
     },
     onSubmit: (values) => {
       const data = {
@@ -60,82 +66,107 @@ const TrainingSeason = ({ setPopup, courseId }) => {
 
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-50">
-      <div className="bg-[#FFFFFF] w-[400px] h-[500px] rounded-[16px] p-[20px] flex flex-col gap-4 max-md:w-[92%]">
-        <div className="flex items-center justify-between">
-          <Image
-            src={settings}
-            alt="settings"
-            className="w-[20px] cursor-pointer"
-          />
-          <span className="font-Poppins font-semibold text-[17px]">
-            Training Season Settings
+      <div className="bg-[#FFFFFF] w-[500px] rounded-[16px] p-[20px] flex flex-col gap-3 max-md:w-[92%]">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[#FD2E8A] font-medium text-[17px]">
+            {isShedule ? "Schedule season" : "Training Season Settings"}
           </span>
-          <Image
-            src={exit}
-            alt="exit"
+          <X
+            size={22}
+            weight="bold"
+            className="text-[#B5BEC6] cursor-pointer"
             onClick={() => setPopup(false)}
-            className="cursor-pointer"
           />
         </div>
         <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
-          <div className="flex flex-col gap-3">
-            <span className="font-Poppins text-[13px] font-medium text-[#858494] mb-1">
+          {isShedule && (
+            <div className="mb-2">
+              <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
+                Title
+              </span>
+              <Title
+                value={formik.values.title}
+                onChange={(e) => formik.setFieldValue("title", e.target.value)}
+              />
+            </div>
+          )}
+          <div className="mb-2">
+            <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
               Question Types
             </span>
-            <MultipleChoise
-              name="qcm"
-              value={formik.values.qcm}
-              setFieldValue={formik.setFieldValue}
-            />
-            <ShortAnswer
-              name="qroc"
-              value={formik.values.qroc}
-              setFieldValue={formik.setFieldValue}
-            />
+            <div
+              className={`flex ${
+                isShedule ? "flex-row gap-5" : "flex-col gap-3"
+              }`}
+            >
+              <MultipleChoice
+                name="qcm"
+                value={formik.values.qcm}
+                setFieldValue={formik.setFieldValue}
+              />
+              <ShortAnswer
+                name="qroc"
+                value={formik.values.qroc}
+                setFieldValue={formik.setFieldValue}
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-3">
-            <span className="font-Poppins text-[13px] font-medium text-[#858494] mb-1">
-              Time Limit
-            </span>
-            <TimeLimit
-              name="time_limit"
-              value={formik.values.time_limit}
-              setFieldValue={formik.setFieldValue}
-            />
-          </div>
-          <div className="flex flex-col gap-3">
-            <span className="font-Poppins text-[13px] font-medium text-[#858494] mb-1">
+          <div>
+            <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
               Number of Questions
             </span>
-            <NumberOfQuestion
-              name="number_of_questions"
-              value={formik.values.number_of_questions}
-              setFieldValue={formik.setFieldValue}
-            />
+            <div className="flex flex-col gap-4">
+              <NumberOfQuestion
+                name="number_of_questions"
+                value={formik.values.number_of_questions}
+                setFieldValue={formik.setFieldValue}
+              />
+              <TrainingDate
+                value={formik.values.date}
+                onChange={(date) => formik.setFieldValue("date", date)}
+              />
+              {isShedule && (
+                <div className="flex-1">
+                  <span className="font-[600] text-[#191919] text-[15px]">
+                    Time
+                  </span>
+                  <input
+                    type="time"
+                    value={formik.values.time}
+                    onChange={(e) =>
+                      formik.setFieldValue("time", e.target.value)
+                    }
+                    className="w-full rounded-[24px] bg-white border border-gray-300 text-[#191919] text-[14px] py-[10px] px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col gap-3 mb-2">
-            <span className="font-Poppins text-[13px] font-medium text-[#858494] mb-2">
-              Randomize Question Order
-            </span>
+          <div className="flex flex-col gap-5 mb-2 mt-3">
             <RandomQuiz
               name="randomize_questions"
               value={formik.values.randomize_questions}
               setFieldValue={formik.setFieldValue}
             />
+            <RandomOptions
+              name="randomize_options"
+              value={formik.values.randomize_options}
+              setFieldValue={formik.setFieldValue}
+            />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center gap-6 mt-2">
             <button
               type="button"
-              className="basis-[48%] font-Poppins font-medium text-[14px] bg-[#FFF5FA] text-[#FF6EAF] px-[20px] py-[10px] rounded-[16px]"
-              onClick={() => console.log("Schedule Season clicked")}
+              className="font-medium text-[14px] text-[#FD2E8A] px-[20px] py-[10px] rounded-[16px]"
+              onClick={() => setIsShedule(!isShedule)}
             >
-              Schedule Season
+              {isShedule ? "Back" : "Schedule"}
             </button>
             <button
               type="submit"
-              className="basis-[48%] font-Poppins font-medium text-[14px] bg-[#FF6EAF] text-[#FFF5FA] p-[20px] py-[10px] rounded-[16px]"
+              className="font-medium text-[14px] bg-[#FD2E8A] text-[#FFF5FA] px-[20px] py-[8px] rounded-[24px]"
             >
-              Start Season
+              {isShedule ? "Save" : "Start"}
             </button>
           </div>
         </form>

@@ -183,9 +183,12 @@
   margin-top: 60px !important;
 }
 .performance > div > div > div > div {
-  /* margin-top: 20px !important; */
-  /* padding-top: 20px !important; */
   height: 150px !important;
+}
+
+.sel > button {
+  padding-top: 21px !important;
+  padding-bottom: 19px !important;
 }
 
 /* @layer base {

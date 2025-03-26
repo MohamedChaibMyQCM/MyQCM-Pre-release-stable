@@ -71,7 +71,7 @@ const Aside = () => {
         </div>
       </div>
       <ul
-        className={`flex flex-col mb-[40px] gap-1 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
+        className={`flex flex-col mb-[40px] gap-4 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
           isMenuOpen
             ? "max-md:opacity-100 max-md:translate-y-0"
             : "max-md:opacity-0 max-md:-translate-y-full max-md:pointer-events-none"

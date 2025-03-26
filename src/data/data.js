@@ -31,30 +31,30 @@ export const aside_links = [
     hoverIcon: Phome,
     href: "",
   },
-  {
-    name: "Mes Cours",
-    icon: courses,
-    hoverIcon: Pcourses,
-    href: "MyCourses",
-  },
-  {
-    name: "Bibliothèque de Vidéos",
-    icon: video,
-    hoverIcon: Pvideo,
-    href: "VideoLibrary",
-  },
+  // {
+  //   name: "Mes Cours",
+  //   icon: courses,
+  //   hoverIcon: Pcourses,
+  //   href: "MyCourses",
+  // },
+  // {
+  //   name: "Bibliothèque de Vidéos",
+  //   icon: video,
+  //   hoverIcon: Pvideo,
+  //   href: "VideoLibrary",
+  // },
   {
     name: "Banque de Questions",
     icon: playlist,
     hoverIcon: Pplaylist,
     href: "QuestionsBank",
   },
-  {
-    name: "Qmed Bot",
-    icon: qmed,
-    hoverIcon: Pqmed,
-    href: "AiQcmSolver",
-  },
+  // {
+  //   name: "Qmed Bot",
+  //   icon: qmed,
+  //   hoverIcon: Pqmed,
+  //   href: "AiQcmSolver",
+  // },
   {
     name: "Ma Progression",
     icon: progress,
@@ -62,7 +62,7 @@ export const aside_links = [
     href: "MyProgress",
   },
   {
-    name: "Communauté MyQCM",
+    name: "Communauté",
     icon: community,
     hoverIcon: Pcommunity,
     href: "MyQcmCommunity",

@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "phosphor-react";
+import { CaretDown, X } from "phosphor-react";
 import * as React from "react";
 import {
   Select,
@@ -10,13 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TrainingDate from "../QuestionsBank/TrainingInputs/TrainingDate";
 
 const SchedulePopup = ({ selectedDate, onClose }) => {
-  // Example data for units, modules, and courses
   const units = [
     { id: "1", name: "Unit 1" },
     { id: "2", name: "Unit 2" },
     { id: "3", name: "Unit 3" },
+    { id: "4", name: "Unit 4" },
+    { id: "5", name: "Unit 5" },
   ];
 
   const modules = [
@@ -34,8 +36,9 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
   const [selectedUnit, setSelectedUnit] = React.useState("");
   const [selectedModule, setSelectedModule] = React.useState("");
   const [selectedCourse, setSelectedCourse] = React.useState("");
-  const [selectedDateInput, setSelectedDateInput] = React.useState("");
   const [selectedTimeInput, setSelectedTimeInput] = React.useState("");
+  const [title, setTitle] = React.useState("");
+  const [trainingDate, setTrainingDate] = React.useState(null);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -46,18 +49,34 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
           </h3>
           <X
             size={24}
+            weight="bold"
             className="text-[#B5BEC6] font-[600] cursor-pointer"
             onClick={onClose}
           />
         </div>
         <div className="mb-6">
-          <span className="font-[500] text-[#191919] mb-3 block">Unit</span>
+          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+            Title
+          </span>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter title"
+            className="w-full rounded-[24px] placeholder:text-[#191919] bg-white border border-gray-300 text-[#191919] text-[14px] py-[10px] px-4 focus:outline-none"
+          />
+        </div>
+        <div className="mb-6 sel">
+          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+            Unit
+          </span>
           <Select
             value={selectedUnit}
             onValueChange={(val) => setSelectedUnit(val)}
           >
-            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] !py-3 block px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Unit" />
+             
             </SelectTrigger>
             <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
               <SelectGroup>
@@ -74,14 +93,17 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
             </SelectContent>
           </Select>
         </div>
-        <div className="mb-6">
-          <span className="font-[500] text-[#191919] mb-4 block">Module</span>
+        <div className="mb-6 sel">
+          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+            Module
+          </span>
           <Select
             value={selectedModule}
             onValueChange={(val) => setSelectedModule(val)}
           >
-            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] py-3 px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Module" />
+              
             </SelectTrigger>
             <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
               <SelectGroup>
@@ -98,13 +120,17 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
             </SelectContent>
           </Select>
         </div>
-        <div className="mb-6">
-          <span className="font-[500] text-[#191919] mb-4 block">Course</span>
+
+        {/* Course Select */}
+        <div className="mb-6 sel">
+          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+            Course
+          </span>
           <Select
             value={selectedCourse}
             onValueChange={(val) => setSelectedCourse(val)}
           >
-            <SelectTrigger className="rounded-[20px] items-center bg-white border border-[#E0E0E0] text-[#191919] py-5 px-[20px] select">
+            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] py-3 px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Course" />
             </SelectTrigger>
             <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
@@ -124,43 +150,40 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
         </div>
         <div className="flex items-center gap-4 mb-6">
           <div className="flex-1">
-            <span className="font-[500] text-[#191919]">Date</span>
-            <input
-              type="date"
-              value={selectedDateInput}
-              onChange={(e) => setSelectedDateInput(e.target.value)}
-              className="w-full rounded-[20px] bg-white border border-[#E0E0E0] text-[#191919] text-[14px]  py-2 px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
-            />
+            <TrainingDate value={trainingDate} onChange={setTrainingDate} />
           </div>
           <div className="flex-1">
-            <span className="font-[500] text-[#191919]">Time</span>
+            <span className="font-[600] text-[#191919] text-[15px]">Time</span>
             <input
               type="time"
               value={selectedTimeInput}
               onChange={(e) => setSelectedTimeInput(e.target.value)}
-              className="w-full rounded-[20px] bg-white border border-[#E0E0E0] text-[#191919] text-[14px]  py-2 px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
+              className="w-full rounded-[24px] bg-white border border-gray-300 text-[#191919] text-[14px] py-[10px] px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
             />
           </div>
         </div>
+
+        {/* Action Buttons */}
         <div className="flex justify-center gap-6">
           <button
             onClick={onClose}
-            className="text-[#F8589F] px-4 py-2 rounded-lg text-[14px] font-[500]"
+            className="text-[#F8589F] px-6 py-3 rounded-lg text-[14px] font-[500]"
           >
             Cancel
           </button>
           <button
             onClick={() => {
               console.log({
+                title,
                 unit: selectedUnit,
                 module: selectedModule,
                 course: selectedCourse,
-                date: selectedDateInput,
+                date: trainingDate,
                 time: selectedTimeInput,
               });
               onClose();
             }}
-            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-[1px] rounded-[20px]"
+            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-3 rounded-[20px]"
           >
             Add
           </button>

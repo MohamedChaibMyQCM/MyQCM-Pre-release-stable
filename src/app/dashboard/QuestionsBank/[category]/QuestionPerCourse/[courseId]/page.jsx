@@ -6,7 +6,6 @@ import { QuizImage } from "@/data/data";
 import Quiz from "@/components/dashboard/QuestionsBank/Quiz";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "react-query";
-import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useStore } from "zustand";
 import { quizStore } from "@/store/quiz";
@@ -17,13 +16,11 @@ const Page = () => {
   const [answer, setAnswer] = useState();
   const [result, setResult] = useState(false);
   const { quiz } = useStore(quizStore);
-  const { courseId } = useParams();
 
   const { mutateAsync: Progress } = useMutation({
     mutationFn: (data) => BaseUrl.post(`/progress`, data),
     onSuccess: (data) => {
       setAnswer(data.data.data);
-      console.log("1");
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)

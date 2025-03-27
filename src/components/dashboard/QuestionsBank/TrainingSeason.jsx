@@ -47,7 +47,7 @@ const TrainingSeason = ({ setPopup, courseId }) => {
       qcm: quiz.qcm || false,
       qcs: true,
       qroc: quiz.qroc || false,
-      time_limit: quiz.time_limit || "",
+      // time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
       randomize_questions: quiz.randomize_questions || false,
       randomize_options: quiz.options_questions || false,

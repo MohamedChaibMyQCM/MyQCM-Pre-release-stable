@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import quiz from "../../../../public/Quiz/quiz.png";
 import timer from "../../../../public/Quiz/Timer.svg";
-import solver from "../../../../public/Aside/Pqmed.svg";
+import solver from "../../../../public/Quiz/solver.svg";
 import mind from "../../../../public/Quiz/mind.svg";
 import { Input } from "@/components/ui/input";
 import QuizExplanation from "./QuizExplanation";
@@ -10,7 +9,7 @@ import { useFormik } from "formik";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import QuizResult from "./QuizResult";
 
-const  Quiz = ({
+const Quiz = ({
   data,
   Progress,
   answer,
@@ -186,13 +185,14 @@ const  Quiz = ({
     <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] max-md:">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-[#FF6EAF] flex items-center gap-3 rounded-[12px] px-[16px] py-[8px]">
-            <Image src={solver} alt="solver" />
-            <span className="text-[13px] text-[#FFFFFF] font-Poppins font-medium">
-              Type: {data[selectedQuiz].type}
+          <div className="bg-[#FF6EAF] flex items-center gap-2 rounded-[8px] px-[16px] py-[7px]">
+            <Image src={solver} alt="solver" className="w-[20px]" />
+            <span className="text-[13px] text-[#FFFFFF]">
+              Type :{" "}
+              <span className="uppercase">{data[selectedQuiz].type}</span>
             </span>
           </div>
-          <div className="relative w-[160px] h-[8px] bg-[#dedede] rounded-[20px] overflow-hidden max-md:hidden">
+          <div className="relative w-[160px] h-[7px] bg-[#85849436] rounded-[20px] overflow-hidden max-md:hidden">
             <div
               className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-500 ease-in-out"
               style={{
@@ -201,19 +201,19 @@ const  Quiz = ({
             ></div>
           </div>
           <span
-            className={`px-[18px] py-[10px] rounded-[10px] text-[#FFFFFF] font-Poppins text-[14px] font-medium max-md:hidden ${
+            className={`px-[18px] py-[7px] rounded-[8px] text-[#FFFFFF] text-[14px] max-md:hidden ${
               data[selectedQuiz].difficulty == "easy"
-                ? "bg-[#39FF64]"
+                ? "bg-[#47B881]"
                 : data[selectedQuiz].difficulty == "medium"
-                ? "bg-[#ECD14E]"
-                : "bg-red-600"
+                ? "bg-[#FFAA60]"
+                : "bg-[#F64C4C]"
             }`}
           >
             {data[selectedQuiz].difficulty}
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[14px] text-[#858494] font-Poppins font-light ">
+          <span className="text-[13px] text-[#B5BEC6]">
             Time Remaining{" "}
             <span className="text-[#FF6EAF] font-semibold">
               ({timeRemaining}s)
@@ -224,10 +224,13 @@ const  Quiz = ({
       </div>
       <div className="flex gap-8 justify-between">
         <div>
-          <span className="block font-Poppins text-[#858494] text-[13px] font-medium mb-2">
-            QUESTION {selectedQuiz + 1} OF {data.length}
+          <span className="block font-Poppins text-[#666666] text-[13px] font-medium mb-2">
+            QUESTION{" "}
+            <span className="text-[#F8589F]">
+              {selectedQuiz + 1}/{data.length}
+            </span>
           </span>
-          <p className="font-Poppins text-[#0C092A] font-semibold">
+          <p className="font-Poppins text-[#191919] font-medium">
             {data[selectedQuiz].question}
           </p>
         </div>
@@ -278,11 +281,11 @@ const  Quiz = ({
           )}
         </ul>
 
-        <div className="self-end flex items-center gap-4">
+        <div className="self-end flex items-center gap-4 mt-3">
           <button
             type="button"
             onClick={handleSkipQuestion}
-            className="bg-[#FFF5FA] text-[#0C092A] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
+            className=" text-[#F8589F] font-[500] text-[13px]"
             disabled={!checkAnswer}
           >
             Skip Question
@@ -290,7 +293,7 @@ const  Quiz = ({
           {checkAnswer ? (
             <button
               type="submit"
-              className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
+              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px]"
             >
               Check Answer
             </button>

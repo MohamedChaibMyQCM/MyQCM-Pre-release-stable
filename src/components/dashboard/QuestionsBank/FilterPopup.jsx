@@ -12,7 +12,6 @@ import {
 const FilterPopup = ({
   selectedUnit,
   setSelectedUnit,
-  applyFilter,
   resetFilter,
   closeFilter,
   units,
@@ -32,7 +31,7 @@ const FilterPopup = ({
           />
         </div>
         <Select
-          value={selectedUnit}
+          value={selectedUnit || ""}
           onValueChange={(val) => {
             setSelectedUnit(val);
           }}
@@ -47,15 +46,21 @@ const FilterPopup = ({
             className="bg-white rounded-[20px] border border-[#E0E0E0]"
           >
             <SelectGroup>
-              {units.map((unit) => (
-                <SelectItem
-                  key={unit.id}
-                  value={unit.id}
-                  className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] my-1 px-3 py-2"
-                >
-                  {unit.name}
-                </SelectItem>
-              ))}
+              {units.length > 0 ? (
+                units.map((unit) => (
+                  <SelectItem
+                    key={unit.id}
+                    value={unit.id}
+                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] my-1 px-3 py-2"
+                  >
+                    {unit.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-2 px-3 text-sm">
+                  No units available
+                </div>
+              )}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -69,10 +74,10 @@ const FilterPopup = ({
           Reset
         </button>
         <button
-          onClick={applyFilter}
+          onClick={closeFilter}
           className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-[6px] rounded-[20px]"
         >
-          Apply
+          Close
         </button>
       </div>
     </div>

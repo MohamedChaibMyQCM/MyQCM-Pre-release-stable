@@ -1,14 +1,33 @@
+"use client";
+
 import { logos } from "@/data/data";
 import Image from "next/image";
-import React from "react";
+import vector from "../../../public/Landing/Vector.svg";
 
 const InfiniteCarousel = () => {
   return (
-    <div className="relative overflow-hidden w-full">
-      <div className="flex items-center animate-scroll gap-16">
-        {logos.concat(logos).map((item, index) => (
-          <div key={index} className="flex-shrink-0 mr-4">
-            <Image src={item.src} alt="logo" className="w-[160px]" />
+    <div className="relative w-full overflow-hidden py-8">
+      <div className="flex animate-alternate-scroll w-max flex-nowrap">
+        {[...logos, ...logos, ...logos].map((item, index) => (
+          <div key={index} className="flex items-center shrink-0 mx-8">
+            <div className="shrink-0">
+              <Image
+                src={item.src}
+                alt="logo"
+                width={160}
+                height={80}
+                className="w-[160px] h-auto object-contain"
+              />
+            </div>
+            <div className="shrink-0 ml-8">
+              <Image
+                src={vector}
+                alt="separator"
+                width={24}
+                height={24}
+                className="w-6 h-6 object-contain"
+              />
+            </div>
           </div>
         ))}
       </div>

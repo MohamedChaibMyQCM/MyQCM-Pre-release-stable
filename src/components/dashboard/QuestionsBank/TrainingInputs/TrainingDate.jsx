@@ -19,14 +19,12 @@ const TrainingDate = ({ value, onChange }) => {
         setView("days");
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const getDaysInMonth = (date) =>
     new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
   const getFirstDayOfMonth = (date) =>
     new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
@@ -53,8 +51,8 @@ const TrainingDate = ({ value, onChange }) => {
   };
 
   const formatDate = (date) => {
-    if (!date) return "Select Date";
-    return date.toLocaleDateString("en-US", {
+    if (!date) return "Sélectionner une date";
+    return date.toLocaleDateString("fr-FR", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -102,18 +100,17 @@ const TrainingDate = ({ value, onChange }) => {
       <button
         key={month}
         type="button"
-        className={`p-2 rounded-lg text-sm
-          ${
-            currentDate.getMonth() === month
-              ? "bg-[#FFE7F2] text-[#F8589F]"
-              : "hover:bg-[#FFE7F2] text-[#191919]"
-          }`}
+        className={`p-2 rounded-lg text-sm ${
+          currentDate.getMonth() === month
+            ? "bg-[#FFE7F2] text-[#F8589F]"
+            : "hover:bg-[#FFE7F2] text-[#191919]"
+        }`}
         onClick={() => {
           setCurrentDate(new Date(currentDate.getFullYear(), month, 1));
           setView("days");
         }}
       >
-        {new Date(0, month).toLocaleString("default", { month: "short" })}
+        {new Date(0, month).toLocaleString("fr-FR", { month: "short" })}
       </button>
     ));
   };
@@ -126,12 +123,11 @@ const TrainingDate = ({ value, onChange }) => {
         <button
           key={year}
           type="button"
-          className={`p-2 rounded-lg text-sm
-            ${
-              currentDate.getFullYear() === year
-                ? "bg-[#FFE7F2] text-[#F8589F]"
-                : "hover:bg-[#FFE7F2] text-[#191919]"
-            }`}
+          className={`p-2 rounded-lg text-sm ${
+            currentDate.getFullYear() === year
+              ? "bg-[#FFE7F2] text-[#F8589F]"
+              : "hover:bg-[#FFE7F2] text-[#191919]"
+          }`}
           onClick={() => {
             setCurrentDate(new Date(year, currentDate.getMonth(), 1));
             setView("days");
@@ -179,7 +175,7 @@ const TrainingDate = ({ value, onChange }) => {
                   className="font-medium hover:text-[#F8589F] text-sm"
                   onClick={() => setView("months")}
                 >
-                  {currentDate.toLocaleString("default", { month: "long" })}
+                  {currentDate.toLocaleString("fr-FR", { month: "long" })}
                 </button>
                 <button
                   type="button"
@@ -201,7 +197,7 @@ const TrainingDate = ({ value, onChange }) => {
 
             {view === "days" && (
               <div className="grid grid-cols-7 gap-1 mb-2">
-                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                {["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"].map((day) => (
                   <div key={day} className="text-center text-sm text-[#666666]">
                     {day}
                   </div>

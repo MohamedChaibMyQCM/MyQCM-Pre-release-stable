@@ -1,14 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import rigth_arrow from "../../../../public/Home/rigth_arrow.svg";
+import right_arrow from "../../../../public/Home/rigth_arrow.svg";
 import left_arrow from "../../../../public/Home/left_arrow.svg";
 import play from "../../../../public/Home/pink_play.svg";
-import module1 from "../../../../public/Home/module1.svg";
-import module2 from "../../../../public/Home/module2.svg";
-import module3 from "../../../../public/Home/module3.svg";
-import module4 from "../../../../public/Home/module4.svg";
+import module1 from "../../../../public/Home/module1.avif";
+import module2 from "../../../../public/Home/module2.avif";
+import module3 from "../../../../public/Home/module3.avif";
+import module4 from "../../../../public/Home/module4.avif";
 import { useState, useRef, useEffect } from "react";
+import secureLocalStorage from "react-secure-storage";
+import BaseUrl from "@/components/BaseUrl";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading";
+import Link from "next/link";
 
 const Modules = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,59 +21,69 @@ const Modules = () => {
   const carouselRef = useRef(null);
   const containerRef = useRef(null);
 
-  const ITEM_WIDTH = 240; // Card width in pixels
-  const GAP = 16; // Gap between cards in pixels
+  const ITEM_WIDTH = 240;
+  const GAP = 16;
 
-  const modulesData = [
-    {
-      id: 1,
-      image: module1,
-      title: "Semiology",
-      unit: "Unite : Cardio",
-      progress: 56,
-      views: "+100 vues",
-    },
-    {
-      id: 2,
-      image: module2,
-      title: "Pharmacology",
-      unit: "Unite : Neuro",
-      progress: 75,
-      views: "+150 vues",
-    },
-    {
-      id: 3,
-      image: module3,
-      title: "Anatomy",
-      unit: "Unite : Musculo",
-      progress: 40,
-      views: "+80 vues",
-    },
-    {
-      id: 4,
-      image: module4,
-      title: "Physiology",
-      unit: "Unite : Respiratory",
-      progress: 90,
-      views: "+200 vues",
-    },
-    {
-      id: 5,
-      image: module4,
-      title: "Physiology",
-      unit: "Unite : Respiratory",
-      progress: 90,
-      views: "+200 vues",
-    },
-  ];
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isFetching: isProfileFetching,
+    error: profileError,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  // Calculate items per view based on container width
+      return response.data.data;
+    },
+    onError: (error) => {
+      console.error("Erreur lors du chargement du profil :", error);
+    },
+  });
+
+  const {
+    data: subjectsData = [],
+    isLoading: isSubjectsLoading,
+    isFetching: isSubjectsFetching,
+    error: subjectsError,
+  } = useQuery({
+    queryKey: ["subjects"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get(
+        `/subject/me?unit=${profileData?.unit.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return response.data?.data?.data || [];
+    },
+    onError: (error) => {
+      console.error("Erreur lors du chargement des matières :", error);
+    },
+  });
+
+  const modulesData =
+    subjectsData.length > 0
+      ? subjectsData.map((subject, index) => ({
+          id: subject.id || index,
+          image: [module1, module2, module3, module4][index % 4],
+          title: subject.name || "Matière inconnue",
+          unit: `Unité : ${subject.unit || "Général"}`,
+          progress: Math.min(100, Math.max(0, subject.progress || 0)),
+          views: `+${Math.floor((subject.progress || 0) * 2)} xp`,
+        }))
+      : [];
+
   const updateItemsPerView = () => {
     if (containerRef.current) {
       const containerWidth = containerRef.current.offsetWidth;
       const totalItemWidth = ITEM_WIDTH + GAP;
       const calculatedItems = Math.floor(containerWidth / totalItemWidth);
-      // Ensure at least 1 item and not more than total items
       const newItemsPerView = Math.max(
         1,
         Math.min(calculatedItems, modulesData.length)
@@ -77,7 +92,6 @@ const Modules = () => {
     }
   };
 
-  // Handle resize and initial calculation
   useEffect(() => {
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
@@ -96,24 +110,40 @@ const Modules = () => {
     }
   };
 
+  if (isProfileLoading || isSubjectsLoading) {
+    return (
+      <div className="mt-8">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (profileError || subjectsError) {
+    return (
+      <div className="mt-8 text-red-500">
+        Une erreur est survenue. Veuillez actualiser la page.
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8" ref={containerRef}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-[500] text-[17px] text-[#191919]">
-          Continue Learning
+          Continuer l'apprentissage
         </h3>
         <div className="flex items-center gap-3">
           <Image
             src={left_arrow}
-            alt="arrow"
-            className={`cursor-pointer ${
+            alt="Précédent"
+            className={`cursor-pointer  ${
               currentIndex === 0 ? "opacity-50" : ""
             }`}
             onClick={prevSlide}
           />
           <Image
-            src={rigth_arrow}
-            alt="arrow"
+            src={right_arrow}
+            alt="Suivant"
             className={`cursor-pointer ${
               currentIndex >= modulesData.length - itemsPerView
                 ? "opacity-50"
@@ -123,53 +153,68 @@ const Modules = () => {
           />
         </div>
       </div>
-      <div className="overflow-hidden">
-        <ul
-          ref={carouselRef}
-          className="flex gap-4 transition-transform duration-500 ease-in-out pb-4"
-          style={{
-            transform: `translateX(-${currentIndex * (ITEM_WIDTH + GAP)}px)`,
-          }}
-        >
-          {modulesData.map((module) => (
-            <li
-              key={module.id}
-              className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] box flex-shrink-0" 
-            >
-              <Image src={module.image} alt="vector" />
-              <span className="text-[#FD2E8A] text-[13px] my-3 font-[500] block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
-                {module.title}
-              </span>
-              <div className="my-3">
-                <span className="text-[13px] text-[11142D] font-[500]">
-                  {module.unit}
-                </span>
-                <div className="relative flex items-center w-[100%] justify-between mt-[2px]">
-                  <div className="w-[80%] h-[8px] bg-[#F5F5F5] rounded-[20px] relative">
-                    <div
-                      className="absolute h-[8px] bg-[#FD2E8A] rounded-[20px]"
-                      style={{ width: `${module.progress}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-[13px] font-[500]">
-                    {module.progress}%
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] text-[#F8589F] font-[500]">
-                  {module.views}
-                </span>
+
+      {modulesData.length > 0 ? (
+        <div className="overflow-hidden">
+          <ul
+            ref={carouselRef}
+            className="flex gap-4 transition-transform duration-500 ease-in-out pb-4"
+            style={{
+              transform: `translateX(-${currentIndex * (ITEM_WIDTH + GAP)}px)`,
+            }}
+          >
+            {modulesData.map((module) => (
+              <li
+                key={module.id}
+                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] h-[270px] box flex-shrink-0"
+              >
                 <Image
-                  src={play}
-                  alt="play"
-                  className="w-[20px] cursor-pointer"
+                  src={module.image}
+                  alt={module.title}
+                  className="w-full h-[96px]"
                 />
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                <span className="text-[#FD2E8A] text-[13px] my-3 font-[500] block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
+                  {module.title}
+                </span>
+                <div className="my-4">
+                  <span className="text-[13px] text-[11142D] font-[500]">
+                    {module.unit}
+                  </span>
+                  <div className="relative flex items-center w-[100%] justify-between mt-[2px]">
+                    <div className="w-[76%] h-[8px] bg-[#F5F5F5] rounded-[20px] relative">
+                      <div
+                        className="absolute h-[8px] bg-[#FD2E8A] rounded-[20px]"
+                        style={{ width: `${module.progress}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-[13px] font-[500]">
+                      {module.progress.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-5">
+                  <span className="text-[13px] text-[#F8589F] font-[500]">
+                    {module.views}
+                  </span>
+                  <Link href={`/dashboard/question-bank/${module.id}`}>
+                    <Image
+                      src={play}
+                      alt="Lire"
+                      width={22}
+                      height={22}
+                      className="cursor-pointer"
+                    />
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          Aucun module d’apprentissage disponible
+        </div>
+      )}
     </div>
   );
 };

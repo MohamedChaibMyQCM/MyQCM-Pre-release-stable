@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import field from "../../../../public/auth/field.svg";
 import Image from "next/image";
@@ -7,15 +9,14 @@ const Field = ({ name, value, setFieldValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || "");
   const [selectedLabel, setSelectedLabel] = useState(
-    "Select your field of study"
+    "Sélectionnez votre domaine d'étude"
   );
   const dropdownRef = useRef(null);
 
   const fields = [
-    { id: "1", name: "General Medicine" },
-    { id: "2", name: "Dentistry" },
-    { id: "3", name: "Pharmacy" },
-    { id: "4", name: "Nursing" },
+    { id: "General Medecin", name: "Médecine Générale" },
+    { id: "Dentisterie", name: "Dentisterie" },
+    { id: "Pharmacie", name: "Pharmacie" },
   ];
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const Field = ({ name, value, setFieldValue }) => {
   const handleSelect = (id, name) => {
     setSelectedValue(id);
     setSelectedLabel(name);
-    setFieldValue(name, id);
+    setFieldValue("field", id);
     setIsOpen(false);
   };
 
@@ -49,7 +50,7 @@ const Field = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label htmlFor={name} className="text-[#191919] text-[16px] font-[500]">
-        Field of study?
+        Domaine d'étude ?
       </label>
 
       <div
@@ -57,7 +58,7 @@ const Field = ({ name, value, setFieldValue }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Image src={field} alt="field" width={22} height={22} />
+          <Image src={field} alt="domaine" width={22} height={22} />
           <span className="truncate text-[14px]">{selectedLabel}</span>
           <CaretDown
             size={20}

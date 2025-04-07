@@ -1,21 +1,31 @@
+"use client";
+
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import university from "../../../../public/auth/univ.svg";
 import Image from "next/image";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { CaretDown } from "phosphor-react";
+import secureLocalStorage from "react-secure-storage";
 
 const University = ({ name, value, setFieldValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || "");
-  const [selectedLabel, setSelectedLabel] = useState("Select your university");
+  const [selectedLabel, setSelectedLabel] = useState(
+    "Sélectionnez votre université"
+  );
   const dropdownRef = useRef(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["universities"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/university");
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/university", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data.data;
     },
   });
@@ -45,7 +55,7 @@ const University = ({ name, value, setFieldValue }) => {
   const handleSelect = (id, name) => {
     setSelectedValue(id);
     setSelectedLabel(name);
-    setFieldValue(name, id);
+    setFieldValue("university", id);
     setIsOpen(false);
   };
 
@@ -55,7 +65,7 @@ const University = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label htmlFor={name} className="text-[#191919] text-[16px] font-[500]">
-        Institution/University?
+        Institution/Université ?
       </label>
 
       <div
@@ -63,7 +73,7 @@ const University = ({ name, value, setFieldValue }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Image src={university} alt="university" className="w-[22px]" />
+          <Image src={university} alt="université" className="w-[22px]" />
           <span className="truncate text-[14px]">{selectedLabel}</span>
           <CaretDown
             size={20}
@@ -74,12 +84,14 @@ const University = ({ name, value, setFieldValue }) => {
           />
         </div>
       </div>
-        {isOpen && (
+      {isOpen && (
         <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
           {isLoading ? (
-            <p className="p-4 text-gray-600">Loading universities...</p>
+            <p className="p-4 text-gray-600">Chargement des universités...</p>
           ) : error ? (
-            <p className="p-4 text-red-600">Error loading universities</p>
+            <p className="p-4 text-red-600">
+              Erreur lors du chargement des universités
+            </p>
           ) : (
             <ul>
               {data.map((univer) => (

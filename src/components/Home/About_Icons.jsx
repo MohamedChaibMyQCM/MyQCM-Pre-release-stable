@@ -1,6 +1,6 @@
 const About_Icons = () => {
   return (
-    <div className=" grid grid-cols-4 gap-4 p-4 rotate-[]">
+    <div className=" grid grid-cols-4 gap-4 p-4">
       <ul className="contents">
         {Array.from({ length: 16 }).map((_, index) => (
           <li

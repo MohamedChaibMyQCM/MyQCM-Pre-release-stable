@@ -11,34 +11,127 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TrainingDate from "../QuestionsBank/TrainingInputs/TrainingDate";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import secureLocalStorage from "react-secure-storage";
+import BaseUrl from "@/components/BaseUrl";
+import toast from "react-hot-toast";
 
-const SchedulePopup = ({ selectedDate, onClose }) => {
-  const units = [
-    { id: "1", name: "Unit 1" },
-    { id: "2", name: "Unit 2" },
-    { id: "3", name: "Unit 3" },
-    { id: "4", name: "Unit 4" },
-    { id: "5", name: "Unit 5" },
-  ];
-
-  const modules = [
-    { id: "1", name: "Module 1" },
-    { id: "2", name: "Module 2" },
-    { id: "3", name: "Module 3" },
-  ];
-
-  const courses = [
-    { id: "1", name: "Course 1" },
-    { id: "2", name: "Course 2" },
-    { id: "3", name: "Course 3" },
-  ];
-
+const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   const [selectedUnit, setSelectedUnit] = React.useState("");
   const [selectedModule, setSelectedModule] = React.useState("");
   const [selectedCourse, setSelectedCourse] = React.useState("");
   const [selectedTimeInput, setSelectedTimeInput] = React.useState("");
   const [title, setTitle] = React.useState("");
-  const [trainingDate, setTrainingDate] = React.useState(null);
+  const [trainingDate, setTrainingDate] = React.useState(selectedDate || null);
+
+  const { data: units = [], isLoading: isUnitsLoading } = useQuery({
+    queryKey: ["units"],
+    queryFn: async () => {
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get("/unit/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data?.data || [];
+      } catch (err) {
+        toast.error("Failed to fetch units.");
+        return [];
+      }
+    },
+  });
+
+  const { data: subjects = [], isLoading: isSubjectsLoading } = useQuery({
+    queryKey: ["subjects", selectedUnit],
+    queryFn: async () => {
+      if (!selectedUnit) return [];
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get(`/subject/me?unit=${selectedUnit}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data?.data || [];
+      } catch (err) {
+        toast.error("Failed to fetch subjects.");
+        return [];
+      }
+    },
+    enabled: !!selectedUnit,
+  });
+
+  const { data: courses = [], isLoading: isCoursesLoading } = useQuery({
+    queryKey: ["courses", selectedModule],
+    queryFn: async () => {
+      if (!selectedModule) return [];
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get(
+          `/course/subject/${selectedModule}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data?.data?.data || [];
+      } catch (err) {
+        toast.error("Failed to fetch courses.");
+        return [];
+      }
+    },
+    enabled: !!selectedModule,
+  });
+
+  const createTrainingSession = useMutation({
+    mutationFn: async (sessionData) => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.post("/training-session", sessionData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      onSessionCreated(data.data);
+      toast.success("Session scheduled successfully!");
+      onClose();
+    },
+    onError: () => {
+      toast.error("Failed to schedule session.");
+    },
+  });
+
+  React.useEffect(() => {
+    if (selectedUnit) setSelectedModule("");
+  }, [selectedUnit]);
+
+  React.useEffect(() => {
+    if (selectedModule) setSelectedCourse("");
+  }, [selectedModule]);
+
+  const handleSubmit = () => {
+    if (!title || !selectedCourse || !trainingDate || !selectedTimeInput) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    const date = new Date(trainingDate);
+    const [hours, minutes] = selectedTimeInput.split(":");
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    const scheduled_at = date.toISOString();
+
+    createTrainingSession.mutate({
+      title,
+      status: "scheduled",
+      scheduled_at,
+      course: selectedCourse,
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -76,7 +169,6 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
           >
             <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] !py-3 block px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Unit" />
-             
             </SelectTrigger>
             <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
               <SelectGroup>
@@ -103,11 +195,10 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
           >
             <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] py-3 px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Module" />
-              
             </SelectTrigger>
             <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
               <SelectGroup>
-                {modules.map((module) => (
+                {subjects.map((module) => (
                   <SelectItem
                     key={module.id}
                     value={module.id}
@@ -120,8 +211,6 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
             </SelectContent>
           </Select>
         </div>
-
-        {/* Course Select */}
         <div className="mb-6 sel">
           <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
             Course
@@ -162,8 +251,6 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
             />
           </div>
         </div>
-
-        {/* Action Buttons */}
         <div className="flex justify-center gap-6">
           <button
             onClick={onClose}
@@ -172,17 +259,7 @@ const SchedulePopup = ({ selectedDate, onClose }) => {
             Cancel
           </button>
           <button
-            onClick={() => {
-              console.log({
-                title,
-                unit: selectedUnit,
-                module: selectedModule,
-                course: selectedCourse,
-                date: trainingDate,
-                time: selectedTimeInput,
-              });
-              onClose();
-            }}
+            onClick={handleSubmit}
             className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-3 rounded-[20px]"
           >
             Add

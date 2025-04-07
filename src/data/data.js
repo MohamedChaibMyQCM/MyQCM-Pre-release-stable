@@ -1,7 +1,8 @@
-import logo1 from "../../public/logos/OpenAi.svg";
-import logo4 from "../../public/logos/dr lekhal logo 1.svg";
-import logo5 from "../../public/logos/Educteck.svg";
-import logo6 from "../../public/logos/BlidaFac.svg";
+import logo1 from "../../public/Landing/trust1.svg";
+import logo4 from "../../public/Landing/trust2.svg";
+import logo5 from "../../public/Landing/trust3.svg";
+import logo6 from "../../public/Landing/trust4.svg";
+import logo3 from "../../public/Landing/trust5.svg";
 import wHeart from "../../public/Icons/wHeart.svg";
 import blida from "../../public/Icons/Blida.svg";
 import blood from "../../public/Quiz/blood.svg";
@@ -47,7 +48,7 @@ export const aside_links = [
     name: "Banque de Questions",
     icon: playlist,
     hoverIcon: Pplaylist,
-    href: "QuestionsBank",
+    href: "question-bank",
   },
   // {
   //   name: "Qmed Bot",
@@ -59,19 +60,22 @@ export const aside_links = [
     name: "Ma Progression",
     icon: progress,
     hoverIcon: Pprogress,
-    href: "MyProgress",
+    href: "progress",
   },
   {
     name: "Communauté",
     icon: community,
     hoverIcon: Pcommunity,
-    href: "MyQcmCommunity",
+    href: "community",
   },
 ];
 
 export const logos = [
   {
     src: logo1,
+  },
+  {
+    src: logo3,
   },
   {
     src: logo4,

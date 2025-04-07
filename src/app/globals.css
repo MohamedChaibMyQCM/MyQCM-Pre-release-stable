@@ -11,11 +11,6 @@
   display: none !important;
 }
 
-.stroke {
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke-width: 2px;
-}
-
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -38,41 +33,6 @@
 
 .custom-scrool::-webkit-scrollbar-thumb {
   background: #858494;
-}
-
-.wave_animation {
-  animation: wave 2s infinite;
-}
-
-@keyframes wave {
-  0% {
-    width: 30px;
-    height: 30px;
-  }
-  50% {
-    width: 15px;
-    height: 15px;
-  }
-  100% {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.animate-scroll {
-  animation: scroll 20s linear infinite;
 }
 
 .box {
@@ -135,8 +95,6 @@
   }
 }
 
-
-
 .shape {
   clip-path: polygon(50% 0%, 100% 0%, 50% 100%, 0 100%);
 }
@@ -190,6 +148,23 @@
   padding-top: 21px !important;
   padding-bottom: 19px !important;
 }
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-alternate-scroll {
+  animation: scroll-left 30s linear infinite alternate;
+  display: flex;
+  width: max-content;
+}
+
 
 /* @layer base {
   :root {

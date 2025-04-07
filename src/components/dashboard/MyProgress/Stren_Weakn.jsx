@@ -7,35 +7,50 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { axis: "Cardio", value: 60, strength: 90 },
-  { axis: "Endurance", value: 85, strength: 60 }, 
-  { axis: "Radio", value: 60, strength: 80 },
-  { axis: "Neuro", value: 90, strength: 40 },
-  { axis: "Chemistry", value: 50, strength: 80 },
-  { axis: "Derma", value: 35, strength: 70 },
-];
+const Stren_Weakn = ({ subject_strengths }) => {
+  // Vérifier si les données sont vides ou non disponibles
+  if (!subject_strengths || subject_strengths.length === 0) {
+    return (
+      <div className="flex-1 weak">
+        <h3 className="font-medium text-lg mb-4 text-gray-900">
+          Forces et Faiblesses
+        </h3>
+        <div className="bg-white rounded-2xl px-6 py-6 box h-[327px] flex items-center justify-center">
+          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+            <span className="text-[#F8589F] font-medium text-[18px]">
+              Pas de données pour le moment
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-const Stren_Weakn = () => {
+  const chartData = subject_strengths.map((item) => ({
+    axis: item.subject.split(":")[0].trim(),
+    value: 100 - item.strength,
+    strength: item.strength,
+  }));
+
   return (
     <div className="flex-1 weak">
       <h3 className="font-medium text-lg mb-4 text-gray-900">
-        Strengths & Weaknesses
+        Forces et Faiblesses
       </h3>
       <div className="bg-white rounded-2xl px-6 py-6 box h-[327px]">
         <Card className="border-none shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="flex items-center gap-8 relative">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-[#F64C4C]">Weak</span>
+                <span className="text-sm font-medium text-[#F64C4C]">
+                  Faible
+                </span>
                 <span className="h-2 w-2 rounded-full bg-[#F64C4C]"></span>
               </div>
               <span className="w-[32px] bg-[#E7E7E7] h-[1.6px] absolute left-[54px]"></span>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-[#47B881]"></span>
-                <span className="text-sm font-medium text-[#47B881]">
-                  Strong
-                </span>
+                <span className="text-sm font-medium text-[#47B881]">Fort</span>
               </div>
             </CardTitle>
           </CardHeader>
@@ -60,7 +75,7 @@ const Stren_Weakn = () => {
                   strokeDasharray="3 3"
                 />
                 <Radar
-                  name="Weaknesses"
+                  name="Faiblesses"
                   dataKey="value"
                   fill="#F64C4C"
                   fillOpacity={0.2}
@@ -69,7 +84,7 @@ const Stren_Weakn = () => {
                   dot={{ fill: "#F64C4C", r: 3 }}
                 />
                 <Radar
-                  name="Strengths"
+                  name="Forces"
                   dataKey="strength"
                   fill="#47B881"
                   fillOpacity={0.2}

@@ -22,7 +22,7 @@ const NumberOfQuestion = ({ name, value, setFieldValue }) => {
   };
 
   return (
-    <div className="rounded-[24px] w-fit px-[12px] py-[6px] border border-[#EFEEFC] flex items-center justify-between gap-3 max-md:w-full">
+    <div className="rounded-[24px] w-fit px-[12px] py-[6px] border border-gray-300 flex items-center justify-between gap-3 max-md:w-full">
       <div className="flex items-center">
         <button
           type="button"

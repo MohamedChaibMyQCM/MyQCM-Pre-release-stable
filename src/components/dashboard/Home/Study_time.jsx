@@ -12,22 +12,65 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import Image from "next/image";
 import streak from "../../../../public/Icons/streak.svg";
-
-const chartData = [
-  { day: "Sun", hours: 7, minutes: 23 },
-  { day: "Mon", hours: 4, minutes: 53 },
-  { day: "Tues", hours: 6, minutes: 3 },
-  { day: "Wed", hours: 5, minutes: 23 },
-  { day: "Thur", hours: 1, minutes: 30 },
-  { day: "Fri", hours: 2, minutes: 0 },
-  { day: "Sat", hours: 1, minutes: 50 },
-];
+import { useQuery } from "@tanstack/react-query";
+import secureLocalStorage from "react-secure-storage";
+import BaseUrl from "@/components/BaseUrl";
 
 const Study_time = () => {
+  const { data: userActivity } = useQuery({
+    queryKey: ["userActivity"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/user/activity/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    },
+  });
+
+  const { data: streakData } = useQuery({
+    queryKey: ["userStreak"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/user/streak/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    },
+  });
+
+  // Transformer les données d'activité en heures et minutes (2 minutes par activité)
+  const transformActivityData = () => {
+    if (!userActivity) return [];
+
+    const daysOfWeek = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+    const MINUTES_PER_ACTIVITY = 2;
+
+    return daysOfWeek.map((day) => {
+      const activities = userActivity[day] || [];
+      const totalMinutes = activities.length * MINUTES_PER_ACTIVITY;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
+      return {
+        day,
+        hours,
+        minutes,
+        totalMinutes, // Pour le calcul de la hauteur de la barre
+      };
+    });
+  };
+
+  const chartData = transformActivityData();
+
   return (
     <div className="w-full">
       <h3 className="font-[500] text-[17px] mb-6 text-[#191919] max-md:mb-4">
-        Studying time
+        Temps d'étude
       </h3>
       <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full max-md:h-[320px] max-md:px-0">
         <Card className="border-none p-0 w-full shadow-none">
@@ -58,10 +101,10 @@ const Study_time = () => {
                   }}
                 />
                 <YAxis
-                  domain={[0, 2]} // Adjust the Y-axis domain to fit the bars
-                  hide // Hide the Y-axis
+                  domain={[0, "dataMax + 20"]} // Ajout de 20 minutes de marge
+                  hide
                 />
-                <Bar dataKey="hours" fill="#F8589F" radius={8}>
+                <Bar dataKey="totalMinutes" fill="#F8589F" radius={8}>
                   <LabelList
                     dataKey="hours"
                     position="top"
@@ -88,13 +131,21 @@ const Study_time = () => {
         <div className="h-[316px] w-[1px] bg-[#E4E4E4] max-md:hidden" />
         <div className="flex flex-col items-center text-center gap-2 w-[140px] max-md:hidden">
           <span className="text-[18px] text-[#F8589F] font-[600]">
-            3 <br /> days <br /> Streak
+            {streakData?.current_streak || 0} <br /> jours <br /> Streak
           </span>
-          <span className="text-[#191919] text-[13px]">Keep going</span>
+          <span className="text-[#191919] text-[13px]">Continuez ainsi</span>
           <div className="flex items-center gap-2">
-            <Image src={streak} alt="streak" className="w-[14px]" />
-            <Image src={streak} alt="streak" className="w-[14px]" />
-            <Image src={streak} alt="streak" className="w-[14px]" />
+            {streakData?.current_streak &&
+              Array.from({ length: streakData.current_streak }).map(
+                (_, index) => (
+                  <Image
+                    key={index}
+                    src={streak}
+                    alt="streak"
+                    className="w-[14px]"
+                  />
+                )
+              )}
           </div>
         </div>
       </div>

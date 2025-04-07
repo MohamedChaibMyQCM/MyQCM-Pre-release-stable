@@ -8,35 +8,47 @@ import NumberOfQuestion from "./TrainingInputs/NumberOfQuestion";
 import RandomQuiz from "./TrainingInputs/RandomQuiz";
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { quizStore } from "@/store/quiz";
-import { useStore } from "zustand";
 import toast from "react-hot-toast";
 import { X } from "phosphor-react";
 import RandomOptions from "./TrainingInputs/RandomOptions";
 import TrainingDate from "./TrainingInputs/TrainingDate";
 import { useState } from "react";
 import Title from "./TrainingInputs/Title";
+import secureLocalStorage from "react-secure-storage";
 
-const TrainingSeason = ({ setPopup, courseId }) => {
-  const [isShedule, setIsShedule] = useState(false);
+const TrainingSeason = ({ setPopup, courseId, quiz = {} }) => {
+  const [isSchedule, setIsSchedule] = useState(false);
   const { category: subjectId } = useParams();
-  const { quiz, updateQuiz } = useStore(quizStore);
   const router = useRouter();
 
-  const { mutate: TrainingSettings } = useMutation({
-    mutationFn: (data) => BaseUrl.post(`/course/next-mcqs/${courseId}`, data),
+  const { mutate: TrainingSettings, isPending } = useMutation({
+    mutationFn: (data) => {
+      const token = secureLocalStorage.getItem("token");
+      return BaseUrl.post(`/training-session`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
     onSuccess: ({ data }) => {
-      updateQuiz(data.data);
-      router.push(
-        `/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse/${courseId}`
-      );
+      !isSchedule
+        ? router.push(`/dashboard/question-bank/session/${data.data}`)
+        : null;
+      isSchedule ? toast.success("Session planifiée avec succès !") : null;
+      setPopup(false);
     },
     onError: (error) => {
-      const message = Array.isArray(error?.response?.data?.message)
-        ? error.response.data.message[0]
-        : error?.response?.data?.message || "Set Profile Failed";
+      console.error("Erreur de mutation :", error);
+      const responseData = error?.response?.data;
+      const message = Array.isArray(responseData?.message)
+        ? responseData.message[0]
+        : responseData?.message ||
+          error.message ||
+          (isSchedule
+            ? "Échec de la planification"
+            : "Échec du démarrage de la session");
       toast.error(message);
     },
   });
@@ -47,29 +59,89 @@ const TrainingSeason = ({ setPopup, courseId }) => {
       qcm: quiz.qcm || false,
       qcs: true,
       qroc: quiz.qroc || false,
-      // time_limit: quiz.time_limit || "",
+      time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
-      randomize_questions: quiz.randomize_questions || false,
-      randomize_options: quiz.options_questions || false,
+      randomize_questions_order: quiz.randomize_questions || false,
+      randomize_options_order: quiz.randomize_options || false,
       date: quiz.date || null,
-      time: "",
+      time: quiz.time || "",
     },
     onSubmit: (values) => {
-      const data = {
-        ...values,
-        time_limit: Number(values.time_limit),
-        number_of_questions: Number(values.number_of_questions),
+      const baseData = {
+        title: values.title,
+        qcm: values.qcm,
+        qcs: values.qcs,
+        qroc: values.qroc,
+        time_limit: values.time_limit ? Number(values.time_limit) : null,
+        number_of_questions: values.number_of_questions
+          ? Number(values.number_of_questions)
+          : null,
+        randomize_questions_order: values.randomize_questions_order,
+        randomize_options_order: values.randomize_options_order,
+        course: courseId,
       };
-      TrainingSettings(data);
+
+      let finalData;
+
+      if (isSchedule) {
+        if (!values.date) {
+          toast.error("Veuillez sélectionner une date.");
+          return;
+        }
+
+        let scheduledAtISO = null;
+        try {
+          const scheduledDate = new Date(values.date);
+          if (isNaN(scheduledDate.getTime())) {
+            throw new Error("Date invalide sélectionnée");
+          }
+
+          if (values.time) {
+            const [hours, minutes] = values.time.split(":").map(Number);
+            if (
+              isNaN(hours) ||
+              isNaN(minutes) ||
+              hours < 0 ||
+              hours > 23 ||
+              minutes < 0 ||
+              minutes > 59
+            ) {
+              throw new Error("Format de l'heure invalide");
+            }
+            scheduledDate.setHours(hours, minutes, 0, 0);
+          } else {
+            scheduledDate.setHours(0, 0, 0, 0);
+          }
+
+          scheduledAtISO = scheduledDate.toISOString();
+        } catch (error) {
+          console.error("Erreur lors du traitement de la date/heure :", error);
+          toast.error(error.message);
+          return;
+        }
+
+        finalData = {
+          ...baseData,
+          status: "scheduled",
+          scheduled_at: scheduledAtISO,
+        };
+      } else {
+        finalData = {
+          ...baseData,
+          status: "in_progress",
+        };
+      }
+      TrainingSettings(finalData);
     },
+    enableReinitialize: true,
   });
 
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-50">
-      <div className="bg-[#FFFFFF] w-[500px] rounded-[16px] p-[20px] flex flex-col gap-3 max-md:w-[92%]">
+      <div className="bg-[#FFFFFF] w-[500px] rounded-[16px] p-[20px] flex flex-col gap-3 max-md:w-[92%] max-h-[90vh] overflow-y-auto scrollbar-hide">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[#FD2E8A] font-medium text-[17px]">
-            {isShedule ? "Schedule season" : "Training Season Settings"}
+            {isSchedule ? "Planifier une session" : "Paramètres de la session"}
           </span>
           <X
             size={22}
@@ -79,24 +151,24 @@ const TrainingSeason = ({ setPopup, courseId }) => {
           />
         </div>
         <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
-          {isShedule && (
-            <div className="mb-2">
-              <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
-                Title
-              </span>
-              <Title
-                value={formik.values.title}
-                onChange={(e) => formik.setFieldValue("title", e.target.value)}
-              />
-            </div>
-          )}
           <div className="mb-2">
             <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
-              Question Types
+              Titre
+            </span>
+            <Title
+              value={formik.values.title}
+              onChange={(e) => formik.setFieldValue("title", e.target.value)}
+              name="title"
+            />
+          </div>
+
+          <div className="mb-2">
+            <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
+              Types de questions
             </span>
             <div
               className={`flex ${
-                isShedule ? "flex-row gap-5" : "flex-col gap-3"
+                isSchedule ? "flex-row gap-5" : "flex-col gap-3"
               }`}
             >
               <MultipleChoice
@@ -111,27 +183,42 @@ const TrainingSeason = ({ setPopup, courseId }) => {
               />
             </div>
           </div>
+
           <div>
             <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
-              Number of Questions
+              Nombre de questions
             </span>
             <div className="flex flex-col gap-4">
               <NumberOfQuestion
                 name="number_of_questions"
                 value={formik.values.number_of_questions}
                 setFieldValue={formik.setFieldValue}
+                onChange={(e) =>
+                  formik.setFieldValue("number_of_questions", e.target.value)
+                }
               />
-              <TrainingDate
-                value={formik.values.date}
-                onChange={(date) => formik.setFieldValue("date", date)}
+              {isSchedule && (
+                <TrainingDate
+                  value={formik.values.date}
+                  onChange={(date) => formik.setFieldValue("date", date)}
+                />
+              )}
+              <TimeLimit
+                name="time_limit"
+                value={formik.values.time_limit}
+                setFieldValue={formik.setFieldValue}
+                onChange={(e) =>
+                  formik.setFieldValue("time_limit", e.target.value)
+                }
               />
-              {isShedule && (
+              {isSchedule && (
                 <div className="flex-1">
-                  <span className="font-[600] text-[#191919] text-[15px]">
-                    Time
+                  <span className="font-[600] text-[#191919] text-[15px] block mb-[10px]">
+                    Heure
                   </span>
                   <input
                     type="time"
+                    name="time"
                     value={formik.values.time}
                     onChange={(e) =>
                       formik.setFieldValue("time", e.target.value)
@@ -142,31 +229,40 @@ const TrainingSeason = ({ setPopup, courseId }) => {
               )}
             </div>
           </div>
+
           <div className="flex flex-col gap-5 mb-2 mt-3">
             <RandomQuiz
-              name="randomize_questions"
-              value={formik.values.randomize_questions}
+              name="randomize_questions_order"
+              value={formik.values.randomize_questions_order}
               setFieldValue={formik.setFieldValue}
             />
             <RandomOptions
-              name="randomize_options"
-              value={formik.values.randomize_options}
+              name="randomize_options_order"
+              value={formik.values.randomize_options_order}
               setFieldValue={formik.setFieldValue}
             />
           </div>
+
           <div className="flex items-center justify-center gap-6 mt-2">
             <button
               type="button"
-              className="font-medium text-[14px] text-[#FD2E8A] px-[20px] py-[10px] rounded-[16px]"
-              onClick={() => setIsShedule(!isShedule)}
+              className="font-medium text-[14px] text-[#FD2E8A] px-[20px] py-[8px] rounded-[24px] hover:bg-pink-50 transition-colors"
+              onClick={() => setIsSchedule(!isSchedule)}
             >
-              {isShedule ? "Back" : "Schedule"}
+              {isSchedule ? "Retour" : "Planifier"}
             </button>
             <button
               type="submit"
-              className="font-medium text-[14px] bg-[#FD2E8A] text-[#FFF5FA] px-[20px] py-[8px] rounded-[24px]"
+              disabled={isPending}
+              className={`font-medium text-[14px] bg-[#FD2E8A] text-[#FFF5FA] px-[20px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity ${
+                isPending ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              {isShedule ? "Save" : "Start"}
+              {isPending
+                ? "Traitement..."
+                : isSchedule
+                ? "Enregistrer"
+                : "Démarrer"}
             </button>
           </div>
         </form>

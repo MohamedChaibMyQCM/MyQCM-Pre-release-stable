@@ -3,33 +3,37 @@ import accuracy from "../../../../public/Icons/accuracy.svg";
 import time_spent from "../../../../public/Icons/time_spent.svg";
 import Image from "next/image";
 
-const GeneraleStat = () => {
+const GeneraleStat = ({ overall_summary }) => {
   return (
     <div>
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">General</h3>
+      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">Général</h3>
       <ul className="flex items-center gap-4">
         <li className="bg-[#FFFFFF] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-2 max-md:h-[154px]">
           <div className="flex flex-col gap-1">
-            <span className="font-[500] text-[15px]">Quizzes attempted</span>
-            <span className="text-[#F8589F] font-[500] text-[14px]">120</span>
+            <span className="font-[500] text-[15px]">Questions tentées</span>
+            <span className="text-[#F8589F] font-[500] text-[14px]">
+              {overall_summary?.total_mcqs_attempted}
+            </span>
           </div>
-          <Image src={quiz_attemp} alt="Quizzes attempted" />
+          <Image src={quiz_attemp} alt="Quiz tentés" />
         </li>
         <li className="bg-[#FFFFFF] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-[32px] max-md:h-[154px]">
           <div className="flex flex-col gap-1">
-            <span className="font-[500] text-[15px]">Accuracy</span>
-            <span className="text-[#F8589F] font-[500] text-[14px]">70%</span>
+            <span className="font-[500] text-[15px]">Précision</span>
+            <span className="text-[#F8589F] font-[500] text-[14px]">
+              {overall_summary?.overall_accuracy?.percentage}%
+            </span>
           </div>
-          <Image src={accuracy} alt="Accuracy" />
+          <Image src={accuracy} alt="Précision" />
         </li>
         <li className="bg-[#FFFFFF] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-2 max-md:h-[154px]">
           <div className="flex flex-col gap-1">
-            <span className="font-[500] text-[15px]">Time spent</span>
+            <span className="font-[500] text-[15px]">Temps passé</span>
             <span className="text-[#F8589F] font-[500] text-[14px]">
-              20h 21min
+              {overall_summary?.total_time_spent}s
             </span>
           </div>
-          <Image src={time_spent} alt="Time spent" />
+          <Image src={time_spent} alt="Temps passé" />
         </li>
       </ul>
     </div>

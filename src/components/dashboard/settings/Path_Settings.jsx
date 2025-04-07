@@ -4,53 +4,116 @@ import Image from "next/image";
 import path from "../../../../public/settings/path.svg";
 import { Label } from "@/components/ui/label";
 
-const Path_Settings = ({ selectedMode, onModeChange }) => {
-  const modes = [
+const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
+  const learningModes = [
     {
-      id: "intelligent",
-      title: "Intelligent Mode",
-      subtitle: "Powered by Synergy",
+      id: "3fbd3d2f-3033-4dee-90d5-368c758c5291",
+      title: "Mode Intelligent",
+      subtitle: "Propulsé par Synergy",
       description:
-        "In Intelligent Mode, Synergy – our advanced learning engine – personalizes your experience. It's like having a dedicated tutor who understands your strengths, weaknesses, and learning style. Synergy adapts in real-time, focusing on what you need to master, making every study session incredibly effective. It's the fastest way to build confidence and achieve true understanding.",
+        "En Mode Intelligent, Synergy - notre moteur d'apprentissage avancé - personnalise votre expérience. C'est comme avoir un tuteur dédié qui comprend vos forces, vos faiblesses et votre style d'apprentissage. Synergy s'adapte en temps réel, se concentrant sur ce que vous devez maîtriser, rendant chaque session d'étude incroyablement efficace. C'est le moyen le plus rapide pour gagner en confiance et atteindre une véritable compréhension.",
     },
     {
-      id: "guided",
-      title: "Guided Mode",
-      subtitle: "Your Focus, Our AI",
+      id: "d2997e7d-8a8e-4153-8550-889fd697ae90",
+      title: "Mode Guidé",
+      subtitle: "Votre Focus, Notre IA",
       description:
-        "In Guided Mode, you're in control of the direction, while still benefiting from Synergy's intelligent question selection. Perfect for when you want to focus on specific areas, like preparing for an upcoming exam or reinforcing your knowledge of a particular module. We'll help you make every minute count.",
+        "En Mode Guidé, vous contrôlez la direction, tout en bénéficiant de la sélection intelligente des questions de Synergy. Parfait pour lorsque vous souhaitez vous concentrer sur des domaines spécifiques, comme la préparation à un examen à venir ou le renforcement de vos connaissances sur un module particulier. Nous vous aiderons à maximiser chaque minute.",
     },
     {
-      id: "custom",
-      title: "Custom Mode",
-      subtitle: "Craft Your Challenge",
+      id: "8770d57c-ad5f-4096-8f26-7cf8a1b67f79",
+      title: "Mode Personnalisé",
+      subtitle: "Créez Votre Défi",
       description:
-        "Custom Mode is your playground for focused practice. Perfect for simulating exam conditions, testing your knowledge on specific topics, or challenging yourself with exactly the questions you want.",
+        "Le Mode Personnalisé est votre terrain de jeu pour un entraînement ciblé. Parfait pour simuler des conditions d'examen, tester vos connaissances sur des sujets spécifiques ou vous défier avec exactement les questions que vous souhaitez.",
     },
   ];
+
+  // Map the API modes to our predefined modes
+  const getModeType = (modeId) => {
+    if (!modeId) return null;
+
+    // First check if the modeId matches any of our predefined learningModes
+    const predefinedMode = learningModes.find((mode) => mode.id === modeId);
+    if (predefinedMode) return modeId;
+
+    // If not found in predefined modes, check the API modes
+    const mode = modes?.find((m) => m.id === modeId);
+    if (!mode) return null;
+
+    if (mode.name.includes("Intelligent"))
+      return "3fbd3d2f-3033-4dee-90d5-368c758c5291";
+    if (mode.name.includes("Guidé"))
+      return "d2997e7d-8a8e-4153-8550-889fd697ae90";
+    if (mode.name.includes("Personnalisé") || mode.name.includes("Custom"))
+      return "8770d57c-ad5f-4096-8f26-7cf8a1b67f79";
+
+    return null;
+  };
+
+  // Get the corresponding learning mode ID
+  const displayedSelectedModeId = getModeType(selectedMode);
+
+  if (isLoading) {
+    return (
+      <div className="mt-4 rounded-[16px]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+          Choisissez votre parcours vers la maîtrise
+        </h3>
+        <div className="bg-[#FFFFFF] p-6 rounded-[16px] box">
+          <div className="animate-pulse space-y-4">
+            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12 rounded-[16px]">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
-        Choose your path to mastery
+        Choisissez votre parcours vers la maîtrise
       </h3>
-      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box ">
+      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box">
         <form className="w-full">
-          {modes.map((mode) => (
+          {learningModes.map((mode) => (
             <div
               key={mode.id}
               className={`flex flex-col p-4 rounded-[8px] w-[90%] border ${
-                selectedMode === mode.id
+                displayedSelectedModeId === mode.id
                   ? "bg-[#FFF5FA] border-[#F8589F]"
                   : "border-[#E4E4E4]"
-              } ${mode.id !== "custom" ? "mb-4" : ""}`}
+              } ${
+                mode.id !== "8770d57c-ad5f-4096-8f26-7cf8a1b67f79" ? "mb-4" : ""
+              }`}
             >
               <div className="flex items-center gap-3 mb-3">
                 <button
                   type="button"
-                  onClick={() => onModeChange(mode.id)}
+                  onClick={() => {
+                    // Find the corresponding API mode if available
+                    let modeToSelect = mode.id;
+                    if (modes) {
+                      const apiMode = modes.find((m) => {
+                        if (mode.id === "3fbd3d2f-3033-4dee-90d5-368c758c5291")
+                          return m.name.includes("Intelligent");
+                        if (mode.id === "d2997e7d-8a8e-4153-8550-889fd697ae90")
+                          return m.name.includes("Guidé");
+                        if (mode.id === "8770d57c-ad5f-4096-8f26-7cf8a1b67f79")
+                          return (
+                            m.name.includes("Personnalisé") ||
+                            m.name.includes("Custom")
+                          );
+                        return false;
+                      });
+                      if (apiMode) modeToSelect = apiMode.id;
+                    }
+                    onModeChange(modeToSelect);
+                  }}
                   className={`w-5 h-5 rounded-full border-2 border-[#FF6EAF] cursor-pointer transition-colors ${
-                    selectedMode === mode.id
+                    displayedSelectedModeId === mode.id
                       ? "bg-[#FF6EAF] border-[#FF6EAF]"
                       : "bg-transparent"
                   }`}
@@ -70,7 +133,7 @@ const Path_Settings = ({ selectedMode, onModeChange }) => {
             </div>
           ))}
         </form>
-        <Image src={path} alt="path" />
+        <Image src={path} alt="parcours" />
       </div>
     </div>
   );

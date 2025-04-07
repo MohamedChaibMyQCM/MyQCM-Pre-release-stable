@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import calendarIcon from "../../../../public/auth/date.svg";
 import Image from "next/image";
@@ -11,7 +13,6 @@ const EndingDate = ({ name, value, setFieldValue }) => {
 
   const selectedDate = value ? new Date(value) : null;
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -23,7 +24,6 @@ const EndingDate = ({ name, value, setFieldValue }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Date helpers
   const getDaysInMonth = (date) =>
     new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (date) =>
@@ -55,12 +55,10 @@ const EndingDate = ({ name, value, setFieldValue }) => {
     const firstDay = getFirstDayOfMonth(currentDate);
     const days = [];
 
-    // Empty cells for days before the 1st
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="w-8 h-8"></div>);
     }
 
-    // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const isSelected =
         selectedDate &&
@@ -104,7 +102,7 @@ const EndingDate = ({ name, value, setFieldValue }) => {
           setView("days");
         }}
       >
-        {new Date(0, month).toLocaleString("default", { month: "short" })}
+        {new Date(0, month).toLocaleString("fr-FR", { month: "short" })}
       </button>
     ));
   };
@@ -138,7 +136,7 @@ const EndingDate = ({ name, value, setFieldValue }) => {
     <div className="w-full flex flex-col gap-2 relative" ref={dropdownRef}>
       {isOpen && (
         <div className="absolute bottom-full left-0 right-0 z-10 mb-2 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md p-4 w-[300px]">
-          {/* Header */}
+          {/* En-tête */}
           <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => navigateMonth("prev")}
@@ -152,7 +150,7 @@ const EndingDate = ({ name, value, setFieldValue }) => {
                 className="font-medium hover:text-[#F8589F] text-sm"
                 onClick={() => setView("months")}
               >
-                {currentDate.toLocaleString("default", { month: "long" })}
+                {currentDate.toLocaleString("fr-FR", { month: "long" })}
               </button>
               <button
                 className="font-medium hover:text-[#F8589F] text-sm"
@@ -170,10 +168,9 @@ const EndingDate = ({ name, value, setFieldValue }) => {
             </button>
           </div>
 
-          {/* Day names */}
           {view === "days" && (
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+              {["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"].map((day) => (
                 <div key={day} className="text-center text-sm text-[#666666]">
                   {day}
                 </div>
@@ -181,7 +178,6 @@ const EndingDate = ({ name, value, setFieldValue }) => {
             </div>
           )}
 
-          {/* Calendar content */}
           <div
             className={`grid ${
               view === "days" ? "grid-cols-7" : "grid-cols-4"
@@ -195,7 +191,7 @@ const EndingDate = ({ name, value, setFieldValue }) => {
       )}
 
       <label className="text-[#191919] text-[16px] font-[500]">
-        Expected Ending Date
+        Date de fin prévue
       </label>
 
       <div
@@ -203,15 +199,15 @@ const EndingDate = ({ name, value, setFieldValue }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Image src={calendarIcon} alt="calendar" className="w-[18px]" />
+          <Image src={calendarIcon} alt="calendrier" className="w-[18px]" />
           <span className="truncate text-[14px]">
             {selectedDate
-              ? selectedDate.toLocaleDateString("en-US", {
+              ? selectedDate.toLocaleDateString("fr-FR", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })
-              : "Select your expected ending date"}
+              : "Sélectionnez votre date de fin prévue"}
           </span>
           <CaretDown
             size={20}

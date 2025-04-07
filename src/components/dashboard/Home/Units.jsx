@@ -13,15 +13,46 @@ import unit8 from "../../../../public/Home/unit8.svg";
 import unit9 from "../../../../public/Home/unit9.svg";
 import play from "../../../../public/Home/play.svg";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import secureLocalStorage from "react-secure-storage";
+import BaseUrl from "@/components/BaseUrl";
+import toast from "react-hot-toast";
 
 const Units = () => {
   const [currentUnit, setCurrentUnit] = useState(0);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const {
+    data: units,
+    isLoading: isUnitsLoading,
+    error: unitsError,
+  } = useQuery({
+    queryKey: ["units"],
+    queryFn: async () => {
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get("/unit/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data?.data || [];
+      } catch (err) {
+        toast.error(
+          "Échec de la récupération des unités. Veuillez réessayer plus tard."
+        );
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   const unitsData = [
     {
-      title: "Unite 01: Cardio-respiratory and Medical Psychology",
+      id: "08d2c45d-288c-468b-a12c-687420f4e4f8",
+      title: "Unité 01 : Cardio-respiratoire et Psychologie Médicale",
       description:
-        "Explore the cardiovascular and respiratory systems' relationship and the psychological aspects of medical care. This unit includes five modules: semiology, physiopathology, radiology, biochemistry, and medical psychology, providing a comprehensive understanding of their impact on patient health and treatment.",
+        "Explorez la relation entre les systèmes cardiovasculaire et respiratoire ainsi que les aspects psychologiques des soins médicaux. Cette unité comprend cinq modules : sémiologie, physiopathologie, radiologie, biochimie et psychologie médicale, offrant une compréhension complète de leur impact sur la santé et le traitement des patients.",
       startColor: "#F43A5D",
       endColor: "#F8589F",
       image: unit1,
@@ -29,9 +60,10 @@ const Units = () => {
       position: { right: "2px", bottom: "-40px" },
     },
     {
-      title: "Unite 02: Neurology and Cognitive Function",
+      id: "22b66563-bd6d-404d-a4a2-f2061b0b751d",
+      title: "Unité 02 : Neurologie et Fonction Cognitive",
       description:
-        "Explore the nervous system's structure and cognitive processes. This unit includes five modules: neuroanatomy, neurophysiology, cognitive assessment, neuroimaging, and neuropsychology, providing a comprehensive understanding of brain function and cognitive disorders.",
+        "Plongez dans l'évaluation neurologique, les voies motrices et sensorielles, ainsi que les constatations dermatologiques de base. Reconnaissez les signes de lésions, les troubles du mouvement et les pathologies cutanées pour une compréhension clinique approfondie.",
       startColor: "#B1BBB9",
       endColor: "#F8589F",
       image: unit2,
@@ -39,9 +71,10 @@ const Units = () => {
       position: { right: "40px", bottom: "-20px" },
     },
     {
-      title: "Unite 03: Digestive System and Nutrition",
+      id: "bc602e71-b043-47d2-b2e5-b8f59252b12a",
+      title: "Unité 03 : Systèmes Endocrinien, Reproducteur et Urinaire",
       description:
-        "Examine the digestive system and nutritional science. This unit includes five modules: gastrointestinal anatomy, digestive physiology, nutritional biochemistry, dietary assessment, and clinical nutrition, providing a comprehensive understanding of digestive health.",
+        "Examinez la régulation hormonale, la physiologie reproductive et la fonction rénale. Étudiez les troubles endocriniens courants, les problèmes de fertilité et les pathologies urinaires pour maîtriser les principes fondamentaux du diagnostic et de la prise en charge.",
       startColor: "#D0795B",
       endColor: "#F8589F",
       image: unit3,
@@ -49,9 +82,10 @@ const Units = () => {
       position: { right: "60px", bottom: "-5px" },
     },
     {
-      title: "Unite 04: Immunology and Infectious Disease",
+      id: "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f",
+      title: "Unité 04 : Systèmes Digestif et Hématopoïétique",
       description:
-        "Study immune function and infectious pathogens. This unit includes five modules: immunobiology, microbiology, infection control, immunodiagnostics, and immunotherapy, providing a comprehensive understanding of immune responses and infectious disease management.",
+        "Étudiez l'anatomie et la fonction gastro-intestinale ainsi que la formation des cellules sanguines. Identifiez les troubles digestifs fréquents et les conditions hématologiques pour améliorer vos compétences diagnostiques et les résultats des patients.",
       startColor: "#8C5F5F",
       endColor: "#F8589F",
       image: unit4,
@@ -59,9 +93,10 @@ const Units = () => {
       position: { right: "40px", bottom: "-15px" },
     },
     {
-      title: "Unite 05: Endocrinology and Metabolism",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      title: "Unité 05 : Anatomie et Cytopathologie",
       description:
-        "Investigate hormonal systems and metabolic processes. This unit includes five modules: endocrine physiology, hormone biochemistry, metabolic pathways, endocrine disorders, and therapeutic approaches, providing a comprehensive understanding of hormonal regulation.",
+        "Apprenez les processus pathologiques au niveau cellulaire et tissulaire, en vous concentrant sur les changements morphologiques. Maîtrisez l'identification des lésions et les bases de la pathologie pour une compréhension approfondie des mécanismes de la maladie.",
       startColor: "#5494C3",
       endColor: "#F8589F",
       image: unit5,
@@ -69,9 +104,10 @@ const Units = () => {
       position: { right: "30px", bottom: "3px" },
     },
     {
-      title: "Unite 06: Musculoskeletal System and Rehabilitation",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      title: "Unité 06 : Immunologie",
       description:
-        "Learn about skeletal and muscular structures and rehabilitation techniques. This unit includes five modules: musculoskeletal anatomy, biomechanics, injury assessment, therapeutic exercise, and rehabilitation strategies, providing a comprehensive understanding of movement.",
+        "Découvrez les mécanismes de défense de l'organisme, y compris les interactions antigène-anticorps, l'hypersensibilité et les immunodéficiences. Obtenez une vision claire des réponses immunitaires en santé, en maladie et dans les thérapies ciblées.",
       startColor: "#FEBF05",
       endColor: "#F8589F",
       image: unit6,
@@ -79,9 +115,10 @@ const Units = () => {
       position: { right: "40px", bottom: "25px" },
     },
     {
-      title: "Unite 07: Renal and Urinary Systems",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      title: "Unité 07 : Microbiologie",
       description:
-        "Discover kidney function and urinary tract processes. This unit includes five modules: renal anatomy, nephrology, fluid balance, urinalysis, and renal pharmacology, providing a comprehensive understanding of renal physiology and pathology.",
+        "Explorez les pathogènes bactériens, viraux et fongiques. Comprenez la structure microbienne, la croissance et les diagnostics pour reconnaître les maladies infectieuses et orienter efficacement la prévention ou le traitement.",
       startColor: "#821911",
       endColor: "#F8589F",
       image: unit7,
@@ -89,9 +126,10 @@ const Units = () => {
       position: { right: "50px", bottom: "10px" },
     },
     {
-      title: "Unite 08: Reproductive Health and Development",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      title: "Unité 08 : Parasitologie et Mycologie",
       description:
-        "Explore reproductive systems and human development. This unit includes five modules: reproductive anatomy, fertility science, embryology, prenatal development, and reproductive health, providing a comprehensive understanding of human reproduction.",
+        "Étudiez les parasites, les helminthes et les champignons pathogènes. Comprenez les cycles de vie, les modes de transmission et les présentations cliniques pour affiner vos approches diagnostiques et thérapeutiques.",
       startColor: "#1D864C",
       endColor: "#F8589F",
       image: unit8,
@@ -99,9 +137,10 @@ const Units = () => {
       position: { right: "50px", bottom: "20px" },
     },
     {
-      title: "Unite 09: Mental Health and Behavioral Medicine",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      title: "Unité 09 : Pharmacologie",
       description:
-        "Understand psychiatric conditions and behavioral health. This unit includes five modules: psychopathology, therapeutic modalities, psychopharmacology, behavioral assessment, and clinical psychology, providing a comprehensive understanding of mental health care.",
+        "Examinez l'action des médicaments, la pharmacocinétique et les interactions. Développez vos compétences en prescription, surveillez les effets thérapeutiques et minimisez les réactions indésirables pour améliorer les soins aux patients.",
       startColor: "#8F56D6",
       endColor: "#F8589F",
       image: unit9,
@@ -113,7 +152,7 @@ const Units = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentUnit((prev) => (prev === unitsData.length - 1 ? 0 : prev + 1));
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -144,11 +183,27 @@ const Units = () => {
           </p>
           <div className="flex items-center gap-5 max-md:flex-col">
             <button className="flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500]">
-              Start Unite <Image src={play} alt="play" />
+              Commencer l'unité <Image src={play} alt="play" />
             </button>
-            <button className="text-[13px] text-[#FFFFFF] font-[500] leading-5 tracking-[0.14px] underline">
-              Quick Exam Simulation
-            </button>
+            <div className="relative">
+              <button
+                className="text-[13px] text-[#FFFFFF] font-[500] leading-5 tracking-[0.14px] underline"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                Simulation rapide d'examen
+              </button>
+              {showTooltip && (
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[#333] text-white text-xs rounded-md whitespace-nowrap shadow-lg z-10">
+                  <div className="relative">
+                    <span>
+                      Fonctionnalité à venir dans une prochaine mise à jour
+                    </span>
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#333]"></div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
       </AnimatePresence>

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../public/logoMyqcm.svg";
+import logo from "../../../public/logoMyqcm.png";
 import Link from "next/link";
 import { aside_links } from "@/data/data";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import settings from "../../../public/Aside/settings.svg";
@@ -12,13 +13,14 @@ import logout from "../../../public/Aside/logout.svg";
 import menu from "../../../public/Home/Menu.svg";
 import notification from "../../../public/Icons/notification.svg";
 import { X } from "lucide-react";
-import streak from "../../../public/Icons/streak.svg"; 
+import streak from "../../../public/Icons/streak.svg";
 import secureLocalStorage from "react-secure-storage";
 
 const Aside = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const path = usePathname();
   const afterDashboard = path.split("/dashboard/")[1] || "";
+  const router = useRouter();
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -26,7 +28,7 @@ const Aside = () => {
 
   const handleLogout = () => {
     secureLocalStorage.removeItem("token");
-    window.location.href = `/`;
+    router.push(`/`);
   };
 
   const isSettingsActive = afterDashboard.startsWith("settings");
@@ -40,7 +42,7 @@ const Aside = () => {
           </span>
           <div className="flex items-center gap-[2px]">
             <span className="text-[#191919] font-[500] text-[18px]">3</span>
-            <Image src={streak} alt="streak" className="w-[13px]" />
+            <Image src={streak} alt="série" className="w-[13px]" />
           </div>
         </div>
       ) : (
@@ -71,7 +73,7 @@ const Aside = () => {
         </div>
       </div>
       <ul
-        className={`flex flex-col mb-[40px] gap-4 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
+        className={`flex flex-col mb-40 gap-4 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
           isMenuOpen
             ? "max-md:opacity-100 max-md:translate-y-0"
             : "max-md:opacity-0 max-md:-translate-y-full max-md:pointer-events-none"
@@ -96,7 +98,7 @@ const Aside = () => {
               >
                 <Image
                   src={isActive ? item.hoverIcon : item.icon}
-                  alt="icon"
+                  alt="icône"
                   className="w-[17px] font-[500]"
                 />
                 <span
@@ -121,7 +123,7 @@ const Aside = () => {
           >
             <Image
               src={isSettingsActive ? Psettings : settings}
-              alt="settings"
+              alt="paramètres"
               className="w-[16px] font-[500]"
             />
             <span
@@ -129,7 +131,7 @@ const Aside = () => {
                 isSettingsActive ? "text-[#F8589F]" : ""
               }`}
             >
-              Settings
+              Paramètres
             </span>
           </Link>
         </li>
@@ -138,9 +140,13 @@ const Aside = () => {
             className="text-[#324054] flex items-center gap-4"
             onClick={handleLogout}
           >
-            <Image src={logout} alt="logout" className="w-[16px] font-[500]" />
+            <Image
+              src={logout}
+              alt="déconnexion"
+              className="w-[16px] font-[500]"
+            />
             <span className="text-[13.8px] font-[500] text-[#F64C4C]">
-              Logout
+              Déconnexion
             </span>
           </button>
         </li>
@@ -157,7 +163,7 @@ const Aside = () => {
           >
             <Image
               src={isSettingsActive ? Psettings : settings}
-              alt="settings"
+              alt="paramètres"
               className="w-[16px] font-[500]"
             />
             <span
@@ -165,7 +171,7 @@ const Aside = () => {
                 isSettingsActive ? "text-[#F8589F]" : ""
               }`}
             >
-              Settings
+              Paramètres
             </span>
           </Link>
         </div>
@@ -173,9 +179,13 @@ const Aside = () => {
           className={`rounded-r-[12px] py-[14px] w-[88%] max-md:rounded-[12px] text-[#324054] flex items-center gap-4`}
           onClick={handleLogout}
         >
-          <Image src={logout} alt="logout" className="w-[16px] font-[500]" />
+          <Image
+            src={logout}
+            alt="déconnexion"
+            className="w-[16px] font-[500]"
+          />
           <span className="text-[14.5px] font-[500] text-[#F64C4C]">
-            Logout
+            Déconnexion
           </span>
         </button>
       </div>

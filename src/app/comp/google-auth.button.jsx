@@ -3,7 +3,7 @@ import google from "../../../public/Icons/google.svg";
 
 const GoogleAuthButton = () => {
   const handleGoogleAuth = () => {
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/user/google/auth`;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/user/google`;
     window.location.href = url;
   };
 

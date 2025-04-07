@@ -12,18 +12,18 @@ const poppins = Poppins({
 export const metadata = {
   title: "MY QCM",
   description:
-    "Enhance your learning experience with adaptive MCQ’S designed to tailor each session to your individual needs, and intelligent tutoring systems that provide personalized feedback and guidance to help you understand complex concepts more effectively.",
+    "Enhance your learning experience with adaptive MCQ'S designed to tailor each session to your individual needs, and intelligent tutoring systems that provide personalized feedback and guidance to help you understand complex concepts more effectively.",
 };
 
-export default async function RootLayout({ children }) {
+export default function RootLayout({ children }) {
   return (
-    <ReactQueryProvider>
-      <html lang="fr">
-        <body className={`${poppins.className}`}>
+    <html lang="fr">
+      <body className={`${poppins.className}`}>
+        <ReactQueryProvider>
           <Toaster />
           {children}
-        </body>
-      </html>
-    </ReactQueryProvider>
+        </ReactQueryProvider>
+      </body>
+    </html>
   );
 }

@@ -1,35 +1,50 @@
 "use client";
-
 import { Area, AreaChart, CartesianGrid, Line } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 
-const chartData = [
-  { month: "January", volume1: 186, volume2: 120, volume3: 150 },
-  { month: "February", volume1: 305, volume2: 200, volume3: 250 },
-  { month: "March", volume1: 237, volume2: 150, volume3: 200 },
-  { month: "April", volume1: 73, volume2: 90, volume3: 100 },
-  { month: "May", volume1: 209, volume2: 180, volume3: 220 },
-  { month: "June", volume1: 214, volume2: 160, volume3: 210 },
-];
+const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
+  // Vérifier si les données sont vides ou non disponibles
+  if (!accuracy_trend || accuracy_trend.length === 0) {
+    return (
+      <div className="flex-1 accuracy">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+          Précision au cours du temps
+        </h3>
+        <div className="bg-[#FFFFFF] box rounded-[16px] h-[320px] flex items-center justify-center">
+          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+            <span className="text-[#F8589F] font-medium text-[18px]">
+              Aucune donnée pour l'instant
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-const chartConfig = {
-  volume1: {
-    color: "#F64C4C",
-  },
-  volume2: {
-    color: "#F8589F",
-  },
-  volume3: {
-    color: "#00FF00", 
-  },
-};
+  const chartData = accuracy_trend.map((item) => ({
+    month: new Date(item.date).toLocaleString("default", { month: "long" }),
+    volume1: Math.round(item.daily_accuracy * 100),
+    volume2: Math.round(item.daily_accuracy * 100),
+    volume3: 80, // Ligne de cible
+  }));
 
-const Accuracy_over_time = () => {
+  const chartConfig = {
+    volume1: {
+      color: "#F64C4C",
+    },
+    volume2: {
+      color: "#F8589F",
+    },
+    volume3: {
+      color: "#00FF00",
+    },
+  };
+
   return (
     <div className="flex-1 accuracy">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
-        Accuracy over time
+        Précision au cours du temps
       </h3>
       <div className="bg-[#FFFFFF] box overflow-hidden rounded-[16px] h-[320px]">
         <Card className="border-none shadow-none h-[280px]">
@@ -70,7 +85,7 @@ const Accuracy_over_time = () => {
                 />
                 <Area
                   dataKey="volume2"
-                  type="monotone" // More curved line
+                  type="monotone"
                   fill="url(#gradient1)"
                   fillOpacity={1}
                   stroke="#F8589F"
@@ -79,10 +94,10 @@ const Accuracy_over_time = () => {
                 />
                 <Line
                   dataKey="volume3"
-                  type="monotone" // More curved line
-                  stroke="#00FF00" // Color for the additional line
+                  type="monotone"
+                  stroke="#00FF00"
                   strokeWidth={2}
-                  dot={false} // Remove dots if needed
+                  dot={false}
                 />
               </AreaChart>
             </ChartContainer>
@@ -90,10 +105,10 @@ const Accuracy_over_time = () => {
         </Card>
         <div className="flex items-center justify-center gap-16 z-[50] mt-[8px]">
           <span className="block relative text-[#191919] font-[500] text-[13px] after:w-[8px] after:h-[8px] after:rounded-[50%] after:bg-[#F8589F] after:absolute after:left-[-12px] after:top-[50%] after:translate-y-[-50%]">
-            Your accuracy
+            Votre précision
           </span>
           <span className="block relative text-[#191919] font-[500] text-[13px] after:w-[8px] after:h-[8px] after:rounded-[50%] after:bg-[#F64C4C] after:absolute after:left-[-12px] after:top-[50%] after:translate-y-[-50%]">
-            Your average
+            Votre moyenne
           </span>
         </div>
       </div>
@@ -101,4 +116,4 @@ const Accuracy_over_time = () => {
   );
 };
 
-export default Accuracy_over_time;
+export default Précision_au_Cours_Du_Temps;

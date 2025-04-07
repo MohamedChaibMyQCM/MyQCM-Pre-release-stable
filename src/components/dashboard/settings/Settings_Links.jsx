@@ -7,11 +7,17 @@ const Settings_Links = () => {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard/settings", label: "Profile info" },
-    { href: "/dashboard/settings/change-password", label: "Change password" },
-    { href: "/dashboard/settings/upgrade-account", label: "Upgrade account" },
-    { href: "/dashboard/settings/question-bank", label: "Question bank" },
-    { href: "/dashboard/settings/notification", label: "Notification" },
+    { href: "/dashboard/settings", label: "Informations du profil" },
+    {
+      href: "/dashboard/settings/change-password",
+      label: "Changer le mot de passe",
+    },
+    {
+      href: "/dashboard/settings/upgrade-account",
+      label: "Mettre à niveau le compte",
+    },
+    { href: "/dashboard/settings/question-bank", label: "Banque de questions" },
+    { href: "/dashboard/settings/notification", label: "Notifications" },
   ];
 
   return (

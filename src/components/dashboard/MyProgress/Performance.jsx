@@ -8,18 +8,50 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  {
-    month: "january",
-    correct: 68,
-    incorrect: 32,
-    questions: 120,
-    growth: 3.4,
-  },
-];
+const Performance = ({ performance }) => {
+  if (!performance) {
+    return (
+      <div className="flex-1 performance">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+          Performance
+        </h3>
+        <div className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px] flex items-center justify-center">
+          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+            <span className="text-[#F8589F] font-medium text-[18px]">
+              Aucune donnée pour le moment
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-const Performance = () => {
-  const totalQuestions = chartData[0].questions;
+  const chartData = [
+    {
+      correct: performance.correct_mcqs || 0,
+      incorrect: performance.incorrect_mcqs || 0,
+      total: performance.total_attempted_mcqs || 0,
+      accuracy: performance.overall_accuracy || 0,
+      performanceBand: performance.performance_band || "poor",
+    },
+  ];
+
+  const getPerformanceColor = (band) => {
+    if (!band) return "#F64C4C";
+    switch (band.toLowerCase()) {
+      case "excellent":
+        return "#47B881";
+      case "good":
+        return "#FFAA60";
+      case "fair":
+        return "#FFAD0D";
+      case "poor":
+      default:
+        return "#F64C4C";
+    }
+  };
+
+  const performanceColor = getPerformanceColor(performance.performance_band);
 
   return (
     <div className="flex-1 performance">
@@ -62,13 +94,20 @@ const Performance = () => {
                             >
                               <div className="flex flex-col items-center justify-center h-full text-center">
                                 <span className="text-[30px] text-[#191919] font-bold">
-                                  {totalQuestions.toLocaleString()}
+                                  {chartData[0].total.toLocaleString()}
                                 </span>
                                 <span className="text-[#B5BEC6] text-[18px] font-[500] my-2 leading-tight">
-                                  Questions attempted
+                                  Questions tentées
                                 </span>
-                                <span className="inline-block text-[#47B881] px-[12px] py-[3px] rounded-[16px] text-[13px] font-[500] bg-[#E8F7F0] mt-1">
-                                  +{chartData[0].growth}% from last month
+                                <span
+                                  className="inline-block px-[12px] py-[3px] rounded-[16px] text-[13px] font-[500] mt-1"
+                                  style={{
+                                    color: performanceColor,
+                                    backgroundColor: `${performanceColor}20`,
+                                  }}
+                                >
+                                  {Math.round(chartData[0].accuracy)}% de
+                                  précision
                                 </span>
                               </div>
                             </foreignObject>
@@ -98,12 +137,12 @@ const Performance = () => {
             <div className="flex justify-between mt-14">
               <div className="flex items-center">
                 <span className="text-sm bg-[#FFEBEE] py-[3px] px-[16px] rounded-[16px] text-[#F64C4C] font-[500]">
-                  Incorrect answers
+                  Réponse incorrecte
                 </span>
               </div>
               <div className="flex items-center">
                 <span className="text-sm bg-[#FFF5FA] py-[3px] px-[16px] rounded-[16px] text-[#F8589F] font-[500]">
-                  Correct answers
+                  Réponse correcte
                 </span>
               </div>
             </div>

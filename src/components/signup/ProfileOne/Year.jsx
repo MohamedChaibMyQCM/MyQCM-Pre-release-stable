@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
-import year from "../../../../public/auth/year.svg";
+import yearIcon from "../../../../public/auth/year.svg";
 import Image from "next/image";
 import { CaretDown } from "phosphor-react";
 
@@ -7,14 +9,15 @@ const Year = ({ name, value, setFieldValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Array of objects with French labels and English IDs
   const years = [
-    "First Year",
-    "Second Year",
-    "Third Year",
-    "Fourth Year",
-    "Fifth Year",
-    "Sixth Year",
-    "Seventh Year",
+    { label: "Première année", value: "First Year" },
+    { label: "Deuxième année", value: "Second Year" },
+    { label: "Troisième année", value: "Third Year" },
+    { label: "Quatrième année", value: "Fourth Year" },
+    { label: "Cinquième année", value: "Fifth Year" },
+    { label: "Sixième année", value: "Sixth Year" },
+    { label: "Septième année", value: "Seventh Year" },
   ];
 
   useEffect(() => {
@@ -33,7 +36,7 @@ const Year = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label className="text-[#191919] text-[16px] font-[500]">
-        Year of study?
+        Année d'étude ?
       </label>
 
       <div
@@ -41,9 +44,11 @@ const Year = ({ name, value, setFieldValue }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3 w-full">
-          <Image src={year} alt="year" className="w-[18px]" />
+          <Image src={yearIcon} alt="année" className="w-[18px]" />
           <span className="truncate text-[14px]">
-            {value || "Indicate your current year of study"}
+            {value
+              ? years.find((opt) => opt.value === value)?.label
+              : "Indiquez votre année d'étude actuelle"}
           </span>
           <CaretDown
             size={20}
@@ -58,20 +63,20 @@ const Year = ({ name, value, setFieldValue }) => {
       {isOpen && (
         <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
           <ul>
-            {years.map((yearOption) => (
+            {years.map((option) => (
               <li
-                key={yearOption}
+                key={option.value}
                 className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
-                  value === yearOption
+                  value === option.value
                     ? "bg-[#FFE7F2] text-[#F8589F]"
                     : "text-[#191919]"
                 }`}
                 onClick={() => {
-                  setFieldValue(name, yearOption);
+                  setFieldValue(name, option.value);
                   setIsOpen(false);
                 }}
               >
-                {yearOption}
+                {option.label}
               </li>
             ))}
           </ul>

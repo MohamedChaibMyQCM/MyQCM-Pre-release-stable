@@ -5,29 +5,28 @@ import Image from "next/image";
 import play from "../../../../public/Icons/play.svg";
 import Link from "next/link";
 import { useState } from "react";
-import TrainingSeason from "./TrainingSeason"; // Import the TrainingSeason component
+import TrainingSeason from "./TrainingSeason";
 
 const Courses = ({ courses, subjectId }) => {
-  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
-  const [selectedCourseId, setSelectedCourseId] = useState(null); // State to store the selected course ID
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
 
-  // Function to handle the "play" button click
   const handlePlayClick = (courseId) => {
-    setSelectedCourseId(courseId); // Set the selected course ID
-    setShowPopup(true); // Show the popup
+    setSelectedCourseId(courseId);
+    setShowPopup(true);
   };
 
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%]">
       <div className="flex items-center justify-between mb-5">
         <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
-          Q/C per course
+          Q/C par cours
         </h3>
         <Link
-          href={`/dashboard/QuestionsBank/${subjectId}/QuestionPerCourse`}
+          href={`/dashboard/question-bank/${subjectId}/question-per-course`}
           className="text-[13px] font-medium text-[#F8589F] cursor-pointer"
         >
-          Voir Tout
+          Voir tout
         </Link>
       </div>
       <ul className="flex flex-col gap-4 ">
@@ -36,13 +35,13 @@ const Courses = ({ courses, subjectId }) => {
           : courses.slice(0, 6).map((item) => {
               return (
                 <li
-                  className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px]"
+                  className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] duration-200 hover:shadow-md"
                   key={item.id}
                 >
                   <div className="flex items-center gap-4 max-md:w-[80%]">
                     <Image
                       src={coursePerModule}
-                      alt="module"
+                      alt="cours"
                       className="w-[40px]"
                     />
                     <div className="flex flex-col gap-[2px]">
@@ -52,19 +51,17 @@ const Courses = ({ courses, subjectId }) => {
                           : item.name}
                       </span>
                       <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px]">
-                        UI1 - Cardiology •
+                        UI1 - Cardiologie •
                         <span className="text-[#F8589F]">
-                          {item.total_mcqs} Question
+                          {item.total} Question
                         </span>
                       </span>
                     </div>
                   </div>
                   <button onClick={() => handlePlayClick(item.id)}>
-                    {" "}
-                    {/* Pass the course ID to the handler */}
                     <Image
                       src={play}
-                      alt="play"
+                      alt="jouer"
                       className="max-md:w-[30px] w-[28px]"
                     />
                   </button>
@@ -74,10 +71,7 @@ const Courses = ({ courses, subjectId }) => {
       </ul>
 
       {showPopup && (
-        <TrainingSeason
-          setPopup={setShowPopup}
-          courseId={selectedCourseId}
-        />
+        <TrainingSeason setPopup={setShowPopup} courseId={selectedCourseId} />
       )}
     </div>
   );

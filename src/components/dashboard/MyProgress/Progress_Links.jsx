@@ -10,8 +10,8 @@ const Progress_Links = () => {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard/MyProgress", label: "Summary" },
-    { href: "/dashboard/MyProgress/progress", label: "Progress" },
+    { href: "/dashboard/progress", label: "Progression" },
+    { href: "/dashboard/progress/summary", label: "Résumé" },
   ];
 
   return (
@@ -37,11 +37,11 @@ const Progress_Links = () => {
       </ul>
       <div className="flex items-center gap-3 cursor-pointer">
         <div className="bg-[#FFFFFF] px-4 py-2 rounded-[20px]">
-          <Image src={calender} alt="calender" />
+          <Image src={calender} alt="calendrier" />
         </div>
 
         <div className="font-[500] text-[#191919] bg-[#FFFFFF] px-4 py-2 text-[14px] rounded-[20px]">
-          <span className="max-md:hidden">All modules</span>
+          <span className="max-md:hidden">Tous les modules</span>
           <SlidersHorizontal size={20} className="md:hidden" />
         </div>
       </div>

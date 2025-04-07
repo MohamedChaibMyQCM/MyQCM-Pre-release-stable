@@ -1,10 +1,8 @@
 import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
-import right from "../../../../public/Quiz/true.svg";
-import notRight from "../../../../public/Quiz/false.svg";
 import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
-import { data } from "autoprefixer";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { IoIosCheckmarkCircle } from "react-icons/io";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 const QuizExplanation = ({
   QuizData,
@@ -12,37 +10,49 @@ const QuizExplanation = ({
   type,
   selectedQuiz,
   length,
-  setSelectedQuiz,
-  setCheckAnswer,
-  setSelectedOptions,
-  setAnswer,
-  formik,
+  handleNextQuestion,
 }) => {
-  const handleNext = () => {
-    setSeeExplanation(false);
-    setCheckAnswer(true);
-    setSelectedQuiz((prevQuiz) => prevQuiz + 1);
-    setSelectedOptions([]);
-    setAnswer("");
-    formik.resetForm();
-  };
+  const handleNext = handleNextQuestion;
+
+  const resultData = QuizData?.data ? QuizData.data : QuizData;
 
   const getBackgroundColor = (ratio) => {
-    const res = ratio * 100;
+    const safeRatio = typeof ratio === "number" ? ratio : 0;
+    const res = safeRatio * 100;
     if (res >= 0 && res < 30) return "bg-red-600";
     if (res >= 30 && res < 70) return "bg-[#ECD14E]";
     return "bg-[#53DF83]";
   };
-  const bgColor = getBackgroundColor(QuizData.success_ratio);
+
+  const successRatio = resultData?.success_ratio ?? 0;
+  const responseOptions = resultData?.selected_options ?? [];
+  const correctOptionsData =
+    resultData?.options?.filter((opt) => opt.is_correct) ?? [];
+  const explanationText = resultData?.explanation;
+  const qroFeedback = resultData?.feedback;
+  const allMcqOptions = resultData?.options ?? [];
+
+  const userResponsesWithContent = responseOptions.map((resp) => {
+    // Match each selected option with its full content from allMcqOptions
+    const originalOption = allMcqOptions.find((opt) => opt.id === resp.id) || {
+      content: "Option content missing",
+    };
+    return {
+      ...resp,
+      content: originalOption.content,
+      is_correct: originalOption.is_correct,
+      id: originalOption.id,
+    };
+  });
+
+  const bgColor = getBackgroundColor(successRatio);
 
   return (
-    <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D]">
-      <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[60%] p-[26px] rounded-[16px]">
-        <div className="flex items-center justify-between">
-          <span className="font-Poppins font-semibold text-[#0C092A]">
-            {type == "qcm" || type == "qcs"
-              ? "Answer Explanation"
-              : "Answers Analyse"}
+    <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
+      <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide">
+        <div className="flex items-center justify-between sticky top-0 bg-white pb-2">
+          <span className="text-[19px] font-semibold text-[#191919]">
+            {type == "qcm" || type == "qcs" ? "Explanation" : "Answers Analyse"}
           </span>
           <Image
             src={exit}
@@ -51,121 +61,142 @@ const QuizExplanation = ({
             onClick={() => setSeeExplanation(false)}
           />
         </div>
-        <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
+        {/* 
+        <span className="block font-Poppins text-[#858494] text-[13px] font-medium sticky top-[60px] bg-white pb-2">
           QUESTION {selectedQuiz + 1} OF {length}
-        </span>
-        {type == "qcm" || type == "qcs" ? (
-          <>
-            <div className="flex flex-col gap-2">
-              <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-                YOUR FALSE ANSWER
-              </span>
-              <ul className="flex flex-col gap-3 w-[100%]  ">
-                {QuizData.selected_options
-                  .filter((item) => !item.is_correct)
-                  .map((item) => (
-                    <li
-                      key={item.id}
-                      className="border-[#FF6666] px-[16px] py-[8px] rounded-[12px] border text-[#FF6666] font-Poppins font-medium text-[14px] flex items-center justify-between"
-                    >
-                      <span>{item.content}</span>
-                      <Image src={notRight} alt="false response" />
-                    </li>
-                  ))}
-              </ul>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-                CORRECT ANSWER
-              </span>
-              <ul className=" flex flex-col gap-3 w-[100%] ">
-                {QuizData.selected_options
-                  .filter((item) => item.is_correct)
-                  .map((item) => (
-                    <li
-                      key={item.id}
-                      className="border-[#53DF83] bg-[#53DF83] px-[16px] py-[8px] rounded-[12px] border text-[#FFF] font-Poppins font-medium text-[14px] flex items-center justify-between"
-                    >
-                      <span>{item.content}</span>
-                      <Image src={right} alt="false response" />
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-              Accuracy of Your Answer
-            </span>
-            <div
-              className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
-            >
-              <div className="bg-[#FFFFFF] w-[50px] h-[50px] rounded-full flex items-center justify-center">
-                <span
-                  className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
-                >
-                  {QuizData.success_ratio * 100}%
+        </span> */}
+
+        <div className="flex flex-col gap-4 overflow-y-auto">
+          {type == "qcm" || type == "qcs" ? (
+            <>
+              {userResponsesWithContent.filter((item) => !item.is_correct)
+                .length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <span className="block text-[#191919] text-[15px] font-[500]">
+                    Your False Answers
+                  </span>
+                  <ul className="flex flex-col gap-3 w-[100%]">
+                    {userResponsesWithContent
+                      .filter((item) => !item.is_correct)
+                      .map((item) => (
+                        <li
+                          key={item.id}
+                          className="border-[#F64C4C] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#F64C4C] text-[14px] flex items-center justify-between"
+                        >
+                          <span
+                            dangerouslySetInnerHTML={{ __html: item.content }}
+                          ></span>
+                          <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 mt-2">
+                <span className="block text-[#191919] text-[15px] font-[500]">
+                  Correct Answers
                 </span>
+                <ul className="flex flex-col gap-3 w-[100%]">
+                  {correctOptionsData.length > 0 ? (
+                    correctOptionsData.map((item) => (
+                      <li
+                        key={item.id}
+                        className="border-[#47B881] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#47B881] text-[14px] flex items-center justify-between"
+                      >
+                        <span
+                          dangerouslySetInnerHTML={{ __html: item.content }}
+                        ></span>
+                        <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
+                      </li>
+                    ))
+                  ) : (
+                    <li className="block text-[#191919] text-[15px] font-[500]">
+                      Correct answer details not available.
+                    </li>
+                  )}
+                </ul>
               </div>
-              <span className="font-Poppins font-medium text-[14px] text-[#FFFFFF]">
-                Pourcentage of Accuracy of Your Answer:{" "}
-                {QuizData.success_ratio * 100}{" "}
+            </>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <span className="block text-[#191919] text-[15px] font-[500]">
+                Accuracy of Your Answer
               </span>
-              <Image
-                src={accuracyPic}
-                alt="accuracy img"
-                className="absolute top-[-8px] left-[-60px]"
+              <div
+                className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
+              >
+                <div className="bg-[#FFFFFF] w-[50px] h-[50px] rounded-full flex items-center justify-center flex-shrink-0">
+                  <span
+                    className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
+                  >
+                    {Math.round(successRatio * 100)}%
+                  </span>
+                </div>
+                <span className="block text-[#FFFFFF] text-[15px] font-[500]">
+                  Percentage of Accuracy of Your Answer:{" "}
+                  {Math.round(successRatio * 100)}%
+                </span>
+                <Image
+                  src={accuracyPic}
+                  alt="accuracy img"
+                  className="absolute top-[-8px] left-[-60px] w-[80px] hidden sm:block"
+                  width={80}
+                  height={80}
+                />
+              </div>
+            </div>
+          )}
+
+          {(explanationText || (type !== "qcm" && type !== "qcs" && false)) && (
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="block text-[#191919] text-[15px] font-[500]">
+                {type == "qcm" || type == "qcs"
+                  ? "Explanation"
+                  : "Explanation from MyQCM Experts"}
+              </span>
+              <div
+                className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
+                dangerouslySetInnerHTML={{
+                  __html: explanationText ?? "No explanation available.",
+                }}
               />
             </div>
-          </div>
-        )}
-        <div className="flex flex-col gap-2">
-          <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-            {type == "qcm" || type == "qcs"
-              ? "EXPLANATION"
-              : "Explanation of MyQCM Experts"}
-          </span>
-          <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            <div className="h-[100px] rounded-[14px] border-[1px] border-[#858494] px-[20px] py-[10px] overflow-y-scroll custom-scrool">
-              {QuizData.explanation ? QuizData.explanation : QuizData.answer}
+          )}
+
+          {type !== "qcm" && type !== "qcs" && qroFeedback && (
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="block text-[#191919] text-[15px] font-[500]">
+                Analysis from MyQCM AI Assistant
+              </span>
+              <div
+                className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto custom-scrollbar font-Poppins font-medium text-[#0C092A] text-[14px]"
+                dangerouslySetInnerHTML={{ __html: qroFeedback }}
+              />
             </div>
-          </p>
-        </div>
-        <div
-          className={`flex flex-col gap-2 ${
-            type == "qcm" || type == "qcs" ? "hidden" : "block"
-          }`}
-        >
-          <span className="block font-Poppins text-[#858494] text-[13px] font-medium">
-            Analysis of MyQCM AI assistent
-          </span>
-          <p className="font-Poppins font-medium text-[#0C092A] text-[14px]">
-            <div className="h-[100px] rounded-[14px] border-[1px] border-[#858494] px-[20px] py-[14px] overflow-y-scroll custom-scrool">
-              {QuizData.feedback}
-            </div>
-          </p>
-        </div>
-        <div
-          className={`flex items-center justify-between mt-[20px] ${
-            type == "qcm" || type == "qcs" ? "self-end" : ""
-          }`}
-        >
-          <span
-            className={`text-center font-Poppins pl-[100px] font-medium text-[11px] text-[#858494] max-md:hidden ${
-              type == "qcm" || type == "qcs" ? "hidden" : "block"
+          )}
+
+          <div
+            className={`flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 bg-white pt-4 ${
+              type == "qcm" || type == "qcs" ? "sm:self-end" : ""
             }`}
           >
-            This answer has been reviewed and confirmed correct by MyQCM Experts
-            using AI assistance. <br /> While no mistakes were found, please
-            note that AI models can occasionally make errors.
-          </span>
-          <button
-            className="self-end text-[14px] font-Poppins font-medium text-[#FFFFFF] bg-[#FF6EAF] w-fit py-[8px] px-[30px] rounded-[12px]"
-            onClick={handleNext}
-          >
-            Next
-          </button>
+            {type !== "qcm" && type !== "qcs" && (
+              <span
+                className={`text-center sm:text-left font-medium text-[11px] text-[#191919] flex-1`}
+              >
+                This answer has been reviewed and confirmed correct by MyQCM
+                Experts using AI assistance. While no mistakes were found,
+                please note that AI models can occasionally make errors.
+              </span>
+            )}
+            <button
+              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
+              onClick={handleNext}
+            >
+              Next question
+            </button>
+          </div>
         </div>
       </div>
     </div>

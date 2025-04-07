@@ -1,76 +1,120 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../../public/logoMyqcm.svg";
-import { useState } from "react";
+import logo from "../../../../public/logoMyqcm.png";
+import { useState, useEffect } from "react";
 import University from "../../../components/signup/ProfileOne/University";
 import Field from "../../../components/signup/ProfileOne/Field";
 import Year from "../../../components/signup/ProfileOne/Year";
 import CurrentUnit from "../../../components/signup/ProfileOne/CurrentUnit";
 import EndingDate from "../../../components/signup/ProfileOne/EndingDate";
 import LearningModeStep from "@/components/signup/LearningModeSelection";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
 import { useFormik } from "formik";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import secureLocalStorage from "react-secure-storage";
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState("SetProfileOne");
-  const [formData, setFormData] = useState({});
   const router = useRouter();
+  const [progress, setProgress] = useState(0);
+  const [selectedMode, setSelectedMode] = useState(null);
+
+  const formik = useFormik({
+    initialValues: {
+      university: "",
+      field: "",
+      year_of_study: "",
+      unit: "",
+      ending_date: "",
+      learning_mode: null,
+    },
+    onSubmit: (values) => {
+      if (currentStep === "SetProfileOne") {
+        setCurrentStep("SetProfileTwo");
+      } else {
+        handleFinalSubmit(values);
+      }
+    },
+  });
 
   const { mutate: setProfile } = useMutation({
-    mutationFn: (data) => BaseUrl.post("/user/profile", data),
+    mutationFn: (data) => {
+      const token = secureLocalStorage.getItem("token");
+      return BaseUrl.post(
+        "/user/profile",
+        {
+          study_field: data.field,
+          year_of_study: data.year_of_study,
+          unit: data.current_unit,
+          university: data.university,
+          ending_date: data.ending_date,
+          mode: data.learning_mode,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
     onSuccess: () => {
-      toast.success("Profile set successfully");
+      toast.success("Profil configuré avec succès");
       router.push("/dashboard");
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
-        : error?.response?.data?.message || "Set Profile Failed";
+        : error?.response?.data?.message ||
+          "Échec de la configuration du profil";
       toast.error(message);
     },
   });
 
-  const formik = useFormik({
-    initialValues: {
-      university: "",
-      faculty: "",
-      field: "",
-      year_of_study: "",
-      current_unit: "",
-      ending_date: "",
-    },
-    onSubmit: (values) => {
-      setFormData(values);
-      setCurrentStep("SetProfileTwo");
-    },
-  });
+  useEffect(() => {
+    const calculateProgress = () => {
+      const stepOneFieldsCount = 5;
+      const stepOneWeight = 65;
+      const stepTwoWeight = 35;
 
-  const calculateProgress = () => {
-    const stepOneFields = 6; // Total fields in Step 1
-    const stepTwoFields = 7; // Step 1 fields + learning_mode
-    const totalFields = stepTwoFields;
-    const currentValues =
-      currentStep === "SetProfileOne" ? formik.values : formData;
-    const filledFields = Object.values(currentValues).filter(
-      (value) => value
-    ).length;
+      if (currentStep === "SetProfileOne") {
+        const filledFieldsStepOne = Object.values(formik.values).filter(
+          (value, key) =>
+            key !== "learning_mode" && value && String(value).trim() !== ""
+        ).length;
+        const stepOneProgress =
+          (filledFieldsStepOne / stepOneFieldsCount) * stepOneWeight;
+        return Math.round(stepOneProgress);
+      } else {
+        const stepTwoProgress = formik.values.learning_mode ? stepTwoWeight : 0;
+        return stepOneWeight + stepTwoProgress;
+      }
+    };
+    setProgress(calculateProgress());
+  }, [formik.values, currentStep]);
 
-    if (currentStep === "SetProfileOne") {
-      return Math.round((filledFields / stepOneFields) * 50); // First step is 50% of total progress
-    } else {
-      return 50 + Math.round((filledFields / stepTwoFields) * 50); // Second step completes the remaining 50%
+  const handleFinalSubmit = (values) => {
+    if (!values.learning_mode) {
+      toast.error("Veuillez sélectionner un mode d'apprentissage.");
+      return;
     }
+    if (!values.field) {
+      toast.error("Veuillez sélectionner un domaine d'étude.");
+      return;
+    }
+    setProfile(values);
   };
 
-  const progress = calculateProgress();
+  const handleModeSelect = (modeId) => {
+    formik.setFieldValue("learning_mode", modeId);
+    setSelectedMode(modeId);
+  };
 
   return (
     <div
-      className={`bg-[#FFF] w-[100%] h-[100%] rounded-[16px] overflow-y-auto scrollbar-hide flex flex-col items-center justify-center ${
+      className={`bg-[#FFF] outline-none w-[100%] h-[100%] rounded-[16px] overflow-y-auto scrollbar-hide flex flex-col items-center justify-center max-xl:pt-[130px] max-md:pt-[0] ${
         currentStep === "SetProfileOne" ? "pb-[20px]" : "pb-[20px] pt-[140px]"
       }`}
     >
@@ -78,17 +122,17 @@ const Page = () => {
         <Image src={logo} alt="logo" className="w-[140px] mb-6" />
       </div>
 
-      <div className="w-full relative flex items-center justify-between mb-[24px] px-[40px]">
+      <div className="w-full relative flex items-center justify-between mb-[24px] px-[40px] max-md:px-[20px] max-md:gap-4">
         <div className="relative w-[420px] bg-[#F5F5F5] h-[18px] rounded-[16px] overflow-hidden">
           <div
             className="bg-[#F8589F] h-[18px] rounded-[16px] flex items-center justify-center font-medium text-[#FFF] text-[11px] transition-all duration-500 ease-in-out"
             style={{ width: `${progress}%` }}
           >
-            {progress > 20 && `${progress}% terminé`}
+            {progress >= 30 && `${progress}% terminé`}
           </div>
         </div>
         <span className="text-[#F8589F] border border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[6px] rounded-[12px] text-[14px]">
-          Setting up your profile
+          Configuration <span className="max-md:hidden">du profil</span>
         </span>
       </div>
 
@@ -118,6 +162,7 @@ const Page = () => {
                 name="current_unit"
                 value={formik.values.current_unit}
                 setFieldValue={formik.setFieldValue}
+                year_of_study={formik.values.year_of_study}
               />
               <EndingDate
                 name="ending_date"
@@ -137,9 +182,12 @@ const Page = () => {
         </form>
       ) : (
         <LearningModeStep
-          formData={formData}
-          onSubmit={setProfile}
-          onReturn={() => setCurrentStep("SetProfileOne")}
+          selectedMode={selectedMode}
+          onModeChange={handleModeSelect}
+          onSubmit={() => formik.handleSubmit()}
+          onReturn={() => {
+            setCurrentStep("SetProfileOne");
+          }}
         />
       )}
     </div>

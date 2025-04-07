@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logo from "../../public/logoMyqcm.svg";
+import logo from "../../public/logoMyqcm.png";
 
 const Loading = () => {
   return (

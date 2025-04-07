@@ -1,40 +1,97 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
+import FilterPopup from "./FilterPopup";
 import module from "../../../../public/Icons/module.svg";
 import filter from "../../../../public/Question_Bank/filter.svg";
-import Image from "next/image";
-import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "react-query";
-import Link from "next/link";
-import FilterPopup from "./FilterPopup";
+import secureLocalStorage from "react-secure-storage";
 
 const Categories = () => {
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState(""); 
-  const [filteredSubjects, setFilteredSubjects] = useState([]);
+  const [selectedUnitId, setSelectedUnitId] = useState("");
   const filterRef = useRef(null);
-  const selectContentRef = useRef(null); 
-  const [units, setUnits] = useState([
-    { id: "1", name: "Unit 1" },
-    { id: "2", name: "Unit 2" },
-    { id: "3", name: "Unit 3" },
-  ]);
+  const selectContentRef = useRef(null);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["subjects"],
+  const {
+    data: unitsData,
+    isLoading: isUnitsLoading,
+    error: unitsError,
+  } = useQuery({
+    queryKey: ["units"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/subject/user");
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get("/unit/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data?.data || [];
+      } catch (err) {
+        toast.error(
+          "Échec de la récupération des unités. Veuillez réessayer plus tard."
+        );
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    error: profileError,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data.data;
+    },
+    onError: (error) => {
+      console.error("Erreur lors du chargement du profil :", error);
+    },
+  });
+
+  const {
+    data: subjectsData = [],
+    isLoading: isSubjectsLoading,
+    isFetching: isSubjectsFetching,
+    error: subjectsError,
+    refetch: refetchSubjects,
+  } = useQuery({
+    queryKey: ["subjects", selectedUnitId],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      // Use selectedUnitId if available, otherwise fall back to profile unit
+      const unitId = selectedUnitId || profileData?.unit?.id;
+      if (!unitId) return [];
+
+      const response = await BaseUrl.get(`/subject/me?unit=${unitId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data?.data?.data || [];
+    },
+    enabled: !!profileData?.unit?.id || !!selectedUnitId,
+    onError: (error) => {
+      console.error("Erreur lors du chargement des matières :", error);
     },
   });
 
   useEffect(() => {
-    if (data) {
-      setFilteredSubjects(Array.isArray(data) ? data : []);
+    // Refetch subjects when selectedUnitId changes
+    if (selectedUnitId || profileData?.unit?.id) {
+      refetchSubjects();
     }
-  }, [data]);
+  }, [selectedUnitId, profileData?.unit?.id, refetchSubjects]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -54,31 +111,37 @@ const Categories = () => {
     };
   }, []);
 
-  const applyFilter = () => {
-    if (!selectedUnit || selectedUnit === "") {
-      setFilteredSubjects(Array.isArray(data) ? data : []);
-    } else {
-      const filtered = Array.isArray(data)
-        ? data.filter((subject, index) => index % parseInt(selectedUnit) === 0)
-        : [];
-      setFilteredSubjects(filtered);
-    }
-    setShowFilter(false);
-  };
-
   const resetFilter = () => {
-    setSelectedUnit(""); 
-    setFilteredSubjects(Array.isArray(data) ? data : []);
+    setSelectedUnitId("");
+    setShowFilter(false);
   };
 
   const closeFilter = () => {
     setShowFilter(false);
   };
 
-  if (isLoading) return <Loading />;
-  if (error) return <div>Error: {error.message}</div>;
+  const isInitialLoading =
+    isUnitsLoading || isSubjectsLoading || isProfileLoading;
+  const hasError = subjectsError || unitsError || profileError;
 
-  const subjects = Array.isArray(data) ? data : [];
+  if (isInitialLoading && !hasError) {
+    return <Loading />;
+  }
+
+  if (hasError) {
+    const errorMessage =
+      subjectsError?.message ||
+      unitsError?.message ||
+      profileError?.message ||
+      "Une erreur est survenue";
+    return (
+      <div className="px-[24px] mb-[24px]">
+        <div className="bg-white p-4 rounded-lg text-center text-red-500">
+          Erreur : {errorMessage}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-[24px] mb-[24px] max-md:px-[20px]">
@@ -91,43 +154,49 @@ const Categories = () => {
             className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer"
             onClick={() => setShowFilter(!showFilter)}
           >
-            <button className="text-[14px] font-[500]">Filter</button>
-            <Image src={filter} alt="filter" className="w-[13px]" />
+            <button className="text-[14px] font-[500]">Filtrer</button>
+            <Image src={filter} alt="filtre" className="w-[13px]" />
           </div>
           {showFilter && (
             <FilterPopup
-              selectedUnit={selectedUnit}
-              setSelectedUnit={setSelectedUnit}
-              applyFilter={applyFilter}
+              selectedUnit={selectedUnitId}
+              setSelectedUnit={setSelectedUnitId}
               resetFilter={resetFilter}
               closeFilter={closeFilter}
-              units={units}
-              selectContentRef={selectContentRef} 
+              units={unitsData || []}
+              selectContentRef={selectContentRef}
             />
           )}
         </div>
       </div>
-
-      <ul className="flex items-center flex-wrap gap-4 bg-[#FFF] p-5 rounded-[16px] box">
-        {filteredSubjects.length === 0 ? (
-          <div>No categories available.</div>
+      <ul
+        className={`flex items-center flex-wrap gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
+          isSubjectsFetching ? "opacity-75" : "opacity-100"
+        }`}
+      >
+        {subjectsData?.length === 0 ? (
+          <div className="w-full text-center text-[#666]">
+            {selectedUnitId
+              ? "Aucun résultat correspondant à votre filtre."
+              : "Aucune catégorie disponible."}
+          </div>
         ) : (
-          filteredSubjects.map((item) => (
+          subjectsData?.map((item) => (
             <li
               key={item.id}
               className="basis-[calc(25%-12px)] max-md:basis-[100%] max-xl:basis-[calc(50%-12px)] rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]"
             >
               <Link
-                href={`/dashboard/QuestionsBank/${item.id}`}
+                href={`/dashboard/question-bank/${item.id}`}
                 className="flex items-center h-[84px] gap-4 px-[20px] rounded-[20px] cursor-pointer w-full"
               >
-                <Image src={module} alt="module logo" />
+                <Image src={module} alt="logo du module" />
                 <div className="flex flex-col gap-1">
                   <span className="text-[#FFFFFF] font-Poppins font-semibold text-[14px]">
                     {item.name}
                   </span>
                   <span className="text-[#FFC9E1] font-Poppins font-extralight text-[12px]">
-                    {item.question_count} Question
+                    {item.total} Questions
                   </span>
                 </div>
               </Link>

@@ -1,13 +1,15 @@
+"use client";
+
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import timer from "../../../../public/Quiz/Timer.svg";
 import solver from "../../../../public/Quiz/solver.svg";
-import mind from "../../../../public/Quiz/mind.svg";
 import { Input } from "@/components/ui/input";
 import QuizExplanation from "./QuizExplanation";
 import { useFormik } from "formik";
 import { IoIosCheckmarkCircle } from "react-icons/io";
-import QuizResult from "./QuizResult";
+import { IoCloseCircleOutline } from "react-icons/io5";
+import SkipQuestionPopup from "./SkipQuestionPopup";
 
 const Quiz = ({
   data,
@@ -17,6 +19,8 @@ const Quiz = ({
   setData,
   setResult,
   setAnswer,
+  trainingSessionId,
+  handleSessionCompletion,
 }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
@@ -27,21 +31,26 @@ const Quiz = ({
   );
   const [submittedAnswer, setSubmittedAnswer] = useState(null);
   const [processedAnswers] = useState(new Set());
+  const [showSkipPopup, setShowSkipPopup] = useState(false);
   const timerRef = useRef(null);
 
-  console.log(answer);
-
   const handleOptionClick = (option) => {
+    if (submittedAnswer) return;
+
     setSelectedOptions((prevSelected) => {
-      const isAlreadySelected = prevSelected.some(
-        (selectedOption) => selectedOption.option === option.id
-      );
-      if (isAlreadySelected) {
-        return prevSelected.filter(
-          (selectedOption) => selectedOption.option !== option.id
-        );
+      if (data[selectedQuiz]?.type === "qcs") {
+        return [{ option: option.id }];
       } else {
-        return [...prevSelected, { option: option.id }];
+        const isAlreadySelected = prevSelected.some(
+          (selectedOption) => selectedOption.option === option.id
+        );
+        if (isAlreadySelected) {
+          return prevSelected.filter(
+            (selectedOption) => selectedOption.option !== option.id
+          );
+        } else {
+          return [...prevSelected, { option: option.id }];
+        }
       }
     });
   };
@@ -56,7 +65,6 @@ const Quiz = ({
       return "bg-[#FFFFFF]";
     }
   };
-  const bgColor = answer ? getBackgroundColor(answer.success_ratio) : "";
 
   const formik = useFormik({
     initialValues: {
@@ -66,7 +74,7 @@ const Quiz = ({
       time_spent: data[selectedQuiz]?.estimated_time,
     },
     onSubmit: async (values) => {
-      if (processedAnswers.has(data[selectedQuiz]?.id)) {
+      if (processedAnswers.has(data[selectedQuiz]?.id) || submittedAnswer) {
         return;
       }
 
@@ -76,36 +84,40 @@ const Quiz = ({
         return;
       }
 
-      let submissionData = {};
-      if (quizData.type === "qcm" || quizData.type === "qcs") {
-        submissionData = {
-          mcq: values.mcq,
-          response_options: values.response_options,
-          time_spent: quizData.estimated_time - timeRemaining,
-        };
-      } else {
-        submissionData = {
-          mcq: values.mcq,
-          response: values.response,
-          time_spent: quizData.estimated_time - timeRemaining,
-        };
-      }
+      const timeSpent = (quizData.estimated_time || 0) - timeRemaining;
 
       try {
-        const result = await Progress(submissionData);
-        setSubmittedAnswer(result);
+        const payload = {
+          mcq: values.mcq,
+          time_spent: timeSpent > 0 ? timeSpent : 0,
+        };
+
+        // Handle different question types appropriately
+        if (quizData.type === "qcm" || quizData.type === "qcs") {
+          payload.response_options = values.response_options;
+          payload.response = values.response;
+        } else {
+          // For QROC, ensure we have at least an empty array for response_options
+          payload.response_options = [];
+          payload.response = values.response;
+        }
+
+        const responseData = await Progress(payload);
+
+        setSubmittedAnswer(responseData);
         setCheckAnswer(false);
 
         if (!processedAnswers.has(quizData.id)) {
-          if (result.data.data.success_ratio === 1) {
+          const successRatio = responseData?.success_ratio;
+          if (successRatio === 1) {
             setData((prevData) => ({
               ...prevData,
-              mcqs_success: prevData.mcqs_success + 1,
+              mcqs_success: (prevData.mcqs_success || 0) + 1,
             }));
-          } else if (result.data.data.success_ratio < 1) {
+          } else if (successRatio === 0) {
             setData((prevData) => ({
               ...prevData,
-              mcqs_failed: prevData.mcqs_failed + 1,
+              mcqs_failed: (prevData.mcqs_failed || 0) + 1,
             }));
           }
           processedAnswers.add(quizData.id);
@@ -118,98 +130,206 @@ const Quiz = ({
 
   useEffect(() => {
     formik.setFieldValue("response_options", selectedOptions);
-    formik.setFieldValue("mcq", data[selectedQuiz]?.id);
-  }, [selectedOptions, data[selectedQuiz]?.id]);
+  }, [selectedOptions]);
 
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeRemaining((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timerRef.current);
-          handleSkipQuestion();
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
+    formik.setFieldValue("mcq", data[selectedQuiz]?.id);
+    formik.setFieldValue("response", "");
+    formik.setFieldValue("time_spent", data[selectedQuiz]?.estimated_time || 0);
+  }, [data, selectedQuiz]);
+
+  useEffect(() => {
+    clearInterval(timerRef.current);
+    const currentQuestionTime = data[selectedQuiz]?.estimated_time || 0;
+    setTimeRemaining(currentQuestionTime);
+
+    if (!submittedAnswer && !processedAnswers.has(data[selectedQuiz]?.id)) {
+      if (currentQuestionTime > 0) {
+        timerRef.current = setInterval(() => {
+          setTimeRemaining((prevTime) => {
+            if (prevTime <= 1) {
+              clearInterval(timerRef.current);
+              handleConfirmSkip(true);
+              return 0;
+            }
+            return prevTime - 1;
+          });
+        }, 1000);
+      } else {
+        setTimeRemaining(0);
+      }
+    } else {
+      if (submittedAnswer) {
+        // Timer stops
+      } else {
+        setTimeRemaining(0); // Skipped
+      }
+    }
 
     return () => clearInterval(timerRef.current);
-  }, [selectedQuiz]);
+  }, [selectedQuiz, data, submittedAnswer]);
 
-  useEffect(() => {
-    setTimeRemaining(data[selectedQuiz]?.estimated_time || 0);
-  }, [selectedQuiz]);
+  const triggerSkipPopup = () => {
+    if (!checkAnswer) return;
+    setShowSkipPopup(true);
+  };
 
-  const handleSkipQuestion = () => {
-    if (selectedQuiz >= data.length) {
+  const handleConfirmSkip = async (isTimeout = false) => {
+    clearInterval(timerRef.current);
+    if (
+      selectedQuiz >= data.length ||
+      processedAnswers.has(data[selectedQuiz]?.id)
+    ) {
+      setShowSkipPopup(false);
       return;
     }
-    setSelectedQuiz((prevQuiz) => prevQuiz + 1);
-    setSelectedOptions([]);
-    setSubmittedAnswer(null);
-    setData((prevData) => ({
-      ...prevData,
-      mcqs_skipped: prevData.mcqs_skipped + 1,
-    }));
-    formik.resetForm();
-  };
 
-  if (selectedQuiz >= data.length) {
-    return <QuizResult data={data1} setResult={setResult} />;
-  }
-
-  const getOptionBackgroundColor = (optionId) => {
-    if (!submittedAnswer) return "";
-    const selectedOption = submittedAnswer.data.data.selected_options.find(
-      (option) => option.id == optionId
-    );
-    if (selectedOption) {
-      return selectedOption.is_correct
-        ? "!bg-[#37FFB6] !text-[#FFF]"
-        : "!bg-[#FF3737] !text-[#FFF]";
+    if (!processedAnswers.has(data[selectedQuiz]?.id)) {
+      setData((prevData) => ({
+        ...prevData,
+        mcqs_skipped: (prevData.mcqs_skipped || 0) + 1,
+      }));
+      processedAnswers.add(data[selectedQuiz]?.id);
     }
-    return "";
+
+    setShowSkipPopup(false);
+
+    if (selectedQuiz < data.length - 1) {
+      setSelectedQuiz((prevQuiz) => prevQuiz + 1);
+      resetQuestionState();
+    } else {
+      await handleSessionCompletion();
+      setResult(true);
+    }
   };
 
-  const handleNextQuestion = () => {
-    setSelectedQuiz((prevQuiz) => prevQuiz + 1);
+  const handleCancelSkip = () => {
+    setShowSkipPopup(false);
+  };
+
+  const resetQuestionState = () => {
     setSelectedOptions([]);
     setSubmittedAnswer(null);
     setSeeExplanation(false);
     setCheckAnswer(true);
     setAnswer(null);
-    formik.resetForm();
+    formik.setFieldValue("response_options", []);
+    formik.setFieldValue("response", "");
   };
 
+  const handleNextQuestion = async () => {
+    if (selectedQuiz < data.length - 1) {
+      setSelectedQuiz((prev) => prev + 1);
+      resetQuestionState();
+    } else {
+      try {
+        await handleSessionCompletion();
+        setResult(true);
+      } catch (error) {
+        console.error("Error completing session:", error);
+      }
+      setSeeExplanation(false);
+    }
+  };
+
+  if (selectedQuiz >= data.length) {
+    return null;
+  }
+
+  const qroBgColorClass =
+    submittedAnswer && answer
+      ? getBackgroundColor(answer?.success_ratio)
+      : "bg-[#FFFFFF]";
+  const qroTextColorClass =
+    submittedAnswer && answer ? "text-[#FFFFFF]" : "text-[#49465F]";
+
+  const getOptionStyling = (optionId) => {
+    let classes = "";
+    const isSelectedByUser = selectedOptions.some(
+      (selected) => selected.option == optionId
+    );
+
+    if (submittedAnswer && answer) {
+      const selectedOptionData = answer.selected_options?.find(
+        (o) => o.id == optionId
+      );
+
+      if (selectedOptionData) {
+        if (selectedOptionData.is_correct) {
+          classes = "border-[#47B881] text-[#47B881]";
+        } else {
+          classes = "border-[#F64C4C] text-[#F64C4C]";
+        }
+        classes += " bg-white";
+      } else {
+        classes =
+          "border-[#EFEEFC] text-[#191919] bg-white pointer-events-none opacity-70";
+      }
+    } else {
+      if (isSelectedByUser) {
+        classes = "bg-[#FFF5FA] text-[#F8589F] border-[#F8589F]";
+      } else {
+        classes = "border-[#EFEEFC] text-[#191919] bg-white hover:bg-gray-50";
+      }
+      classes += " cursor-pointer";
+    }
+    return classes;
+  };
+
+  const getOptionIcon = (optionId) => {
+    if (!submittedAnswer || !answer) return null;
+
+    const selectedOptionData = answer.selected_options?.find(
+      (o) => o.id == optionId
+    );
+
+    if (selectedOptionData) {
+      if (selectedOptionData.is_correct) {
+        return (
+          <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
+        );
+      } else {
+        return (
+          <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
+        );
+      }
+    }
+    return null;
+  };
+
+  if (!data || selectedQuiz >= data.length) {
+    return <div>Loading question...</div>;
+  }
+
   return (
-    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] max-md:">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] z-[50] overflow-y-auto scrollbar-hide">
+      <div className="flex items-center justify-between flex-wrap gap-y-2 ">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="bg-[#FF6EAF] flex items-center gap-2 rounded-[8px] px-[16px] py-[7px]">
             <Image src={solver} alt="solver" className="w-[20px]" />
             <span className="text-[13px] text-[#FFFFFF]">
-              Type :{" "}
-              <span className="uppercase">{data[selectedQuiz].type}</span>
+              Type:{" "}
+              <span className="uppercase">{data[selectedQuiz]?.type}</span>
             </span>
           </div>
           <div className="relative w-[160px] h-[7px] bg-[#85849436] rounded-[20px] overflow-hidden max-md:hidden">
             <div
               className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-500 ease-in-out"
               style={{
-                width: `${((selectedQuiz + 1) / data.length) * 100}%`,
+                width: `${((selectedQuiz + 1) / (data.length || 1)) * 100}%`,
               }}
             ></div>
           </div>
           <span
             className={`px-[18px] py-[7px] rounded-[8px] text-[#FFFFFF] text-[14px] max-md:hidden ${
-              data[selectedQuiz].difficulty == "easy"
+              data[selectedQuiz]?.difficulty === "easy"
                 ? "bg-[#47B881]"
-                : data[selectedQuiz].difficulty == "medium"
+                : data[selectedQuiz]?.difficulty === "medium"
                 ? "bg-[#FFAA60]"
                 : "bg-[#F64C4C]"
             }`}
           >
-            {data[selectedQuiz].difficulty}
+            {data[selectedQuiz]?.difficulty}
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -222,70 +342,92 @@ const Quiz = ({
           <Image src={timer} alt="timer" className="w-[24px] max-md:hidden" />
         </div>
       </div>
-      <div className="flex gap-8 justify-between">
-        <div>
+
+      <div className="flex gap-8 justify-between flex-col lg:flex-row">
+        <div className="flex-1">
           <span className="block font-Poppins text-[#666666] text-[13px] font-medium mb-2">
             QUESTION{" "}
             <span className="text-[#F8589F]">
-              {selectedQuiz + 1}/{data.length}
+              {selectedQuiz + 1}/{data.length || 1}{" "}
             </span>
           </span>
-          <p className="font-Poppins text-[#191919] font-medium">
-            {data[selectedQuiz].question}
-          </p>
-        </div>
-        {data[selectedQuiz].attachment && (
-          <Image
-            src={data[selectedQuiz].attachment}
-            alt="quiz image"
-            className="w-[360px]"
-            width={360}
-            height={240}
+          <div
+            className="font-Poppins text-[#191919] font-medium prose max-w-none"
+            dangerouslySetInnerHTML={{
+              __html: data[selectedQuiz]?.question || "",
+            }}
           />
+        </div>
+        {data[selectedQuiz]?.attachment && (
+          <div className="lg:w-[360px] flex-shrink-0">
+            <Image
+              src={data[selectedQuiz]?.attachment}
+              alt="Quiz attachment"
+              className="w-full h-auto object-contain rounded"
+              width={360}
+              height={240}
+              priority={selectedQuiz < 2}
+            />
+          </div>
         )}
       </div>
+
       <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
-        <ul className="flex flex-col gap-4">
-          {data[selectedQuiz].type === "qcm" ||
-          data[selectedQuiz].type === "qcs" ? (
-            data[selectedQuiz].options.map((item, index) => {
-              const isSelected = selectedOptions.some(
-                (selectedOption) => selectedOption.option == item.id
-              );
-              const optionBgColor = getOptionBackgroundColor(item.id);
+        {data[selectedQuiz]?.type === "qcm" ||
+        data[selectedQuiz]?.type === "qcs" ? (
+          <ul className="flex flex-col gap-4">
+            {data[selectedQuiz]?.options.map((item) => {
+              const styling = getOptionStyling(item.id);
+              const icon = getOptionIcon(item.id);
+
               return (
                 <li
-                  key={index}
-                  className={`text-[14px] flex items-center gap-2 font-Poppins font-semibold text-[#0C092A] border border-[#EFEEFC] rounded-[16px] px-[20px] py-[8px] cursor-pointer ${
-                    isSelected ? "bg-[#FFF5FA] text-[#0C092A]" : ""
-                  } ${optionBgColor}`}
+                  key={item.id}
+                  className={`text-[14px] flex items-center justify-between gap-2 font-Poppins font-medium border rounded-[16px] px-[20px] py-[8px] transition-colors duration-150 ${styling}`}
                   onClick={() => handleOptionClick(item)}
                 >
-                  {isSelected && <IoIosCheckmarkCircle className="w-[20px]" />}
-                  <span className="text-[14px]">{item.content}</span>
+                  <span
+                    className={`text-[14px] flex-1`}
+                    dangerouslySetInnerHTML={{ __html: item.content || "" }}
+                  />
+                  {icon}
                 </li>
               );
-            })
-          ) : (
+            })}
+          </ul>
+        ) : (
+          <div className="relative">
             <Input
               name="response"
-              className={`font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] ${
-                bgColor
-                  ? `${bgColor} text-[#FFFFFF]`
-                  : "text-[#49465F] border-[1.6px] border-[#EFEEFC]"
-              }`}
+              className={`font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] border-[1.6px] ${
+                submittedAnswer && answer
+                  ? answer.success_ratio === 1
+                    ? "border-green-600 text-green-600"
+                    : "border-red-600 text-red-600"
+                  : "border-[#EFEEFC] text-[#49465F]"
+              } bg-white`}
               placeholder="Write Your Answer"
               value={formik.values.response}
               onChange={formik.handleChange}
+              disabled={!!submittedAnswer}
             />
-          )}
-        </ul>
+            {submittedAnswer && answer && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                {answer.success_ratio === 1 ? (
+                  <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-green-600" />
+                ) : (
+                  <IoCloseCircleOutline className="w-[20px] h-[20px] text-red-600" />
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="self-end flex items-center gap-4 mt-3">
           <button
             type="button"
-            onClick={handleSkipQuestion}
-            className=" text-[#F8589F] font-[500] text-[13px]"
+            onClick={triggerSkipPopup}
+            className=" text-[#F8589F] font-[500] text-[13px] disabled:text-gray-400 disabled:cursor-not-allowed"
             disabled={!checkAnswer}
           >
             Skip Question
@@ -293,43 +435,51 @@ const Quiz = ({
           {checkAnswer ? (
             <button
               type="submit"
-              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px]"
+              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={
+                (data[selectedQuiz]?.type === "qcm" ||
+                  data[selectedQuiz]?.type === "qcs") &&
+                selectedOptions.length === 0
+                  ? true
+                  : data[selectedQuiz]?.type !== "qcm" &&
+                    data[selectedQuiz]?.type !== "qcs" &&
+                    !formik.values.response?.trim()
+                  ? true
+                  : false
+              }
             >
               Check Answer
             </button>
           ) : (
             <button
-              onClick={() => {
-                setSeeExplanation(true);
-                setCheckAnswer(true);
-              }}
-              className="bg-[#FF6EAF] text-[#FFFFFF] font-Poppins font-medium text-[13px] px-[16px] py-[10px] rounded-[14px]"
+              type="button"
+              onClick={() => setSeeExplanation(true)}
+              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
             >
-              {data[selectedQuiz].type == "qcm" ||
-              data[selectedQuiz].type == "qcs"
+              {data[selectedQuiz]?.type === "qcm" ||
+              data[selectedQuiz]?.type === "qcs"
                 ? "See Explanation"
                 : "See Analyse"}
             </button>
           )}
         </div>
       </form>
-      <Image
-        src={mind}
-        alt="mind"
-        className="absolute right-[-67px] top-12 w-[120px] z-[-1]"
-      />
-      {seeExplanation && (
+
+      {showSkipPopup && (
+        <SkipQuestionPopup
+          onConfirmSkip={handleConfirmSkip}
+          onCancelSkip={handleCancelSkip}
+        />
+      )}
+
+      {seeExplanation && submittedAnswer && answer && (
         <QuizExplanation
-          selectedQuiz={selectedQuiz}
-          setSelectedQuiz={setSelectedQuiz}
-          QuizData={answer || []}
+          QuizData={submittedAnswer}
           setSeeExplanation={setSeeExplanation}
-          type={data[selectedQuiz].type}
+          handleNextQuestion={handleNextQuestion}
+          type={data[selectedQuiz]?.type}
+          selectedQuiz={selectedQuiz}
           length={data.length}
-          setCheckAnswer={setCheckAnswer}
-          setSelectedOptions={setSelectedOptions}
-          setAnswer={setAnswer}
-          formik={formik}
         />
       )}
     </div>

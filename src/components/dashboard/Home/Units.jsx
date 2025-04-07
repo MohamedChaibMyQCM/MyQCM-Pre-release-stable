@@ -17,8 +17,10 @@ import { useQuery } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const Units = () => {
+  const router = useRouter();
   const [currentUnit, setCurrentUnit] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -49,7 +51,7 @@ const Units = () => {
 
   const unitsData = [
     {
-      id: "08d2c45d-288c-468b-a12c-687420f4e4f8",
+      id: "08d2c45d-288c-468b-a12c-687420f4e4f8", // Unit 1
       title: "Unité 01 : Cardio-respiratoire et Psychologie Médicale",
       description:
         "Explorez la relation entre les systèmes cardiovasculaire et respiratoire ainsi que les aspects psychologiques des soins médicaux. Cette unité comprend cinq modules : sémiologie, physiopathologie, radiologie, biochimie et psychologie médicale, offrant une compréhension complète de leur impact sur la santé et le traitement des patients.",
@@ -60,7 +62,7 @@ const Units = () => {
       position: { right: "2px", bottom: "-40px" },
     },
     {
-      id: "22b66563-bd6d-404d-a4a2-f2061b0b751d",
+      id: "22b66563-bd6d-404d-a4a2-f2061b0b751d", // Unit 2
       title: "Unité 02 : Neurologie et Fonction Cognitive",
       description:
         "Plongez dans l'évaluation neurologique, les voies motrices et sensorielles, ainsi que les constatations dermatologiques de base. Reconnaissez les signes de lésions, les troubles du mouvement et les pathologies cutanées pour une compréhension clinique approfondie.",
@@ -71,7 +73,7 @@ const Units = () => {
       position: { right: "40px", bottom: "-20px" },
     },
     {
-      id: "bc602e71-b043-47d2-b2e5-b8f59252b12a",
+      id: "bc602e71-b043-47d2-b2e5-b8f59252b12a", // Unit 3
       title: "Unité 03 : Systèmes Endocrinien, Reproducteur et Urinaire",
       description:
         "Examinez la régulation hormonale, la physiologie reproductive et la fonction rénale. Étudiez les troubles endocriniens courants, les problèmes de fertilité et les pathologies urinaires pour maîtriser les principes fondamentaux du diagnostic et de la prise en charge.",
@@ -82,7 +84,7 @@ const Units = () => {
       position: { right: "60px", bottom: "-5px" },
     },
     {
-      id: "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f",
+      id: "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f", // Unit 4
       title: "Unité 04 : Systèmes Digestif et Hématopoïétique",
       description:
         "Étudiez l'anatomie et la fonction gastro-intestinale ainsi que la formation des cellules sanguines. Identifiez les troubles digestifs fréquents et les conditions hématologiques pour améliorer vos compétences diagnostiques et les résultats des patients.",
@@ -93,7 +95,7 @@ const Units = () => {
       position: { right: "40px", bottom: "-15px" },
     },
     {
-      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b", // Unit 5
       title: "Unité 05 : Anatomie et Cytopathologie",
       description:
         "Apprenez les processus pathologiques au niveau cellulaire et tissulaire, en vous concentrant sur les changements morphologiques. Maîtrisez l'identification des lésions et les bases de la pathologie pour une compréhension approfondie des mécanismes de la maladie.",
@@ -104,7 +106,7 @@ const Units = () => {
       position: { right: "30px", bottom: "3px" },
     },
     {
-      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b", // Unit 6
       title: "Unité 06 : Immunologie",
       description:
         "Découvrez les mécanismes de défense de l'organisme, y compris les interactions antigène-anticorps, l'hypersensibilité et les immunodéficiences. Obtenez une vision claire des réponses immunitaires en santé, en maladie et dans les thérapies ciblées.",
@@ -115,7 +117,7 @@ const Units = () => {
       position: { right: "40px", bottom: "25px" },
     },
     {
-      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b", // Unit 7
       title: "Unité 07 : Microbiologie",
       description:
         "Explorez les pathogènes bactériens, viraux et fongiques. Comprenez la structure microbienne, la croissance et les diagnostics pour reconnaître les maladies infectieuses et orienter efficacement la prévention ou le traitement.",
@@ -126,7 +128,7 @@ const Units = () => {
       position: { right: "50px", bottom: "10px" },
     },
     {
-      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b", // Unit 8
       title: "Unité 08 : Parasitologie et Mycologie",
       description:
         "Étudiez les parasites, les helminthes et les champignons pathogènes. Comprenez les cycles de vie, les modes de transmission et les présentations cliniques pour affiner vos approches diagnostiques et thérapeutiques.",
@@ -137,7 +139,7 @@ const Units = () => {
       position: { right: "50px", bottom: "20px" },
     },
     {
-      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b",
+      id: "9b8c9609-2253-4862-9df3-c43892dd5c7b", // Unit 9
       title: "Unité 09 : Pharmacologie",
       description:
         "Examinez l'action des médicaments, la pharmacocinétique et les interactions. Développez vos compétences en prescription, surveillez les effets thérapeutiques et minimisez les réactions indésirables pour améliorer les soins aux patients.",
@@ -155,6 +157,18 @@ const Units = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleStartUnit = (unitId) => {
+    const unitNumber = unitsData.findIndex((unit) => unit.id === unitId) + 1;
+
+    if (unitNumber >= 5 && unitNumber <= 9) {
+      // For units 5-9, redirect to /dashboard/question-bank/unitId
+      router.push(`/dashboard/question-bank/${unitId}`);
+    } else if (unitNumber >= 1 && unitNumber <= 4) {
+      // For units 1-4, redirect to /dashboard/question-bank?unitId=unitId
+      router.push(`/dashboard/question-bank?unitId=${unitId}`);
+    }
+  };
 
   const currentUnitData = unitsData[currentUnit];
   const gradientStyle = {
@@ -182,8 +196,11 @@ const Units = () => {
             {currentUnitData.description.slice(0, 200)}...
           </p>
           <div className="flex items-center gap-5 max-md:flex-col">
-            <button className="flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500]">
-              Commencer l'unité <Image src={play} alt="play" />
+            <button
+              className="flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500]"
+              onClick={() => handleStartUnit(currentUnitData.id)}
+            >
+              Commencer l&apos;unité <Image src={play} alt="play" />
             </button>
             <div className="relative">
               <button
@@ -191,7 +208,7 @@ const Units = () => {
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
-                Simulation rapide d'examen
+                Simulation rapide d&apos;examen
               </button>
               {showTooltip && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[#333] text-white text-xs rounded-md whitespace-nowrap shadow-lg z-10">

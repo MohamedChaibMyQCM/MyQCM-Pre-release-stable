@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading";
 
-const EmailVerificationPage = () => {
+function EmailVerificationContent() {
   const router = useRouter();
-  const token = useSearchParams().get("token");
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const isVerifying = useRef(false);
 
   useEffect(() => {
     if (!token) {
-      toast.error("Invalid verification link. Please check your email.");
+      toast.error("Lien de vérification invalide");
       router.push("/signup");
       return;
     }
@@ -27,16 +29,18 @@ const EmailVerificationPage = () => {
         });
 
         if (response.data.status === 201) {
-          toast.success("Email verified successfully!");
+          toast.success("Email vérifié avec succès !");
           router.push("/signup/setProfile");
         } else {
-          toast.error(response.data.message || "Email verification failed");
+          toast.error(
+            response.data.message || "Échec de la vérification d'email"
+          );
           router.push("/signup");
         }
       } catch (error) {
         toast.error(
           error.response?.data?.message ||
-            "An error occurred during verification"
+            "Une erreur est survenue lors de la vérification"
         );
         router.push("/signup");
       } finally {
@@ -48,6 +52,14 @@ const EmailVerificationPage = () => {
   }, [token, router]);
 
   return null;
-};
+}
 
-export default EmailVerificationPage;
+export default function EmailVerificationPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <EmailVerificationContent />
+    </Suspense>
+  );
+}
+
+export const dynamic = "force-dynamic";

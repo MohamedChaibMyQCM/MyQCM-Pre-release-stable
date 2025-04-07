@@ -63,7 +63,7 @@ const UniversitySettings = ({ userData }) => {
           </li>
           <li className="flex flex-col gap-2 basis-[44.45%]">
             <span className="text-[#F8589F] text-[14px] font-[500]">
-              Année d'étude
+              Année d&apos;étude
             </span>
             {isEditing ? (
               <input
@@ -103,7 +103,7 @@ const UniversitySettings = ({ userData }) => {
           </li>
           <li className="flex flex-col gap-2 basis-[44.45%]">
             <span className="text-[#F8589F] text-[14px] font-[500]">
-              Domaine d'étude
+              Domaine d&apos;étude
             </span>
             {isEditing ? (
               <input

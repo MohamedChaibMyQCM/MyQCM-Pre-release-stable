@@ -43,7 +43,7 @@ const Study_time = () => {
   return (
     <div className="flex-1 study_time">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
-        Temps d'étude
+        Temps d&apos;étude
       </h3>
       <div className="bg-[#FFFFFF] rounded-[16px] box">
         <ComposedChart

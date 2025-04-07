@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
@@ -13,10 +14,21 @@ import filter from "../../../../public/Question_Bank/filter.svg";
 import secureLocalStorage from "react-secure-storage";
 
 const Categories = () => {
+  const searchParams = useSearchParams();
   const [showFilter, setShowFilter] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState("");
   const filterRef = useRef(null);
   const selectContentRef = useRef(null);
+
+  // Check for unitId in URL query params on component mount
+  useEffect(() => {
+    const unitId = searchParams.get("unitId");
+    console.log(unitId);
+    
+    if (unitId) {
+      setSelectedUnitId(unitId);
+    }
+  }, [searchParams]);
 
   const {
     data: unitsData,
@@ -154,7 +166,9 @@ const Categories = () => {
             className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer"
             onClick={() => setShowFilter(!showFilter)}
           >
-            <button className="text-[14px] font-[500]">Filtrer</button>
+            <button className="text-[14px] font-[500]">
+              {selectedUnitId ? "Filtre actif" : "Filtrer"}
+            </button>
             <Image src={filter} alt="filtre" className="w-[13px]" />
           </div>
           {showFilter && (

@@ -80,10 +80,10 @@ const ActivationCardPage = () => {
     <div className="px-4 py-8 space-y-8">
       <div className="flex flex-col bg-white rounded-[16px] p-6 box">
         <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
-          Code de la carte d'activation
+          Code de la carte d&apos;activation
         </h3>
         <p className="text-[#666666] mb-6 text-[13px]">
-          Entrez votre code d'activation pour débloquer les fonctionnalités
+          Entrez votre code d&apos;activation pour débloquer les fonctionnalités
           premium. Assurez-vous que le code est valide et non utilisé. En cas de
           problème, contactez le support.
         </p>
@@ -93,7 +93,7 @@ const ActivationCardPage = () => {
               htmlFor="activationCode"
               className="block text-[15px] text-[#FD2E8A] mb-[6px]"
             >
-              Code de la carte d'activation
+              Code de la carte d&apos;activation
             </label>
             <input
               id="activationCode"
@@ -124,12 +124,12 @@ const ActivationCardPage = () => {
 
       <div className="bg-white rounded-[16px] p-6 box">
         <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
-          Achat de cartes d'activation
+          Achat de cartes d&apos;activation
         </h3>
         <p className="text-[#666666] mb-6 text-[13px]">
-          Vous n'avez pas encore de carte d'activation ? Vous pouvez acheter des
-          cartes premium auprès de l'un de nos partenaires agréés MyQCM
-          Copyfacs.
+          Vous n&apos;avez pas encore de carte d&apos;activation ? Vous pouvez
+          acheter des cartes premium auprès de l&apos;un de nos partenaires
+          agréés MyQCM Copyfacs.
         </p>
 
         <span className="text-[#F8589F]">

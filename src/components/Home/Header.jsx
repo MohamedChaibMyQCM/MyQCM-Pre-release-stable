@@ -60,7 +60,7 @@ const Header = () => {
           href={`/signup`}
           className="bg-[#F8589FCC] py-[8px] font-[500] flex gap-3 items-center px-[20px] text-[14px] text-[#FFFFFF] rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] hover:from-[#FD2E8A] hover:to-[#F8589F] transition-all duration-300 hover:shadow-lg hover:shadow-pink-200 hover:scale-[1.02] active:scale-95"
         >
-          S'inscrire{" "}
+          S&apos;inscrire{" "}
           <Image
             src={signup}
             alt="Icône d'inscription"

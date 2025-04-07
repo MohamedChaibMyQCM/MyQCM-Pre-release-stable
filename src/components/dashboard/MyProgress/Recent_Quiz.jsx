@@ -14,7 +14,7 @@ const Recent_Quiz = ({ recent_quizzes }) => {
         <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide flex items-center justify-center">
           <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
-              Aucune donnée disponible pour l'instant
+              Aucune donnée disponible pour l&apos;instant
             </span>
           </div>
         </div>
@@ -85,8 +85,8 @@ const Recent_Quiz = ({ recent_quizzes }) => {
           </span>
           {weekOverWeekChange > 0 ? (
             <span className="text-[13px] text-[#47B881] bg-[#E5F5EC] rounded-[12px] px-[10px] py-[2px]">
-              +{weekOverWeekChange}% d'augmentation par rapport à la semaine
-              dernière
+              +{weekOverWeekChange}% d&apos;augmentation par rapport à la
+              semaine dernière
             </span>
           ) : (
             <span className="text-[13px] text-[#F64C4C] bg-[#FFEBEE] rounded-[12px] px-[10px] py-[2px]">

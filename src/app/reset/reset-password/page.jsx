@@ -1,17 +1,19 @@
 "use client";
 
+import { Suspense } from "react";
 import Image from "next/image";
 import logo from "../../../../public/logoMyqcm.png";
 import lock from "../../../../public/auth/password.svg";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CaretLeft, Eye, EyeSlash } from "phosphor-react";
 import Link from "next/link";
+import Loading from "@/components/Loading";
 
-const Page = () => {
+function PasswordResetContent() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -22,19 +24,11 @@ const Page = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  // Redirection si pas de token
-  useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      toast.error("Lien de réinitialisation invalide");
-    }
-  }, [token, router]);
-
   const { mutate: changePassword } = useMutation({
     mutationFn: (data) =>
       BaseUrl.post("/auth/user/forgot-password/reset", data),
     onSuccess: () => {
-      router.push(`/login`);
+      router.push("/login");
       toast.success("Mot de passe réinitialisé avec succès");
     },
     onError: (error) => {
@@ -48,11 +42,9 @@ const Page = () => {
 
   const validatePassword = (password) => {
     const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!strongPasswordRegex.test(password)) {
-      setPasswordError(
-        "Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial"
-      );
+      setPasswordError("8+ caractères, majuscule, minuscule et chiffre");
     } else {
       setPasswordError("");
     }
@@ -85,20 +77,17 @@ const Page = () => {
       return;
     }
 
-    const data = { token, password: newPassword };
-    changePassword(data);
+    changePassword({ token, password: newPassword });
   };
 
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   return (
     <div className="bg-[#FFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
       <Image src={logo} alt="logo" className="w-[140px] mb-6" />
 
       <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto max-md:pl-3">
-        <Link href={`/login`} className="flex items-center gap-1">
+        <Link href="/login" className="flex items-center gap-1">
           <CaretLeft size={16} className="text-[#F8589F]" />
           <span className="text-[15px] font-[500] text-[#F8589F]">Retour</span>
         </Link>
@@ -110,8 +99,6 @@ const Page = () => {
         </h2>
         <p className="text-[#666666] text-[13px] mt-2">
           Choisissez un mot de passe fort pour sécuriser votre compte.
-          Assurez-vous qu'il est unique, difficile à deviner et facile à
-          retenir.
         </p>
       </div>
 
@@ -202,6 +189,14 @@ const Page = () => {
       </form>
     </div>
   );
-};
+}
 
-export default Page;
+export default function PasswordResetPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <PasswordResetContent />
+    </Suspense>
+  );
+}
+
+export const dynamic = "force-dynamic";

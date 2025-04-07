@@ -85,7 +85,7 @@ const Choose_plan = () => {
             <p className="text-[#4F4D55] text-[14px] mb-6">
               La fonctionnalité de paiement par El Dhahabia sera disponible dans
               la prochaine mise à jour. Veuillez vérifier ultérieurement ou
-              utiliser l'option Carte d'activation pour le moment.
+              utiliser l&apos;option Carte d&apos;activation pour le moment.
             </p>
             <div className="flex justify-end">
               <button

@@ -155,7 +155,7 @@ const Page = () => {
           />
           <div className="flex flex-col gap-2">
             <Label htmlFor="option-two" className="text-[#191919] font-[500]">
-              Rappels d'apprentissage
+              Rappels d&apos;apprentissage
             </Label>
             <span className="text-[13.6px] text-[#B5BEC6]">
               Recevez des rappels par email pour suivre votre progression.

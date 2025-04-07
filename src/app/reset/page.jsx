@@ -49,9 +49,9 @@ const Page = () => {
           Mot de passe oublié ?
         </h2>
         <p className="text-[#666666] text-[13px] mt-2">
-          Pour réinitialiser votre mot de passe, vous devez fournir l'e-mail
-          associé à votre compte. Nous vous enverrons un code de vérification à
-          cette adresse.
+          Pour réinitialiser votre mot de passe, vous devez fournir
+          l&apos;e-mail associé à votre compte. Nous vous enverrons un code de
+          vérification à cette adresse.
         </p>
       </div>
       <form className="w-[567.09px] flex flex-col items-center gap-4 max-md:w-[90%]">

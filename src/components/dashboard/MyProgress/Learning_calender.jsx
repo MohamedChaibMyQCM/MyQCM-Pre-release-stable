@@ -77,7 +77,7 @@ const Learning_calendar = () => {
     return (
       <div className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
-          Calendrier d'apprentissage
+          Calendrier d&apos;apprentissage
         </h3>
         <div className="bg-[#FFFFFF] rounded-[16px] py-6 box h-[300px] flex items-center justify-center">
           <div className="animate-pulse">
@@ -91,7 +91,7 @@ const Learning_calendar = () => {
   return (
     <div className="flex-1">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
-        Calendrier d'apprentissage
+        Calendrier d&apos;apprentissage
       </h3>
       <div className="bg-[#FFFFFF] rounded-[16px] py-6 box h-[520px]">
         <Card className="border-none shadow-none">
@@ -238,7 +238,7 @@ const Learning_calendar = () => {
 
             {Object.keys(dailyInteractions).length === 0 && (
               <div className="mt-8 text-center text-gray-400 text-sm">
-                Aucune interaction d'apprentissage enregistrée pour ce jour
+                Aucune interaction d&apos;apprentissage enregistrée pour ce jour
               </div>
             )}
           </CardContent>

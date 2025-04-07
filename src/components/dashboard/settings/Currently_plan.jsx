@@ -81,7 +81,7 @@ const Currently_plan = () => {
         </h2>
         <p className="text-[#FFFFFF] text-[13px] font-[400] mt-2 mb-6">
           Débloquez tout le potentiel de votre expérience en passant à un
-          forfait supérieur dès aujourd'hui. Accédez à des fonctionnalités
+          forfait supérieur dès aujourd&apos;hui. Accédez à des fonctionnalités
           premium, <br className="max-md:hidden" /> des performances améliorées
           et des avantages exclusifs conçus pour enrichir votre parcours.
         </p>

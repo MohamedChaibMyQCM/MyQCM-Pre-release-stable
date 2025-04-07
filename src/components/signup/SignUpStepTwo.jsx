@@ -121,7 +121,7 @@ const SignUpStepTwo = ({
           type="submit"
           className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4"
         >
-          S'inscrire
+          S&apos;inscrire
         </button>
       </form>
     </>

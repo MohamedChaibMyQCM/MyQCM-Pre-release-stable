@@ -48,7 +48,7 @@ const LearningModeStep = ({
     return (
       <div className="w-[100%] px-[40px] max-md:px-[20px] mt-8">
         <div className="flex justify-center items-center h-64">
-          <p>Chargement des modes d'apprentissage...</p>
+          <p>Chargement des modes d&apos;apprentissage...</p>
         </div>
       </div>
     );
@@ -59,7 +59,7 @@ const LearningModeStep = ({
       <div className="w-[100%] px-[40px] max-md:px-[20px] mt-8">
         <div className="flex justify-center items-center h-64">
           <p>
-            Erreur lors du chargement des modes d'apprentissage. Veuillez
+            Erreur lors du chargement des modes d&apos;apprentissage. Veuillez
             réessayer.
           </p>
         </div>
@@ -70,14 +70,14 @@ const LearningModeStep = ({
   return (
     <div className="w-[100%] px-[40px] max-md:px-[20px] mt-8">
       <h2 className="text-[19px] font-[500] text-[#191919] mb-2">
-        Choisissez le mode d'apprentissage souhaité
+        Choisissez le mode d&apos;apprentissage souhaité
       </h2>
       <p className="text-[#666666] mb-12 text-[13px]">
-        Les modes d'apprentissage vous aident à étudier plus intelligemment en
-        adaptant vos sessions à vos objectifs, besoins et préférences
+        Les modes d&apos;apprentissage vous aident à étudier plus intelligemment
+        en adaptant vos sessions à vos objectifs, besoins et préférences
         individuels. Que vous prépariez vos examens, révisiez des modules
         difficiles ou pratiquiez des scénarios cliniques, MyQCM propose trois
-        modes d'apprentissage distincts, chacun spécialement conçu pour les
+        modes d&apos;apprentissage distincts, chacun spécialement conçu pour les
         étudiants en médecine.
       </p>
 

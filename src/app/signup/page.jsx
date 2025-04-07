@@ -47,7 +47,7 @@ const Page = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!strongPasswordRegex.test(password)) {
       setPasswordError(
-        "Le mot de passe doit contenir 8 caractères minimum avec majuscule, minuscule, chiffre et caractère spécial"
+        "8+ caractères, majuscule, minuscule, chiffre"
       );
     } else {
       setPasswordError("");
@@ -85,8 +85,8 @@ const Page = () => {
           Commencez votre parcours médical
         </h1>
         <p className="w-[280px] mb-[14px] text-center text-[#FFFFFFD6] font-light text-[14px] max-xl:w-[560px] max-md:w-[340px]">
-          Inscrivez-vous aujourd'hui pour un apprentissage personnalisé dans
-          votre domaine passion !
+          Inscrivez-vous aujourd&apos;hui pour un apprentissage personnalisé
+          dans votre domaine passion !
         </p>
         <Image
           src={doctors}

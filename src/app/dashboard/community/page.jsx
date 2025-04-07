@@ -26,8 +26,8 @@ const ComingSoonPage = () => {
             Exciting Feature Coming Soon!
           </h1>
           <p className="text-gray-600 mb-8">
-            We're working hard to bring you an amazing new feature. Stay tuned
-            for updates!
+            We&apos;re working hard to bring you an amazing new feature. Stay
+            tuned for updates!
           </p>
           <div className="bg-[#F7F8FA] rounded-[16px] p-4 mb-8">
             <div className="h-4 bg-gradient-to-r from-[#FD2E8A] to-[#F8589F] rounded-full w-3/4 mx-auto"></div>

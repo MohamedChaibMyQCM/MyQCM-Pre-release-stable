@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import logo from "../../../public/logoMyqcm.svg";
+import logo from "../../../public/logoMyqcm.png";
 import Loading from "@/components/Loading";
 
 const GoogleRedirectContent = () => {

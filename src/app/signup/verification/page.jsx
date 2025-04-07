@@ -27,12 +27,12 @@ const Page = () => {
         <div className="bg-[#FFF5FA] p-6 rounded-[16px] border border-[#FD2E8A33]">
           <p className="text-[#191919] text-[15px]">
             Cher(e) {name}, veuillez vérifier votre boîte de réception (et le
-            dossier spam) pour le lien d'activation de votre compte MyQCM.
+            dossier spam) pour le lien d&apos;activation de votre compte MyQCM.
           </p>
 
           <p className="text-[#666666] text-[13px] mt-4">
-            Si vous n'avez pas reçu l'email, vérifiez votre adresse ou contactez
-            notre support.
+            Si vous n&apos;avez pas reçu l&apos;email, vérifiez votre adresse ou
+            contactez notre support.
           </p>
         </div>
       </div>

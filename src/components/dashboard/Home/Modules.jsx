@@ -130,7 +130,7 @@ const Modules = () => {
     <div className="mt-8" ref={containerRef}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-[500] text-[17px] text-[#191919]">
-          Continuer l'apprentissage
+          Continuer l&apos;apprentissage
         </h3>
         <div className="flex items-center gap-3">
           <Image

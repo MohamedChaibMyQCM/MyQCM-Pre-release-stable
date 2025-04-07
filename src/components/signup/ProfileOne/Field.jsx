@@ -50,7 +50,7 @@ const Field = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label htmlFor={name} className="text-[#191919] text-[16px] font-[500]">
-        Domaine d'étude ?
+        Domaine d&apos;étude ?
       </label>
 
       <div

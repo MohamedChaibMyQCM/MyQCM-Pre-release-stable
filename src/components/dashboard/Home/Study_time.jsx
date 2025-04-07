@@ -70,7 +70,7 @@ const Study_time = () => {
   return (
     <div className="w-full">
       <h3 className="font-[500] text-[17px] mb-6 text-[#191919] max-md:mb-4">
-        Temps d'étude
+        Temps d&apos;étude
       </h3>
       <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full max-md:h-[320px] max-md:px-0">
         <Card className="border-none p-0 w-full shadow-none">

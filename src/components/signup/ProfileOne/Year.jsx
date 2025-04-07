@@ -36,7 +36,7 @@ const Year = ({ name, value, setFieldValue }) => {
       ref={dropdownRef}
     >
       <label className="text-[#191919] text-[16px] font-[500]">
-        Année d'étude ?
+        Année d&apos;étude ?
       </label>
 
       <div

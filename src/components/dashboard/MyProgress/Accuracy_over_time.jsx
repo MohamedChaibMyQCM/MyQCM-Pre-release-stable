@@ -14,7 +14,7 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
         <div className="bg-[#FFFFFF] box rounded-[16px] h-[320px] flex items-center justify-center">
           <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
-              Aucune donnée pour l'instant
+              Aucune donnée pour l&apos;instant
             </span>
           </div>
         </div>

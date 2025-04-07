@@ -67,7 +67,7 @@ const Mon_Emploi_Du_Temps = () => {
         </h3>
         <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
           <span className="text-[#F64C4C]">
-            Erreur de chargement de l'emploi du temps
+            Erreur de chargement de l&apos;emploi du temps
           </span>
         </div>
       </div>
@@ -84,7 +84,7 @@ const Mon_Emploi_Du_Temps = () => {
         <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
           <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
-              Aucune donnée pour l'instant
+              Aucune donnée pour l&apos;instant
             </span>
           </div>
         </div>

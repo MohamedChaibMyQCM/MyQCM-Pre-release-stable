@@ -14,9 +14,9 @@ const Field = ({ name, value, setFieldValue }) => {
   const dropdownRef = useRef(null);
 
   const fields = [
-    { id: "General Medecin", name: "Médecine Générale" },
-    { id: "Dentisterie", name: "Dentisterie" },
-    { id: "Pharmacie", name: "Pharmacie" },
+    { id: "General Medicine", name: "Médecine Générale" },
+    { id: "Dentistry", name: "Dentisterie" },
+    { id: "Pharmacy", name: "Pharmacie" },
   ];
 
   useEffect(() => {

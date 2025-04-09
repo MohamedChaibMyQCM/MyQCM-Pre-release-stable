@@ -43,12 +43,9 @@ const Page = () => {
   });
 
   const validatePassword = (password) => {
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!strongPasswordRegex.test(password)) {
-      setPasswordError(
-        "8+ caractères, majuscule, minuscule, chiffre"
-      );
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setPasswordError("8+ caractères, majuscule, minuscule, chiffre");
     } else {
       setPasswordError("");
     }

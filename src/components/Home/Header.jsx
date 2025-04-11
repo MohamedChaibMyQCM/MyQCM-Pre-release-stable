@@ -32,7 +32,7 @@ const Header = () => {
 
       {/* Navigation principale */}
       <nav>
-        <ul className="flex items-center gap-10 max-md:hidden">
+        <ul className="flex items-center gap-16 max-md:hidden">
           {navLinks.map((link, index) => (
             <li key={index} className="relative flex items-center group">
               <Link

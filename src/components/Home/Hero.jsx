@@ -10,13 +10,13 @@ const HeroSection = () => {
   return (
     <section className="relative pt-[60px] overflow-hidden">
       {/* Video Background - Constrained to section height */}
-      <div className="absolute top-[-340px] left-0 w-full h-[calc(100%+540px)] z-0">
+      <div className="absolute top-[-440px] left-0 w-full h-[calc(100%+540px)] z-0">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain" // Changed object-cover to object-contain
         >
           <source src="/Landing/main.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -29,8 +29,8 @@ const HeroSection = () => {
           Avec MYQCM ALJAZAYR
         </h1>
         <p className="text-center text-white text-[15px] mt-2 mb-8">
-          Améliorez votre expérience d&apos;apprentissage avec des QCM
-          adaptatifs <br />
+          Améliorez votre expérience d'apprentissage avec des QCM adaptatifs{" "}
+          <br />
           conçus pour personnaliser chaque session selon vos besoins
           individuels, <br />
           et des systèmes de tutorat intelligents qui fournissent des retours{" "}
@@ -41,9 +41,9 @@ const HeroSection = () => {
           <Image src={play} alt="lecture" className="w-[20px]" />
           Voir la vidéo de présentation
         </button>
-        <Image 
-          src={Dash_page} 
-          alt="Tableau de bord" 
+        <Image
+          src={Dash_page}
+          alt="Tableau de bord"
           className="z-[50] pr-12 mt-8 "
         />
       </div>

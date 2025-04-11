@@ -10,7 +10,7 @@ const HeroSection = () => {
   return (
     <section className="relative pt-[60px] overflow-hidden">
       {/* Video Background - Constrained to section height */}
-      <div className="absolute top-[-440px] left-0 w-full h-[calc(100%+540px)] z-0">
+      <div className="absolute top-[-340px] left-0 w-full h-[calc(100%+540px)] z-0">
         <video
           autoPlay
           loop

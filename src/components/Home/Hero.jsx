@@ -29,8 +29,8 @@ const HeroSection = () => {
           Avec MYQCM ALJAZAYR
         </h1>
         <p className="text-center text-white text-[15px] mt-2 mb-8">
-          Améliorez votre expérience d'apprentissage avec des QCM adaptatifs{" "}
-          <br />
+          Améliorez votre expérience d&apos;apprentissage avec des QCM
+          adaptatifs <br />
           conçus pour personnaliser chaque session selon vos besoins
           individuels, <br />
           et des systèmes de tutorat intelligents qui fournissent des retours{" "}

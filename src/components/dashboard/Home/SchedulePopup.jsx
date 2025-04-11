@@ -48,7 +48,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
       if (!selectedUnit) return [];
       try {
         const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get(`/subject/me?unit=${selectedUnit}`, {
+        const response = await BaseUrl.get(`/subject/me?unit=${selectedUnit}&offset=20`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -69,7 +69,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
       try {
         const token = secureLocalStorage.getItem("token");
         const response = await BaseUrl.get(
-          `/course/subject/${selectedModule}`,
+          `/course/subject/${selectedModule}?offset=100`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

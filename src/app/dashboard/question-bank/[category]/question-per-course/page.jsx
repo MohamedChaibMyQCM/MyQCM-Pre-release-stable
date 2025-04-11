@@ -19,14 +19,13 @@ const Page = () => {
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       const response = await BaseUrl.get(
-        `/course/subject/${subjectId}?offset=50`,
+        `/course/subject/${subjectId}?offset=100`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
-      
+      );      
       return response.data.data.data;
     },
   });

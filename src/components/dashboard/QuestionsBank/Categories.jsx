@@ -20,11 +20,10 @@ const Categories = () => {
   const filterRef = useRef(null);
   const selectContentRef = useRef(null);
 
-  // Check for unitId in URL query params on component mount
   useEffect(() => {
     const unitId = searchParams.get("unitId");
     console.log(unitId);
-    
+
     if (unitId) {
       setSelectedUnitId(unitId);
     }
@@ -39,7 +38,7 @@ const Categories = () => {
     queryFn: async () => {
       try {
         const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get("/unit/me", {
+        const response = await BaseUrl.get("/unit/me?offset=20", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -83,11 +82,10 @@ const Categories = () => {
     queryKey: ["subjects", selectedUnitId],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      // Use selectedUnitId if available, otherwise fall back to profile unit
       const unitId = selectedUnitId || profileData?.unit?.id;
       if (!unitId) return [];
 
-      const response = await BaseUrl.get(`/subject/me?unit=${unitId}`, {
+      const response = await BaseUrl.get(`/subject/me?unit=${unitId}&offset=50`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data?.data?.data || [];
@@ -99,7 +97,6 @@ const Categories = () => {
   });
 
   useEffect(() => {
-    // Refetch subjects when selectedUnitId changes
     if (selectedUnitId || profileData?.unit?.id) {
       refetchSubjects();
     }

@@ -23,13 +23,14 @@ const Calendar = () => {
       try {
         const token = secureLocalStorage.getItem("token");
         const response = await BaseUrl.get(
-          "/training-session?status=scheduled",
+          "/training-session?status=scheduled&offset=50",
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
+        
         return response.data?.data?.data || [];
       } catch (err) {
         toast.error(

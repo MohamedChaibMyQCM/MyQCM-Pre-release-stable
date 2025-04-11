@@ -33,8 +33,7 @@ const Page = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data.data);
-      return response.data.data.data;
+       return response.data.data.data;
     },
   });
 

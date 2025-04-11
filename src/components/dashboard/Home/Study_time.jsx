@@ -43,7 +43,6 @@ const Study_time = () => {
     },
   });
 
-  // Transformer les données d'activité en heures et minutes (2 minutes par activité)
   const transformActivityData = () => {
     if (!userActivity) return [];
 
@@ -60,7 +59,7 @@ const Study_time = () => {
         day,
         hours,
         minutes,
-        totalMinutes, // Pour le calcul de la hauteur de la barre
+        totalMinutes,
       };
     });
   };
@@ -100,10 +99,7 @@ const Study_time = () => {
                     fontFamily: "inherit",
                   }}
                 />
-                <YAxis
-                  domain={[0, "dataMax + 20"]} // Ajout de 20 minutes de marge
-                  hide
-                />
+                <YAxis domain={[0, "dataMax + 20"]} hide />
                 <Bar dataKey="totalMinutes" fill="#F8589F" radius={8}>
                   <LabelList
                     dataKey="hours"

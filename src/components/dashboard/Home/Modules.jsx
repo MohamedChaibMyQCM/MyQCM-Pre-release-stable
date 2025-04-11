@@ -36,7 +36,6 @@ const Modules = () => {
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       return response.data.data;
     },
     onError: (error) => {
@@ -59,7 +58,7 @@ const Modules = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+      
       return response.data?.data?.data || [];
     },
     onError: (error) => {

@@ -73,8 +73,8 @@ const Modules = () => {
           image: [module1, module2, module3, module4][index % 4],
           title: subject.name || "Matière inconnue",
           unit: `Unité : ${subject.unit || "Général"}`,
-          progress: Math.min(100, Math.max(0, subject.progress || 0)),
-          views: `+${Math.floor((subject.progress || 0) * 2)} xp`,
+          progress: subject.progress_percentage,
+          views: `+${subject.total_xp} xp`,
         }))
       : [];
 
@@ -187,7 +187,7 @@ const Modules = () => {
                       ></div>
                     </div>
                     <span className="text-[13px] font-[500]">
-                      {module.progress.toFixed(2)}%
+                      {module.progress.toFixed(0)}%
                     </span>
                   </div>
                 </div>

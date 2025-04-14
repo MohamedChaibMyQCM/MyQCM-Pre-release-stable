@@ -72,7 +72,7 @@ const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
   }
 
   return (
-    <div className="mt-12 rounded-[16px]">
+    <div className="mt-10 rounded-[16px]">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Choisissez votre parcours vers la maîtrise
       </h3>

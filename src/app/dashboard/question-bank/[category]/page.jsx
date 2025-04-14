@@ -28,11 +28,12 @@ const Page = () => {
     queryKey: ["courses"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get(`/course/subject/${subjectId}`, {
+      const response = await BaseUrl.get(`/course/subject/${subjectId}?offset=100`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response.data.data.data);
        return response.data.data.data;
     },
   });
@@ -43,7 +44,7 @@ const Page = () => {
   return (
     <div className="flex justify-between items-start p-[24px] pb-[40px] max-md:flex-col max-md:gap-12 max-md:px-[20px]">
       <Module data={data} />
-      <Courses courses={data2} subjectId={subjectId} />
+      <Courses courses={data2} subjectId={subjectId} subjectData={data} />
     </div>
   );
 };

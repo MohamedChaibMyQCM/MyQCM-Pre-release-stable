@@ -106,7 +106,7 @@ const Page = () => {
   };
 
   return (
-    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-12 rounded-[16px] box max-md:mt-6">
+    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-10 rounded-[16px] box max-md:mt-6">
       <h3 className="text-[#191919] font-[500] mb-1">
         Notifications par email
       </h3>

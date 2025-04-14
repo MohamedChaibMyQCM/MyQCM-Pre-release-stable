@@ -9,14 +9,13 @@ import InfiniteCarousel from "./InfiniteCarousel";
 const HeroSection = () => {
   return (
     <section className="relative pt-[60px] overflow-hidden">
-      {/* Video Background - Constrained to section height */}
-      <div className="absolute top-[-440px] left-0 w-full h-[calc(100%+540px)] z-0">
+      <div className="absolute top-[-460px] left-0 w-full h-[calc(100%+540px)] z-0 max-md:top-[-580px]">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-contain" // Changed object-cover to object-contain
+          className="w-full h-full object-contain"
         >
           <source src="/Landing/main.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -24,17 +23,17 @@ const HeroSection = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-30"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col justify-center items-center z-[50] mt-10">
-        <h1 className="text-white font-[700] text-[56px] italic">
+      <div className="relative z-10 flex flex-col justify-center items-center z-[50] mt-10 max-md:px-5">
+        <h1 className="text-white font-[700] text-[56px] italic max-md:text-center max-md:text-[50px]">
           Avec MYQCM ALJAZAYR
         </h1>
         <p className="text-center text-white text-[15px] mt-2 mb-8">
           Améliorez votre expérience d&apos;apprentissage avec des QCM
-          adaptatifs <br />
+          adaptatifs <br className="max-md:hidden" />
           conçus pour personnaliser chaque session selon vos besoins
-          individuels, <br />
+          individuels, <br className="max-md:hidden" />
           et des systèmes de tutorat intelligents qui fournissent des retours{" "}
-          <br />
+          <br className="max-md:hidden" />
           personnalisés pour vous aider à comprendre les concepts complexes.
         </p>
         <button className="text-[#F8589F] font-[600] text-[14px] px-[28px] py-[10px] flex items-center gap-2 border border-[#F8589F] rounded-[16px] hover:shadow-[0_4px_12px_rgba(248,88,159,0.3)] transition-shadow duration-300 bg-white">
@@ -44,7 +43,7 @@ const HeroSection = () => {
         <Image
           src={Dash_page}
           alt="Tableau de bord"
-          className="z-[50] pr-12 mt-8 "
+          className="z-[50] pr-12 mt-8 w-[1240px] max-md:w-[1500px]"
         />
       </div>
 
@@ -54,7 +53,6 @@ const HeroSection = () => {
         className="absolute w-full left-0 bottom-[0px] z-20"
       />
 
-      {/* Carousel */}
       <div className="relative z-30 ">
         <InfiniteCarousel />
       </div>

@@ -27,20 +27,29 @@ const Modules = () => {
   const {
     data: profileData,
     isLoading: isProfileLoading,
-    isFetching: isProfileFetching,
+    isFetching: isProfileFetching, // isFetching might be useful for background updates
     error: profileError,
   } = useQuery({
-    queryKey: ["userProfile"],
+    queryKey: ["userProfileModules"], // Changed key to be more specific
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get("/user/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data.data;
+      if (!token) {
+        console.warn("Modules: No token found for profile request");
+        return null; // Or throw an error
+      }
+      try {
+        const response = await BaseUrl.get("/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Removed console.log
+        return response.data.data;
+      } catch (error) {
+        console.error("Modules: Erreur lors du chargement du profil :", error);
+        throw error; // Let react-query handle error state
+      }
     },
-    onError: (error) => {
-      console.error("Erreur lors du chargement du profil :", error);
-    },
+    // Optional: Add staleTime, etc.
+    // staleTime: 1000 * 60 * 5,
   });
 
   const {
@@ -49,56 +58,99 @@ const Modules = () => {
     isFetching: isSubjectsFetching,
     error: subjectsError,
   } = useQuery({
-    queryKey: ["subjects"],
+    queryKey: ["subjects", profileData?.unit?.id],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get(
-        `/subject/me?unit=${profileData?.unit.id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      
-      return response.data?.data?.data || [];
+      if (!token) {
+        console.warn("Modules: No token found for subjects request");
+        return []; // Return empty array if no token
+      }
+      try {
+        const response = await BaseUrl.get(
+          `/subject/me?unit=${profileData.unit.id}`, // Rely on enabled flag to ensure profileData.unit.id exists
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        return response.data?.data?.data || [];
+      } catch (error) {
+        console.error(
+          "Modules: Erreur lors du chargement des matières :",
+          error
+        );
+        throw error; // Let react-query handle error state
+      }
     },
-    onError: (error) => {
-      console.error("Erreur lors du chargement des matières :", error);
-    },
+    enabled: !!profileData?.unit?.id, // Ensure query only runs when profileData.unit.id is available
   });
 
+  // Use profileData safely AFTER checking it exists
   const modulesData =
-    subjectsData.length > 0
-      ? subjectsData.map((subject, index) => ({
-          id: subject.id || index,
-          image: [module1, module2, module3, module4][index % 4],
-          title: subject.name || "Matière inconnue",
-          unit: `Unité : ${subject.unit || "Général"}`,
-          progress: subject.progress_percentage,
-          views: `+${subject.total_xp} xp`,
-        }))
+    subjectsData.length > 0 && profileData?.unit?.name // Make sure profileData and unit name exist before mapping
+      ? subjectsData.map((subject, index) => {
+          const unitName = profileData.unit.name;
+          const fullUnitText = `Unité : ${unitName || "?"}`;
+          const truncatedUnitText =
+            fullUnitText.length > 18 // Calculate based on "Unité : " + 15 chars
+              ? fullUnitText.slice(0, 26) + "..." // Truncate the whole string including "Unité : "
+              : fullUnitText;
+
+          return {
+            id: subject.id || `fallback-${index}`, // Ensure unique key
+            image: [module1, module2, module3, module4][index % 4],
+            title: subject.name || "Matière inconnue",
+            unit: truncatedUnitText, // Use the truncated text
+            progress: subject.progress_percentage ?? 0,
+            views: `+${subject.total_xp ?? 0} Xp`,
+            subjectId: subject.id,
+          };
+        })
       : [];
 
   const updateItemsPerView = () => {
     if (containerRef.current) {
       const containerWidth = containerRef.current.offsetWidth;
       const totalItemWidth = ITEM_WIDTH + GAP;
-      const calculatedItems = Math.floor(containerWidth / totalItemWidth);
+      const calculatedItems = Math.floor(
+        (containerWidth + GAP) / totalItemWidth
+      );
       const newItemsPerView = Math.max(
         1,
-        Math.min(calculatedItems, modulesData.length)
+        modulesData.length > 0
+          ? Math.min(calculatedItems, modulesData.length)
+          : 1
       );
-      setItemsPerView(newItemsPerView);
+
+      // Avoid unnecessary state updates if value hasn't changed
+      if (newItemsPerView !== itemsPerView) {
+        setItemsPerView(newItemsPerView);
+      }
+
+      if (modulesData.length > 0) {
+        const maxPossibleIndex = Math.max(
+          0,
+          modulesData.length - newItemsPerView
+        );
+        if (currentIndex > maxPossibleIndex) {
+          setCurrentIndex(maxPossibleIndex);
+        }
+      } else if (currentIndex !== 0) {
+        // Only reset if not already 0
+        setCurrentIndex(0);
+      }
     }
   };
 
+  // Simplified useEffect dependency array if currentIndex is only adjusted, not a primary dependency
   useEffect(() => {
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
     return () => window.removeEventListener("resize", updateItemsPerView);
-  }, [modulesData.length]);
+  }, [modulesData.length]); // Depend only on data length, adjustment handled inside
 
   const nextSlide = () => {
-    if (currentIndex < modulesData.length - itemsPerView) {
+    const maxIndex = Math.max(0, modulesData.length - itemsPerView);
+    if (currentIndex < maxIndex) {
       setCurrentIndex((prev) => prev + 1);
     }
   };
@@ -109,100 +161,150 @@ const Modules = () => {
     }
   };
 
-  if (isProfileLoading || isSubjectsLoading) {
+  const isLoading = isProfileLoading || (!!profileData && isSubjectsLoading); // Still loading if profile is done but subjects aren't
+  const hasError = profileError || (!!profileData && subjectsError); // Error if profile failed OR subjects failed after profile success
+
+  if (isLoading) {
     return (
       <div className="mt-8">
-        <Loading />
+        <Loading /> {/* Assuming Loading component handles visual state */}
       </div>
     );
   }
 
-  if (profileError || subjectsError) {
+  if (hasError) {
     return (
-      <div className="mt-8 text-red-500">
-        Une erreur est survenue. Veuillez actualiser la page.
+      <div className="mt-8 text-center text-red-600 p-4 border border-red-300 bg-red-50 rounded-lg">
+        Une erreur est survenue lors du chargement des modules. <br />
+        Veuillez actualiser la page ou réessayer plus tard.
       </div>
     );
   }
+
+  const canScrollPrev = currentIndex > 0;
+  const canScrollNext =
+    modulesData.length > itemsPerView &&
+    currentIndex < modulesData.length - itemsPerView;
 
   return (
     <div className="mt-8" ref={containerRef}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 px-1">
         <h3 className="font-[500] text-[17px] text-[#191919]">
           Continuer l&apos;apprentissage
         </h3>
-        <div className="flex items-center gap-3">
-          <Image
-            src={left_arrow}
-            alt="Précédent"
-            className={`cursor-pointer  ${
-              currentIndex === 0 ? "opacity-50" : ""
-            }`}
-            onClick={prevSlide}
-          />
-          <Image
-            src={right_arrow}
-            alt="Suivant"
-            className={`cursor-pointer ${
-              currentIndex >= modulesData.length - itemsPerView
-                ? "opacity-50"
-                : ""
-            }`}
-            onClick={nextSlide}
-          />
-        </div>
+        {modulesData.length > itemsPerView && (
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Précédent"
+              onClick={prevSlide}
+              disabled={!canScrollPrev}
+              className={`p-1 transition-opacity duration-200 ${
+                !canScrollPrev
+                  ? "opacity-30 cursor-not-allowed"
+                  : "opacity-100 hover:bg-gray-100 rounded-full"
+              }`}
+            >
+              <Image src={left_arrow} alt="" width={24} height={24} />
+            </button>
+            <button
+              aria-label="Suivant"
+              onClick={nextSlide}
+              disabled={!canScrollNext}
+              className={`p-1 transition-opacity duration-200 ${
+                !canScrollNext
+                  ? "opacity-30 cursor-not-allowed"
+                  : "opacity-100 hover:bg-gray-100 rounded-full"
+              }`}
+            >
+              <Image src={right_arrow} alt="" width={24} height={24} />
+            </button>
+          </div>
+        )}
       </div>
 
       {modulesData.length > 0 ? (
         <div className="overflow-hidden">
+          {" "}
+          {/* Container to hide overflow */}
           <ul
             ref={carouselRef}
-            className="flex gap-4 transition-transform duration-500 ease-in-out pb-4"
+            className="flex gap-4 ml-3 transition-transform duration-500 ease-in-out py-4 pb-6" // Adjust padding if needed
             style={{
               transform: `translateX(-${currentIndex * (ITEM_WIDTH + GAP)}px)`,
+              width: `${modulesData.length * (ITEM_WIDTH + GAP) - GAP}px`, // Define total width
             }}
           >
             {modulesData.map((module) => (
               <li
                 key={module.id}
-                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] h-[270px] box flex-shrink-0"
+                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg" // Ensure min-height or fixed height
               >
-                <Image
-                  src={module.image}
-                  alt={module.title}
-                  className="w-full h-[96px]"
-                />
-                <span className="text-[#FD2E8A] text-[13px] my-3 font-[500] block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
-                  {module.title}
-                </span>
-                <div className="my-4">
-                  <span className="text-[13px] text-[11142D] font-[500]">
-                    {module.unit}
+                <div className="relative w-full h-[96px] rounded-md overflow-hidden mb-2">
+                  <Image
+                    src={module.image}
+                    alt={`Illustration pour ${module.title}`}
+                    fill
+                    sizes="224px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex flex-col flex-grow">
+                  <span className="text-[#FD2E8A] text-[12px] my-2 font-semibold block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
+                    {" "}
+                    {/* Increased font weight */}
+                    {module.title}
                   </span>
-                  <div className="relative flex items-center w-[100%] justify-between mt-[2px]">
-                    <div className="w-[76%] h-[8px] bg-[#F5F5F5] rounded-[20px] relative">
-                      <div
-                        className="absolute h-[8px] bg-[#FD2E8A] rounded-[20px]"
-                        style={{ width: `${module.progress}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-[13px] font-[500]">
-                      {module.progress.toFixed(0)}%
+                  <div className="mt-1 mb-3 flex-grow">
+                    {/* ==== MODIFIED PART ==== */}
+                    <span
+                      className="text-[13px] text-[#11142D] font-[500]"
+                      title={module.fullUnitText || module.unit}
+                    >
+                      {" "}
+                      {/* Add title attribute for full text on hover */}
+                      {module.unit} {/* Render the truncated unit text */}
                     </span>
+                    {/* ==== END MODIFIED PART ==== */}
+                    <div className="relative flex items-center w-full justify-between mt-[4px]">
+                      {/* Progress Bar */}
+                      <div className="w-[76%] h-[6px] bg-gray-200 rounded-full relative overflow-hidden">
+                        {" "}
+                        {/* Changed bar height and color */}
+                        <div
+                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] rounded-full" // Use gradient maybe
+                          style={{ width: `${module.progress}%` }}
+                        ></div>
+                      </div>
+                      {/* Progress Percentage */}
+                      <span className="text-[12px] font-medium text-[#FD2E8A]">
+                        {" "}
+                        {/* Adjusted size/color */}
+                        {module.progress.toFixed(0)}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-5">
-                  <span className="text-[13px] text-[#F8589F] font-[500]">
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                  <span className="text-[12px] text-[#F8589F] font-[500]">
                     {module.views}
                   </span>
-                  <Link href={`/dashboard/question-bank/${module.id}`}>
-                    <Image
-                      src={play}
-                      alt="Lire"
-                      width={22}
-                      height={22}
-                      className="cursor-pointer"
-                    />
+                  {/* Using subjectId for the link */}
+                  <Link
+                    href={`/dashboard/question-bank?subjectId=${module.subjectId}`}
+                    legacyBehavior
+                  >
+                    <a
+                      className="p-1 rounded-full hover:bg-pink-100 transition-colors duration-200 ease-in-out"
+                      title="Commencer le module"
+                    >
+                      <Image
+                        src={play}
+                        alt="" // Alt handled by title attr on link
+                        width={22}
+                        height={22}
+                        className="cursor-pointer"
+                      />
+                    </a>
                   </Link>
                 </div>
               </li>
@@ -210,8 +312,12 @@ const Modules = () => {
           </ul>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          Aucun module d’apprentissage disponible
+        <div className="text-center py-10 px-4 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 mt-4">
+          <p className="text-lg mb-2">📚</p>
+          <p>
+            Aucun module d&apos;apprentissage disponible pour l&apos;unité
+            actuelle.
+          </p>
         </div>
       )}
     </div>

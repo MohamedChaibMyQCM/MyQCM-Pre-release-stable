@@ -97,7 +97,7 @@ const Page = () => {
   const isLoading = isLoadingModes || isLoadingProfile;
 
   return (
-    <div className="px-6 py-">
+    <div className="px-6">
       <Path_Settings
         modes={availableModes}
         selectedMode={selectedMode}

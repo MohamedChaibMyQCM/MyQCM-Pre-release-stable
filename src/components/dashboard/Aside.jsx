@@ -34,7 +34,7 @@ const Aside = () => {
   const isSettingsActive = afterDashboard.startsWith("settings");
 
   return (
-    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[24px] max-md:py-0">
+    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[24px] max-md:py-0 max-xl:w-[100%]">
       {isMenuOpen ? (
         <div className="flex items-center gap-2">
           <span className="text-[#191919] font-[500] text-[18px]">

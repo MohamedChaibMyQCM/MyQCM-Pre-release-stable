@@ -8,7 +8,20 @@ import Loading from "@/components/Loading";
 import secureLocalStorage from "react-secure-storage";
 
 const Page = () => {
-  const { category: subjectId } = useParams();
+   const { category: subjectId } = useParams();
+
+   const { data } = useQuery({
+     queryKey: ["subject"],
+     queryFn: async () => {
+       const token = secureLocalStorage.getItem("token");
+       const response = await BaseUrl.get(`/subject/${subjectId}`, {
+         headers: {
+           Authorization: `Bearer ${token}`,
+         },
+       });
+       return response.data.data;
+     },
+   });
 
   const {
     data: data2,
@@ -35,7 +48,7 @@ const Page = () => {
 
   return (
     <div className="pt-[22px] pb-[40px] flex flex-col gap-8 px-[24px] overflow-hidden max-md:px-[20px] max-md:pt-[12px]">
-      <Questions data={data2} isLoading={isLoading} error={error} />
+      <Questions data={data2} isLoading={isLoading} error={error} subjectData={data} />
     </div>
   );
 };

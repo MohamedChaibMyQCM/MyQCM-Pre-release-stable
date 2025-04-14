@@ -18,7 +18,7 @@ const Module = ({ data }) => {
       <span className="text-[20px] text-[#191919] font-semibold">
         {data.name}
       </span>
-      <div className="w-full bg-[#FFF5FA] flex items-center justify-between px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]">
+      <div className="w-full bg-[#FFF5FA] flex items-center justify-center px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]">
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#F8589F] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
             <ListBullets size={18} className="text-[#FFFFFF]" />
@@ -30,7 +30,7 @@ const Module = ({ data }) => {
             QCM + QCS
           </span>
         </div>
-        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
+        <span className="w-[1.6px] mx-28 h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#7996FD] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
             <Stack size={18} className="text-[#FFFFFF]" />
@@ -40,7 +40,7 @@ const Module = ({ data }) => {
             QROC
           </span>
         </div>
-        <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
+        {/* <span className="w-[1.6px] h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#47B881] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
             <Stethoscope size={16} className="text-[#FFFFFF]" />
@@ -48,7 +48,7 @@ const Module = ({ data }) => {
           <span className="font-[500] text-[14px] text-[#191919] max-md:text-[12px]">
             <span className="text-[#47B881] pr-1">0</span> Cas clinique
           </span>
-        </div>
+        </div> */}
       </div>
       <div className="flex flex-col gap-2 my-2">
         <span className="font-Poppins font-medium text-[14px] text-[#F8589F]">

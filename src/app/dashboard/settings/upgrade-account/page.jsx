@@ -4,7 +4,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="px-6 mt-12 max-md:mt-10">
+    <div className="px-6 mt-10 max-md:mt-10">
       <Currently_plan />
       <Choose_plan />
     </div>

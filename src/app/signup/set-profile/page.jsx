@@ -131,7 +131,7 @@ const Page = () => {
             {progress >= 30 && `${progress}% terminé`}
           </div>
         </div>
-        <span className="text-[#F8589F] border border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[6px] rounded-[12px] text-[14px]">
+        <span className="text-[#F8589F] border border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[6px] rounded-[12px] text-[14px] max-md:py-1">
           Configuration <span className="max-md:hidden">du profil</span>
         </span>
       </div>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+// Original Imports from user's code block
+import { useState } from "react"; // This import is here but useState is not used
 import Image from "next/image";
-import GoogleAuthButton from "@/app/comp/google-auth.button";
-import user from "../../../public/auth/user.svg";
+import GoogleAuthButton from "@/app/comp/google-auth.button"; // Ensure path is correct
+import user from "../../../public/auth/user.svg"; // Ensure path is correct
 
+// Original availableAvatars array
 const availableAvatars = [
   "https://res.cloudinary.com/dgxaezwuv/image/upload/v1743743159/avatar1_og7rir.avif",
   "https://res.cloudinary.com/dgxaezwuv/image/upload/v1743743159/avatar2_uxgwcx.avif",
@@ -15,49 +17,63 @@ const availableAvatars = [
   "https://res.cloudinary.com/dgxaezwuv/image/upload/v1743743160/avatar7_lasaaw.avif",
 ];
 
+// Original component signature
 const SignUpStepOne = ({
-  setStep,
+  setStep, // This prop now receives the changeStep function from the parent
   setUserName,
   user_name,
   selectedAvatar,
   setSelectedAvatar,
 }) => {
+  // Original avatar select handler
   const handleAvatarSelect = (avatarSrc) => {
     setSelectedAvatar(avatarSrc);
   };
 
+  // Original submit handler for this step's form
   const handleSubmit = (e) => {
     e.preventDefault();
-    setStep(2);
+    setStep(2); // Call the function passed via props to change the step
   };
 
+  // Original avatar size class
   const avatarSizeClass = "w-[70px] h-[70px]";
 
+  // Original mask style
+  const maskStyle = {
+    maskImage: "linear-gradient(to bottom, transparent 0%, black 50%)",
+    WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 50%)",
+  };
+
+  // Original Return JSX Structure
   return (
-    <>
+    // NOTE: Original code returned a fragment <>...</>. Wrap in a div if Framer Motion needs a single child node.
+    // Using a div here for clarity, but a Fragment is fine if Framer Motion handles it correctly.
+    <div className="flex flex-col items-center gap-6 w-full">
+      {" "}
+      {/* Added div wrapper and styles to match step 2 visually */}
       <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-[90%]">
         <GoogleAuthButton />
       </div>
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[260px] after:max-md:w-[120px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[260px] before:max-md:w-[120px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%] max-md:w-[90%]">
         OU
       </span>
-
       <form
         className="w-[567.09px] flex flex-col items-center gap-4 max-md:w-[90%]"
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit} // Uses the local handler which calls props.setStep
       >
         <div className="w-full flex flex-col gap-2 pb-[12px]">
           <label className="text-[#191919] text-[15px] font-medium mb-1">
             Avatar
           </label>
-          <div className="w-full flex flex-wrap justify-center gap-2 max-md:overflow-x-auto scrollbar-hide max-md:flex-nowrap max-md:justify-start max-md:[-webkit-overflow-scrolling:touch] max-md:scrollbar-hide">
+          <div className="w-full pl-[2px] flex flex-wrap justify-center gap-[7px] max-md:overflow-x-auto scrollbar-hide max-md:flex-nowrap max-md:justify-start max-md:[-webkit-overflow-scrolling:touch] max-md:scrollbar-hide">
             {availableAvatars.map((avatarSrc, index) => {
               const isSelected = selectedAvatar === avatarSrc;
               return (
                 <div
                   key={index}
                   onClick={() => handleAvatarSelect(avatarSrc)}
-                  className={`relative cursor-pointer p-[2px] rounded-[18px] transition-all duration-200 ease-in-out
+                  className={`group relative cursor-pointer p-[2px] rounded-[18px] transition-all duration-200 ease-in-out hover:scale-105 flex-shrink-0
                     ${isSelected ? "bg-[#FD2E81]" : "bg-transparent"}`}
                 >
                   <div
@@ -74,12 +90,7 @@ const SignUpStepOne = ({
                     {isSelected && (
                       <div
                         className="absolute bottom-0 left-0 right-0 h-[60%] pointer-events-none"
-                        style={{
-                          maskImage:
-                            "linear-gradient(to bottom, transparent 0%, black 50%)",
-                          WebkitMaskImage:
-                            "linear-gradient(to bottom, transparent 0%, black 50%)",
-                        }}
+                        style={maskStyle}
                       >
                         <div className="absolute inset-0 bg-gradient-to-b from-[#FD2E8A]/20 to-[#FD2E8A]/90 backdrop-blur-[4px] rounded-b-[16px]"></div>
                         <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-[calc(100%-12px)]">
@@ -87,6 +98,14 @@ const SignUpStepOne = ({
                             Sélectionné
                           </span>
                         </div>
+                      </div>
+                    )}
+                    {!isSelected && (
+                      <div
+                        className="absolute bottom-0 left-0 right-0 h-[60%] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out"
+                        style={maskStyle}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#FD2E8A]/10 to-[#FD2E8A]/70 backdrop-blur-[4px] rounded-b-[16px]"></div>
                       </div>
                     )}
                   </div>
@@ -113,18 +132,21 @@ const SignUpStepOne = ({
               value={user_name}
               onChange={(e) => setUserName(e.target.value)}
               required
+              aria-required="true"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:opacity-95 transition-opacity duration-150"
+          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:opacity-95 transition-opacity duration-150 disabled:opacity-60"
+          // Disable button if name or avatar not selected
+          disabled={!user_name || !selectedAvatar}
         >
           Continuer
         </button>
       </form>
-    </>
+    </div>
   );
 };
 

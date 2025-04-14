@@ -30,7 +30,7 @@ function EmailVerificationContent() {
 
         if (response.data.status === 201) {
           toast.success("Email vérifié avec succès !");
-          router.push("/signup/setProfile");
+          router.push("/signup/set-profile");
         } else {
           toast.error(
             response.data.message || "Échec de la vérification d'email"

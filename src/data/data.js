@@ -1,8 +1,6 @@
-import logo1 from "../../public/Landing/trust1.svg";
 import logo4 from "../../public/Landing/trust2.svg";
-import logo5 from "../../public/Landing/trust3.svg";
-import logo6 from "../../public/Landing/trust4.svg";
 import logo3 from "../../public/Landing/trust5.svg";
+import logo7 from "../../public/Landing/trust6.svg";
 import wHeart from "../../public/Icons/wHeart.svg";
 import blida from "../../public/Icons/Blida.svg";
 import blood from "../../public/Quiz/blood.svg";
@@ -72,19 +70,28 @@ export const aside_links = [
 
 export const logos = [
   {
-    src: logo1,
-  },
-  {
-    src: logo3,
+    src: logo7,
   },
   {
     src: logo4,
   },
   {
-    src: logo5,
+    src: logo3,
   },
   {
-    src: logo6,
+    src: logo7,
+  },
+  {
+    src: logo4,
+  },
+  {
+    src: logo3,
+  },
+  {
+    src: logo7,
+  },
+  {
+    src: logo3,
   },
 ];
 

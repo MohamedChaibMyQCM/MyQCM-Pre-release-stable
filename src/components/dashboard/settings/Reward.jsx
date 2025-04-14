@@ -41,7 +41,7 @@ const Reward = () => {
   if (isError) return null;
 
   return (
-    <div className="relative mx-5 mt-12 bg-[#FFFFFF] p-6 text-center rounded-[16px] overflow-hidden box max-md:mt-4">
+    <div className="relative mx-5 mt-10 bg-[#FFFFFF] p-6 text-center rounded-[16px] overflow-hidden box max-md:mt-4">
       <h2 className="text-[#191919] text-[20px] font-[500]">
         Vous avez <span className="text-[#F8589F]">{xpData?.xp}</span> XP
       </h2>

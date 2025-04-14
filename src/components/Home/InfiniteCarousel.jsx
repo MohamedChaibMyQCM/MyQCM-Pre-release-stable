@@ -6,7 +6,7 @@ import vector from "../../../public/Landing/Vector.svg";
 
 const InfiniteCarousel = () => {
   return (
-    <div className="relative w-full overflow-hidden py-8">
+    <div className="relative w-full overflow-hidden h-[180px] ">
       <div className="flex animate-alternate-scroll w-max flex-nowrap">
         {[...logos, ...logos, ...logos].map((item, index) => (
           <div key={index} className="flex items-center shrink-0 mx-8">
@@ -16,7 +16,7 @@ const InfiniteCarousel = () => {
                 alt="logo"
                 width={160}
                 height={80}
-                className="w-[160px] h-auto object-contain"
+                className="w-[200px] object-contain"
               />
             </div>
             <div className="shrink-0 ml-8">

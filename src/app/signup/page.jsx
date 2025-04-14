@@ -6,13 +6,14 @@ import doctors from "../../../public/ShapeDocters.svg";
 import beta from "../../../public/auth/beta.svg";
 import Link from "next/link";
 import { useState } from "react";
-import SignUpStepTwo from "@/components/signup/SignUpStepTwo";
-import SignUpStepOne from "@/components/signup/SignUpStepOne";
+import SignUpStepOne from "@/components/signup/SignUpStepOne"; // Adjust path if needed
+import SignUpStepTwo from "@/components/signup/SignUpStepTwo"; // Adjust path if needed
 import { useMutation } from "@tanstack/react-query";
-import BaseUrl from "@/components/BaseUrl";
+import BaseUrl from "@/components/BaseUrl"; // Adjust path if needed
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
+import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
 
 const Page = () => {
   const [step, setStep] = useState(1);
@@ -24,9 +25,12 @@ const Page = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [direction, setDirection] = useState(0); // State for animation direction
   const router = useRouter();
 
-  const { mutate: signup } = useMutation({
+  // --- Original Mutation Hook ---
+  const { mutate: signup, isLoading } = useMutation({
+    // Keep isLoading
     mutationFn: (data) => BaseUrl.post("/auth/user/signup", data),
     onSuccess: ({ data }) => {
       console.log(data);
@@ -42,8 +46,14 @@ const Page = () => {
     },
   });
 
+  // --- Original Validation Function ---
   const validatePassword = (password) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!password && !confirmPassword) {
+      // Prevent initial error if fields are empty
+      setPasswordError("");
+      return;
+    }
     if (!passwordRegex.test(password)) {
       setPasswordError("8+ caractères, majuscule, minuscule, chiffre");
     } else {
@@ -51,28 +61,85 @@ const Page = () => {
     }
   };
 
+  // --- Original Submit Handler ---
   const handleSubmitStep = (e) => {
     e.preventDefault();
-    if (passwordError) {
-      toast.error("Veuillez corriger les erreurs du mot de passe");
+    if (isLoading) return;
+
+    validatePassword(password); // Explicitly validate before check
+
+    // Re-check the password format after validation is explicitly called
+    if (
+      !password ||
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
+    ) {
+      if (!passwordError) {
+        // Set error if validation didn't already catch it
+        setPasswordError("Format invalide.");
+      }
+      toast.error("Veuillez entrer un mot de passe valide.");
       return;
     }
+    // Clear the error state if format is okay now but maybe comparison failed.
+    // Do this ONLY if format check passes
+    if (
+      passwordError &&
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
+    ) {
+      setPasswordError("");
+    }
+
     if (password !== confirmPassword) {
       toast.error("Les mots de passe ne correspondent pas");
       return;
     }
+    // Check step 1 data presence
+    if (!user_name || !selectedAvatar) {
+      toast.error(
+        "Veuillez compléter les informations Nom et Avatar (Étape 1)"
+      );
+      changeStep(1); // Use changeStep to go back
+      return;
+    }
+
     let data = {
       name: user_name,
       email: Email,
       password,
-      avatar: selectedAvatar || "https://example.com/avatar.jpg",
+      avatar: selectedAvatar || "https://example.com/default-avatar.jpg", // Use original default/fallback
     };
     signup(data);
   };
 
+  // --- Animation Logic ---
+  const stepVariants = {
+    hidden: (direction) => ({
+      opacity: 0,
+      x: direction > 0 ? "100%" : "-100%",
+    }),
+    visible: {
+      opacity: 1,
+      x: "0%",
+      transition: { duration: 0.4, ease: "easeInOut" },
+    },
+    exit: (direction) => ({
+      opacity: 0,
+      x: direction < 0 ? "100%" : "-100%",
+      transition: { duration: 0.4, ease: "easeInOut" },
+    }),
+  };
+
+  const changeStep = (newStep) => {
+    setDirection(newStep > step ? 1 : -1);
+    setStep(newStep);
+  };
+  // --- End Animation Logic ---
+
   return (
+    // --- Original Outer Structure ---
     <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px] max-xl:flex-col max-xl:items-center overflow-y-auto scrollbar-hide">
-      <div className="flex flex-col gap-4 self-end max-xl:mx-auto">
+      {/* Left decorative part */}
+      <div className="flex flex-col gap-4 self-end max-xl:mx-auto shrink-0">
         <Image
           src={beta}
           alt="version bêta"
@@ -88,11 +155,13 @@ const Page = () => {
         <Image
           src={doctors}
           alt="médecins"
-          className="w-[620px] ml-[-40px] max-xl:hidden"
+          className="w-[454px] ml-[-40px] max-xl:hidden"
         />
       </div>
-      <div className="bg-[#FFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-8">
+
+      <div className="bg-[#FFF] w-full h-full pt-10 rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-8 flex-1 min-w-0">
         <Image src={logo} alt="logo" className="w-[140px] mb-4" />
+        {/* Tabs */}
         <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
           <Link
             href={`/login`}
@@ -107,32 +176,64 @@ const Page = () => {
             Créer un compte
           </Link>
         </div>
-        {step === 1 ? (
-          <SignUpStepOne
-            setStep={setStep}
-            setUserName={setUserName}
-            user_name={user_name}
-            selectedAvatar={selectedAvatar}
-            setSelectedAvatar={setSelectedAvatar}
-          />
-        ) : (
-          <SignUpStepTwo
-            Email={Email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            confirmPassword={confirmPassword}
-            setConfirmPassword={setConfirmPassword}
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-            showConfirmPassword={showConfirmPassword}
-            setShowConfirmPassword={setShowConfirmPassword}
-            passwordError={passwordError}
-            validatePassword={validatePassword}
-            handleSubmitStep2={handleSubmitStep}
-            setStep={setStep}
-          />
-        )}
+
+        <div className="w-[567.09px] max-md:w-[90%] overflow-hidden relative flex-1 flex flex-col">
+          <AnimatePresence initial={false} mode="wait" custom={direction}>
+            {step === 1 ? (
+              <motion.div
+                key={1} // Step key
+                custom={direction}
+                variants={stepVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="w-full" // Keep content flow
+              >
+                <SignUpStepOne
+                  // <<< Pass changeStep function AS setStep prop >>>
+                  setStep={changeStep}
+                  // Original props
+                  setUserName={setUserName}
+                  user_name={user_name}
+                  selectedAvatar={selectedAvatar}
+                  setSelectedAvatar={setSelectedAvatar}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key={2} // Step key
+                custom={direction}
+                variants={stepVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="w-full" // Keep content flow
+              >
+                <SignUpStepTwo
+                  // <<< Pass changeStep function AS setStep prop >>>
+                  setStep={changeStep}
+                  // Pass loading state
+                  isLoading={isLoading}
+                  // Original props
+                  Email={Email}
+                  setEmail={setEmail}
+                  password={password}
+                  setPassword={setPassword}
+                  confirmPassword={confirmPassword}
+                  setConfirmPassword={setConfirmPassword}
+                  showPassword={showPassword}
+                  setShowPassword={setShowPassword}
+                  showConfirmPassword={showConfirmPassword}
+                  setShowConfirmPassword={setShowConfirmPassword}
+                  passwordError={passwordError}
+                  validatePassword={validatePassword}
+                  handleSubmitStep2={handleSubmitStep}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        {/* <<< End Animation Wrapper >>> */}
       </div>
     </section>
   );

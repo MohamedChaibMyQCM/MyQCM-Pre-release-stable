@@ -8,7 +8,7 @@ const Module = ({ data }) => {
   return (
     <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
       <Image
-        src={medical}
+        src={data.banner}
         width={400}
         height={200}
         alt="illustration médicale"
@@ -30,7 +30,7 @@ const Module = ({ data }) => {
             QCM + QCS
           </span>
         </div>
-        <span className="w-[1.6px] mx-28 h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px]"></span>
+        <span className="w-[1.6px] mx-28 h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px] max-md:mx-12"></span>
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#7996FD] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
             <Stack size={18} className="text-[#FFFFFF]" />

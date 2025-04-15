@@ -200,7 +200,7 @@ const Units = () => {
 
   return (
     <div
-      className="relative w-full min-h-[180px] p-6 py-4 rounded-[20px] overflow-hidden transition-all duration-500 ease-in-out max-md:px-4 flex flex-col"
+      className="relative w-full min-h-[180px] p-6 py-4 rounded-[20px] overflow-hidden transition-all duration-500 ease-in-out max-md:px-4 flex flex-col max-md:pb-10"
       style={gradientStyle}
     >
       <AnimatePresence mode="wait">
@@ -218,7 +218,7 @@ const Units = () => {
           <p className="text-[13px] text-[#FFFFFF] mt-3 mb-6 font-[400] max-w-[90%] max-md:max-w-full">
             {currentUnitData.description}
           </p>
-          <div className="flex items-center gap-5 max-md:justify-center max-md:flex-col">
+          <div className="flex items-center gap-5 max-md:justify-center max-md:flex-col max-md:gap-2 mb-4 max-md:mb-0">
             <button
               className="group flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500] transition-all duration-200 ease-in-out hover:opacity-90 hover:px-6 hover:scale-105 whitespace-nowrap"
               onClick={() => handleStartUnit(currentUnitData.id)}

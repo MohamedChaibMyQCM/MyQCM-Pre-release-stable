@@ -15,7 +15,7 @@ const Progress_Links = () => {
   ];
 
   return (
-    <div className="flex items-center justify-between mt-6 px-5">
+    <div className="flex items-center justify-between mt-6 px-5 max-md:mt-0">
       <ul className="flex items-center gap-4">
         {links.map((link) => {
           const isActive = pathname === link.href;

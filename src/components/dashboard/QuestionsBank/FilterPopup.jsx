@@ -18,7 +18,7 @@ const FilterPopup = ({
   selectContentRef,
 }) => {
   return (
-    <div className="absolute right-0 top-[calc(100%+5px)] w-[400px] bg-white p-5 rounded-[16px] shadow-lg z-[50]">
+    <div className="absolute right-0 top-[calc(100%+5px)] w-[400px] bg-white p-5 rounded-[16px] shadow-lg z-[50] max-md:w-[360px]">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <span className="font-[500] text-[#191919] mb-3 block">

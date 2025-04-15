@@ -135,7 +135,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-[16px] p-6 w-[600px]">
+      <div className="bg-white rounded-[16px] p-6 w-[600px]  max-md:w-[92%]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-[#FD2E8A] font-[500] text-[17px]">
             Schedule season
@@ -254,13 +254,13 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
         <div className="flex justify-center gap-6">
           <button
             onClick={onClose}
-            className="text-[#F8589F] px-6 py-3 rounded-lg text-[14px] font-[500]"
+            className="text-[#F8589F] px-6 py-2 rounded-lg text-[14px] font-[500]"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-3 rounded-[20px]"
+            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-2 rounded-[20px]"
           >
             Add
           </button>

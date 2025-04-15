@@ -199,7 +199,7 @@ const Page = () => {
       <Image
         src={notification}
         alt="illustration notifications"
-        className="mx-auto mt-16"
+        className="mx-auto mt-16 max-md:w-[240px]"
       />
     </div>
   );

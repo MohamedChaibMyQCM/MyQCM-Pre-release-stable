@@ -21,7 +21,7 @@ const ComingSoonPage = () => {
       {" "}
       {/* Softer gradient */}
       <motion.div
-        className="relative max-w-md w-full bg-white rounded-2xl p-8 md:p-10 shadow-xl overflow-hidden" // Adjusted size, padding, shadow
+        className="relative max-w-md w-full bg-white rounded-2xl p-8 md:p-10 shadow-xl overflow-hidden max-md:w-[97%]" // Adjusted size, padding, shadow
         variants={cardVariants}
         initial="hidden"
         animate="visible"

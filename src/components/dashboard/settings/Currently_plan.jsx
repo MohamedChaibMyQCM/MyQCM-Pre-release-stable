@@ -98,7 +98,7 @@ const Currently_plan = () => {
       <Image
         src={card}
         alt="carte"
-        className="absolute right-6 top-[-8px] w-[240px] max-md:w-[130px] max-md:right-4"
+        className="absolute right-6 top-[-8px] w-[240px] max-md:w-[100px] max-md:right-1 max-md:top-[12px]"
         priority
       />
     </div>

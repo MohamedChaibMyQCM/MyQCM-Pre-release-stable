@@ -124,6 +124,16 @@
   /* margin-left: -20px; */
 }
 
+@media (max-width: 768px) {
+  .study_time .recharts-surface  {
+    height: 230px !important;
+  }
+  .study_time .recharts-wrapper {
+    width: 374px !important;
+    height: 260px !important;
+  }
+}
+
 .accuracy .recharts-surface {
   height: 280px !important;
 }

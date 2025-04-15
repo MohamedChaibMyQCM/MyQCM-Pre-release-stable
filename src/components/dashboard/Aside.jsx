@@ -23,6 +23,7 @@ const Aside = () => {
   const router = useRouter();
 
   useEffect(() => {
+    // Close menu on route change
     setIsMenuOpen(false);
   }, [path]);
 
@@ -34,7 +35,11 @@ const Aside = () => {
   const isSettingsActive = afterDashboard.startsWith("settings");
 
   return (
-    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-md:w-full max-md:flex-row max-md:items-center max-md:h-[70px] max-md:px-[24px] max-md:py-0 max-xl:w-[100%]">
+    // --- MODIFIED HERE ---
+    // Changed max-md:* to max-xl:* for mobile/tablet layout
+    // Removed the previous max-xl:w-[100%] max-xl:h-[70px] as it's now covered
+    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
+      {/* Logo or XP/Streak - applies mobile style up to xl */}
       {isMenuOpen ? (
         <div className="flex items-center gap-2">
           <span className="text-[#191919] font-[500] text-[18px]">
@@ -49,10 +54,11 @@ const Aside = () => {
         <Image
           src={logo}
           alt="logo"
-          className="w-[120px] mx-auto max-md:mx-0 max-md:w-[80px]"
+          // --- MODIFIED HERE --- (max-md -> max-xl)
+          className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px]"
         />
       )}
-      <div className="flex items-center gap-4 md:hidden">
+      <div className="flex items-center gap-4 xl:hidden">
         {!isMenuOpen && (
           <Image
             src={notification}
@@ -72,11 +78,15 @@ const Aside = () => {
           )}
         </div>
       </div>
+      {/* Main Navigation UL - Applies mobile/tablet styles up to xl */}
       <ul
-        className={`flex flex-col mb-40 gap-4 max-md:absolute max-md:top-[70px] max-md:gap-6 max-md:left-0 max-md:w-full max-md:h-[100vh] max-md:pt-[40px] max-md:bg-[#FFFFFF] max-md:items-center max-md:shadow-lg max-md:transition-all max-md:duration-300 max-md:ease-in-out ${
+        // --- MODIFIED HERE --- (max-md -> max-xl)
+        className={`flex flex-col mb-40 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[100vh] max-xl:pt-[40px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-all max-xl:duration-300 max-xl:ease-in-out ${
           isMenuOpen
-            ? "max-md:opacity-100 max-md:translate-y-0"
-            : "max-md:opacity-0 max-md:-translate-y-full max-md:pointer-events-none"
+            ? // --- MODIFIED HERE --- (max-md -> max-xl)
+              "max-xl:opacity-100 max-xl:translate-y-0"
+            : // --- MODIFIED HERE --- (max-md -> max-xl)
+              "max-xl:opacity-0 max-xl:-translate-y-full max-xl:pointer-events-none"
         }`}
       >
         {aside_links.map((item, index) => {
@@ -88,7 +98,8 @@ const Aside = () => {
           return (
             <li
               key={index}
-              className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 ${
+              // --- MODIFIED HERE --- (max-md -> max-xl)
+              className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 ${
                 isActive ? "text-[#F8589F]" : ""
               }`}
             >
@@ -112,8 +123,10 @@ const Aside = () => {
             </li>
           );
         })}
+        {/* Settings/Logout links specific to the slide-out menu - hide only on xl and above */}
         <li
-          className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 md:hidden ${
+          // --- MODIFIED HERE --- (max-md -> max-xl, md:hidden -> xl:hidden)
+          className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 xl:hidden ${
             isSettingsActive ? "text-[#F8589F]" : ""
           }`}
         >
@@ -135,7 +148,10 @@ const Aside = () => {
             </span>
           </Link>
         </li>
-        <li className="rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-md:rounded-[12px] max-md:pl-0 md:hidden">
+        <li
+          // --- MODIFIED HERE --- (max-md -> max-xl, md:hidden -> xl:hidden)
+          className="rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 xl:hidden"
+        >
           <button
             className="text-[#324054] flex items-center gap-4"
             onClick={handleLogout}
@@ -151,9 +167,9 @@ const Aside = () => {
           </button>
         </li>
       </ul>
-      <div className="relative flex flex-col gap-1 pl-5 max-md:hidden">
+      <div className="relative flex flex-col gap-1 pl-5 max-xl:hidden">
         <div
-          className={`rounded-r-[12px] py-[14px] w-[88%] max-md:rounded-[12px] ${
+          className={`rounded-r-[12px] py-[14px] w-[88%] ${
             isSettingsActive ? "text-[#F8589F]" : ""
           }`}
         >
@@ -176,7 +192,8 @@ const Aside = () => {
           </Link>
         </div>
         <button
-          className={`rounded-r-[12px] py-[14px] w-[88%] max-md:rounded-[12px] text-[#324054] flex items-center gap-4`}
+          // --- MODIFIED HERE --- (max-md -> max-xl - applied to parent)
+          className={`rounded-r-[12px] py-[14px] w-[88%] text-[#324054] flex items-center gap-4`}
           onClick={handleLogout}
         >
           <Image

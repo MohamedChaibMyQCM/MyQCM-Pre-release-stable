@@ -74,7 +74,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
               >
                 <div className="flex items-center gap-4 max-md:w-[80%]">
                   <Image
-                    src={subjectData.attachment}
+                    src={subjectData.icon}
                     alt="cours"
                     className="w-[40px]"
                     width={40}

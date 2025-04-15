@@ -14,48 +14,56 @@ import {
   eachDayOfInterval,
   isSameDay,
 } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react"; // Using lucide icons for consistency
 
 const Learning_calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const { data: learningData, isLoading } = useQuery({
-    queryKey: ["learningCalendar", selectedDate],
+  const formattedSelectedDate = format(selectedDate, "yyyy-MM-dd");
+
+  const { data: fetchedInteractions, isLoading } = useQuery({
+    // More specific query key
+    queryKey: ["learningCalendarInteractions", formattedSelectedDate],
     queryFn: async () => {
+      if (!secureLocalStorage.getItem("token")) return {}; // Return empty object if not logged in
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get("/progress/count", {
-        params: {
-          date: format(selectedDate, "yyyy-MM-dd"),
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data.data || [];
+      try {
+        const response = await BaseUrl.get("/progress/count", {
+          params: {
+            date: formattedSelectedDate, // Send formatted date
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        // Assuming response.data.data is an object like: { "10:00": 5, "14:00": 8 }
+        return response.data.data || {};
+      } catch (error) {
+        console.error("Error fetching learning data:", error);
+        // Consider showing a toast or error message
+        return {}; // Return empty object on error
+      }
     },
+    enabled: !!secureLocalStorage.getItem("token"), // Only run if token exists
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  // Générer les jours de la semaine
-  const weekStart = startOfWeek(currentDate);
-  const weekEnd = endOfWeek(currentDate);
+  // Week generation logic remains the same
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Assuming week starts on Monday
+  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-  // Données fictives - à remplacer par votre structure de données réelle
-  const mockInteractions = {
-    "2025-01-29": {
-      "14:00": 14,
-      "16:00": 18,
-      "20:00": 10,
-    },
-    [format(new Date(), "yyyy-MM-dd")]: {
-      "10:00": 5,
-      "14:00": 8,
-      "18:00": 12,
-    },
-  };
-
-  // Plages horaires à afficher
-  const timeSlots = ["10 AM", "12 PM", "2 PM", "4 PM", "6 PM", "8 PM", "10 PM"];
+  // Use dynamic time slots if needed, or keep fixed
+  const timeSlots = [
+    "10:00",
+    "12:00",
+    "14:00",
+    "16:00",
+    "18:00",
+    "20:00",
+    "22:00",
+  ];
 
   const handlePrevWeek = () => {
     setCurrentDate(subDays(currentDate, 7));
@@ -67,178 +75,177 @@ const Learning_calendar = () => {
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
+    // The useQuery will automatically refetch due to queryKey change
   };
 
-  // Obtenir les interactions pour la date sélectionnée
-  const selectedDateKey = format(selectedDate, "yyyy-MM-dd");
-  const dailyInteractions = mockInteractions[selectedDateKey] || {};
+  // Use the fetched data, default to empty object if loading or no data
+  const dailyInteractions = !isLoading ? fetchedInteractions || {} : {};
+  const totalDailyInteractions = Object.values(dailyInteractions).reduce(
+    (a, b) => a + Number(b),
+    0
+  );
 
   if (isLoading) {
+    // Simplified Loading state to fit your structure
     return (
-      <div className="flex-1">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+      <div className="flex-1 mb-6 md:mb-0">
+        <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919]">
           Calendrier d&apos;apprentissage
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] py-6 box h-[300px] flex items-center justify-center">
-          <div className="animate-pulse">
-            Chargement des données du calendrier...
-          </div>
+        <div className="bg-[#FFFFFF] rounded-[16px] p-4 sm:py-6 sm:px-6 box min-h-[400px] flex items-center justify-center text-center text-gray-500">
+          <div>Chargement...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <div className="flex-1 mb-6 md:mb-0">
+      {/* Adjusted header font size and margin */}
+      <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919]">
         Calendrier d&apos;apprentissage
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] py-6 box h-[520px]">
+      {/* Adjusted padding and removed fixed height */}
+      <div className="bg-[#FFFFFF] rounded-[16px] p-4 sm:py-6 sm:px-6 box">
         <Card className="border-none shadow-none">
-          <CardContent>
-            {/* Navigation de la semaine */}
-            <div className="flex items-center mb-4">
+          <CardContent className="p-0">
+            {" "}
+            {/* Remove default CardContent padding */}
+            {/* Navigation - Added flex-wrap and adjusted gaps */}
+            <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4">
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-pink-500 rounded-full mr-2"></div>
-                <span className="text-sm">Interactions</span>
+                <div className="w-3 h-3 bg-pink-500 rounded-full mr-2 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">
+                  Interactions
+                </span>
               </div>
 
-              <div className="ml-auto flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <button
                   onClick={handlePrevWeek}
-                  className="p-1 hover:bg-gray-100 rounded"
+                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  aria-label="Semaine précédente"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide-chevron-left"
-                  >
-                    <path d="m15 18-6-6 6-6"></path>
-                  </svg>
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
-                <span className="font-medium">
-                  {format(weekStart, "MMM d")} -{" "}
-                  {format(weekEnd, "MMM d, yyyy")}
+                <span className="font-medium text-xs sm:text-sm text-center w-[140px] sm:w-auto">
+                  {format(weekStart, "d MMM")} -{" "}
+                  {format(weekEnd, "d MMM, yyyy")}
                 </span>
                 <button
                   onClick={handleNextWeek}
-                  className="p-1 hover:bg-gray-100 rounded"
+                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  aria-label="Semaine suivante"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide-chevron-right"
-                  >
-                    <path d="m9 18 6-6-6-6"></path>
-                  </svg>
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
             </div>
-
-            {/* En-tête des jours de la semaine */}
-            <div className="flex mb-2">
+            {/* Week Day Headers - Adjusted text sizes */}
+            <div className="flex mb-3 sm:mb-4">
               {weekDays.map((day) => (
                 <div
                   key={day.toString()}
-                  className={`flex-1 text-center text-sm py-1 cursor-pointer rounded ${
+                  className={`flex-1 text-center py-1 cursor-pointer rounded transition-colors duration-150 ${
                     isSameDay(day, selectedDate)
-                      ? "bg-pink-100 text-pink-600"
-                      : "hover:bg-gray-50"
+                      ? "bg-pink-100 text-pink-600 font-semibold"
+                      : "hover:bg-gray-50 text-gray-700"
                   }`}
                   onClick={() => handleDateSelect(day)}
                 >
-                  <div>{format(day, "EEE")}</div>
+                  <div className="text-[11px] sm:text-xs uppercase tracking-wide">
+                    {format(day, "EEE")}
+                  </div>
                   <div
-                    className={`text-xs ${
-                      isSameDay(day, new Date())
-                        ? "text-pink-500 font-bold"
+                    className={`text-sm sm:text-base font-medium mt-0.5 ${
+                      isSameDay(day, new Date()) &&
+                      !isSameDay(day, selectedDate)
+                        ? "text-pink-500"
                         : ""
-                    }`}
+                    } ${isSameDay(day, selectedDate) ? "" : "text-gray-800"}`}
                   >
                     {format(day, "d")}
                   </div>
                 </div>
               ))}
             </div>
+            {/* Time Slots - Adjusted spacing, sizes and positioning */}
+            <div className="space-y-2 sm:space-y-3">
+              {/* Added visual time lines */}
+              <div className="relative border-t border-gray-200 mt-2 mb-2">
+                <span className="absolute -top-2 left-2 text-xs text-gray-400 bg-white px-1">
+                  Heures
+                </span>
+              </div>
 
-            {/* Plages horaires avec interactions */}
-            <div className="space-y-4">
               {timeSlots.map((time) => {
-                const timeKey = time
-                  .replace(" AM", ":00")
-                  .replace(" PM", ":00");
-                const interactionCount = dailyInteractions[timeKey] || 0;
+                const interactionCount = Number(dailyInteractions[time] || 0);
+                const hour = parseInt(time.split(":")[0], 10);
+                const displayTime = format(
+                  new Date(0, 0, 0, hour),
+                  "h a"
+                ).toLowerCase(); // Format time like '10 am'
 
                 return (
-                  <div key={time} className="flex items-center relative h-8">
-                    <div className="w-16 text-right text-gray-500 text-sm pr-4">
-                      {time}
+                  <div
+                    key={time}
+                    className="flex items-center relative min-h-[32px] sm:min-h-[36px]"
+                  >
+                    {" "}
+                    {/* Use min-h */}
+                    {/* Adjusted label width, padding and text size */}
+                    <div className="w-12 sm:w-14 text-right text-gray-400 text-[10px] sm:text-xs pr-2 sm:pr-3 flex-shrink-0">
+                      {displayTime}
                     </div>
-                    <div className="w-full border-t border-dashed border-gray-200"></div>
-
+                    {/* Ensure line takes up remaining space */}
+                    <div className="flex-grow border-t border-dashed border-gray-200 relative top-[1px]"></div>
                     {interactionCount > 0 && (
-                      <>
-                        <div className="absolute left-16 right-0 top-1/2 transform -translate-y-1/2 flex space-x-1">
-                          {Array(Math.min(interactionCount, 10))
+                      // Container for dots and count, adjusted positioning
+                      <div className="absolute top-1/2 transform -translate-y-1/2 left-[54px] sm:left-[62px] right-0 flex items-center justify-between pr-2 sm:pr-4">
+                        {/* Display dots - maybe limit number visually */}
+                        <div className="flex space-x-1 items-center">
+                          {Array(Math.min(interactionCount, 8)) // Limit dots displayed
                             .fill(0)
                             .map((_, i) => (
                               <div
                                 key={i}
-                                className="w-3 h-3 rounded-full bg-pink-500"
+                                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-pink-500"
                               ></div>
                             ))}
+                          {interactionCount > 8 && (
+                            <span className="text-[9px] sm:text-[10px] text-pink-400 ml-1">
+                              +
+                            </span>
+                          )}
                         </div>
-                        <div className="absolute top-1/2 right-8 transform -translate-y-1/2 text-pink-500 font-medium text-sm">
+                        {/* Count - adjusted text size */}
+                        <div className="text-pink-500 font-medium text-[11px] sm:text-xs ml-2">
                           {interactionCount}
                         </div>
-                      </>
+                      </div>
                     )}
                   </div>
                 );
               })}
+              {/* Added bottom border */}
+              <div className="border-t border-gray-200 pt-2"></div>
             </div>
-
-            {/* Résumé des statistiques */}
-            {Object.keys(dailyInteractions).length > 0 && (
-              <div className="mt-4 text-sm text-gray-600">
+            {/* Summary & Empty State - Adjusted margins and text size */}
+            {!isLoading && totalDailyInteractions > 0 && (
+              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 border-t border-gray-100 pt-3">
                 <p>
-                  Total des interactions le{" "}
-                  {format(selectedDate, "MMMM d, yyyy")}:{" "}
-                  <span className="font-medium text-pink-500">
-                    {Object.values(dailyInteractions).reduce(
-                      (a, b) => a + b,
-                      0
-                    )}
+                  Total le {format(selectedDate, "d MMMM yyyy")}:{" "}
+                  <span className="font-semibold text-pink-500">
+                    {totalDailyInteractions} interactions
                   </span>
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Heure de pointe:{" "}
-                  {
-                    Object.entries(dailyInteractions).reduce((a, b) =>
-                      a[1] > b[1] ? a : b
-                    )[0]
-                  }
-                </p>
+                {/* Optional: Show peak time if desired */}
               </div>
             )}
-
-            {Object.keys(dailyInteractions).length === 0 && (
-              <div className="mt-8 text-center text-gray-400 text-sm">
-                Aucune interaction d&apos;apprentissage enregistrée pour ce jour
+            {!isLoading && totalDailyInteractions === 0 && (
+              <div className="mt-6 text-center text-gray-400 text-xs sm:text-sm py-4">
+                Aucune interaction enregistrée pour le{" "}
+                {format(selectedDate, "d MMMM yyyy")}.
               </div>
             )}
           </CardContent>

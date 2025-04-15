@@ -8,8 +8,8 @@ import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
-import FilterPopup from "./FilterPopup"; // Assuming this exists
-import module from "../../../../public/Icons/module.svg"; // Verify path
+import FilterPopup from "./FilterPopup";
+import moduleIcon from "../../../../public/Icons/module.svg"; // Verify path & maybe use a more specific name if needed elsewhere
 import filter from "../../../../public/Question_Bank/filter.svg"; // Verify path
 import secureLocalStorage from "react-secure-storage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,13 +19,14 @@ const Categories = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState("");
   const filterRef = useRef(null);
-  const selectContentRef = useRef(null);
+  const selectContentRef = useRef(null); // Passed to FilterPopup to handle clicks inside it
 
-  // --- UseEffects remain the same ---
   useEffect(() => {
     const unitId = searchParams.get("unitId");
     if (unitId) {
       setSelectedUnitId(unitId);
+    } else {
+      setSelectedUnitId(""); // Ensure reset if param removed
     }
   }, [searchParams]);
 
@@ -46,7 +47,6 @@ const Categories = () => {
     };
   }, []);
 
-  // --- React Query Hooks remain the same ---
   const {
     data: unitsData,
     isLoading: isUnitsLoading,
@@ -54,18 +54,22 @@ const Categories = () => {
   } = useQuery({
     queryKey: ["units"],
     queryFn: async () => {
+      if (!secureLocalStorage.getItem("token")) return [];
       try {
         const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get("/unit/me?offset=20", {
+        // Increased offset assuming more units might exist than initially thought
+        const response = await BaseUrl.get("/unit/me?offset=50", {
           headers: { Authorization: `Bearer ${token}` },
         });
         return response.data?.data?.data || [];
       } catch (err) {
         console.error("Categories: Error fetching units:", err);
+        // Avoid duplicate toasts if overall error is handled later
         return [];
       }
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // Cache units for 10 mins
+    retry: 1,
   });
 
   const {
@@ -90,85 +94,92 @@ const Categories = () => {
         return null;
       }
     },
+    enabled: !!secureLocalStorage.getItem("token"),
+    staleTime: 1000 * 60 * 15,
+    retry: 1,
   });
+
+  // Determine the unit ID for fetching subjects
+  const unitIdToFetch = selectedUnitId || profileData?.unit?.id;
 
   const {
     data: subjectsData = [],
     isLoading: isSubjectsLoading,
     isFetching: isSubjectsFetching,
     error: subjectsError,
-    refetch: refetchSubjects,
+    // Removed refetchSubjects as React Query handles updates via queryKey change
   } = useQuery({
-    queryKey: ["subjects", selectedUnitId],
+    queryKey: ["subjects", unitIdToFetch], // Key depends on the actual unit ID used
     queryFn: async () => {
-      if (!secureLocalStorage.getItem("token")) return [];
+      if (!secureLocalStorage.getItem("token") || !unitIdToFetch) return [];
       const token = secureLocalStorage.getItem("token");
-      const unitIdToFetch = selectedUnitId || profileData?.unit?.id;
-      if (!unitIdToFetch) return [];
       try {
+        // Fetch a larger number of subjects, adjust if pagination is needed
         const response = await BaseUrl.get(
-          `/subject/me?unit=${unitIdToFetch}&offset=50`,
+          `/subject/me?unit=${unitIdToFetch}&offset=100`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        // Your console log from before, kept for debugging if needed
+        // console.log(response.data?.data?.data);
         return response.data?.data?.data || [];
       } catch (error) {
         console.error(
-          "Categories: Erreur lors du chargement des matières :",
+          `Categories: Error fetching subjects for unit ${unitIdToFetch}:`,
           error
         );
-        return [];
+        return []; // Return empty array on error to prevent breaking map
       }
     },
-    enabled: !!selectedUnitId || !!profileData?.unit?.id,
+    // Fetch only when a unit ID is available and the user is logged in
+    enabled: !!unitIdToFetch && !!secureLocalStorage.getItem("token"),
+    staleTime: 1000 * 60 * 5, // Cache subjects for 5 minutes
+    retry: 1,
   });
 
-  useEffect(() => {
-    if (!!selectedUnitId || !!profileData?.unit?.id) {
-      refetchSubjects();
-    }
-  }, [selectedUnitId, profileData?.unit?.id, refetchSubjects]);
-
-  // --- Filter Handlers remain the same ---
   const resetFilter = () => {
     setSelectedUnitId("");
-    setShowFilter(false);
+    setShowFilter(false); // Query will refetch automatically
   };
 
   const closeFilter = () => {
     setShowFilter(false);
   };
 
-  // --- Loading/Error States remain the same ---
+  // Combined loading state: consider initial load vs background refresh
   const isInitialLoading =
-    isUnitsLoading ||
-    isProfileLoading ||
-    ((!!selectedUnitId || !!profileData?.unit?.id) &&
+    isUnitsLoading || // Units must load first
+    isProfileLoading || // Profile helps determine default unit
+    (!!unitIdToFetch &&
       isSubjectsLoading &&
-      subjectsData.length === 0);
+      subjectsData?.length === 0 &&
+      !subjectsError); // Subjects loading for the *first* time for the target unit
+
   const hasError = subjectsError || unitsError || profileError;
 
-  if (isInitialLoading && !hasError) {
-    return <Loading />;
-  }
-
+  // Display error prominently if any query fails
   if (hasError) {
     const errorMessage =
-      subjectsError?.message ||
       unitsError?.message ||
       profileError?.message ||
-      "Une erreur est survenue lors du chargement des catégories.";
+      subjectsError?.message ||
+      "Une erreur est survenue.";
+    // Use your original error display structure if preferred
     return (
-      <div className="px-[24px] mb-[24px]">
-        <div className="bg-white p-4 rounded-lg text-center text-red-500 border border-red-200">
-          Erreur : {errorMessage}. Veuillez actualiser.
+      <div className="px-[24px] mb-[24px] max-md:px-[20px]">
+        <div className="bg-white p-4 rounded-lg text-center text-red-500 border border-red-200 shadow-sm">
+          Erreur : {errorMessage}. Veuillez réessayer.
         </div>
       </div>
     );
   }
 
-  // --- Animation variants remain the same ---
+  // Display loading indicator only during the initial critical path fetches
+  if (isInitialLoading) {
+    return <Loading />;
+  }
+
   const popupVariants = {
     hidden: { opacity: 0, scale: 0.95, y: -10 },
     visible: {
@@ -185,14 +196,47 @@ const Categories = () => {
     },
   };
 
+  // Get selected unit name safely for button label
+  const selectedUnitName = unitsData?.find(
+    (u) => u.id === selectedUnitId
+  )?.name;
+  const filterButtonLabel = selectedUnitId
+    ? `Unité: ${
+        selectedUnitName
+          ? selectedUnitName.length > 10
+            ? selectedUnitName.substring(0, 10) + "..."
+            : selectedUnitName
+          : "Filtrée"
+      }`
+    : "Filtrer";
+
+  // Use item.icon from data, fallback to imported moduleIcon
+  const getSubjectIcon = (subject) => {
+    // Check if subject.icon is a valid URL or path string
+    if (
+      subject &&
+      typeof subject.icon === "string" &&
+      subject.icon.length > 0
+    ) {
+      // Basic check: assume it's a relative path or full URL from backend
+      // If backend provides full URLs, this is fine.
+      // If backend provides relative paths *needing* BaseUrl, adjust here.
+      // Example: return subject.icon.startsWith('http') ? subject.icon : `${process.env.NEXT_PUBLIC_API_BASE_URL}${subject.icon}`;
+      return subject.icon;
+    }
+    // Fallback to the locally imported icon
+    return moduleIcon;
+  };
+
   return (
+    // Structure and classes exactly as you provided in the prompt
     <div className="px-[24px] mb-[24px] max-md:px-[20px]">
-      {/* Header remains the same */}
       <div className="relative flex items-center justify-between mb-5">
         <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
           Modules
         </h3>
         <div className="relative" ref={filterRef}>
+          {/* Using your original filter button style */}
           <div
             className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-gray-50"
             onClick={() => setShowFilter(!showFilter)}
@@ -200,14 +244,9 @@ const Categories = () => {
             aria-haspopup="true"
             aria-expanded={showFilter}
           >
+            {/* Using derived label, keeping your style */}
             <button className="text-[14px] font-[500]">
-              {selectedUnitId
-                ? `Unité: ${
-                    unitsData
-                      ?.find((u) => u.id === selectedUnitId)
-                      ?.name?.substring(0, 10) || "Filtrée"
-                  }...`
-                : "Filtrer"}
+              {filterButtonLabel}
             </button>
             <Image src={filter} alt="filtre" className="w-[13px]" />
           </div>
@@ -218,15 +257,16 @@ const Categories = () => {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="absolute right-0 mt-2 z-20"
+                className="absolute right-0 mt-2 z-20" // z-index from your original
               >
                 <FilterPopup
                   selectedUnit={selectedUnitId}
                   setSelectedUnit={setSelectedUnitId}
                   resetFilter={resetFilter}
                   closeFilter={closeFilter}
-                  units={unitsData || []}
-                  selectContentRef={selectContentRef}
+                  units={unitsData || []} // Pass fetched units
+                  selectContentRef={selectContentRef} // Pass the ref
+                  isLoading={isUnitsLoading} // Let popup know if units are loading
                 />
               </motion.div>
             )}
@@ -234,17 +274,19 @@ const Categories = () => {
         </div>
       </div>
 
-      {/* ============ MODULE LIST - GRID CHANGES APPLIED HERE ============ */}
+      {/* Grid layout and styles exactly as you provided */}
       <ul
-        // Changed from flex to grid, defined columns and gap
         className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
-          isSubjectsFetching ? "opacity-75 pointer-events-none" : "opacity-100"
+          // Dim slightly during background fetches after initial load
+          isSubjectsFetching && !isInitialLoading
+            ? "opacity-75 pointer-events-none"
+            : "opacity-100"
         }`}
       >
-        {subjectsData?.length === 0 ? (
-          // Empty State - unchanged
-          // Spanning the empty message across all columns
+        {/* Handle empty state after loading and checking length */}
+        {!isInitialLoading && subjectsData?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
+            {/* Your original empty state icon/text structure */}
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
               ? "Aucun module trouvé pour l'unité sélectionnée."
@@ -257,32 +299,47 @@ const Categories = () => {
                 (Voir tout)
               </button>
             )}
+            {/* Added suggestion if no default unit and no filter */}
+            {!selectedUnitId && !profileData?.unit?.id && (
+              <p className="text-xs mt-2 text-gray-400">
+                Sélectionnez une unité avec le filtre.
+              </p>
+            )}
           </div>
         ) : (
-          // List Items - Removed basis classes, kept transitions
+          // Map over subjects, using your li structure and classes
           subjectsData?.map((item) => (
             <li
               key={item.id}
-              // Removed basis-[...] and flex-shrink-0 classes
-              className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg" // Kept transitions
+              className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"
             >
-              {/* Link and content structure remain the same */}
               <Link
                 href={`/dashboard/question-bank/${item.id}`}
                 className="flex items-center h-[84px] gap-4 px-[20px] rounded-[16px] cursor-pointer w-full"
               >
+                {/* Using the getSubjectIcon logic */}
                 <Image
-                  src={module}
-                  alt="" // Decorative ok if text is descriptive
+                  src={getSubjectIcon(item)}
+                  alt="" // Decorative icon, alt can be empty
                   width={40}
                   height={40}
+                  onError={(e) => {
+                    e.currentTarget.src = moduleIcon.src;
+                  }} // Fallback on image load error
+                  className="flex-shrink-0" // Prevent icon shrinking
                 />
-                <div className="flex flex-col gap-1 overflow-hidden">
-                  <span className="text-[#FFFFFF] font-Poppins font-semibold text-[14px] truncate">
+                <div className="flex flex-col gap-1 overflow-hidden min-w-0">
+                  {" "}
+                  {/* Allow text truncate */}
+                  <span
+                    className="text-[#FFFFFF] font-Poppins font-semibold text-[14px] truncate"
+                    title={item.name}
+                  >
                     {item.name}
                   </span>
                   <span className="text-[#FFC9E1] font-Poppins font-normal text-[12px]">
-                    {item.total ?? 0} Questions
+                    {item.totalQuestions ?? item.total ?? 0} Questions{" "}
+                    {/* Use consistent key */}
                   </span>
                 </div>
               </Link>
@@ -290,7 +347,6 @@ const Categories = () => {
           ))
         )}
       </ul>
-      {/* ============ END OF MODULE LIST ============ */}
     </div>
   );
 };

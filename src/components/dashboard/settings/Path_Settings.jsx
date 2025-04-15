@@ -76,12 +76,12 @@ const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Choisissez votre parcours vers la maîtrise
       </h3>
-      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box">
+      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box max-md:flex-col max-md:pr-6">
         <form className="w-full">
           {learningModes.map((mode) => (
             <div
               key={mode.id}
-              className={`flex flex-col p-4 rounded-[8px] w-[90%] border ${
+              className={`flex flex-col p-4 rounded-[8px] w-[90%] border max-md:w-full ${
                 displayedSelectedModeId === mode.id
                   ? "bg-[#FFF5FA] border-[#F8589F]"
                   : "border-[#E4E4E4]"
@@ -133,7 +133,7 @@ const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
             </div>
           ))}
         </form>
-        <Image src={path} alt="parcours" />
+        <Image src={path} alt="parcours" className="max-md:w-[240px]" />
       </div>
     </div>
   );

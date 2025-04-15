@@ -1,23 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import activation_card from "../../../../public/settings/activation_card.svg"; // Verify path
-import dahabia from "../../../../public/settings/dahabia.svg"; // Verify path
+import activation_card from "../../../../public/settings/activation_card.svg";
+import dahabia from "../../../../public/settings/dahabia.svg";
 import { useRouter } from "next/navigation";
-import PlanCard from "./PlanCard"; // Assuming this component exists
-import PaymentMethodCard from "./PaymentMethodCard"; // Assuming this component exists
+import PlanCard from "./PlanCard";
+import PaymentMethodCard from "./PaymentMethodCard";
 
 const Choose_plan = () => {
   const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = useState("basic"); // Default to Basic plan
-  const [selectedDuration, setSelectedDuration] = useState("6 mois"); // Keep 6 mois as default duration
+  const [selectedPlan, setSelectedPlan] = useState("basic");
+  const [selectedDuration, setSelectedDuration] = useState("6 mois");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("dahabia");
   const [showPopup, setShowPopup] = useState(false);
 
-  // --- Updated Plans ---
   const plans = [
     {
-      id: "free", // Added Free plan
+      id: "free", 
       title: "Forfait Gratuit",
       price: "Gratuit",
       features: [
@@ -29,32 +28,31 @@ const Choose_plan = () => {
       recommended: false,
     },
     {
-      id: "basic", // Kept original Basic ID, potentially updated features
+      id: "basic",
       title: "Forfait Basique",
       price: "3000 DZ/Mois",
       features: [
         { text: "Accès à tous les cours", included: true },
         { text: "Tous les tests inclus", included: true },
         { text: "Assistant IA", included: false },
-        { text: "Tentatives de test limitées", included: false }, // Changed from unlimited maybe
+        { text: "Tentatives de test limitées", included: false }, 
       ],
-      recommended: false, // Basic is usually not the recommended one
+      recommended: false, 
     },
     {
-      id: "premium", // Changed ID from 'ai', this is the top tier
+      id: "premium", 
       title: "Forfait Premium",
       price: "4500 DZ/Mois",
       features: [
         { text: "Accès illimité (Cours/Tests)", included: true },
-        { text: "Statistiques détaillées", included: true }, // Added example feature
-        { text: "Assistant IA avancé", included: true }, // Clarified feature maybe
+        { text: "Statistiques détaillées", included: true }, 
+        { text: "Assistant IA avancé", included: true },
         { text: "Tentatives de test illimitées", included: true },
       ],
-      recommended: true, // Premium is recommended
+      recommended: true, 
     },
   ];
 
-  // --- Payment Methods (Unchanged) ---
   const paymentMethods = [
     {
       id: "dahabia",
@@ -70,22 +68,18 @@ const Choose_plan = () => {
     },
   ];
 
-  // --- Handlers (Unchanged, but note logic based on 'activation_card') ---
   const handlePaymentMethodSelect = (methodId) => {
     setSelectedPaymentMethod(methodId);
-    // Reset plan/duration if switching TO activation card, as they are disabled
     if (methodId === "activation_card") {
-      setSelectedPlan("free"); // Or some default that makes sense
-      setSelectedDuration("N/A"); // Duration not applicable maybe?
+      setSelectedPlan("free"); 
+      setSelectedDuration("N/A");
     } else if (selectedPlan === "free" && methodId !== "activation_card") {
-      // If switching away from activation card and free was selected, maybe default back to basic?
       setSelectedPlan("basic");
       setSelectedDuration("6 mois");
     }
   };
 
   const handleNext = () => {
-    // Ensure a valid plan is selected if not using activation card
     if (
       selectedPaymentMethod !== "activation_card" &&
       selectedPlan === "free"
@@ -99,7 +93,7 @@ const Choose_plan = () => {
     if (selectedPaymentMethod === "activation_card") {
       router.push("/dashboard/settings/upgrade-account/activation-card");
     } else {
-      setShowPopup(true); // Show 'Coming Soon' for Dahabia
+      setShowPopup(true);
     }
   };
 
@@ -107,16 +101,13 @@ const Choose_plan = () => {
     setShowPopup(false);
   };
 
-  // --- State calculation (Unchanged) ---
   const isActivationCardSelected = selectedPaymentMethod === "activation_card";
-  // Determine if plan/duration selection should be disabled
-  const disablePlanSelection = isActivationCardSelected; // || selectedPlan === 'free'; // Should Free plan also disable duration? Maybe not.
+  const disablePlanSelection = isActivationCardSelected;
   const disableDurationSelection =
-    isActivationCardSelected || selectedPlan === "free"; // Free plan usually has no duration choice
+    isActivationCardSelected || selectedPlan === "free";
 
   return (
     <div>
-      {/* Popup for Dahabia (Unchanged) */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-[16px] p-6 max-w-md w-full mx-auto shadow-lg">
@@ -140,14 +131,12 @@ const Choose_plan = () => {
         </div>
       )}
 
-      {/* Payment Method Section (Unchanged Structure) */}
       <div className="mt-8">
         <h3 className="text-[#191919] text-[17px] font-[500]">
           1. Choisissez un moyen de paiement
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4 md:gap-6">
           {" "}
-          {/* Use grid for better spacing */}
           {paymentMethods.map((method) => (
             <PaymentMethodCard
               key={method.id}
@@ -159,8 +148,6 @@ const Choose_plan = () => {
         </div>
       </div>
 
-      {/* Plan Selection Section */}
-      {/* --- Conditionally disabled based on payment method --- */}
       <div
         className={`mt-8 transition-opacity duration-300 ${
           disablePlanSelection
@@ -181,12 +168,11 @@ const Choose_plan = () => {
               key={plan.id}
               plan={plan}
               isSelected={selectedPlan === plan.id}
-              onClick={() => !disablePlanSelection && setSelectedPlan(plan.id)} // Prevent click if disabled
-              isDisabled={disablePlanSelection} // Pass disabled state to card visually
+              onClick={() => !disablePlanSelection && setSelectedPlan(plan.id)}
+              isDisabled={disablePlanSelection} 
             />
           ))}
         </div>
-        {/* Informational text (conditionally shown/relevant) */}
         {!disablePlanSelection && (
           <span className="text-[#B5BEC6] text-[13px] block">
             Votre nouveau forfait payant commencera immédiatement ou après la
@@ -195,8 +181,6 @@ const Choose_plan = () => {
         )}
       </div>
 
-      {/* Duration Selection Section */}
-      {/* --- Conditionally disabled based on payment method AND plan --- */}
       <div
         className={`mt-8 transition-opacity duration-300 ${
           disableDurationSelection
@@ -212,8 +196,6 @@ const Choose_plan = () => {
         </h3>
         <div className="flex items-center flex-wrap gap-4 mt-3">
           {" "}
-          {/* Added flex-wrap */}
-          {/* --- Added "3 mois" --- */}
           {["3 mois", "6 mois", "1 an"].map((duration) => (
             <button
               key={duration}
@@ -221,11 +203,11 @@ const Choose_plan = () => {
                 selectedDuration === duration
                   ? "bg-[#FFF5FA] text-[#F8589F] border border-[#F8589F]"
                   : "bg-white text-[#191919] border border-gray-300 hover:border-gray-400"
-              } px-4 py-1.5 text-[14px] rounded-[12px]`} // Adjusted styles slightly
+              } px-4 py-1.5 text-[14px] rounded-[12px]`} 
               onClick={() =>
                 !disableDurationSelection && setSelectedDuration(duration)
               }
-              disabled={disableDurationSelection} // Disable button directly
+              disabled={disableDurationSelection} 
             >
               {duration}
             </button>
@@ -233,11 +215,9 @@ const Choose_plan = () => {
         </div>
       </div>
 
-      {/* Next Button */}
       <div className="flex justify-end mt-10">
         <button
           onClick={handleNext}
-          // Disable button if Dahabia is chosen but the plan is Free
           disabled={
             selectedPaymentMethod === "dahabia" && selectedPlan === "free"
           }

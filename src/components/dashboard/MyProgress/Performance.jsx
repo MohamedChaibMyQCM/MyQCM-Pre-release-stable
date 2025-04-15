@@ -60,7 +60,7 @@ const Performance = ({ performance }) => {
       </h3>
       <div className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px]">
         <Card className="border-none shadow-none">
-          <CardContent>
+          <CardContent className="max-md:!p-2">
             <div className="relative flex items-center justify-center">
               <ChartContainer
                 config={{}}

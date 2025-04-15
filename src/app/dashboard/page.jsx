@@ -8,7 +8,7 @@ const Page = async () => {
   return (
     <div className="bg-[#F7F8FA] pb-10">
       <Dash_Header />
-      <div className="px-5 mt-4 max-md:mt-0">
+      <div className="px-5 mt-4 max-md:mt-0 max-xl:mt-8">
         <Units />
         <Modules />
         <div className="flex items-start gap-6 mt-10 max-md:flex-col w-[100%] max-md:mt-6">

@@ -64,7 +64,7 @@ const Questions = ({
             >
               <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[80%]">
                 <Image
-                  src={subjectData.attachement || "/default-icon.svg"} // Provide a fallback image
+                  src={subjectData.icon || "/default-icon.svg"} // Provide a fallback image
                   alt={`Icon for ${subjectData.name}`}
                   width={40}
                   height={40}

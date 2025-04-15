@@ -107,21 +107,18 @@ const Categories = () => {
     isLoading: isSubjectsLoading,
     isFetching: isSubjectsFetching,
     error: subjectsError,
-    // Removed refetchSubjects as React Query handles updates via queryKey change
   } = useQuery({
-    queryKey: ["subjects", unitIdToFetch], // Key depends on the actual unit ID used
+    queryKey: ["subjects", unitIdToFetch], 
     queryFn: async () => {
       if (!secureLocalStorage.getItem("token") || !unitIdToFetch) return [];
       const token = secureLocalStorage.getItem("token");
       try {
-        // Fetch a larger number of subjects, adjust if pagination is needed
         const response = await BaseUrl.get(
           `/subject/me?unit=${unitIdToFetch}&offset=100`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        // Your console log from before, kept for debugging if needed
         // console.log(response.data?.data?.data);
         return response.data?.data?.data || [];
       } catch (error) {
@@ -129,10 +126,9 @@ const Categories = () => {
           `Categories: Error fetching subjects for unit ${unitIdToFetch}:`,
           error
         );
-        return []; // Return empty array on error to prevent breaking map
+        return []; 
       }
     },
-    // Fetch only when a unit ID is available and the user is logged in
     enabled: !!unitIdToFetch && !!secureLocalStorage.getItem("token"),
     staleTime: 1000 * 60 * 5, // Cache subjects for 5 minutes
     retry: 1,
@@ -140,32 +136,29 @@ const Categories = () => {
 
   const resetFilter = () => {
     setSelectedUnitId("");
-    setShowFilter(false); // Query will refetch automatically
+    setShowFilter(false); 
   };
 
   const closeFilter = () => {
     setShowFilter(false);
   };
 
-  // Combined loading state: consider initial load vs background refresh
   const isInitialLoading =
-    isUnitsLoading || // Units must load first
-    isProfileLoading || // Profile helps determine default unit
+    isUnitsLoading || 
+    isProfileLoading || 
     (!!unitIdToFetch &&
       isSubjectsLoading &&
       subjectsData?.length === 0 &&
-      !subjectsError); // Subjects loading for the *first* time for the target unit
+      !subjectsError);
 
   const hasError = subjectsError || unitsError || profileError;
 
-  // Display error prominently if any query fails
   if (hasError) {
     const errorMessage =
       unitsError?.message ||
       profileError?.message ||
       subjectsError?.message ||
       "Une erreur est survenue.";
-    // Use your original error display structure if preferred
     return (
       <div className="px-[24px] mb-[24px] max-md:px-[20px]">
         <div className="bg-white p-4 rounded-lg text-center text-red-500 border border-red-200 shadow-sm">
@@ -175,7 +168,6 @@ const Categories = () => {
     );
   }
 
-  // Display loading indicator only during the initial critical path fetches
   if (isInitialLoading) {
     return <Loading />;
   }

@@ -10,10 +10,10 @@ const Header = () => {
   const path = usePathname();
 
   const navLinks = [
-    { name: "À propos", href: "/about" }, // Example paths
-    { name: "Fonctionnalités", href: "/features" },
-    { name: "Tarifs", href: "/pricing" },
-    { name: "Contact", href: "/contact" },
+    { name: "À propos", href: "/#about" }, 
+    { name: "Fonctionnalités", href: "/#features" },
+    { name: "Tarifs", href: "/#pricing" },
+    { name: "Contact", href: "/#contact" },
   ];
 
   return (
@@ -25,7 +25,7 @@ const Header = () => {
           src={logo}
           alt="Logo MYQCM"
           className="w-[90px] md:w-[120px] hover:scale-105 transition-transform duration-300"
-          priority // Add priority for LCP
+          priority 
         />
       </Link>
 
@@ -37,7 +37,7 @@ const Header = () => {
                 href={link.href}
                 className={`font-[500] text-sm lg:text-[16px] ${
                   path === link.href ? "text-[#F8589F]" : "text-[#191919]"
-                } relative hover:text-[#F8589F] transition-colors duration-300 whitespace-nowrap`} // Added whitespace-nowrap
+                } relative hover:text-[#F8589F] transition-colors duration-300 whitespace-nowrap`} 
               >
                 {link.name}
                 <span
@@ -54,7 +54,7 @@ const Header = () => {
       <div className="flex items-center">
         <Link
           href={`/signup`}
-          className="bg-[#F8589FCC] py-1.5 md:py-[8px] font-[500] flex gap-2 md:gap-3 items-center px-3 md:px-[20px] text-[13px] md:text-[14px] text-[#FFFFFF] rounded-[12px] md:rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] hover:from-[#FD2E8A] hover:to-[#F8589F] transition-all duration-300 hover:shadow-lg hover:shadow-pink-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap" // Added whitespace-nowrap
+          className="bg-[#F8589FCC] py-1.5 md:py-[8px] font-[500] flex gap-2 md:gap-3 items-center px-3 md:px-[20px] text-[13px] md:text-[14px] text-[#FFFFFF] rounded-[12px] md:rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] hover:from-[#FD2E8A] hover:to-[#F8589F] transition-all duration-300 hover:shadow-lg hover:shadow-pink-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
         >
           S&apos;inscrire{" "}
           <Image

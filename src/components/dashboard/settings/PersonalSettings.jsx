@@ -14,12 +14,18 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
     queryKey: ["currentSubscription"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get("/user/subscription/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data.data || null;
+      if (!token) return null;
+      try {
+        const response = await BaseUrl.get("/user/subscription/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data.data || null;
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        return null;
+      }
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -30,6 +36,7 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
   const updateNameMutation = useMutation({
     mutationFn: async (newName) => {
       const token = secureLocalStorage.getItem("token");
+      if (!token) throw new Error("Authentication token not found.");
       const response = await BaseUrl.patch(
         "/user",
         { name: newName },
@@ -39,16 +46,18 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
           },
         }
       );
-      return response.data;
+      return response.data.data;
     },
     onSuccess: (data) => {
       toast.success("Nom mis à jour avec succès !");
-      onNameUpdate(data.name);
+      onNameUpdate(data?.name || name);
+      if (data?.name) setName(data.name);
       setIsEditing(false);
     },
     onError: (error) => {
       toast.error(
         error.response?.data?.message ||
+          error.message ||
           "Échec de la mise à jour du nom. Veuillez réessayer.",
         { id: "name-error" }
       );
@@ -57,16 +66,26 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
   });
 
   const handleEditClick = () => {
+    setName(userData?.name || "");
     setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
     setName(userData?.name || "");
   };
 
   const handleSave = () => {
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       toast.error("Le nom ne peut pas être vide", { id: "empty-name" });
       return;
     }
-    updateNameMutation.mutate(name);
+    if (trimmedName === userData?.name) {
+      setIsEditing(false);
+      return;
+    }
+    updateNameMutation.mutate(trimmedName);
   };
 
   return (
@@ -76,21 +95,21 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
         alt="arrière-plan du profil"
         className="absolute w-full top-[0px] max-md:top-[0px]"
       />
-
-      <div className="relative h-[180px] max-md:h-[120px]">
-        <div className="absolute bottom-0 left-0 px-6 pb-4 w-full">
-          <div className="flex justify-between items-center">
+      <div className="relative h-[140px] max-md:h-[110px] mt-2">
+        <div className="absolute bottom-0 left-0 px-6 pb- w-full z-10 bg-gradient-to-t from-white via-white/80 to-transparent">
+          <div className="flex justify-between items-end">
             <div className="flex items-center">
               <Image
-                src={userData?.avatar}
+                src={userData?.avatar || "/default_avatar.png"}
                 width={70}
                 height={70}
                 alt="photo de profil"
-                className="w-[70px] max-md:w-[60px]"
+                className="w-[60px] h-[60px] md:w-[70px] md:h-[70px] border-2 border-white bg-gray-200"
+                style={{ objectFit: "cover" }}
               />
               <div className="ml-4">
-                <div className="text-[#191919] text-[15px] font-[500]">
-                  {userData?.name || "Non renseigné"}
+                <div className="text-[#191919] text-[15px] font-[500] line-clamp-1">
+                  {isEditing ? name : userData?.name || "Non renseigné"}
                 </div>
                 <div className="text-[#B5BEC6] text-[14px]">
                   {subscriptionData?.plan?.name || "Gratuit"} Plan
@@ -98,22 +117,42 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
               </div>
             </div>
 
-            <button
-              onClick={isEditing ? handleSave : handleEditClick}
-              className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-white"
-              disabled={isEditing && updateNameMutation.isLoading}
-            >
-              <span className="text-[13px] text-[#F8589F]">
-                {isEditing
-                  ? updateNameMutation.isLoading
-                    ? "Enregistrement..."
-                    : "Enregistrer"
-                  : "Modifier"}
-              </span>
-              {!isEditing && (
-                <Image src={edit} alt="modifier" className="w-[11px]" />
+            <div className="flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-white hover:bg-pink-50 transition duration-150 disabled:opacity-50"
+                    disabled={
+                      updateNameMutation.isLoading ||
+                      !name.trim() ||
+                      name === userData?.name
+                    }
+                  >
+                    <span className="text-[13px] text-[#F8589F]">
+                      {updateNameMutation.isLoading
+                        ? "Enreg..."
+                        : "Enregistrer"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex items-center gap-1 border border-gray-300 px-3 py-[3px] rounded-[16px] bg-white hover:bg-gray-100 transition duration-150"
+                    disabled={updateNameMutation.isLoading}
+                  >
+                    <span className="text-[13px] text-gray-600">Annuler</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleEditClick}
+                  className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-white hover:bg-pink-50 transition duration-150"
+                >
+                  <span className="text-[13px] text-[#F8589F]">Modifier</span>
+                  <Image src={edit} alt="" className="w-[11px]" />
+                </button>
               )}
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -131,37 +170,52 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
 
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1">
-            <div className="text-[#F8589F] text-[14px] font-[500] mb-2">
+            <label
+              htmlFor="fullNameInput"
+              className="block text-[#F8589F] text-[14px] font-[500] mb-2"
+            >
               Nom complet
-            </div>
+            </label>
             {isEditing ? (
               <input
+                id="fullNameInput"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-[20px] py-[6px] rounded-[16px] outline-none border border-gray-300 text-[13px] text-[#191919]"
+                className="w-full px-[20px] py-[6px] rounded-[16px] outline-none border border-gray-300 text-[13px] text-[#191919] focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F]"
+                disabled={updateNameMutation.isLoading}
               />
             ) : (
-              <div className="text-[13px] text-[#191919]">
-                {userData?.name || "Non renseigné"}
+              <div className="text-[13px] text-[#191919] mt-1 py-[7px]">
+                {userData?.name || (
+                  <span className="text-gray-400">Non renseigné</span>
+                )}
               </div>
             )}
           </div>
 
           <div className="flex-1">
-            <div className="text-[#F8589F] text-[14px] font-[500] mb-2">
+            <label
+              htmlFor="emailInput"
+              className="block text-[#F8589F] text-[14px] font-[500] mb-2"
+            >
               Email
-            </div>
+            </label>
+            {/* Conditionally render input or div for Email based on isEditing */}
             {isEditing ? (
               <input
+                id="emailInput"
                 type="email"
                 value={userData?.email || ""}
-                disabled
-                className="w-full px-[20px] py-[6px] rounded-[16px] border border-gray-300 text-[13px] text-[#191919] bg-gray-100 cursor-not-allowed"
+                disabled // Always disabled when in input mode
+                readOnly // Always readOnly
+                className="w-full px-[20px] py-[6px] rounded-[16px] border border-gray-300 text-[13px] text-gray-500 bg-gray-100 cursor-not-allowed"
               />
             ) : (
-              <div className="text-[13px] text-[#191919]">
-                {userData?.email || "Non renseigné"}
+              <div className="text-[13px] text-[#191919] mt-1 py-[7px]">
+                {userData?.email || (
+                  <span className="text-gray-400">Non renseigné</span>
+                )}
               </div>
             )}
           </div>

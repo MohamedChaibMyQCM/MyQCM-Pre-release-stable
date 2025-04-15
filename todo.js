@@ -1,5 +1,5 @@
 1- Onboarding.
-2- responsive.
+// 2- responsive.
 // 3- logo of landing page(lekhal, blida, nvidia).  
 4- responsive landing page.
 // 5- domain name change.
@@ -9,12 +9,12 @@
 // 9- name doctor in email verification.
 10- email template updates.
 // 11- signup transition when click continue.
-12- order in unit and show only 4.
+// 12- order in unit and show only 4.
 // 13- calender of setProfile.
 // 14- dynamique mode.
 // 15- recommanded mode.
-16- welcome notification.
-17- bon retour issue.
+// 16- welcome notification.
+// 17- bon retour issue.
 // 18- commencer unité transiotion.
 // 19- landing card transition.
 // 20- module unit issue.

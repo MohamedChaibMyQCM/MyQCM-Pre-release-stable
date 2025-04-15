@@ -71,12 +71,12 @@ const Field = ({ name, value, setFieldValue }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
+        <div className="absolute top-0 left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
           <ul>
             {fields.map((field) => (
               <li
                 key={field.id}
-                className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
+                className={`px-4 py-3 text-[14px] cursor-pointer hover:bg-[#FFE7F2] ${
                   selectedValue === field.id
                     ? "bg-[#FFE7F2] text-[#F8589F]"
                     : "text-[#191919]"

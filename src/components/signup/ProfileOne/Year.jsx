@@ -66,7 +66,7 @@ const Year = ({ name, value, setFieldValue }) => {
             {years.map((option) => (
               <li
                 key={option.value}
-                className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
+                className={`px-4 py-3 text-[14px] cursor-pointer hover:bg-[#FFE7F2] ${
                   value === option.value
                     ? "bg-[#FFE7F2] text-[#F8589F]"
                     : "text-[#191919]"

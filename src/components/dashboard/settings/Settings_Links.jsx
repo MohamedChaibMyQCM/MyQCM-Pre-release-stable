@@ -26,7 +26,7 @@ const Settings_Links = () => {
 
   return (
     // --- Keeping EXACT original outer div classes ---
-    <div className="px-5 mt-6 max-md:overflow-x-auto scrollbar-hide max-md:py-6 max-md:mt-6">
+    <div className="px-5 mt-6 max-xl:overflow-x-auto scrollbar-hide max-xl:py-4 max-md:pt-6">
       {/* --- Keeping EXACT original ul classes --- */}
       <ul className="flex items-center gap-4 w-max">
         {links.map((link) => {

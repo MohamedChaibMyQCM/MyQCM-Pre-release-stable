@@ -12,7 +12,7 @@ const Module = ({ data }) => {
         width={400}
         height={200}
         alt="illustration médicale"
-        className="w-full"
+        className="w-full rounded-[16px]"
       />
       <span className="text-[15px] text-[#F8589F] font-medium">Module</span>
       <span className="text-[20px] text-[#191919] font-semibold">

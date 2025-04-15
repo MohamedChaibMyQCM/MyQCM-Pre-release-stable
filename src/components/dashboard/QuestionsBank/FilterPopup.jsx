@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { X } from "phosphor-react";
 import {
   Select,
@@ -16,7 +16,30 @@ const FilterPopup = ({
   closeFilter,
   units,
   selectContentRef,
+  isLoading,
 }) => {
+  // Sort units based on their names/numbers
+  const sortedUnits = useMemo(() => {
+    if (!units || units.length === 0) return [];
+
+    return [...units].sort((a, b) => {
+      // Extract unit numbers if available
+      const getUnitNumber = (name) => {
+        const match = name.match(/UEI-(\d+)/);
+        return match ? parseInt(match[1], 10) : Infinity;
+      };
+
+      const aNum = getUnitNumber(a.name);
+      const bNum = getUnitNumber(b.name);
+
+      // Sort by unit number first
+      if (aNum !== bNum) return aNum - bNum;
+
+      // If no number or same number, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+  }, [units]);
+
   return (
     <div className="absolute right-0 top-[calc(100%+5px)] w-[400px] bg-white p-5 rounded-[16px] shadow-lg z-[50] max-md:w-[360px]">
       <div className="mb-6">
@@ -46,8 +69,12 @@ const FilterPopup = ({
             className="bg-white rounded-[20px] border border-[#E0E0E0]"
           >
             <SelectGroup>
-              {units.length > 0 ? (
-                units.map((unit) => (
+              {isLoading ? (
+                <div className="text-center text-gray-500 py-2 px-3 text-sm">
+                  Loading units...
+                </div>
+              ) : sortedUnits.length > 0 ? (
+                sortedUnits.map((unit) => (
                   <SelectItem
                     key={unit.id}
                     value={unit.id}

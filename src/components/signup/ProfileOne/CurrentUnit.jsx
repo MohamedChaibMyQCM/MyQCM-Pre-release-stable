@@ -14,30 +14,61 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const dropdownRef = useRef(null);
 
+  const extractUnitNumber = (unitName) => {
+    const match = unitName.match(/UEI-(\d+)/i); 
+    return match ? parseInt(match[1], 10) : Infinity; 
+  };
+
   const { data: units = [], isLoading } = useQuery({
     queryKey: ["units", year_of_study],
     queryFn: async () => {
       if (!year_of_study) return [];
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get(
-        `/unit?year_of_study=${year_of_study}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data.data.units || [];
+      try {
+        const response = await BaseUrl.get(
+          `/unit?year_of_study=${year_of_study}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data.data.units || [];
+      } catch (error) {
+        console.error("Failed to fetch units:", error);
+        toast.error("Erreur lors du chargement des unités.");
+        return [];
+      }
     },
     enabled: !!year_of_study,
+    select: (data) => {
+      const filtered = data.filter(
+        (unit) =>
+          unit.name?.trim() !== "Unité d'enseignement thématique" &&
+          !unit.name?.includes("thématique")
+      );
+      const sorted = filtered.sort((a, b) => {
+        const numA = extractUnitNumber(a.name);
+        const numB = extractUnitNumber(b.name);
+        return numA - numB;
+      });
+      return sorted;
+    },
   });
 
   useEffect(() => {
     if (value && units.length > 0) {
       const unit = units.find((u) => u.id === value);
-      if (unit) setSelectedUnit(unit);
+      if (unit) {
+        setSelectedUnit(unit);
+      } else {
+        setSelectedUnit(null);
+        setFieldValue(name, ""); 
+      }
+    } else if (!value) {
+      setSelectedUnit(null); 
     }
-  }, [value, units]);
+  }, [value, units, name, setFieldValue]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -65,13 +96,16 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
             toast.error("Veuillez d'abord sélectionner votre année d'étude");
             return;
           }
+          if (isLoading) return;
           setIsOpen(!isOpen);
         }}
       >
         <div className="flex items-center gap-3 w-full">
           <Image src={unitIcon} alt="unité" className="w-[18px]" />
           <span className="truncate text-[14px]">
-            {selectedUnit?.name || "Sélectionnez votre unité actuelle"}
+            {isLoading
+              ? "Chargement..."
+              : selectedUnit?.name || "Sélectionnez votre unité actuelle"}
           </span>
           <CaretDown
             size={20}
@@ -91,14 +125,14 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
             </div>
           ) : units.length === 0 ? (
             <div className="px-4 py-3 text-[#666666]">
-              Aucune unité disponible pour cette année
+              Aucune unité disponible ou correspondante trouvée pour cette année
             </div>
           ) : (
             <ul>
               {units.map((unit) => (
                 <li
                   key={unit.id}
-                  className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
+                  className={`px-4 py-3 text-[14px] cursor-pointer hover:bg-[#FFE7F2] ${
                     selectedUnit?.id === unit.id
                       ? "bg-[#FFE7F2] text-[#F8589F]"
                       : "text-[#191919]"

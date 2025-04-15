@@ -24,7 +24,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   const [title, setTitle] = React.useState("");
   const [trainingDate, setTrainingDate] = React.useState(selectedDate || null);
 
-  const { data: units = [], isLoading: isUnitsLoading } = useQuery({
+  const { data: unitsRaw = [], isLoading: isUnitsLoading } = useQuery({
     queryKey: ["units"],
     queryFn: async () => {
       try {
@@ -34,6 +34,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(response.data?.data?.data);
         return response.data?.data?.data || [];
       } catch (err) {
         toast.error("Failed to fetch units.");
@@ -42,17 +43,42 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
     },
   });
 
+  // Sort units based on their names/numbers
+  const units = React.useMemo(() => {
+    if (!unitsRaw.length) return [];
+
+    return [...unitsRaw].sort((a, b) => {
+      // Extract unit numbers if available
+      const getUnitNumber = (name) => {
+        const match = name.match(/UEI-(\d+)/);
+        return match ? parseInt(match[1], 10) : Infinity;
+      };
+
+      const aNum = getUnitNumber(a.name);
+      const bNum = getUnitNumber(b.name);
+
+      // Sort by unit number first
+      if (aNum !== bNum) return aNum - bNum;
+
+      // If no number or same number, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+  }, [unitsRaw]);
+
   const { data: subjects = [], isLoading: isSubjectsLoading } = useQuery({
     queryKey: ["subjects", selectedUnit],
     queryFn: async () => {
       if (!selectedUnit) return [];
       try {
         const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get(`/subject/me?unit=${selectedUnit}&offset=20`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await BaseUrl.get(
+          `/subject/me?unit=${selectedUnit}&offset=20`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data?.data?.data || [];
       } catch (err) {
         toast.error("Failed to fetch subjects.");

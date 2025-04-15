@@ -204,7 +204,7 @@ const Modules = () => {
                   : "opacity-100 hover:bg-gray-100 rounded-full"
               }`}
             >
-              <Image src={left_arrow} alt="" width={24} height={24} />
+              <Image src={left_arrow} alt="" width={28} height={28} />
             </button>
             <button
               aria-label="Suivant"
@@ -216,7 +216,7 @@ const Modules = () => {
                   : "opacity-100 hover:bg-gray-100 rounded-full"
               }`}
             >
-              <Image src={right_arrow} alt="" width={24} height={24} />
+              <Image src={right_arrow} alt="" width={28} height={28} />
             </button>
           </div>
         )}
@@ -228,7 +228,7 @@ const Modules = () => {
           {/* Container to hide overflow */}
           <ul
             ref={carouselRef}
-            className="flex gap-4 ml-3 transition-transform duration-500 ease-in-out py-4 pb-6" // Adjust padding if needed
+            className="flex gap-4 ml-3 transition-transform duration-500 ease-in-out pt-2 pb-6" // Adjust padding if needed
             style={{
               transform: `translateX(-${currentIndex * (ITEM_WIDTH + GAP)}px)`,
               width: `${modulesData.length * (ITEM_WIDTH + GAP) - GAP}px`, // Define total width

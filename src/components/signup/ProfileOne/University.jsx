@@ -97,7 +97,7 @@ const University = ({ name, value, setFieldValue }) => {
               {data.map((univer) => (
                 <li
                   key={univer.id}
-                  className={`px-4 py-3 cursor-pointer hover:bg-[#FFE7F2] ${
+                  className={`px-4 py-3 text-[14px] cursor-pointer hover:bg-[#FFE7F2] ${
                     selectedValue === univer.id
                       ? "bg-[#FFE7F2] text-[#F8589F]"
                       : "text-[#191919]"

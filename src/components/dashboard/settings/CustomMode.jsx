@@ -16,7 +16,7 @@ import {
 const CustomMode = () => {
   const [semiology, setSemiology] = useState("Cardio");
   const [questionTypes, setQuestionTypes] = useState(["MCQs"]);
-  const [difficultyLevels, setDifficultyLevels] = useState(["Steady"]); // Updated to an array
+  const [difficultyLevels, setDifficultyLevels] = useState(["Steady"]); 
   const [questionsCount, setQuestionsCount] = useState(20);
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerMinutes, setTimerMinutes] = useState(30);

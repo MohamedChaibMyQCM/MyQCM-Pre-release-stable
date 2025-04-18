@@ -191,7 +191,7 @@ const Modules = () => {
     currentIndex < modulesData.length - itemsPerView;
 
   return (
-    <div className="mt-8" ref={containerRef}>
+    <div id="tour-modules-section" className="mt-8" ref={containerRef}>
       <div className="flex items-center justify-between mb-4 px-1">
         <h3 className="font-[500] text-[17px] text-[#191919]">
           Continuer l&apos;apprentissage
@@ -257,7 +257,7 @@ const Modules = () => {
                   </span>
                   <div className="mt-1 mb-3 flex-grow">
                     <span
-                      className="text-[13px] text-[#11142D] font-[500] block" 
+                      className="text-[13px] text-[#11142D] font-[500] block"
                       title={module.fullUnitForTitle}
                     >
                       {module.unit}{" "}

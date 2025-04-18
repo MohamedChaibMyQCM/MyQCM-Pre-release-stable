@@ -67,7 +67,7 @@ const Study_time = () => {
   const chartData = transformActivityData();
 
   return (
-    <div className="w-full">
+    <div className="w-full" id="tour-studytime-section">
       <h3 className="font-[500] text-[17px] mb-6 text-[#191919] max-md:mb-4">
         Temps d&apos;étude
       </h3>

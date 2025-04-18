@@ -176,7 +176,7 @@ const Calendar = () => {
   };
 
   return (
-    <div className="w-[100%]">
+    <div id="tour-calendar-section" className="w-[100%]">
       <h2 className="text-[#191919] font-[500] text-[17px] mb-6 max-md:mb-4">
         Planifiez votre apprentissage
       </h2>

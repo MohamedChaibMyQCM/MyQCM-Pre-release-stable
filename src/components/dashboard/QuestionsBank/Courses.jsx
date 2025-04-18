@@ -11,9 +11,7 @@ const ITEM_PLUS_GAP_HEIGHT_APPROX = 80; // Approx height of item + gap
 const MAX_VISIBLE_ITEMS = 6;
 const GRADIENT_OVERLAY_HEIGHT = 120;
 
-const Courses = ({ courses, subjectId, subjectData }) => {
-  console.log(subjectData);
-  
+const Courses = ({ courses, subjectId, subjectData }) => {  
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 

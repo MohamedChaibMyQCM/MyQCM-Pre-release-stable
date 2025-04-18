@@ -1,7 +1,7 @@
 1- Onboarding.
 // 2- responsive.
 // 3- logo of landing page(lekhal, blida, nvidia).  
-4- responsive landing page.
+// 4- responsive landing page.
 // 5- domain name change.
 // 6- signup/login transition header.   XXXXXXXXXXXXXXX
 7- google error.

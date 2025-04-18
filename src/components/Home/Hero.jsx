@@ -5,11 +5,13 @@ import play from "../../../public/Icons/play.svg";
 import circle from "../../../public/Landing/semi_circle.svg";
 import Dash_page from "../../../public/Landing/Dash_page.svg";
 import InfiniteCarousel from "./InfiniteCarousel";
+import Link from "next/link";
 
 const HeroSection = () => {
   return (
     <section className="relative pt-[60px] overflow-hidden">
-      <div className="absolute top-[-460px] left-0 w-full h-[calc(100%+540px)] z-0 max-md:top-[-580px]">
+      <div className="md:hidden bg-[#fc368e] w-[100%] h-[800px] absolute top-[200px]"></div>
+      <div className="absolute top-[-460px] left-0 w-full h-[calc(100%+540px)] z-0 max-md:top-[-670px]">
         <video
           autoPlay
           loop
@@ -20,10 +22,10 @@ const HeroSection = () => {
           <source src="/Landing/main.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-30"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-30 max-md:hidden"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col justify-center items-center z-[50] mt-10 max-md:px-5">
+      <div className="relative z-10 flex flex-col justify-center items-center z-[50] mt-10 max-md:px-5 max-md:mt-[180px]">
         <h1 className="text-white font-[700] text-[56px] italic max-md:text-center max-md:text-[50px]">
           Avec MYQCM ALJAZAYR
         </h1>
@@ -36,14 +38,18 @@ const HeroSection = () => {
           <br className="max-md:hidden" />
           personnalisés pour vous aider à comprendre les concepts complexes.
         </p>
-        <button className="text-[#F8589F] font-[600] text-[14px] px-[28px] py-[10px] flex items-center gap-2 border border-[#F8589F] rounded-[16px] hover:shadow-[0_4px_12px_rgba(248,88,159,0.3)] transition-shadow duration-300 bg-white">
+        <Link
+          href="https://www.youtube.com/watch?v=cmQSt8LLSIc"
+          target="_blank"
+          className="text-[#F8589F] font-[600] text-[14px] px-[28px] py-[10px] flex items-center gap-2 border border-[#F8589F] rounded-[16px] hover:shadow-[0_4px_12px_rgba(248,88,159,0.3)] transition-shadow duration-300 bg-white"
+        >
           <Image src={play} alt="lecture" className="w-[20px]" />
           Voir la vidéo de présentation
-        </button>
+        </Link>
         <Image
           src={Dash_page}
           alt="Tableau de bord"
-          className="z-[50] pr-12 mt-8 w-[1240px] max-md:w-[1500px]"
+          className="z-[50] pr-12 mt-8 w-[1240px] max-md:w-[1600px] max-md:pr-2"
         />
       </div>
 

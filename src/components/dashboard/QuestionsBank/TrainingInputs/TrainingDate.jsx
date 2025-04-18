@@ -159,7 +159,7 @@ const TrainingDate = ({ value, onChange }) => {
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 bottom-full mb-2 w-full bg-white rounded-[10px] border border-[#E4E4E4] shadow-md p-4">
+          <div className="absolute z-10 bottom-full mb-2 w-full max-md:w-[300px] bg-white rounded-[10px] border border-[#E4E4E4] shadow-md p-4">
             <div className="flex justify-between items-center mb-4">
               <button
                 type="button"

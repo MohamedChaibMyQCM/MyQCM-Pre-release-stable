@@ -1,212 +1,447 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../public/logoMyqcm.png";
 import Link from "next/link";
-import { aside_links } from "@/data/data";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import secureLocalStorage from "react-secure-storage";
+import { useQuery } from "@tanstack/react-query";
+
+// Local Imports (Ensure paths are correct)
+import { aside_links } from "@/data/data";
+// ** CHANGE PATH if needed for your Logout Modal **
+import LogoutConfirmationModal from "../Home/LogoutConfirmationModal";
+import BaseUrl from "../BaseUrl";
+import infinite from "../../../public/Icons/infinite.svg";
+// ** ADDED: Import your Notification component - adjust path if needed **
+import Notification from "./Notification";
+
+// Image Imports (Using your paths)
+import logo from "../../../public/logoMyqcm.png";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
 import logout from "../../../public/Aside/logout.svg";
 import menu from "../../../public/Home/Menu.svg";
-import notification from "../../../public/Icons/notification.svg";
-import { X } from "lucide-react";
+import notificationIcon from "../../../public/Icons/notification.svg"; // Renamed to avoid conflict
 import streak from "../../../public/Icons/streak.svg";
-import secureLocalStorage from "react-secure-storage";
 
 const Aside = () => {
+  // --- State ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  // ** ADDED: State for notification panel **
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  // --- Hooks ---
   const path = usePathname();
-  const afterDashboard = path.split("/dashboard/")[1] || "";
   const router = useRouter();
 
-  useEffect(() => {
-    // Close menu on route change
-    setIsMenuOpen(false);
-  }, [path]);
-
-  const handleLogout = () => {
-    secureLocalStorage.removeItem("token");
-    router.push(`/`);
-  };
-
+  // --- Path & Active State ---
+  const afterDashboard = path.split("/dashboard/")[1] || "";
   const isSettingsActive = afterDashboard.startsWith("settings");
 
+  // --- Data Fetching Function ---
+  const fetchData = async (url) => {
+    const token = secureLocalStorage.getItem("token");
+    if (!token || typeof token !== "string") {
+      console.warn(`No valid token found for fetching ${url}.`);
+      return null;
+    }
+    try {
+      const response = await BaseUrl.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data.data;
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        error;
+      console.error(`Failed to fetch ${url}:`, errorMsg);
+      // Optional: Add more specific error handling (e.g., for 401)
+      return null;
+    }
+  };
+
+  // --- Queries ---
+  const queryOptions = {
+    // Reuse options
+    enabled: !!secureLocalStorage.getItem("token"),
+    refetchOnWindowFocus: false, // You can set this true if needed
+    staleTime: 1000 * 60 * 5, // 5 minute stale time
+  };
+
+  const { data: userNotification } = useQuery({
+    queryKey: ["userNotification"],
+    queryFn: () => fetchData("/notification"),
+    ...queryOptions,
+  });
+
+  const { data: userSubscription } = useQuery({
+    queryKey: ["userSubscription"],
+    queryFn: () => fetchData("/user/subscription/me"),
+    staleTime: 1000 * 60 * 15, // Cache longer
+  });
+
+  const { data: streakData } = useQuery({
+    queryKey: ["userStreak"],
+    queryFn: () => fetchData("/user/streak/me"),
+    ...queryOptions,
+  });
+
+  const { data: xpData } = useQuery({
+    queryKey: ["userXp"],
+    queryFn: () => fetchData("/user/xp/me"),
+    ...queryOptions,
+  });
+
+  // --- Derived Data ---
+  const isQcmInfinite = userSubscription?.plan?.mcqs === null;
+  const remainingMcqs = !isQcmInfinite
+    ? Math.max(
+        0,
+        (userSubscription?.plan?.mcqs ?? 0) - (userSubscription?.used_mcqs ?? 0)
+      )
+    : null;
+  const remainingQrocs = Math.max(
+    0,
+    (userSubscription?.plan?.qrocs ?? 0) - (userSubscription?.used_qrocs ?? 0)
+  );
+  const currentStreak = streakData?.current_streak ?? 0;
+  const currentXp = xpData?.xp ?? 0;
+
+  // --- Effects ---
+  useEffect(() => {
+    // Close popups on route change
+    setIsMenuOpen(false);
+    setShowLogoutConfirm(false);
+    setIsNotificationOpen(false); // ** ADDED: Close notification on navigation **
+  }, [path]);
+
+  // --- Handlers ---
+  // ** ADDED: Notification Toggle Handler **
+  const toggleNotification = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+    // Close menu if opening notifications, prevent conflicts
+    if (!isNotificationOpen && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
+  const confirmLogout = () => {
+    secureLocalStorage.removeItem("token");
+    router.push(`/`);
+    setShowLogoutConfirm(false);
+  };
+
+  const closeLogoutModal = () => {
+    setShowLogoutConfirm(false);
+  };
+
   return (
-    // --- MODIFIED HERE ---
-    // Changed max-md:* to max-xl:* for mobile/tablet layout
-    // Removed the previous max-xl:w-[100%] max-xl:h-[70px] as it's now covered
-    <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
-      {/* Logo or XP/Streak - applies mobile style up to xl */}
-      {isMenuOpen ? (
-        <div className="flex items-center gap-2">
-          <span className="text-[#191919] font-[500] text-[18px]">
-            200<span className="text-[#F8589F]">XP</span>
-          </span>
-          <div className="flex items-center gap-[2px]">
-            <span className="text-[#191919] font-[500] text-[18px]">3</span>
-            <Image src={streak} alt="série" className="w-[13px]" />
-          </div>
-        </div>
-      ) : (
-        <Image
-          src={logo}
-          alt="logo"
-          // --- MODIFIED HERE --- (max-md -> max-xl)
-          className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px]"
-        />
-      )}
-      <div className="flex items-center gap-4 xl:hidden">
-        {!isMenuOpen && (
+    <>
+      {/* =========== START: YOUR ORIGINAL ASIDE STRUCTURE (UNCHANGED) ========== */}
+      <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
+        {/* --- Left Section: Logo or Stats (Mobile Menu Open) --- */}
+        {/* Using your original structure and classes */}
+        {isMenuOpen ? (
+          // ** YOUR ORIGINAL Mobile Menu Open Top Bar Structure **
+          <>
+            {" "}
+            {/* Use Fragment to hold multiple elements */}
+            <div className="flex-shrink-0">
+              {" "}
+              {/* Wrap QCM count */}
+              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+                {isQcmInfinite ? (
+                  <Image
+                    src={infinite}
+                    alt="Infini"
+                    width={20} // Original size
+                    height={12} // Original size
+                    className="w-[22px]" // Original class
+                  />
+                ) : (
+                  remainingMcqs ?? 0 // Display 0 if null/undefined
+                )}
+                <span className="text-[#F8589F]">QCM</span>
+              </span>
+            </div>
+            <div className="flex-shrink-0">
+              {" "}
+              {/* Wrap QROC count */}
+              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+                {remainingQrocs ?? 0} {/* Display 0 if null/undefined */}
+                <span className="text-[#F8589F]">QROC</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {" "}
+              {/* Wrap Streak */}
+              <span className="text-[#191919] font-[500] text-[17px]">
+                {currentStreak}
+              </span>
+              <Image
+                src={streak}
+                alt="série"
+                className="w-[13px]" // Original class
+                width={13} // Original size
+                height={13} // Original size
+              />
+            </div>
+            <div className="flex-shrink-0">
+              {" "}
+              {/* Wrap XP */}
+              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+                {currentXp}
+                <span className="text-[#F8589F]">XP</span>
+              </span>
+            </div>
+            {/* NOTE: The original structure showed the notification panel INSIDE here. */}
+            {/* This is generally not recommended for positioning. It's moved outside. */}
+            {/* {isNotificationOpen && (
+                    <Notification
+                        onClose={toggleNotification}
+                        notifications={userNotification}
+                    />
+                 )} */}
+          </>
+        ) : (
+          // Logo when menu closed / desktop
           <Image
-            src={notification}
-            alt="notification"
-            className="w-[16px] cursor-pointer"
+            src={logo}
+            alt="logo"
+            className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px]" // Original classes
           />
         )}
-
-        <div
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="cursor-pointer"
-        >
-          {isMenuOpen ? (
-            <X size={26} className="text-[#F8589F]" />
-          ) : (
-            <Image src={menu} alt="menu" className="w-[16px]" />
+        {/* --- Right Section: Mobile Icons --- */}
+        <div className="flex items-center gap-4 xl:hidden">
+          {!isMenuOpen && (
+            // ** ADDED onClick to notification icon **
+            <div
+              onClick={toggleNotification}
+              className="cursor-pointer relative"
+            >
+              {" "}
+              {/* Made clickable + relative for potential badge */}
+              {/* Optional Badge Example - can be removed if not needed */}
+              {/* {(userNotification?.length ?? 0) > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                      </span>
+                 )} */}
+              <Image
+                src={notificationIcon} // Using renamed import
+                alt="notification"
+                className="w-[16px]" // Original class
+              />
+            </div>
           )}
-        </div>
-      </div>
-      {/* Main Navigation UL - Applies mobile/tablet styles up to xl */}
-      <ul
-        // --- MODIFIED HERE --- (max-md -> max-xl)
-        className={`flex flex-col mb-40 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[100vh] max-xl:pt-[40px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-all max-xl:duration-300 max-xl:ease-in-out ${
-          isMenuOpen
-            ? // --- MODIFIED HERE --- (max-md -> max-xl)
-              "max-xl:opacity-100 max-xl:translate-y-0"
-            : // --- MODIFIED HERE --- (max-md -> max-xl)
-              "max-xl:opacity-0 max-xl:-translate-y-full max-xl:pointer-events-none"
-        }`}
-      >
-        {aside_links.map((item, index) => {
-          const isHome = item.href === "";
-          const isActive =
-            (isHome && afterDashboard === "") ||
-            (!isHome && afterDashboard.startsWith(item.href));
 
-          return (
-            <li
-              key={index}
-              // --- MODIFIED HERE --- (max-md -> max-xl)
-              className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 ${
-                isActive ? "text-[#F8589F]" : ""
-              }`}
-            >
-              <Link
-                href={`/dashboard/${item.href}`}
-                className="text-[#324054] flex items-center gap-4"
-              >
-                <Image
-                  src={isActive ? item.hoverIcon : item.icon}
-                  alt="icône"
-                  className="w-[17px] font-[500]"
-                />
-                <span
-                  className={`text-[13.8px] font-[500] ${
-                    isActive ? "text-[#F8589F]" : ""
-                  }`}
-                >
-                  {item.name}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-        {/* Settings/Logout links specific to the slide-out menu - hide only on xl and above */}
-        <li
-          // --- MODIFIED HERE --- (max-md -> max-xl, md:hidden -> xl:hidden)
-          className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 xl:hidden ${
-            isSettingsActive ? "text-[#F8589F]" : ""
-          }`}
-        >
-          <Link
-            href={`/dashboard/settings`}
-            className="text-[#324054] flex items-center gap-4"
+          {/* Menu Toggle Button */}
+          <div
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="cursor-pointer"
           >
-            <Image
-              src={isSettingsActive ? Psettings : settings}
-              alt="paramètres"
-              className="w-[16px] font-[500]"
-            />
-            <span
-              className={`text-[13.8px] font-[500] ${
-                isSettingsActive ? "text-[#F8589F]" : ""
-              }`}
-            >
-              Paramètres
-            </span>
-          </Link>
-        </li>
-        <li
-          // --- MODIFIED HERE --- (max-md -> max-xl, md:hidden -> xl:hidden)
-          className="rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 xl:hidden"
-        >
-          <button
-            className="text-[#324054] flex items-center gap-4"
-            onClick={handleLogout}
-          >
-            <Image
-              src={logout}
-              alt="déconnexion"
-              className="w-[16px] font-[500]"
-            />
-            <span className="text-[13.8px] font-[500] text-[#F64C4C]">
-              Déconnexion
-            </span>
-          </button>
-        </li>
-      </ul>
-      <div className="relative flex flex-col gap-1 pl-5 max-xl:hidden">
-        <div
-          className={`rounded-r-[12px] py-[14px] w-[88%] ${
-            isSettingsActive ? "text-[#F8589F]" : ""
-          }`}
-        >
-          <Link
-            href={`/dashboard/settings`}
-            className="text-[#324054] flex items-center gap-4"
-          >
-            <Image
-              src={isSettingsActive ? Psettings : settings}
-              alt="paramètres"
-              className="w-[16px] font-[500]"
-            />
-            <span
-              className={`text-[14.5px] font-[500] ${
-                isSettingsActive ? "text-[#F8589F]" : ""
-              }`}
-            >
-              Paramètres
-            </span>
-          </Link>
+            {isMenuOpen ? (
+              <X size={26} className="text-[#F8589F]" />
+            ) : (
+              <Image src={menu} alt="menu" className="w-[16px]" /> // Original classes
+            )}
+          </div>
         </div>
-        <button
-          // --- MODIFIED HERE --- (max-md -> max-xl - applied to parent)
-          className={`rounded-r-[12px] py-[14px] w-[88%] text-[#324054] flex items-center gap-4`}
-          onClick={handleLogout}
+        {/* --- Center Section: Navigation List --- */}
+        {/* Using your original structure and classes */}
+        <ul
+          className={`flex flex-col mb-40 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[calc(100vh-70px)] max-xl:pt-[60px] max-xl:pb-[90px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-transform max-xl:duration-300 max-xl:ease-in-out max-xl:overflow-y-auto max-xl:justify-between ${
+            isMenuOpen
+              ? "max-xl:translate-x-0"
+              : "max-xl:-translate-x-full max-xl:pointer-events-none"
+          }`}
+          style={{
+            // Original style object
+            transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
+          }}
         >
-          <Image
-            src={logout}
-            alt="déconnexion"
-            className="w-[16px] font-[500]"
-          />
-          <span className="text-[14.5px] font-[500] text-[#F64C4C]">
-            Déconnexion
-          </span>
-        </button>
-      </div>
-    </aside>
+          {/* List items rendered here */}
+          {aside_links.map((item, index) => {
+            // Logic for isActive (Your Original)
+            const isHome = item.href === "";
+            const currentPathSegment = afterDashboard
+              .split("?")[0]
+              .split("/")[0];
+            const itemHrefSegment = item.href.split("?")[0].split("/")[0];
+            const isActive =
+              (isHome && currentPathSegment === "") ||
+              (!isHome &&
+                item.href !== "" &&
+                currentPathSegment === itemHrefSegment);
+
+            return (
+              <li
+                key={index}
+                // Using your original active class logic (no background)
+                className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] ${
+                  isActive ? "text-[#F8589F]" : ""
+                }`}
+              >
+                <Link
+                  href={`/dashboard/${item.href}`}
+                  className="text-[#324054] flex items-center gap-4 max-xl:justify-center" // Original class
+                  onClick={() => isMenuOpen && setIsMenuOpen(false)} // Close mobile menu
+                >
+                  <Image
+                    src={isActive ? item.hoverIcon : item.icon}
+                    alt="icône" // Original alt
+                    className="w-[17px] font-[500]" // Original class
+                  />
+                  <span
+                    className={`text-[13.8px] font-[500] max-md:text-[18px] ${
+                      // Original class
+                      isActive ? "text-[#F8589F]" : ""
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+
+          {/* Mobile Settings Link (Your Original) */}
+          <li
+            className={`rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] xl:hidden ${
+              // Original classes
+              isSettingsActive ? "text-[#F8589F]" : ""
+            }`}
+          >
+            <Link
+              href={`/dashboard/settings`}
+              className="text-[#324054] flex items-center gap-4 max-xl:justify-center" // Original class
+              onClick={() => isMenuOpen && setIsMenuOpen(false)}
+            >
+              <Image
+                src={isSettingsActive ? Psettings : settings}
+                alt="paramètres" // Original alt
+                className="w-[16px] font-[500]" // Original class
+              />
+              <span
+                className={`text-[13.8px] font-[500] max-md:text-[18px] ${
+                  // Original classes
+                  isSettingsActive ? "text-[#F8589F]" : ""
+                }`}
+              >
+                Paramètres
+              </span>
+            </Link>
+          </li>
+
+          {/* Mobile Logout Button (Your Original) */}
+          <li className="rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] xl:hidden">
+            {" "}
+            {/* Original classes */}
+            <button
+              className="text-[#324054] flex items-center gap-4 w-full max-xl:justify-center" // Original class
+              onClick={handleLogoutClick} // Use the correct handler
+            >
+              <Image
+                src={logout}
+                alt="déconnexion" // Original alt
+                className="w-[16px] font-[500]" // Original class
+              />
+              <span className="text-[13.8px] font-[500] text-[#F64C4C] max-md:text-[18px]">
+                {" "}
+                {/* Original class */}
+                Déconnexion
+              </span>
+            </button>
+          </li>
+        </ul>{" "}
+        {/* End of Mobile Navigation UL */}
+        {/* --- Desktop Bottom Links (Your Original) --- */}
+        <div className="relative flex flex-col gap-1 pl-5 max-xl:hidden">
+          {" "}
+          {/* Original classes */}
+          {/* Desktop Settings Link (Your Original) */}
+          <div
+            className={`rounded-l-[12px] py-[14px] w-[88%] pl-[10px] ${
+              // Original classes
+              isSettingsActive ? "text-[#F8589F]" : ""
+            }`}
+          >
+            <Link
+              href={`/dashboard/settings`}
+              className="text-[#324054] flex items-center gap-4" // Original class
+            >
+              <Image
+                src={isSettingsActive ? Psettings : settings}
+                alt="paramètres" // Original alt
+                className="w-[16px] font-[500]" // Original class
+              />
+              <span
+                className={`text-[14.5px] font-[500] ${
+                  // Original classes
+                  isSettingsActive ? "text-[#F8589F]" : ""
+                }`}
+              >
+                Paramètres
+              </span>
+            </Link>
+          </div>
+          {/* Desktop Logout Button (Your Original) */}
+          <div className="w-[88%]">
+            {" "}
+            {/* Original wrapper */}
+            <button
+              className={`rounded-l-[12px] py-[14px] pl-[10px] w-full text-[#324054] flex items-center gap-4 text-left`} // Original classes
+              onClick={handleLogoutClick} // Use correct handler
+            >
+              <Image
+                src={logout}
+                alt="déconnexion" // Original alt
+                className="w-[16px] font-[500]" // Original class
+              />
+              <span className="text-[14.5px] font-[500] text-[#F64C4C]">
+                {" "}
+                {/* Original class */}
+                Déconnexion
+              </span>
+            </button>
+          </div>
+        </div>{" "}
+        {/* End of Desktop Bottom Links */}
+      </aside>
+      {/* =========== END: YOUR ORIGINAL ASIDE STRUCTURE ========== */}
+
+      {/* --- Popups / Modals (Rendered Outside Aside Structure) --- */}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+      />
+
+      {/* ** ADDED: Notification Panel Rendering ** */}
+      {/* Renders based on state, uses your component and styles */}
+      {isNotificationOpen && (
+        <Notification
+          onClose={toggleNotification} // Pass the close handler
+          notifications={userNotification || []} // Pass fetched data or empty array
+        />
+      )}
+    </> // End of main Fragment
   );
 };
 

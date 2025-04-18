@@ -15,6 +15,27 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading";
 import Link from "next/link";
 
+const extractAndTruncateUnitName = (fullUnitName) => {
+  if (!fullUnitName || typeof fullUnitName !== "string") {
+    return "Unité inconnue";
+  }
+
+  let namePart = fullUnitName; 
+
+  const colonIndex = fullUnitName.indexOf(":");
+  if (colonIndex !== -1) {
+    namePart = fullUnitName.substring(colonIndex + 1).trim();
+  } else {
+    namePart = namePart.trim();
+  }
+
+  if (namePart.length > 30) {
+    return namePart.slice(0, 29) + "...";
+  }
+
+  return namePart || "Unité spécifiée"; 
+};
+
 const Modules = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
@@ -27,29 +48,24 @@ const Modules = () => {
   const {
     data: profileData,
     isLoading: isProfileLoading,
-    isFetching: isProfileFetching, // isFetching might be useful for background updates
+    isFetching: isProfileFetching,
     error: profileError,
   } = useQuery({
-    queryKey: ["userProfileModules"], // Changed key to be more specific
+    queryKey: ["userProfileModules"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
-        console.warn("Modules: No token found for profile request");
-        return null; // Or throw an error
+        return null;
       }
       try {
         const response = await BaseUrl.get("/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Removed console.log
         return response.data.data;
       } catch (error) {
-        console.error("Modules: Erreur lors du chargement du profil :", error);
-        throw error; // Let react-query handle error state
+        throw error;
       }
     },
-    // Optional: Add staleTime, etc.
-    // staleTime: 1000 * 60 * 5,
   });
 
   const {
@@ -62,44 +78,35 @@ const Modules = () => {
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
-        console.warn("Modules: No token found for subjects request");
-        return []; // Return empty array if no token
+        return [];
       }
       try {
         const response = await BaseUrl.get(
-          `/subject/me?unit=${profileData.unit.id}`, // Rely on enabled flag to ensure profileData.unit.id exists
+          `/subject/me?unit=${profileData.unit.id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         return response.data?.data?.data || [];
       } catch (error) {
-        console.error(
-          "Modules: Erreur lors du chargement des matières :",
-          error
-        );
-        throw error; // Let react-query handle error state
+        throw error;
       }
     },
-    enabled: !!profileData?.unit?.id, // Ensure query only runs when profileData.unit.id is available
+    enabled: !!profileData?.unit?.id,
   });
 
-  // Use profileData safely AFTER checking it exists
   const modulesData =
-    subjectsData.length > 0 && profileData?.unit?.name // Make sure profileData and unit name exist before mapping
+    subjectsData.length > 0 && profileData?.unit?.name
       ? subjectsData.map((subject, index) => {
-          const unitName = profileData.unit.name;
-          const fullUnitText = `Unité : ${unitName || "?"}`;
-          const truncatedUnitText =
-            fullUnitText.length > 18 // Calculate based on "Unité : " + 15 chars
-              ? fullUnitText.slice(0, 26) + "..." // Truncate the whole string including "Unité : "
-              : fullUnitText;
+          const fullUnitName = profileData.unit.name;
+          const displayUnitName = extractAndTruncateUnitName(fullUnitName);
 
           return {
-            id: subject.id || `fallback-${index}`, // Ensure unique key
+            id: subject.id || `fallback-${index}`,
             image: [module1, module2, module3, module4][index % 4],
             title: subject.name || "Matière inconnue",
-            unit: truncatedUnitText, // Use the truncated text
+            unit: displayUnitName, 
+            fullUnitForTitle: fullUnitName, 
             progress: subject.progress_percentage ?? 0,
             views: `+${subject.total_xp ?? 0} Xp`,
             subjectId: subject.id,
@@ -121,7 +128,6 @@ const Modules = () => {
           : 1
       );
 
-      // Avoid unnecessary state updates if value hasn't changed
       if (newItemsPerView !== itemsPerView) {
         setItemsPerView(newItemsPerView);
       }
@@ -135,18 +141,16 @@ const Modules = () => {
           setCurrentIndex(maxPossibleIndex);
         }
       } else if (currentIndex !== 0) {
-        // Only reset if not already 0
         setCurrentIndex(0);
       }
     }
   };
 
-  // Simplified useEffect dependency array if currentIndex is only adjusted, not a primary dependency
   useEffect(() => {
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
     return () => window.removeEventListener("resize", updateItemsPerView);
-  }, [modulesData.length]); // Depend only on data length, adjustment handled inside
+  }, [modulesData.length]);
 
   const nextSlide = () => {
     const maxIndex = Math.max(0, modulesData.length - itemsPerView);
@@ -161,13 +165,13 @@ const Modules = () => {
     }
   };
 
-  const isLoading = isProfileLoading || (!!profileData && isSubjectsLoading); // Still loading if profile is done but subjects aren't
-  const hasError = profileError || (!!profileData && subjectsError); // Error if profile failed OR subjects failed after profile success
+  const isLoading = isProfileLoading || (!!profileData && isSubjectsLoading);
+  const hasError = profileError || (!!profileData && subjectsError);
 
   if (isLoading) {
     return (
       <div className="mt-8">
-        <Loading /> {/* Assuming Loading component handles visual state */}
+        <Loading />
       </div>
     );
   }
@@ -224,20 +228,18 @@ const Modules = () => {
 
       {modulesData.length > 0 ? (
         <div className="overflow-hidden">
-          {" "}
-          {/* Container to hide overflow */}
           <ul
             ref={carouselRef}
-            className="flex gap-4 ml-3 transition-transform duration-500 ease-in-out pt-2 pb-6" // Adjust padding if needed
+            className="flex gap-4 ml-3 transition-transform duration-500 ease-in-out pt-2 pb-6"
             style={{
               transform: `translateX(-${currentIndex * (ITEM_WIDTH + GAP)}px)`,
-              width: `${modulesData.length * (ITEM_WIDTH + GAP) - GAP}px`, // Define total width
+              width: `${modulesData.length * (ITEM_WIDTH + GAP) - GAP}px`,
             }}
           >
             {modulesData.map((module) => (
               <li
                 key={module.id}
-                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg" // Ensure min-height or fixed height
+                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"
               >
                 <div className="relative w-full h-[96px] rounded-md overflow-hidden mb-2">
                   <Image
@@ -251,34 +253,23 @@ const Modules = () => {
                 <div className="flex flex-col flex-grow">
                   <span className="text-[#FD2E8A] text-[12px] my-2 font-semibold block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
                     {" "}
-                    {/* Increased font weight */}
                     {module.title}
                   </span>
                   <div className="mt-1 mb-3 flex-grow">
-                    {/* ==== MODIFIED PART ==== */}
                     <span
-                      className="text-[13px] text-[#11142D] font-[500]"
-                      title={module.fullUnitText || module.unit}
+                      className="text-[13px] text-[#11142D] font-[500] block" 
+                      title={module.fullUnitForTitle}
                     >
-                      {" "}
-                      {/* Add title attribute for full text on hover */}
-                      {module.unit} {/* Render the truncated unit text */}
+                      {module.unit}{" "}
                     </span>
-                    {/* ==== END MODIFIED PART ==== */}
                     <div className="relative flex items-center w-full justify-between mt-[4px]">
-                      {/* Progress Bar */}
                       <div className="w-[76%] h-[6px] bg-gray-200 rounded-full relative overflow-hidden">
-                        {" "}
-                        {/* Changed bar height and color */}
                         <div
-                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] rounded-full" // Use gradient maybe
+                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] rounded-full"
                           style={{ width: `${module.progress}%` }}
                         ></div>
                       </div>
-                      {/* Progress Percentage */}
                       <span className="text-[12px] font-medium text-[#FD2E8A]">
-                        {" "}
-                        {/* Adjusted size/color */}
                         {module.progress.toFixed(0)}%
                       </span>
                     </div>
@@ -288,9 +279,8 @@ const Modules = () => {
                   <span className="text-[12px] text-[#F8589F] font-[500]">
                     {module.views}
                   </span>
-                  {/* Using subjectId for the link */}
                   <Link
-                    href={`/dashboard/question-bank?subjectId=${module.subjectId}`}
+                    href={`/dashboard/question-bank/${module.subjectId}`}
                     legacyBehavior
                   >
                     <a
@@ -299,7 +289,7 @@ const Modules = () => {
                     >
                       <Image
                         src={play}
-                        alt="" // Alt handled by title attr on link
+                        alt=""
                         width={22}
                         height={22}
                         className="cursor-pointer"

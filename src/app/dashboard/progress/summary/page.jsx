@@ -22,12 +22,14 @@ const ProgressActivityPage = () => {
   const {
     data: userData,
     isLoading: isLoadingUser,
+    isError: isUserError,
+    error: userError,
   } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
-        console.warn("Activity Page: No token for user query.");
+        console.warn("Progress Page: No token for user query.");
         return null;
       }
       try {
@@ -36,7 +38,8 @@ const ProgressActivityPage = () => {
         });
         return response.data.data;
       } catch (error) {
-        console.error("Activity Page: User fetch error:", error);
+        toast.error("Erreur lors de la récupération des données utilisateur.");
+        console.error("User fetch error:", error);
         throw error;
       }
     },
@@ -74,29 +77,17 @@ const ProgressActivityPage = () => {
     retry: 1,
   });
 
-  useEffect(() => {
+   useEffect(() => {
+     const canAttemptOnboarding = !isLoadingUser && userData != null;
+     const needsOnboarding =
+       canAttemptOnboarding && userData.completed_introduction === false;
+     const isTourAlreadyActive = nextStepState?.currentTour != null;
 
-    const canShowTour = !isLoadingAnalytics && activityData; 
-    const tourKey = "seen_progress_activity_tour";
-    let hasSeenThisTour = false;
-    if (typeof window !== "undefined") {
-      hasSeenThisTour = localStorage.getItem(tourKey) === "true";
-    }
+     if (needsOnboarding && !isTourAlreadyActive) {
+       startNextStep("progressSummary");
+     }
+   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
-    const isTourAlreadyActive = nextStepState?.currentTour != null;
-
-    if (canShowTour && !hasSeenThisTour && !isTourAlreadyActive) {
-      console.log(
-        "Activity Page: Attempting to start 'progressActivity' tour (first visit)."
-      );
-      startNextStep("progressActivity");
-      if (typeof window !== "undefined") {
-        localStorage.setItem(tourKey, "true");
-      }
-    } else if (canShowTour && hasSeenThisTour) {
-      console.log("Activity Page: Tour 'progressActivity' already seen.");
-    }
-  }, [isLoadingAnalytics, activityData, nextStepState, startNextStep]);
 
   if (isLoadingAnalytics) {
     return (

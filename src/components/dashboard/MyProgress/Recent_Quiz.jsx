@@ -69,8 +69,6 @@ const Recent_Quiz = ({ recent_quizzes }) => {
     };
   });
 
-  const weekOverWeekChange = 3.4; 
-
   return (
     <div id="tour-recent-quizzes" className="flex-1">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
@@ -82,17 +80,6 @@ const Recent_Quiz = ({ recent_quizzes }) => {
           <span className="text-[#242424] font-[500] text-[40px]">
             {overallBand.toFixed(0)}%
           </span>
-          {weekOverWeekChange > 0 ? (
-            <span className="text-[13px] text-[#47B881] bg-[#E5F5EC] rounded-[12px] px-[10px] py-[2px]">
-              +{weekOverWeekChange}% d&apos;augmentation par rapport à la
-              semaine dernière
-            </span>
-          ) : (
-            <span className="text-[13px] text-[#F64C4C] bg-[#FFEBEE] rounded-[12px] px-[10px] py-[2px]">
-              {weekOverWeekChange}% de diminution par rapport à la semaine
-              dernière
-            </span>
-          )}
         </div>
         <ul className="flex flex-col gap-4">
           {formattedQuizzes.map((quiz) => (

@@ -1,11 +1,8 @@
 "use client";
 
-// Added imports
 import { useEffect } from "react";
 import { useNextStep } from "nextstepjs";
 import toast from "react-hot-toast";
-
-// Existing imports
 import React from "react";
 import Learning_calendar from "@/components/dashboard/MyProgress/Learning_calender";
 import Performance from "@/components/dashboard/MyProgress/Performance";
@@ -19,17 +16,12 @@ import Loading from "@/components/Loading";
 const ProgressActivityPage = () => {
   const { startNextStep, nextStepState } = useNextStep();
 
-  const {
-    data: userData,
-    isLoading: isLoadingUser,
-    isError: isUserError,
-    error: userError,
-  } = useQuery({
+  const { data: userData, isLoading: isLoadingUser } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
-        console.warn("Progress Page: No token for user query.");
+        console.warn("Activity Page: No token for user query.");
         return null;
       }
       try {
@@ -38,8 +30,7 @@ const ProgressActivityPage = () => {
         });
         return response.data.data;
       } catch (error) {
-        toast.error("Erreur lors de la récupération des données utilisateur.");
-        console.error("User fetch error:", error);
+        console.error("Activity Page: User fetch error:", error);
         throw error;
       }
     },
@@ -77,17 +68,28 @@ const ProgressActivityPage = () => {
     retry: 1,
   });
 
-   useEffect(() => {
-     const canAttemptOnboarding = !isLoadingUser && userData != null;
-     const needsOnboarding =
-       canAttemptOnboarding && userData.completed_introduction === false;
-     const isTourAlreadyActive = nextStepState?.currentTour != null;
+  useEffect(() => {
+    const canShowTour = !isLoadingAnalytics && activityData;
+    const tourKey = "seen_progress_activity_tour";
+    let hasSeenThisTour = false;
+    if (typeof window !== "undefined") {
+      hasSeenThisTour = localStorage.getItem(tourKey) === "true";
+    }
 
-     if (needsOnboarding && !isTourAlreadyActive) {
-       startNextStep("progressSummary");
-     }
-   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
+    const isTourAlreadyActive = nextStepState?.currentTour != null;
 
+    if (canShowTour && !hasSeenThisTour && !isTourAlreadyActive) {
+      console.log(
+        "Activity Page: Attempting to start 'progressActivity' tour (first visit)."
+      );
+      startNextStep("progressActivity");
+      if (typeof window !== "undefined") {
+        localStorage.setItem(tourKey, "true");
+      }
+    } else if (canShowTour && hasSeenThisTour) {
+      console.log("Activity Page: Tour 'progressActivity' already seen.");
+    }
+  }, [isLoadingAnalytics, activityData, nextStepState, startNextStep]);
 
   if (isLoadingAnalytics) {
     return (
@@ -110,7 +112,7 @@ const ProgressActivityPage = () => {
     !activityData?.recent_activity?.progress_by_module ||
     !activityData?.recent_activity?.performance ||
     !activityData?.recent_activity?.recent_quizzes ||
-    !activityData?.subject_strengths || 
+    !activityData?.subject_strengths ||
     !activityData?.overall_summary
   ) {
     console.warn(

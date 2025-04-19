@@ -42,7 +42,7 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
   };
 
   return (
-    <div className="flex-1 accuracy">
+    <div id="tour-accuracy-over-time" className="flex-1 accuracy">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Précision au cours du temps
       </h3>

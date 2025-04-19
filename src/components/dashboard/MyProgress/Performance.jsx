@@ -11,7 +11,7 @@ import {
 const Performance = ({ performance }) => {
   if (!performance) {
     return (
-      <div className="flex-1 performance">
+      <div id="tour-performance-summary" className="flex-1 performance">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Performance
         </h3>
@@ -54,7 +54,7 @@ const Performance = ({ performance }) => {
   const performanceColor = getPerformanceColor(performance.performance_band);
 
   return (
-    <div className="flex-1 performance">
+    <div id="tour-performance-summary" className="flex-1 performance">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Performance
       </h3>

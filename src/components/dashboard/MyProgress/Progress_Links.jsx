@@ -15,7 +15,9 @@ const Progress_Links = () => {
   ];
 
   return (
-    <div className="flex items-center justify-between mt-6 px-5 max-md:mt-0">
+    <div
+      className="flex items-center justify-between mt-6 px-5 max-md:mt-0"
+    >
       <ul className="flex items-center gap-4">
         {links.map((link) => {
           const isActive = pathname === link.href;
@@ -35,7 +37,7 @@ const Progress_Links = () => {
           );
         })}
       </ul>
-      <div className="flex items-center gap-3 cursor-pointer">
+      {/* <div className="flex items-center gap-3 cursor-pointer">
         <div className="bg-[#FFFFFF] px-4 py-2 rounded-[20px]">
           <Image src={calender} alt="calendrier" />
         </div>
@@ -44,7 +46,7 @@ const Progress_Links = () => {
           <span className="max-md:hidden">Tous les modules</span>
           <SlidersHorizontal size={20} className="md:hidden" />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

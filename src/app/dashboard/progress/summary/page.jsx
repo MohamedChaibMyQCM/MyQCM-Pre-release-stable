@@ -1,5 +1,11 @@
 "use client";
 
+// Added imports
+import { useEffect } from "react";
+import { useNextStep } from "nextstepjs";
+import toast from "react-hot-toast";
+
+// Existing imports
 import React from "react";
 import Learning_calendar from "@/components/dashboard/MyProgress/Learning_calender";
 import Performance from "@/components/dashboard/MyProgress/Performance";
@@ -10,34 +16,122 @@ import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
 import Loading from "@/components/Loading";
 
-const Page = () => {
+const ProgressActivityPage = () => {
+  const { startNextStep, nextStepState } = useNextStep();
+
+  const {
+    data: userData,
+    isLoading: isLoadingUser,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      if (!token) {
+        console.warn("Activity Page: No token for user query.");
+        return null;
+      }
+      try {
+        const response = await BaseUrl.get("/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data.data;
+      } catch (error) {
+        console.error("Activity Page: User fetch error:", error);
+        throw error;
+      }
+    },
+    retry: 1,
+  });
+
   const {
     data: activityData,
-    isLoading,
-    error,
+    isLoading: isLoadingAnalytics,
+    isError: isAnalyticsError,
+    error: analyticsError,
   } = useQuery({
     queryKey: ["userAnalytics"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get("/progress/analytics", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(response.data.data);
-      
-
-      return response.data.data;
+      if (!token) {
+        toast.error("Session invalide pour les statistiques d'activité.");
+        throw new Error(
+          "No authentication token found for activity analytics."
+        );
+      }
+      try {
+        const response = await BaseUrl.get("/progress/analytics", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("Activity Page - Analytics data:", response.data.data);
+        return response.data.data;
+      } catch (err) {
+        console.error("Activity Page - Analytics fetch error:", err);
+        toast.error("Erreur lors du chargement des détails d'activité.");
+        throw err;
+      }
     },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
-  if (isLoading)
+  useEffect(() => {
+
+    const canShowTour = !isLoadingAnalytics && activityData; 
+    const tourKey = "seen_progress_activity_tour";
+    let hasSeenThisTour = false;
+    if (typeof window !== "undefined") {
+      hasSeenThisTour = localStorage.getItem(tourKey) === "true";
+    }
+
+    const isTourAlreadyActive = nextStepState?.currentTour != null;
+
+    if (canShowTour && !hasSeenThisTour && !isTourAlreadyActive) {
+      console.log(
+        "Activity Page: Attempting to start 'progressActivity' tour (first visit)."
+      );
+      startNextStep("progressActivity");
+      if (typeof window !== "undefined") {
+        localStorage.setItem(tourKey, "true");
+      }
+    } else if (canShowTour && hasSeenThisTour) {
+      console.log("Activity Page: Tour 'progressActivity' already seen.");
+    }
+  }, [isLoadingAnalytics, activityData, nextStepState, startNextStep]);
+
+  if (isLoadingAnalytics) {
     return (
       <div className="px-6 mt-8">
         <Loading />
       </div>
     );
-  if (error) return <div className="px-6 mt-8">Error loading data</div>;
+  }
+
+  if (isAnalyticsError) {
+    console.error("Activity page analytics error:", analyticsError);
+    return (
+      <div className="px-6 mt-8 text-red-600">
+        Erreur de chargement des détails d&apos;activité.
+      </div>
+    );
+  }
+
+  if (
+    !activityData?.recent_activity?.progress_by_module ||
+    !activityData?.recent_activity?.performance ||
+    !activityData?.recent_activity?.recent_quizzes ||
+    !activityData?.subject_strengths || 
+    !activityData?.overall_summary
+  ) {
+    console.warn(
+      "Activity Page: Incomplete analytics data received:",
+      activityData
+    );
+    return (
+      <div className="px-6 mt-8 text-orange-500">
+        Données d&apos;activité incomplètes ou non disponibles.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 p-6 mt-6">
@@ -55,4 +149,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default ProgressActivityPage;

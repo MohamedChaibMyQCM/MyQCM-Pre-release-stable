@@ -173,12 +173,9 @@
   display: flex;
   width: max-content;
 }
-/* 
+
 [data-name="nextstep-overlay"] {
-  width: 100vw !important;
-  overflow-x: hidden !important;
+  width: 99.4vw !important;
+  /* overflow-x: hidden !important; */
 }
-[data-name="nextstep-overlay"] {
-  width: 100vw !important;
-  overflow-x: hidden !important;
-} */
+ 

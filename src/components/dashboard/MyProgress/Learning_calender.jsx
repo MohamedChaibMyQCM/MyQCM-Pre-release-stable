@@ -100,18 +100,14 @@ const Learning_calendar = () => {
   }
 
   return (
-    <div className="flex-1 mb-6 md:mb-0">
-      {/* Adjusted header font size and margin */}
+    <div id="tour-learning-calendar" className="flex-1 mb-6 md:mb-0">
       <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919]">
         Calendrier d&apos;apprentissage
       </h3>
-      {/* Adjusted padding and removed fixed height */}
       <div className="bg-[#FFFFFF] rounded-[16px] p-4 sm:py-6 sm:px-6 box">
         <Card className="border-none shadow-none">
           <CardContent className="p-0">
-            {" "}
-            {/* Remove default CardContent padding */}
-            {/* Navigation - Added flex-wrap and adjusted gaps */}
+           
             <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-pink-500 rounded-full mr-2 flex-shrink-0"></div>
@@ -141,7 +137,6 @@ const Learning_calendar = () => {
                 </button>
               </div>
             </div>
-            {/* Week Day Headers - Adjusted text sizes */}
             <div className="flex mb-3 sm:mb-4">
               {weekDays.map((day) => (
                 <div

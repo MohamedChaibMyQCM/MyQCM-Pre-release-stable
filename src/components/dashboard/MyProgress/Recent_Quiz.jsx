@@ -7,7 +7,7 @@ const Recent_Quiz = ({ recent_quizzes }) => {
   // Vérifier si les données sont vides ou non disponibles
   if (!recent_quizzes || recent_quizzes.length === 0) {
     return (
-      <div className="flex-1">
+      <div id="tour-recent-quizzes" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Quiz récents
         </h3>
@@ -69,11 +69,10 @@ const Recent_Quiz = ({ recent_quizzes }) => {
     };
   });
 
-  // Calculer le changement de semaine en semaine (simulation - vous aurez besoin des données de la semaine précédente)
-  const weekOverWeekChange = 3.4; // Ceci devrait venir de votre API
+  const weekOverWeekChange = 3.4; 
 
   return (
-    <div className="flex-1">
+    <div id="tour-recent-quizzes" className="flex-1">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Quiz récents
       </h3>

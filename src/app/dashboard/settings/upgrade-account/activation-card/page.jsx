@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import BaseUrl from "@/components/BaseUrl"; 
+import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
-import ActivationSuccessPopup from "@/components/dashboard/settings/ActivationSuccessPopup"; 
-import { AnimatePresence } from "framer-motion"; 
+import ActivationSuccessPopup from "@/components/dashboard/settings/ActivationSuccessPopup";
+import { AnimatePresence } from "framer-motion";
 import { CircleNotch as Spinner } from "phosphor-react";
 
 const ActivationCardPage = () => {
@@ -26,11 +26,10 @@ const ActivationCardPage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log(response);
-      return response.data; 
+      return response.data;
     },
     onSuccess: (data) => {
-      
- 
+      console.log(data);
       const planDetails = {
         name: data?.data?.plan?.name || "Plan Premium",
         duration: data?.data?.plan?.duration_label || "Inconnue",
@@ -39,15 +38,14 @@ const ActivationCardPage = () => {
       setActivatedPlanDetails(planDetails);
       setShowSuccessPopup(true);
       setCode("");
-    
     },
     onError: (error) => {
       console.error("Erreur d’activation :", error);
       const errorMessage =
         error.response?.data?.message ||
-        "Échec de l'activation. Vérifiez le code ou réessayez."; 
+        "Échec de l'activation. Vérifiez le code ou réessayez.";
       toast.error(errorMessage);
-      setShowSuccessPopup(false); 
+      setShowSuccessPopup(false);
     },
   });
 
@@ -66,7 +64,7 @@ const ActivationCardPage = () => {
       return;
     }
 
-    console.log("Soumission du code formaté :", trimmedCode); 
+    console.log("Soumission du code formaté :", trimmedCode);
     activateCard(trimmedCode);
   };
 
@@ -78,19 +76,19 @@ const ActivationCardPage = () => {
     for (let i = 0; i < value.length; i += 4) {
       parts.push(value.substring(i, i + 4));
     }
-    const formattedValue = parts.join("-").substring(0, 29); 
+    const formattedValue = parts.join("-").substring(0, 29);
     setCode(formattedValue);
   };
 
   const closeSuccessPopup = () => {
     setShowSuccessPopup(false);
-    setActivatedPlanDetails(null); 
+    setActivatedPlanDetails(null);
   };
 
   return (
     <>
       <div className="px-4 py-8 space-y-8">
-         <div className="flex flex-col bg-white rounded-[16px] p-6 box">
+        <div className="flex flex-col bg-white rounded-[16px] p-6 box">
           <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
             Code de la carte d&apos;activation
           </h3>
@@ -123,7 +121,7 @@ const ActivationCardPage = () => {
 
             <button
               type="submit"
-              disabled={isLoading || code.length !== 29} 
+              disabled={isLoading || code.length !== 29}
               className={`self-start sm:self-end w-full sm:w-fit py-2 px-6 bg-[#F8589F] text-white font-medium rounded-[24px] transition-colors text-[13px] ${
                 isLoading || code.length !== 29
                   ? "opacity-70 cursor-not-allowed"

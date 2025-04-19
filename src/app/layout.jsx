@@ -1,13 +1,20 @@
+// app/layout.js
+
 import React from "react";
 import { Poppins } from "next/font/google";
-import { Toaster } from "react-hot-toast"; 
-import { NextStepProvider, NextStep } from "nextstepjs";
+import { Toaster } from "react-hot-toast";
+import { NextStepProvider } from "nextstepjs";
 import { MotionConfig } from "framer-motion";
-import ReactQueryProvider from "@/components/ReactQueryProvider"; 
-import { dashboardHeaderTour } from "@/lib/tours"; 
-import { CustomOnboardingCard } from "@/components/onboarding/CustomOnboardingCard"; 
+import ReactQueryProvider from "@/components/ReactQueryProvider";
+
+import {
+  dashboardHeaderTour,
+  progressSummaryTour,
+  progressActivityTour,
+} from "@/lib/tours";
 
 import "./globals.css";
+import NextStepClientWrapper from "@/components/NextStepClientWrapper"
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -22,6 +29,12 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const allTours = [
+    ...dashboardHeaderTour,
+    ...progressSummaryTour,
+    ...progressActivityTour,
+    // Add any other tours if you define them
+  ];
 
   return (
     <html lang="fr">
@@ -30,12 +43,10 @@ export default function RootLayout({ children }) {
           <MotionConfig>
             <NextStepProvider>
               <Toaster />
-              <NextStep
-                steps={dashboardHeaderTour}
-                cardComponent={CustomOnboardingCard}
-              >
+              {/* Use the Client Wrapper Component */}
+              <NextStepClientWrapper tours={allTours}>
                 {children}
-              </NextStep>
+              </NextStepClientWrapper>
             </NextStepProvider>
           </MotionConfig>
         </ReactQueryProvider>

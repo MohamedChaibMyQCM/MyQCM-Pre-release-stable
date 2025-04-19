@@ -5,7 +5,7 @@ import React from "react";
 import secureLocalStorage from "react-secure-storage";
 import { format } from "date-fns";
 
-const Mon_Emploi_Du_Temps = () => {
+const  Mon_Emploi_Du_Temps = () => {
   const {
     data: scheduleData,
     isLoading,
@@ -47,7 +47,7 @@ const Mon_Emploi_Du_Temps = () => {
   // Afficher l'état de chargement
   if (isLoading) {
     return (
-      <div className="flex-1">
+      <div id="tour-my-schedule" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Mon emploi du temps
         </h3>
@@ -61,7 +61,7 @@ const Mon_Emploi_Du_Temps = () => {
   // Afficher l'état d'erreur
   if (error) {
     return (
-      <div className="flex-1">
+      <div id="tour-my-schedule" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Mon emploi du temps
         </h3>
@@ -77,7 +77,7 @@ const Mon_Emploi_Du_Temps = () => {
   // Afficher l'état vide
   if (!scheduleData || scheduleData.length === 0) {
     return (
-      <div className="flex-1">
+      <div id="tour-my-schedule" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Mon emploi du temps
         </h3>
@@ -93,7 +93,7 @@ const Mon_Emploi_Du_Temps = () => {
   }
 
   return (
-    <div className="flex-1">
+    <div id="tour-my-schedule" className="flex-1">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Mon emploi du temps
       </h3>

@@ -5,7 +5,7 @@ const Total_Point = ({ userXp }) => {
   const progressPercentage = userXp ? ((userXp.xp % 100) / 100) * 100 : 0;
 
   return (
-    <div className="w-[190px] max-md:w-full">
+    <div id="tour-total-point" className="w-[190px] max-md:w-full">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Points totaux
       </h3>

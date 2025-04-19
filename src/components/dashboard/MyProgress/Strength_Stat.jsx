@@ -30,7 +30,9 @@ const Strength_Stat = ({ subject_strengths }) => {
   if (error) return <div>Error loading data</div>;
 
   return (
-    <div className="flex mt-8 gap-6 max-md:flex-col">
+    <div
+      className="flex mt-8 gap-6 max-md:flex-col"
+    >
       <Stren_Weakn subject_strengths={subject_strengths} />
       <Study_time />
       <div className="flex flex-col">

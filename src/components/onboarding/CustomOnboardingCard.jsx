@@ -15,7 +15,7 @@ export const CustomOnboardingCard = ({
 
   return (
 
-    <div className="relative rounded-[10px] bg-white w-[400px] shadow-xl p-5">
+    <div className="relative rounded-[10px] bg-white w-[400px] shadow-xl p-5 ">
 
       <div className="flex items-center mb-3">
         {step.icon && <span className="mr-2 text-xl">{step.icon}</span>}

@@ -33,7 +33,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
   }));
 
   return (
-    <div className="flex-1 weak">
+    <div id="tour-stren-weakn" className="flex-1 weak">
       <h3 className="font-medium text-lg mb-4 text-gray-900">
         Forces et Faiblesses
       </h3>

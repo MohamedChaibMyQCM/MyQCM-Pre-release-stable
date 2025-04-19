@@ -1,6 +1,5 @@
 "use client";
 
-
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNextStep } from "nextstepjs";
@@ -12,7 +11,7 @@ import Study_time from "@/components/dashboard/Home/Study_time";
 import Units from "@/components/dashboard/Home/Units";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
-import Loading from "@/components/Loading"; 
+import Loading from "@/components/Loading";
 
 export default function DashboardPage() {
   const { startNextStep, nextStepState } = useNextStep();
@@ -38,22 +37,20 @@ export default function DashboardPage() {
         return null;
       }
     },
-   });
+  });
 
   useEffect(() => {
-   
     const needsOnboarding =
-      !isLoadingUser && 
+      !isLoadingUser &&
       !isUserError &&
-      userData != null && 
+      userData != null &&
       userData.completed_introduction === false;
 
     const isTourAlreadyActive = nextStepState?.currentTour != null;
 
     if (needsOnboarding && !isTourAlreadyActive) {
-      
       startNextStep("dashboardHeaderIntro");
-    } 
+    }
   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
   if (isLoadingUser) {
@@ -61,24 +58,15 @@ export default function DashboardPage() {
     return <Loading />;
   }
 
-  console.log("Rendering Dashboard Content...");
   return (
     <div className="bg-[#F7F8FA] pb-10 min-h-screen">
       <Dash_Header />
       <div className="px-5 mt-4 max-md:mt-0 max-xl:mt-8">
-        <div id="tour-units-section">
-          <Units />
-        </div>
-        <div id="tour-modules-section" className="mt-8">
-          <Modules />
-        </div>
+        <Units />
+        <Modules />
         <div className="flex items-start gap-6 mt-10 max-md:flex-col w-full max-md:mt-6">
-          <div id="tour-calendar-section" className="flex-1 w-full">
-            <Calendar />
-          </div>
-          <div id="tour-studytime-section" className="flex-1 w-full">
-            <Study_time />
-          </div>
+          <Calendar />
+          <Study_time />
         </div>
       </div>
     </div>

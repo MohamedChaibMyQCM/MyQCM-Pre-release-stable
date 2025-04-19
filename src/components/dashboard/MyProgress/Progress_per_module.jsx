@@ -7,7 +7,7 @@ const Progress_per_module = ({ progress_by_module }) => {
   // Vérifier si les données sont vides ou non disponibles
   if (!progress_by_module || progress_by_module.length === 0) {
     return (
-      <div className="flex-1">
+      <div id="tour-module-progress" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
           Engagement par module
         </h3>
@@ -47,7 +47,7 @@ const Progress_per_module = ({ progress_by_module }) => {
   const overallStatus = getEngagementStatus(overallPercentage);
 
   return (
-    <div className="flex-1">
+    <div id="tour-module-progress" className="flex-1">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Engagement par module
       </h3>

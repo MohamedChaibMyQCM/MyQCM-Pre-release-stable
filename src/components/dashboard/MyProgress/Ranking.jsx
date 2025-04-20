@@ -9,7 +9,7 @@ const Ranking = ({ userXp }) => {
   const invertedPercentile = 100 - percentileNumber;
 
   return (
-    <div id="tour-ranking" className="mt-6 w-[190px] max-md:w-full">
+    <div id="tour-ranking" className="mt-6 w-[190px] max-xl:w-full">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">Classement</h3>
       <div className="bg-[#FFFFFF] flex flex-col box p-4 rounded-[16px]">
         <span className="text-[14px] text-[#B5BEC6] font-[500]">Vous êtes</span>

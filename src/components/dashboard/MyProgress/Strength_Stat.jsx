@@ -31,11 +31,11 @@ const Strength_Stat = ({ subject_strengths }) => {
 
   return (
     <div
-      className="flex mt-8 gap-6 max-md:flex-col"
+      className="flex mt-8 gap-6 max-md:flex-col max-xl:flex-wrap"
     >
       <Stren_Weakn subject_strengths={subject_strengths} />
       <Study_time />
-      <div className="flex flex-col">
+      <div className="flex flex-col max-xl:flex-1">
         <Total_Point userXp={userXp} />
         <Ranking userXp={userXp} />
       </div>

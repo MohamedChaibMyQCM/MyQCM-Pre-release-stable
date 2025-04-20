@@ -41,7 +41,7 @@ const Study_time = () => {
   }));
 
   return (
-    <div id="tour-myprogress-studytime" className="flex-1 study_time">
+    <div id="tour-myprogress-studytime" className="xl:flex-1 study_time">
       <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
         Temps d&apos;étude
       </h3>

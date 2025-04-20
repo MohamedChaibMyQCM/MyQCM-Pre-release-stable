@@ -11,7 +11,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
   // Vérifier si les données sont vides ou non disponibles
   if (!subject_strengths || subject_strengths.length === 0) {
     return (
-      <div className="flex-1 weak">
+      <div className="flex-1 weak max-xl:w-full">
         <h3 className="font-medium text-lg mb-4 text-gray-900">
           Forces et Faiblesses
         </h3>
@@ -33,7 +33,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
   }));
 
   return (
-    <div id="tour-stren-weakn" className="flex-1 weak">
+    <div id="tour-stren-weakn" className="flex-1 weak max-xl:w-full">
       <h3 className="font-medium text-lg mb-4 text-gray-900">
         Forces et Faiblesses
       </h3>

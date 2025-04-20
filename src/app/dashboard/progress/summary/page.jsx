@@ -16,26 +16,32 @@ import Loading from "@/components/Loading";
 const ProgressActivityPage = () => {
   const { startNextStep, nextStepState } = useNextStep();
 
-  const { data: userData, isLoading: isLoadingUser } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      const token = secureLocalStorage.getItem("token");
-      if (!token) {
-        console.warn("Activity Page: No token for user query.");
-        return null;
-      }
-      try {
-        const response = await BaseUrl.get("/user/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        return response.data.data;
-      } catch (error) {
-        console.error("Activity Page: User fetch error:", error);
-        throw error;
-      }
-    },
-    retry: 1,
-  });
+ const {
+   data: userData,
+   isLoading: isLoadingUser,
+   isError: isUserError,
+   error: userError,
+ } = useQuery({
+   queryKey: ["user"],
+   queryFn: async () => {
+     const token = secureLocalStorage.getItem("token");
+     if (!token) {
+       console.warn("Progress Page: No token for user query.");
+       return null;
+     }
+     try {
+       const response = await BaseUrl.get("/user/me", {
+         headers: { Authorization: `Bearer ${token}` },
+       });
+       return response.data.data;
+     } catch (error) {
+       toast.error("Erreur lors de la récupération des données utilisateur.");
+       console.error("User fetch error:", error);
+       throw error;
+     }
+   },
+   retry: 1,
+ });
 
   const {
     data: activityData,
@@ -68,28 +74,16 @@ const ProgressActivityPage = () => {
     retry: 1,
   });
 
-  useEffect(() => {
-    const canShowTour = !isLoadingAnalytics && activityData;
-    const tourKey = "seen_progress_activity_tour";
-    let hasSeenThisTour = false;
-    if (typeof window !== "undefined") {
-      hasSeenThisTour = localStorage.getItem(tourKey) === "true";
-    }
+   useEffect(() => {
+     const canAttemptOnboarding = !isLoadingUser && userData != null;
+     const needsOnboarding =
+       canAttemptOnboarding && userData.completed_introduction === false;
+     const isTourAlreadyActive = nextStepState?.currentTour != null;
 
-    const isTourAlreadyActive = nextStepState?.currentTour != null;
-
-    if (canShowTour && !hasSeenThisTour && !isTourAlreadyActive) {
-      console.log(
-        "Activity Page: Attempting to start 'progressActivity' tour (first visit)."
-      );
-      startNextStep("progressActivity");
-      if (typeof window !== "undefined") {
-        localStorage.setItem(tourKey, "true");
-      }
-    } else if (canShowTour && hasSeenThisTour) {
-      console.log("Activity Page: Tour 'progressActivity' already seen.");
-    }
-  }, [isLoadingAnalytics, activityData, nextStepState, startNextStep]);
+     if (needsOnboarding && !isTourAlreadyActive) {
+       startNextStep("progressActivity");
+     }
+   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
   if (isLoadingAnalytics) {
     return (
@@ -128,7 +122,7 @@ const ProgressActivityPage = () => {
 
   return (
     <div className="space-y-8 p-6 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
         <Progress_per_module
           progress_by_module={activityData.recent_activity.progress_by_module}
         />

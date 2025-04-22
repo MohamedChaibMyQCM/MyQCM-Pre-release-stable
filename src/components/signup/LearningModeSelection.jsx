@@ -1,21 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image"; // Keep import
-import BaseUrl from "@/components/BaseUrl"; // Verify path is correct
+import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query"; // ** Ensure this import is correct **
+import { useQuery } from "@tanstack/react-query"; 
 import secureLocalStorage from "react-secure-storage";
 import {
   CheckCircle,
   Info,
   CircleNotch as Spinner,
   Check,
-} from "phosphor-react"; // Verify path for icons is correct
+} from "phosphor-react";
 
-// --- Static Data for Mode Details (using API IDs as keys) ---
 const modeDetailsConfig = {
-  // ID for "Intelligent Mode" from your API response
   "1afb7737-c9c2-4411-9e61-5ceb02ce5e47": {
     subtitle: "Powered by Synergy",
     features: [
@@ -28,9 +24,8 @@ const modeDetailsConfig = {
       "Adaptive learning",
       "Maximizing retention",
     ],
-    isRecommended: true, // Flag for the badge
+    isRecommended: true,
   },
-  // ID for "Guided Mode" from your API response
   "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69": {
     subtitle: "Your Focus, Our AI",
     features: [
@@ -45,7 +40,6 @@ const modeDetailsConfig = {
     ],
     isRecommended: false,
   },
-  // ID for "Custom Mode" from your API response
   "6ecb99f5-6687-47f8-a218-b30fbc5d85ee": {
     subtitle: "Craft Your Challenge",
     features: ["Full Customization", "Exam Simulation", "Precision Revision"],
@@ -57,18 +51,15 @@ const modeDetailsConfig = {
     isRecommended: false,
   },
 };
-// --- End Static Data ---
 
-// --- CONSTANTS ---
-const BADGE_HEIGHT_CLASS = "h-7"; // Tailwind class for badge/placeholder height - ADJUST AS NEEDED
+const BADGE_HEIGHT_CLASS = "h-7";
 
 const LearningModeStep = ({
   selectedMode,
   onModeChange,
-  onSubmit, // Expecting the function that triggers the final mutation
-  onReturn, // Expecting the function to go back
+  onSubmit,
+  onReturn,
 }) => {
-  // --- React Query Hook (remains the same) ---
   const {
     data: modes = [],
     isLoading,
@@ -97,9 +88,7 @@ const LearningModeStep = ({
     staleTime: 1000 * 60 * 15,
     refetchOnWindowFocus: false,
   });
-  // --- End React Query Hook ---
 
-  // --- Event Handlers (remain the same) ---
   const handleSubmit = () => {
     if (!selectedMode) {
       toast.error("Veuillez sélectionner un mode d'apprentissage");
@@ -112,9 +101,7 @@ const LearningModeStep = ({
       toast.error("Erreur interne : impossible de soumettre.");
     }
   };
-  // --- End Event Handlers ---
 
-  // --- Loading State (remains the same) ---
   if (isLoading) {
     return (
       <div className="w-full px-4 md:px-[40px] flex items-center justify-center py-20 min-h-[400px]">
@@ -122,9 +109,7 @@ const LearningModeStep = ({
       </div>
     );
   }
-  // --- End Loading State ---
 
-  // --- Error State (remains the same) ---
   if (error) {
     return (
       <div className="w-full px-4 md:px-[40px] mt-8">
@@ -145,12 +130,9 @@ const LearningModeStep = ({
       </div>
     );
   }
-  // --- End Error State ---
 
-  // --- Main Render ---
   return (
     <div className="w-full px-4 md:px-[40px] pt-4">
-      {/* Titles and Paragraph (remain the same) */}
       <h2 className="text-[19px] font-[500] text-[#191919] mb-2">
         Choisissez le mode d&apos;apprentissage souhaité
       </h2>
@@ -163,23 +145,19 @@ const LearningModeStep = ({
         étudiants en médecine.
       </p>
 
-      {/* Mode Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
         {(modes || []).map((mode) => {
           const details = modeDetailsConfig[mode.id] || {
-            /* fallback */
             subtitle: "",
             features: [],
             bestFor: [],
             isRecommended: false,
           };
           const isSelected = selectedMode === mode.id;
-          const hasBadge = details.isRecommended; // Convenience variable
+          const hasBadge = details.isRecommended;
 
           return (
-            // Container for each Grid Item
             <div key={mode.id} className="flex flex-col">
-              {/* Badge Area (fixed height) */}
               <div className={`w-full ${BADGE_HEIGHT_CLASS} mb-[-2px]`}>
                 {hasBadge && (
                   <div className="w-full h-full py-1 bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] text-white text-xs font-semibold flex items-center justify-center rounded-t-xl shadow-sm">
@@ -188,7 +166,6 @@ const LearningModeStep = ({
                 )}
               </div>
 
-              {/* Card START */}
               <div
                 role="radio"
                 aria-checked={isSelected}
@@ -197,7 +174,6 @@ const LearningModeStep = ({
                 onKeyDown={(e) =>
                   (e.key === "Enter" || e.key === " ") && onModeChange(mode.id)
                 }
-                // Card Styling with Conditional Rounding and Borders
                 className={`flex flex-col flex-grow p-5 bg-white cursor-pointer transition-all duration-200 ease-in-out h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#F8589F] border
                   ${hasBadge ? "rounded-b-xl border-t-0" : "rounded-xl"}
                   ${
@@ -212,10 +188,8 @@ const LearningModeStep = ({
                         } hover:border-gray-300`
                   }`}
               >
-                {/* Card Header */}
                 <div className={`flex items-center justify-between mb-4 pt-1`}>
                   <div className="flex items-center gap-3">
-                    {/* Styled Radio Circle */}
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                         isSelected
@@ -228,7 +202,6 @@ const LearningModeStep = ({
                         <Check size={12} weight="bold" className="text-white" />
                       )}
                     </div>
-                    {/* Title/Subtitle */}
                     <div>
                       <span className="block text-gray-800 font-semibold text-base leading-tight">
                         {mode.name || "Mode inconnu"}
@@ -238,7 +211,6 @@ const LearningModeStep = ({
                       </span>
                     </div>
                   </div>
-                  {/* Info Button */}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -254,25 +226,23 @@ const LearningModeStep = ({
                   </button>
                 </div>
 
-                {/* Features List */}
                 <ul className="flex flex-col gap-2 mb-5 text-sm">
                   {(details.features.length > 0
                     ? details.features
                     : ["Caractéristique 1", "Caractéristique 2"]
-                  ) // Fallback
-                    .map((feature, index) => (
-                      <li
-                        key={`feat-${index}`}
-                        className="flex items-center gap-2 text-gray-700"
-                      >
-                        <CheckCircle
-                          size={18}
-                          weight="fill"
-                          className="text-[#47B881] shrink-0"
-                        />
-                        {feature}
-                      </li>
-                    ))}
+                  ).map((feature, index) => (
+                    <li
+                      key={`feat-${index}`}
+                      className="flex items-center gap-2 text-gray-700"
+                    >
+                      <CheckCircle
+                        size={18}
+                        weight="fill"
+                        className="text-[#47B881] shrink-0"
+                      />
+                      {feature}
+                    </li>
+                  ))}
                   {details.features.length === 0 && (
                     <li className="text-gray-400 text-xs">
                       (Aucune fonctionnalité listée)
@@ -280,7 +250,6 @@ const LearningModeStep = ({
                   )}
                 </ul>
 
-                {/* Best For Section */}
                 <div className="mt-auto pt-4 border-t border-gray-100">
                   <span className="text-[#FD2E8A] font-semibold text-sm mb-2 block">
                     Best For
@@ -289,16 +258,15 @@ const LearningModeStep = ({
                     {(details.bestFor.length > 0
                       ? details.bestFor
                       : ["Usage général"]
-                    ) // Fallback
-                      .map((item, index) => (
-                        <li
-                          key={`best-${index}`}
-                          className="flex items-center gap-2 text-gray-700"
-                        >
-                          <span className="w-2 h-2 bg-[#FD2E8A] rounded-full shrink-0"></span>
-                          {item}
-                        </li>
-                      ))}
+                    ).map((item, index) => (
+                      <li
+                        key={`best-${index}`}
+                        className="flex items-center gap-2 text-gray-700"
+                      >
+                        <span className="w-2 h-2 bg-[#FD2E8A] rounded-full shrink-0"></span>
+                        {item}
+                      </li>
+                    ))}
                     {details.bestFor.length === 0 && (
                       <li className="text-gray-400 text-xs">
                         (Aucun usage idéal spécifié)
@@ -307,33 +275,25 @@ const LearningModeStep = ({
                   </ul>
                 </div>
               </div>
-              {/* Card END */}
-            </div> // End Grid Item Container
+            </div>
           );
         })}
       </div>
 
-      {/* Action Buttons - ** STYLED AS REQUESTED ** */}
       <div className="flex items-center justify-end gap-10 mt-12 relative z-0">
-        {" "}
-        {/* Kept structure */}
         <button
-          type="button" // Should be type="button" since it doesn't submit the form directly
+          type="button"
           onClick={onReturn}
-          className="text-[#F8589F] py-[8px] px-[50px] text-[15px] font-medium hover:bg-[#FFF5FA] rounded-[10px] transition-colors" // Basic styling for Retour, using provided padding/font/rounding
+          className="text-[#F8589F] py-[8px] px-[50px] text-[15px] font-medium hover:bg-[#FFF5FA] rounded-[10px] transition-colors"
         >
           Retour
         </button>
         <button
-          // Keep the logic for calling parent onSubmit
           onClick={handleSubmit}
-          // Add disabled state
           disabled={!selectedMode}
-          // Use the EXACT classes provided by user
           className={`self-end bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] rounded-[10px] text-[#FFFFFF] py-[8px] px-[50px] text-[15px] font-medium transition-opacity duration-150 ${
             !selectedMode ? "opacity-50 cursor-not-allowed" : "hover:opacity-95"
-          }`} // Added disabled state styling
-          // *** REMOVED type="submit" - This button calls handleSubmit via onClick, not a direct form submission ***
+          }`}
         >
           Terminer
         </button>

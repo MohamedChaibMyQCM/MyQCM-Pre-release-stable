@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 import { NextStepProvider } from "nextstepjs";
 import { MotionConfig } from "framer-motion";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-
 import {
   dashboardHeaderTour,
   progressSummaryTour,

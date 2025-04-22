@@ -10,4 +10,4 @@ const ReactQueryProvider = ({ children }) => {
   );
 };
 
-export default ReactQueryProvider;
+export default ReactQueryProvider

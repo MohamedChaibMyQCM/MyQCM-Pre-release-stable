@@ -114,8 +114,10 @@ const Page = () => {
 
   return (
     <div
-      className={`bg-[#FFF] outline-none w-[100%] h-[100%] rounded-[16px] overflow-y-auto scrollbar-hide flex flex-col items-center justify-center max-xl:pt-[130px] max-md:pt-[0] ${
-        currentStep === "SetProfileOne" ? "pb-[20px]" : "pb-[20px] pt-[140px]"
+      className={`bg-[#FFF] outline-none w-[100%] h-[100%] rounded-[16px] overflow-y-auto scrollbar-hide flex flex-col items-center justify-center ${
+        currentStep === "SetProfileOne"
+          ? "pb-[20px] max-xl:pt-[130px] max-md:pt-[0px]"
+          : "pb-[20px] pt-[140px] max-xl:pt-[290px] max-md:pt-[710px] max-md:pb-[20px]"
       }`}
     >
       <div className="flex items-center gap-5 mb-[10px] max-md:mt-[200px] mt-8">

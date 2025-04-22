@@ -42,7 +42,7 @@ export const dashboardHeaderTour = [
         content:
           "Votre nombre de jours consécutifs d'activité. Essayez de ne pas la briser !",
         selector: "#tour-streak-display",
-        side: "left", // Changed
+        side: "left",
         showSkip: true,
       },
       {

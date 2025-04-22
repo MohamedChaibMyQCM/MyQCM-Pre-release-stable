@@ -6,7 +6,7 @@ import beta from "../../../../public/auth/beta.svg";
 
 const Layout = ({ children }) => {
   return (
-    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px] max-xl:flex-col max-xl:items-center max-md:px-[20px]">
+    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px] max-xl:flex-col max-xl:items-center max-md:px-[20px] max-md:overflow-y-auto scrollbar-hide">
       <div className="flex flex-col gap-4 self-end max-xl:mx-auto">
         <Image
           src={beta}
@@ -17,7 +17,7 @@ const Layout = ({ children }) => {
           Personnalisons votre apprentissage
         </h1>
         <p className="w-[300px] mb-[14px] text-[#FFFFFFD6] text-center font-light text-[14px]  max-xl:w-[560px] max-md:w-[340px]">
-         Répondez à quelques questions rapides pour nous aider à adapter votre
+          Répondez à quelques questions rapides pour nous aider à adapter votre
           parcours d&apos;éducation médicale.
         </p>
         <Image

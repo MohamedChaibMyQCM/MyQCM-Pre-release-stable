@@ -214,11 +214,11 @@ const EndingDate = ({ name, value, setFieldValue }) => {
               <CaretLeft size={18} weight="bold" />
             </button>
 
-            <div className="flex gap-1 text-xs sm:text-sm">
+            <div className="flex text-xs sm:text-sm">
               {view !== "months" && (
                 <button
                   type="button"
-                  className="font-semibold hover:text-[#F8589F] py-1 px-1 sm:px-2 rounded-md hover:bg-[#f0f0f0] transition-colors"
+                  className="font-semibold hover:text-[#F8589F] py-1 px-1 rounded-md hover:bg-[#f0f0f0] transition-colors"
                   onClick={() => setView("months")}
                 >
                   {currentDate.toLocaleString("fr-FR", { month: "long" })}
@@ -226,7 +226,7 @@ const EndingDate = ({ name, value, setFieldValue }) => {
               )}
               <button
                 type="button"
-                className="font-semibold hover:text-[#F8589F] py-1 px-1 sm:px-2 rounded-md hover:bg-[#f0f0f0] transition-colors"
+                className="font-semibold hover:text-[#F8589F] py-1 px-1 rounded-md hover:bg-[#f0f0f0] transition-colors"
                 onClick={() => setView("years")}
               >
                 {currentDate.getFullYear()}

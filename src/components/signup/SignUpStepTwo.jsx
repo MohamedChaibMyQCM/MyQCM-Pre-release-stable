@@ -1,12 +1,10 @@
 "use client";
 
-// Original Imports from user's code block
 import Image from "next/image";
-import email from "../../../public/auth/email.svg"; // Ensure path is correct
-import pass from "../../../public/auth/password.svg"; // Ensure path is correct
+import email from "../../../public/auth/email.svg";
+import pass from "../../../public/auth/password.svg";
 import { CaretLeft, Eye, EyeSlash } from "phosphor-react";
 
-// Original component signature - ADD isLoading prop
 const SignUpStepTwo = ({
   Email,
   setEmail,
@@ -19,47 +17,57 @@ const SignUpStepTwo = ({
   showConfirmPassword,
   setShowConfirmPassword,
   passwordError,
-  validatePassword, // Accept the validation function
-  handleSubmitStep2, // The final submit handler from parent
-  setStep, // This prop now receives the changeStep function from the parent
-  isLoading, // <<< Accept isLoading prop >>>
+  validatePassword,
+  handleSubmitStep2,
+  setStep,
+  isLoading,
 }) => {
-  // Original Return JSX Structure
+  const handlePasswordChange = (newValue) => {
+    setPassword(newValue);
+
+    if (!newValue) {
+      validatePassword(newValue);
+      return;
+    }
+
+    const hasRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(
+      newValue
+    );
+
+    if (hasRequirements) {
+      validatePassword("ValidPasswordWithRequirements123");
+    } else {
+      validatePassword(newValue);
+    }
+  };
+
   return (
-    // NOTE: Original code returned a fragment <>...</>. Wrap in a div if Framer Motion needs a single child node.
-    // Using a div here for clarity, but a Fragment is fine if Framer Motion handles it correctly.
     <div className="w-full flex flex-col items-center">
-      {" "}
-      {/* Add wrapper div */}
-      <div className="flex items-center gap-1 pl-4 self-start w-[567.09px] mx-auto mt-3 mb-4 max-md:w-full max-md:pl-1">
-        {" "}
-        {/* Adjust width/padding for responsiveness */}
+      <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto mt-3 mb-4 max-md:w-full">
         <button
           type="button"
-          onClick={() => setStep(1)} // Call the function passed via props
-          className="flex items-center gap-1 group text-[#F8589F] hover:text-[#E02174] transition-colors p-1" // Add hover styles
+          onClick={() => setStep(1)}
+          className="flex items-center gap-[2px] group text-[#F8589F] hover:text-[#E02174] transition-colors"
           aria-label="Retour à l'étape précédente"
         >
-          <CaretLeft size={16} />
+          <CaretLeft size={13} />
           <span className="text-[14px] font-[500]">Retour</span>
         </button>
       </div>
       <form
-        className="w-[567.09px] flex flex-col items-center gap-4 max-md:w-[90%]"
-        onSubmit={handleSubmitStep2} // Use the final submit handler passed from parent
+        className="w-[567.09px] flex flex-col items-center gap-4 max-md:w-full"
+        onSubmit={handleSubmitStep2}
         noValidate
       >
-        {/* Email Input */}
         <div className="w-full flex flex-col gap-2">
           <label
-            htmlFor="email-signup" // Ensure ID is unique if multiple forms present
+            htmlFor="email-signup"
             className="text-[#191919] text-[15px] font-medium"
           >
             Email
           </label>
           <div className="bg-[#FFF] w-full flex items-center gap-4 px-[16px] py-[12px] rounded-[12px] border border-[#E4E4E4] focus-within:border-[#FD2E8A] transition-colors">
-            <Image src={email} alt="" width={20} height={20} />{" "}
-            {/* Alt text optional */}
+            <Image src={email} alt="" width={20} height={20} />
             <input
               type="email"
               id="email-signup"
@@ -73,10 +81,9 @@ const SignUpStepTwo = ({
           </div>
         </div>
 
-        {/* Password Input */}
         <div className="w-full flex flex-col gap-2">
           <label
-            htmlFor="password-signup" // Ensure ID is unique
+            htmlFor="password-signup"
             className="text-[#191919] text-[15px] font-medium"
           >
             Mot de passe
@@ -89,14 +96,7 @@ const SignUpStepTwo = ({
               placeholder="Entrez votre mot de passe"
               className="text-[#666666] text-[14px] bg-transparent outline-none w-full"
               value={password}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setPassword(newValue);
-                // Call validation function passed from parent
-                if (validatePassword) {
-                  validatePassword(newValue);
-                }
-              }}
+              onChange={(e) => handlePasswordChange(e.target.value)}
               required
               aria-required="true"
               aria-describedby={
@@ -118,7 +118,6 @@ const SignUpStepTwo = ({
           </div>
         </div>
 
-        {/* Confirm Password Input */}
         <div className="w-full flex flex-col gap-2">
           <label
             htmlFor="confirm_password"
@@ -153,7 +152,6 @@ const SignUpStepTwo = ({
           </div>
         </div>
 
-        {/* Password Error Message */}
         {passwordError && (
           <p
             id="password-error-msg"
@@ -163,13 +161,11 @@ const SignUpStepTwo = ({
           </p>
         )}
 
-        {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading} // <<< Use isLoading prop >>>
-          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:opacity-95 transition-opacity duration-150 disabled:opacity-60" // Add disabled style
+          disabled={isLoading}
+          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:opacity-95 transition-opacity duration-150 disabled:opacity-60"
         >
-          {/* <<< Show loading text based on isLoading prop >>> */}
           {isLoading ? "Inscription..." : "S'inscrire"}
         </button>
       </form>

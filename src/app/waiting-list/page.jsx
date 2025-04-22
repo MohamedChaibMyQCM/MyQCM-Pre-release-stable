@@ -4,14 +4,13 @@ import wait_box from "../../../public/waitlist/wait-box.svg";
 import twitter from "../../../public/waitlist/twitter.svg";
 import linkedin from "../../../public/waitlist/linkedin.svg";
 import insta from "../../../public/waitlist/insta.svg";
-import tiktok from "../../../public/waitlist/tiktok.svg";
+import {  FaYoutube } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
 const Page = () => {
   return (
     <div className="bg-[#F7F8FA] w-screen min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Décorations */}
       <Image
         src={wait_top}
         alt="Décoration haut"
@@ -23,7 +22,6 @@ const Page = () => {
         className="w-[300px] max-md:w-[240px] absolute bottom-0 right-0"
       />
 
-      {/* Contenu principal */}
       <div className="bg-white rounded-[16px] p-6 w-full max-w-[600px] relative z-10">
         <Image src={wait_box} alt="Illustration" className="w-full" />
 
@@ -46,14 +44,46 @@ const Page = () => {
           </Link>
 
           <div className="flex justify-center gap-4">
-            {[twitter, linkedin, insta, tiktok].map((icon, index) => (
+            <Link
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Image
-                key={index}
-                src={icon}
-                alt="Réseau social"
-                className="w-4 h-4"
+                src={twitter}
+                alt="Twitter"
+                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]" 
               />
-            ))}
+            </Link>
+            <Link
+              href="https://www.linkedin.com/company/myqcm/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src={linkedin}
+                alt="LinkedIn"
+                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]" 
+            </Link>
+            <Link
+              href="https://www.instagram.com/myqcm.aljazayr/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src={insta}
+                alt="Instagram"
+                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]"
+              />
+            </Link>
+            <Link
+              href="https://www.youtube.com/@MyQCMAljazayr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pb-1"
+            >
+              <FaYoutube className="w-5 h-5 transition-colors hover:text-[#FD2E8A] " />{" "}
+            </Link>
           </div>
         </div>
       </div>

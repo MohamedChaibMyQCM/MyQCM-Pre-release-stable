@@ -87,7 +87,7 @@ const ActivationCardPage = () => {
 
   return (
     <>
-      <div className="px-4 py-8 space-y-8">
+      <div className="px-4 py-8 space-y-8 h-[100%]">
         <div className="flex flex-col bg-white rounded-[16px] p-6 box">
           <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
             Code de la carte d&apos;activation

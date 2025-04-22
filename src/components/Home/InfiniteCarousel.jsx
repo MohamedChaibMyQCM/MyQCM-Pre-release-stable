@@ -1,4 +1,6 @@
-import { logos } from "@/data/data"; 
+"use client";
+
+import { logos } from "@/data/data";
 import Image from "next/image";
 import vector from "../../../public/Landing/Vector.svg";
 

@@ -25,8 +25,7 @@ const Page = () => {
       });
       return response.data.data.data;
     },
-    staleTime: 1000 * 60 * 60,
-  });
+  }); 
 
   const {
     data: userProfile,
@@ -45,18 +44,14 @@ const Page = () => {
     },
     onError: (error) => {
       toast.error("Échec du chargement des paramètres de profil.");
-      console.error("Erreur de récupération du profil :", error);
     },
   });
 
-  // Initialize selected mode when data loads
   useEffect(() => {
     if (!isLoadingProfile && !isLoadingModes) {
-      // If user has a mode selected, use that
       if (userProfile?.mode?.id) {
         setSelectedMode(userProfile.mode.id);
       }
-      // Otherwise use first available mode if any exist
       else if (availableModes?.length > 0) {
         setSelectedMode(availableModes[0].id);
       }

@@ -5,12 +5,13 @@ import playSeasonIcon from "../../../../public/Icons/play.svg";
 import { useState } from "react";
 import TrainingSeason from "./TrainingSeason";
 import Loading from "@/components/Loading";
+import planification from "../../../../public/Icons/planification.svg";
 
 const Questions = ({
-  data = [], // Use default parameters
+  data = [],
   isLoading = false,
   error = null,
-  subjectData = { attachement: "", name: "Unknown Subject" }, // Default object
+  subjectData = { attachement: "", name: "Unknown Subject" },
 }) => {
   const [showTrainingPopup, setShowTrainingPopup] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
@@ -64,14 +65,14 @@ const Questions = ({
             >
               <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[80%]">
                 <Image
-                  src={subjectData.icon || "/default-icon.svg"} // Provide a fallback image
+                  src={subjectData.icon || "/default-icon.svg"}
                   alt={`Icon for ${subjectData.name}`}
                   width={40}
                   height={40}
                   className="w-[40px] h-[40px] max-md:w-[34px] max-md:h-[34px]"
                   onError={(e) => {
                     e.target.src = "/default-icon.svg";
-                  }} // Handle potential image load errors
+                  }}
                 />
                 <div className="flex flex-col gap-[2px]">
                   <span
@@ -114,6 +115,15 @@ const Questions = ({
               </div>
 
               <div className="flex items-center gap-4">
+                <button onClick={() => handlePlayClick(item.id)}>
+                  <Image
+                    src={planification}
+                    alt="planification"
+                    className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
+                    width={22}
+                    height={22}
+                  />
+                </button>
                 <button
                   onClick={() => handlePlayClick(item.id)}
                   aria-label={`Lancer la session d'entraînement pour ${item.name}`}
@@ -124,7 +134,7 @@ const Questions = ({
                     alt=""
                     width={22}
                     height={22}
-                    className="w-[22px] h-[22px] max-md:w-[18px] max-md:h-[18px]"
+                    className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
                   />
                 </button>
               </div>

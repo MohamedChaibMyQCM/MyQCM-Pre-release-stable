@@ -1,10 +1,10 @@
 import wait_top from "../../../public/waitlist/wait-top.svg";
 import wait_bottom from "../../../public/waitlist/wait-bottom.svg";
 import wait_box from "../../../public/waitlist/wait-box.svg";
-import twitter from "../../../public/waitlist/twitter.svg";
-import linkedin from "../../../public/waitlist/linkedin.svg";
-import insta from "../../../public/waitlist/insta.svg";
-import {  FaYoutube } from "react-icons/fa";
+import { FaYoutube } from "react-icons/fa";
+import { IoLogoLinkedin } from "react-icons/io";
+import { FaXTwitter } from "react-icons/fa6";
+import { AiFillInstagram } from "react-icons/ai";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -49,32 +49,21 @@ const Page = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Image
-                src={twitter}
-                alt="Twitter"
-                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]" 
-              />
+              <FaXTwitter className="w-6 h-6 transition-colors hover:text-[#FD2E8A]" />
             </Link>
             <Link
               href="https://www.linkedin.com/company/myqcm/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Image
-                src={linkedin}
-                alt="LinkedIn"
-                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]" 
+              <IoLogoLinkedin className="w-6 h-6 transition-colors hover:text-[#FD2E8A]" />
             </Link>
             <Link
               href="https://www.instagram.com/myqcm.aljazayr/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Image
-                src={insta}
-                alt="Instagram"
-                className="w-5 h-5 transition-colors hover:text-[#FD2E8A]"
-              />
+              <AiFillInstagram className="w-6 h-6 transition-colors hover:text-[#FD2E8A]" />
             </Link>
             <Link
               href="https://www.youtube.com/@MyQCMAljazayr"
@@ -82,7 +71,7 @@ const Page = () => {
               rel="noopener noreferrer"
               className="pb-1"
             >
-              <FaYoutube className="w-5 h-5 transition-colors hover:text-[#FD2E8A] " />{" "}
+              <FaYoutube className="w-6 h-6 transition-colors hover:text-[#FD2E8A]" />{" "}
             </Link>
           </div>
         </div>

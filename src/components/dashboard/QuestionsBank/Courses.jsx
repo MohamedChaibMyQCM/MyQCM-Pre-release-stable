@@ -4,14 +4,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TrainingSeason from "./TrainingSeason";
-import coursePerModule from "../../../../public/Icons/coursePerModule.svg";
 import play from "../../../../public/Icons/play.svg";
+import planification from "../../../../public/Icons/planification.svg";
 
-const ITEM_PLUS_GAP_HEIGHT_APPROX = 80; // Approx height of item + gap
+const ITEM_PLUS_GAP_HEIGHT_APPROX = 80;
 const MAX_VISIBLE_ITEMS = 6;
 const GRADIENT_OVERLAY_HEIGHT = 120;
 
-const Courses = ({ courses, subjectId, subjectData }) => {  
+const Courses = ({ courses, subjectId, subjectData }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 
@@ -29,7 +29,6 @@ const Courses = ({ courses, subjectId, subjectData }) => {
 
   return (
     <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col">
-      {/* Header Section */}
       <div className="flex items-center justify-between mb-5 shrink-0">
         <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
           Q/C par cours
@@ -44,13 +43,12 @@ const Courses = ({ courses, subjectId, subjectData }) => {
         )}
       </div>
 
-      {/* MODIFIED UL ELEMENT */}
       <ul
         className={`flex flex-col gap-4 flex-grow ${
           validCourses.length > MAX_VISIBLE_ITEMS
             ? "overflow-y-auto scrollbar-hide"
             : "overflow-hidden"
-        }`} // Added hide-scrollbar class
+        }`}
         style={{
           maxHeight: listMaxHeight !== "none" ? listMaxHeight : undefined,
           paddingBottom:
@@ -88,29 +86,39 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                         : item.name}
                     </span>
                     <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px]">
-                      {subjectData.name} • {/* Static Text */}
+                      {subjectData.name} •
                       <span className="text-[#F8589F]">
                         {item.total ?? 0} Questions
                       </span>
                     </span>
                   </div>
                 </div>
-                <button onClick={() => handlePlayClick(item.id)}>
-                  <Image
-                    src={play}
-                    alt="jouer"
-                    className="max-md:w-[30px] w-[28px]"
-                    width={28}
-                    height={28}
-                  />
-                </button>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => handlePlayClick(item.id)}>
+                    <Image
+                      src={planification}
+                      alt="planification"
+                      className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
+                      width={28}
+                      height={28}
+                    />
+                  </button>
+                  <button onClick={() => handlePlayClick(item.id)}>
+                    <Image
+                      src={play}
+                      alt="jouer"
+                      className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                </div>
               </li>
             );
           })
         )}
       </ul>
 
-      {/* Popup rendering */}
       {showPopup && (
         <TrainingSeason setPopup={setShowPopup} courseId={selectedCourseId} />
       )}

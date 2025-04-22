@@ -120,7 +120,7 @@ const Page = () => {
           : "pb-[20px] pt-[140px] max-xl:pt-[290px] max-md:pt-[710px] max-md:pb-[20px]"
       }`}
     >
-      <div className="flex items-center gap-5 mb-[10px] max-md:mt-[200px] mt-8">
+      <div className="flex items-center gap-5 mb-[10px] max-md:mt-[200px] mt-8 max-md:mt-[180px]">
         <Image src={logo} alt="logo" className="w-[140px] mb-6" />
       </div>
 

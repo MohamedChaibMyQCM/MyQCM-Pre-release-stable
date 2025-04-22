@@ -4,8 +4,8 @@ import Image from "next/image";
 import play from "../../../public/Icons/play.svg";
 import circle from "../../../public/Landing/semi_circle.svg";
 import Dash_page from "../../../public/Landing/Dash_page.svg";
-import InfiniteCarousel from "./InfiniteCarousel";
 import Link from "next/link";
+import InfiniteCarousel from "./InfiniteCarousel";
 
 const HeroSection = () => {
   return (

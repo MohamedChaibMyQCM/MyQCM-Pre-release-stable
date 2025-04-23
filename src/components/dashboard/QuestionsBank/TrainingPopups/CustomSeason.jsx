@@ -1,18 +1,17 @@
 "use client";
 
-import MultipleChoice from "../TrainingInputs/MultipleChoise";
-import ShortAnswer from "../TrainingInputs/ShortAnswer";
-import TimeLimit from "../TrainingInputs/TimeLimit";
+import MultipleChoice from "../TrainingInputs/MultipleChoise"; 
+import ShortAnswer from "../TrainingInputs/ShortAnswer"; 
+import TimeLimit from "../TrainingInputs/TimeLimit"; 
 import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion";
 import RandomQuiz from "../TrainingInputs/RandomQuiz";
+import RandomOptions from "../TrainingInputs/RandomOptions"; 
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from "phosphor-react";
-import RandomOptions from "../TrainingInputs/RandomOptions";
-import Title from "../TrainingInputs/Title";
 import secureLocalStorage from "react-secure-storage";
 import season from "../../../../../public/Question_Bank/season.svg";
 import Image from "next/image";
@@ -30,6 +29,7 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
       });
     },
     onSuccess: ({ data }) => {
+      toast.success("Séance démarrée avec succès !");
       router.push(`/dashboard/question-bank/session/${data.data}`);
       setPopup(false);
     },
@@ -47,9 +47,8 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
 
   const formik = useFormik({
     initialValues: {
-      title: quiz.title || "",
       qcm: quiz.qcm || false,
-      qcs: true,
+      qcs: true, 
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
@@ -58,9 +57,8 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
     },
     onSubmit: (values) => {
       const finalData = {
-        title: values.title,
         qcm: values.qcm,
-        qcs: values.qcs,
+        qcs: values.qcs, 
         qroc: values.qroc,
         time_limit: values.time_limit ? Number(values.time_limit) : null,
         number_of_questions: values.number_of_questions
@@ -68,10 +66,10 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
           : null,
         randomize_questions_order: values.randomize_questions_order,
         randomize_options_order: values.randomize_options_order,
-        course: courseId,
         status: "in_progress",
+        course: courseId,
       };
-
+      
       startTrainingSession(finalData);
     },
     enableReinitialize: true,
@@ -81,7 +79,7 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-50">
       <div className="bg-[#FFFFFF] w-[500px] rounded-[16px] p-[20px] flex flex-col gap-3 max-md:w-[92%] max-h-[90vh] overflow-y-auto scrollbar-hide">
         <div className="flex items-center justify-between mb-3">
-          <Image src={season} alt="season" className="w-[24px]" />
+          <Image src={season} alt="Start season icon" className="w-[24px]" />
           <span className="text-[#191919] font-[600] text-[18px]">
             Paramètres de la séance
           </span>
@@ -96,7 +94,7 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
         <form className="flex flex-col gap-5" onSubmit={formik.handleSubmit}>
           <div className="mb-2">
             <span className="text-[15px] font-[600] text-[#191919] mb-[14px] block">
-              Types de questions
+              Types de questions.
             </span>
             <div className="flex flex-col gap-5">
               <MultipleChoice
@@ -112,26 +110,22 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
             </div>
           </div>
 
-          <div>
-            <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
-              Nombre de questions
-            </span>
-            <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div>
+              <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
+                Nombre de questions.
+              </span>
               <NumberOfQuestion
                 name="number_of_questions"
                 value={formik.values.number_of_questions}
                 setFieldValue={formik.setFieldValue}
-                onChange={(e) =>
-                  formik.setFieldValue("number_of_questions", e.target.value)
-                }
               />
+            </div>
+            <div className="">
               <TimeLimit
                 name="time_limit"
                 value={formik.values.time_limit}
                 setFieldValue={formik.setFieldValue}
-                onChange={(e) =>
-                  formik.setFieldValue("time_limit", e.target.value)
-                }
               />
             </div>
           </div>

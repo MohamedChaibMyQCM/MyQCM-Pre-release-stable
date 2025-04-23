@@ -1,8 +1,8 @@
 "use client";
 
-import MultipleChoice from "../TrainingInputs/MultipleChoise";
-import ShortAnswer from "../TrainingInputs/ShortAnswer";
-import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion";
+import MultipleChoice from "../TrainingInputs/MultipleChoise"; // Verify path
+import ShortAnswer from "../TrainingInputs/ShortAnswer"; // Verify path
+import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion"; // Verify path
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "@tanstack/react-query";
@@ -10,15 +10,20 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { X } from "phosphor-react";
 import secureLocalStorage from "react-secure-storage";
-import season from "../../../../../public/Question_Bank/season.svg";
+import season from "../../../../../public/Question_Bank/season.svg"; // Verify path
 import Image from "next/image";
 
+// Renamed component based on file name (GuidedSeason)
 const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
   const router = useRouter();
 
   const { mutate: startTrainingSession, isPending } = useMutation({
     mutationFn: (data) => {
       const token = secureLocalStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentification requise.");
+        return Promise.reject(new Error("Token missing"));
+      }
       return BaseUrl.post(`/training-session`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -26,14 +31,22 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
       });
     },
     onSuccess: ({ data }) => {
-      router.push(`/dashboard/question-bank/session/${data.data}`);
-      setPopup(false);
+      // Use the actual session ID from the response data
+      if (data && data.data) {
+        toast.success("Séance démarrée avec succès !");
+        router.push(`/dashboard/question-bank/session/${data.data}`);
+        setPopup(false);
+      } else {
+        // Handle cases where expected data is missing
+        toast.error("Réponse inattendue du serveur après démarrage.");
+        setPopup(false); // Still close popup? Or leave open for user?
+      }
     },
     onError: (error) => {
-      console.error("Erreur de mutation :", error);
+      console.error("Erreur de mutation démarrage séance guidée:", error);
       const responseData = error?.response?.data;
       const message = Array.isArray(responseData?.message)
-        ? responseData.message[0]
+        ? responseData.message.join(", ")
         : responseData?.message ||
           error.message ||
           "Échec du démarrage de la session";
@@ -42,40 +55,56 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
   });
 
   const formik = useFormik({
+    // Keep relevant initial values needed for the form UI
     initialValues: {
-      title: quiz.title || "",
       qcm: quiz.qcm || false,
-      qcs: true,
+      qcs: true, // Hardcoded to true based on desired payload
       qroc: quiz.qroc || false,
-      time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
-      randomize_questions_order: quiz.randomize_questions || false,
-      randomize_options_order: quiz.randomize_options || false,
+      // title, time_limit, randomizers are kept here if potentially coming from `quiz`,
+      // but won't be included in the submitted 'finalData'.
+      // title: quiz.title || "", // Example if needed for display (but not submission)
     },
     onSubmit: (values) => {
+      // Validate that number_of_questions has a value before submitting
+      if (!values.number_of_questions || values.number_of_questions <= 0) {
+        toast.error("Veuillez entrer un nombre de questions valide.");
+        return;
+      }
+
+      // Construct the finalData object exactly as specified
       const finalData = {
-        title: values.title,
         qcm: values.qcm,
-        qcs: values.qcs,
+        qcs: values.qcs, // Always true based on payload requirement
         qroc: values.qroc,
-        time_limit: values.time_limit ? Number(values.time_limit) : null,
+        // Ensure number_of_questions is converted to a Number. Default to null if conversion fails or empty.
         number_of_questions: values.number_of_questions
           ? Number(values.number_of_questions)
           : null,
-        randomize_questions_order: values.randomize_questions_order,
-        randomize_options_order: values.randomize_options_order,
-        course: courseId,
         status: "in_progress",
+        course: courseId, // Use the courseId passed as a prop
+        // Fields explicitly excluded: title, time_limit, randomize_questions_order, randomize_options_order
       };
 
+      // Ensure number_of_questions ended up as a valid number > 0
+      if (
+        !finalData.number_of_questions ||
+        finalData.number_of_questions <= 0
+      ) {
+        toast.error("Nombre de questions invalide.");
+        return; // Don't submit if conversion resulted in null or 0
+      }
+
+      // console.log("Submitting GuidedSeason data:", finalData); // For debugging
       startTrainingSession(finalData);
     },
-    enableReinitialize: true,
+    enableReinitialize: true, // Keep if `quiz` prop might update
   });
 
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-50">
       <div className="bg-[#FFFFFF] w-[500px] rounded-[16px] p-[20px] flex flex-col gap-3 max-md:w-[92%] max-h-[90vh] overflow-y-auto scrollbar-hide">
+        {/* Header (unchanged) */}
         <div className="flex items-center justify-between mb-3">
           <Image src={season} alt="season" className="w-[24px]" />
           <span className="text-[#191919] font-[600] text-[18px]">
@@ -89,7 +118,9 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
           />
         </div>
 
+        {/* Form (unchanged structure) */}
         <form className="flex flex-col gap-5" onSubmit={formik.handleSubmit}>
+          {/* Question Types section (unchanged) */}
           <div className="mb-2">
             <span className="text-[15px] font-[600] text-[#191919] mb-[14px] block">
               Types de questions
@@ -108,6 +139,7 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
             </div>
           </div>
 
+          {/* Number of Questions section (unchanged UI structure) */}
           <div>
             <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
               Nombre de questions
@@ -117,12 +149,12 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
                 name="number_of_questions"
                 value={formik.values.number_of_questions}
                 setFieldValue={formik.setFieldValue}
-                onChange={(e) =>
-                  formik.setFieldValue("number_of_questions", e.target.value)
-                }
+                // Removed redundant onChange prop
               />
             </div>
           </div>
+
+          {/* Submit button (unchanged) */}
           <div className="flex items-center justify-center gap-6 mt-2">
             <button
               type="submit"
@@ -140,4 +172,4 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
   );
 };
 
-export default GuidedSeason
+export default GuidedSeason;

@@ -4,35 +4,36 @@ import Image from "next/image";
 import playSeasonIcon from "../../../../public/Icons/play.svg";
 import planification from "../../../../public/Icons/planification.svg";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
-import Loading from "@/components/Loading"; 
+import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
-import CustomSeason from "./TrainingPopups/CustomSeason"; 
-import CustomSchedule from './TrainingPopups/CustomShedule'
-import GuidedSeason from "./TrainingPopups/GuidedSeason"; 
-import GuidedSchedule from "./TrainingPopups/GuidedShedule"
-import SynergySeason from "./TrainingPopups/SynergySeason"; 
-import SynergySchedule from "./TrainingPopups/SynergyShedule"
+import CustomSeason from "./TrainingPopups/CustomSeason";
+import CustomSchedule from "./TrainingPopups/CustomShedule";
+import GuidedSeason from "./TrainingPopups/GuidedSeason";
+import GuidedSchedule from "./TrainingPopups/GuidedShedule";
+import SynergySchedule from "./TrainingPopups/SynergyShedule";
 
 const CUSTOM_MODE = "Custom Mode";
 const GUIDED_MODE = "Guided Mode";
-const INTELLIGENTE_MODE = "Intelligente Mode"; 
+const INTELLIGENTE_MODE = "Intelligente Mode";
 
 const Questions = ({
-  data = [], 
-  isLoading: isLoadingCourses, 
-  error: coursesError, 
-  subjectData = { icon: "/default-icon.svg", name: "Unknown Subject" }, 
+  data = [],
+  isLoading: isLoadingCourses,
+  error: coursesError,
+  subjectData = { icon: "/default-icon.svg", name: "Unknown Subject" },
 }) => {
-  
+  const router = useRouter();
+
   const {
     data: userMode,
     isLoading: isLoadingProfile,
     error: profileError,
   } = useQuery({
-    queryKey: ["userProfileMode"], 
+    queryKey: ["userProfileMode"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
@@ -41,15 +42,10 @@ const Questions = ({
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (
-        response.data &&
-        response.data.data &&
-        response.data.data.mode &&
-        response.data.data.mode.name
-      ) {
+      if (response.data?.data?.mode?.name) {
         return response.data.data.mode.name;
       } else {
-        throw new Error("Unexpected profile data structure");
+        toast.error("Mode utilisateur introuvable dans la réponse.");
       }
     },
     onError: (err) => {
@@ -58,7 +54,35 @@ const Questions = ({
     enabled: !!secureLocalStorage.getItem("token"),
   });
 
-  const [activePopup, setActivePopup] = useState(null); 
+  const { mutate: startSynergySession, isPending: isStartingSynergy } =
+    useMutation({
+      mutationFn: async (payload) => {
+        const token = secureLocalStorage.getItem("token");
+        return BaseUrl.post(`/training-session`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      },
+      onSuccess: ({ data }) => {
+        if (data && data.data) {
+          toast.success("Séance démarrée!");
+          router.push(`/dashboard/question-bank/session/${data.data}`);
+        } else {
+          toast.error("Réponse inattendue du serveur après démarrage.");
+        }
+      },
+      onError: (error) => {
+        console.error("Erreur démarrage session intelligente:", error);
+        const responseData = error?.response?.data;
+        const message = Array.isArray(responseData?.message)
+          ? responseData.message.join(", ")
+          : responseData?.message ||
+            error.message ||
+            "Échec du démarrage de la session";
+        toast.error(message);
+      },
+    });
+
+  const [activePopup, setActivePopup] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const handleScheduleClick = (courseId) => {
@@ -67,8 +91,17 @@ const Questions = ({
   };
 
   const handlePlayClick = (courseId) => {
-    setSelectedCourseId(courseId);
-    setActivePopup("play");
+    if (!userMode || isLoadingProfile || profileError) {
+      toast.error("Mode utilisateur non chargé ou erreur de profil.");
+      return;
+    }
+
+    if (userMode === INTELLIGENTE_MODE) {
+      startSynergySession({ course: courseId });
+    } else {
+      setSelectedCourseId(courseId);
+      setActivePopup("play");
+    }
   };
 
   const closePopup = () => {
@@ -77,19 +110,18 @@ const Questions = ({
   };
 
   if (isLoadingCourses) {
-    return <Loading />; 
+    return <Loading />;
   }
-
   if (coursesError) {
     return (
       <div className="p-4 text-red-600 bg-red-100 border border-red-400 rounded">
-        Erreur lors du chargement des questions par cours :{" "}
-        {coursesError.message}
+        Erreur: {coursesError.message}
       </div>
     );
   }
 
-  const buttonsDisabled = isLoadingProfile || !!profileError;
+  const buttonsDisabled =
+    isLoadingProfile || !!profileError || isStartingSynergy;
 
   const renderPopup = () => {
     if (
@@ -100,7 +132,6 @@ const Questions = ({
       profileError
     ) {
       if (activePopup && (isLoadingProfile || !userMode || profileError)) {
-        toast.info("Chargement du mode profil en cours...");
       }
       return null;
     }
@@ -127,11 +158,6 @@ const Questions = ({
           );
         break;
       case INTELLIGENTE_MODE:
-        if (activePopup === "play")
-          return (
-            // <SynergySeason setPopup={closePopup} courseId={selectedCourseId} />
-            <></>
-          );
         if (activePopup === "schedule")
           return (
             <SynergySchedule
@@ -141,9 +167,8 @@ const Questions = ({
           );
         break;
       default:
-        console.warn("Unknown user mode:", userMode);
         toast.warn(`Mode utilisateur inconnu: ${userMode}`);
-        closePopup(); 
+        closePopup();
         return null;
     }
     return null;
@@ -155,17 +180,11 @@ const Questions = ({
         <h1 className="font-Poppins font-[500] text-[22px] text-[#191919]">
           Questions par cours
         </h1>
-        {isLoadingProfile && (
-          <span className="text-sm text-gray-500">Chargement du profil...</span>
-        )}
-        {profileError && !isLoadingProfile && (
-          <span className="text-sm text-red-500">Erreur profil</span>
-        )}
       </div>
 
       {data.length === 0 ? (
         <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded box">
-          Aucun cours (avec questions) trouvé pour cette matière.
+          Aucun cours (avec questions) trouvé.
         </div>
       ) : (
         <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box">
@@ -181,12 +200,13 @@ const Questions = ({
             return (
               <li
                 className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] duration-200 transition-all ${
-                  buttonsDisabled ? "opacity-60" : "hover:shadow-md"
+                  buttonsDisabled
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:shadow-md"
                 }`}
-                key={item.id} 
+                key={item.id}
               >
                 <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[65%]">
-                  {" "}
                   <Image
                     src={subjectData.icon || "/default-icon.svg"}
                     alt={`Icon for ${subjectData.name}`}
@@ -199,13 +219,12 @@ const Questions = ({
                   />
                   <div className="flex flex-col gap-[2px] overflow-hidden">
                     <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate" 
+                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate"
                       title={item.name}
                     >
-                      {displayName} 
+                      {displayName}
                     </span>
                     <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap">
-                      {" "}
                       {subjectData.name} •{" "}
                       <span className="text-[#F8589F]">
                         {item.total} {questionLabel}
@@ -220,10 +239,6 @@ const Questions = ({
                   <div className="flex items-center gap-3 mr-5">
                     <span
                       role="progressbar"
-                      aria-valuenow={progress}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-label={`Progression: ${progress.toFixed(1)}%`}
                       className="relative block w-[200px] h-[12px] bg-[#F5F5F5] rounded-[16px] overflow-hidden"
                     >
                       <span
@@ -240,8 +255,8 @@ const Questions = ({
                   <button
                     onClick={() => handleScheduleClick(item.id)}
                     disabled={buttonsDisabled}
-                    aria-label={`Planifier une session pour ${item.name}`}
-                    title="Planifier la session"
+                    aria-label={`Planifier session ${item.name}`}
+                    title="Planifier"
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}
@@ -249,26 +264,26 @@ const Questions = ({
                     <Image
                       src={planification}
                       alt="Planifier"
-                      className="max-md:w-[24px] w-[24px]" 
-                      width={24} 
+                      className="max-md:w-[24px] w-[24px]"
+                      width={24}
                       height={24}
                     />
                   </button>
                   <button
                     onClick={() => handlePlayClick(item.id)}
                     disabled={buttonsDisabled}
-                    aria-label={`Lancer la session d'entraînement pour ${item.name}`}
-                    title="Lancer la session"
+                    aria-label={`Lancer session ${item.name}`}
+                    title="Lancer"
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}
                   >
                     <Image
                       src={playSeasonIcon}
-                      alt="Lancer" 
-                      className="max-md:w-[24px] w-[24px]" 
-                      width={24} 
-                      height={24} 
+                      alt="Lancer"
+                      className="max-md:w-[24px] w-[24px]"
+                      width={24}
+                      height={24}
                     />
                   </button>
                 </div>

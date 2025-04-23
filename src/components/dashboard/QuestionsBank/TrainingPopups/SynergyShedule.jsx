@@ -8,77 +8,120 @@ import toast from "react-hot-toast";
 import { X } from "phosphor-react";
 import secureLocalStorage from "react-secure-storage";
 import Image from "next/image";
-import season from "../../../../../public/Question_Bank/season.svg";
-import MultipleChoice from "../TrainingInputs/MultipleChoise";
-import ShortAnswer from "../TrainingInputs/ShortAnswer"; 
-import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion"; 
-import Title from "../TrainingInputs/Title"; 
+import season from "../../../../../public/Question_Bank/season.svg"; 
+import Title from "../TrainingInputs/Title";
 import TrainingDate from "../TrainingInputs/TrainingDate"; 
 import TrainingHour from "../TrainingInputs/TrainingHour";
 
 const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
-  const router = useRouter();
+  const router = useRouter(); 
 
-  const { mutate: startTrainingSession, isPending } = useMutation({
+  const { mutate: scheduleSynergySession, isPending } = useMutation({
     mutationFn: (data) => {
       const token = secureLocalStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentification requise.");
+        return Promise.reject(new Error("Token missing"));
+      }
       return BaseUrl.post(`/training-session`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
     },
-    onSuccess: ({ data }) => {
-      router.push(`/dashboard/question-bank/session/${data.data}`);
+    onSuccess: (/* { data } */) => {
+      // Data may not be needed if just closing popup
       setPopup(false);
-      toast.success("Séance enregistrée avec succès !");
+      toast.success("Séance planifiée avec succès !");
+      // Optionally redirect or update UI if needed
     },
     onError: (error) => {
-      console.error("Erreur de mutation :", error);
+      console.error("Erreur de mutation planification intelligente:", error);
       const responseData = error?.response?.data;
       const message = Array.isArray(responseData?.message)
-        ? responseData.message[0]
+        ? responseData.message.join(", ")
         : responseData?.message ||
           error.message ||
-          "Échec du démarrage de la session";
+          "Échec de la planification de la session";
       toast.error(message);
     },
   });
 
   const formik = useFormik({
     initialValues: {
-      title: quiz.title || "",
-      qcm: quiz.qcm || false,
+      title: quiz.title || "", 
+      training_date: quiz.training_date || "", 
+      training_time: quiz.training_time || "", 
+       qcm: quiz.qcm || false,
       qcs: true,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
       randomize_questions_order: quiz.randomize_questions || false,
       randomize_options_order: quiz.randomize_options || false,
-      training_date: quiz.training_date || "",
-      training_time: quiz.training_time || "",
     },
     onSubmit: (values) => {
-      const finalData = {
+      if (!values.title) {
+        toast.error("Le titre de la séance est requis.");
+        return;
+      }
+      if (!values.training_date) {
+        toast.error("La date de la séance est requise.");
+        return;
+      }
+      if (!values.training_time) {
+        toast.error("L'heure de la séance est requise.");
+        return;
+      }
+
+      let scheduledAtISO = null;
+      let hours = null;
+      let minutes = null;
+
+      if (typeof values.training_time === "string" && values.training_time) {
+        const match = values.training_time.match(/^(\d{2}):(\d{2})$/);
+        if (match) {
+          const parsedHours = parseInt(match[1], 10);
+          const parsedMinutes = parseInt(match[2], 10);
+          if (
+            !isNaN(parsedHours) &&
+            !isNaN(parsedMinutes) &&
+            parsedHours >= 0 &&
+            parsedHours <= 23 &&
+            parsedMinutes >= 0 &&
+            parsedMinutes <= 59
+          ) {
+            hours = parsedHours;
+            minutes = parsedMinutes;
+          }
+        }
+      }
+      if (
+        typeof values.training_date === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(values.training_date) &&
+        hours !== null &&
+        minutes !== null
+      ) {
+        const formattedHours = hours.toString().padStart(2, "0");
+        const formattedMinutes = minutes.toString().padStart(2, "0");
+        scheduledAtISO = `${values.training_date}T${formattedHours}:${formattedMinutes}:00Z`; 
+      } else {
+        toast.error(
+          "Format de date ou d'heure invalide. Vérifiez la sélection (Date) et l'heure (HH:MM)."
+        );
+        return;
+      }
+       const finalData = {
         title: values.title,
-        qcm: values.qcm,
-        qcs: values.qcs,
-        qroc: values.qroc,
-        time_limit: values.time_limit ? Number(values.time_limit) : null,
-        number_of_questions: values.number_of_questions
-          ? Number(values.number_of_questions)
-          : null,
-        randomize_questions_order: values.randomize_questions_order,
-        randomize_options_order: values.randomize_options_order,
-        course: courseId,
-        status: "scheduled",
-        scheduled_date: values.training_date,
-        scheduled_time: values.training_time,
+        status: "scheduled", 
+        scheduled_at: scheduledAtISO,
+        course: courseId, 
       };
 
-      startTrainingSession(finalData);
+      // console.log("Submitting Synergy Schedule Data:", finalData); 
+      scheduleSynergySession(finalData);
     },
-    enableReinitialize: true,
+    enableReinitialize: true, 
   });
 
   return (
@@ -140,4 +183,4 @@ const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
   );
 };
 
-export default SynergyShedule
+export default SynergyShedule;

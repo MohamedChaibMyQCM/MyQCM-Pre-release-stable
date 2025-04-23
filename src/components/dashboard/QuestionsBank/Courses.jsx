@@ -5,16 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import play from "../../../../public/Icons/play.svg";
 import planification from "../../../../public/Icons/planification.svg";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
-import toast from "react-hot-toast"; 
-import CustomSeason from "./TrainingPopups/CustomSeason"; 
-import CustomSchedule from "./TrainingPopups/CustomShedule"
+import toast from "react-hot-toast";
+import Loading from "@/components/Loading";
+import CustomSeason from "./TrainingPopups/CustomSeason";
+import CustomSchedule from "./TrainingPopups/CustomShedule";
 import GuidedSeason from "./TrainingPopups/GuidedSeason";
-import GuidedSchedule from "./TrainingPopups/GuidedShedule"
-import SynergySeason from "./TrainingPopups/SynergySeason"; 
-import SynergySchedule from './TrainingPopups/SynergyShedule'
+import GuidedSchedule from "./TrainingPopups/GuidedShedule";
+import SynergySchedule from "./TrainingPopups/SynergyShedule";
 
 const ITEM_PLUS_GAP_HEIGHT_APPROX = 80;
 const MAX_VISIBLE_ITEMS = 6;
@@ -22,9 +23,11 @@ const GRADIENT_OVERLAY_HEIGHT = 120;
 
 const CUSTOM_MODE = "Custom Mode";
 const GUIDED_MODE = "Guided Mode";
-const INTELLIGENTE_MODE = "Intelligente Mode"; 
+const INTELLIGENTE_MODE = "Intelligente Mode";
 
 const Courses = ({ courses, subjectId, subjectData }) => {
+  const router = useRouter();
+
   const {
     data: userMode,
     isLoading: isLoadingProfile,
@@ -36,12 +39,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (
-        response.data &&
-        response.data.data &&
-        response.data.data.mode &&
-        response.data.data.mode.name
-      ) {
+      if (response.data?.data?.mode?.name) {
         return response.data.data.mode.name;
       } else {
         toast.error("Unexpected profile data structure");
@@ -50,20 +48,63 @@ const Courses = ({ courses, subjectId, subjectData }) => {
     onError: (err) => {
       toast.error(`Échec du chargement du mode profil: ${err.message}`);
     },
-    enabled: !!secureLocalStorage.getItem("token"), 
+    enabled: !!secureLocalStorage.getItem("token"),
   });
 
-  const [activePopup, setActivePopup] = useState(null); 
+  const { mutate: startSynergySession, isPending: isStartingSynergy } =
+    useMutation({
+      mutationFn: async (payload) => {
+        const token = secureLocalStorage.getItem("token");
+        if (!token) {
+          toast.error("Authentification requise.");
+          throw new Error("Token missing");
+        }
+        return BaseUrl.post(`/training-session`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      },
+      onSuccess: ({ data }) => {
+        if (data && data.data) {
+          toast.success("Séance démarrée!");
+          router.push(`/dashboard/question-bank/session/${data.data}`);
+        } else {
+          toast.error("Réponse inattendue du serveur après démarrage.");
+        }
+      },
+      onError: (error) => {
+        const responseData = error?.response?.data;
+        const message = Array.isArray(responseData?.message)
+          ? responseData.message.join(", ")
+          : responseData?.message ||
+            error.message ||
+            "Échec du démarrage de la session";
+        toast.error(message);
+      },
+    });
+
+  const [activePopup, setActivePopup] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const handleScheduleClick = (courseId) => {
+    if (isStartingSynergy) return;
     setSelectedCourseId(courseId);
     setActivePopup("schedule");
   };
 
   const handlePlayClick = (courseId) => {
-    setSelectedCourseId(courseId);
-    setActivePopup("play");
+    if (!userMode || isLoadingProfile || profileError || isStartingSynergy) {
+      if (!userMode && !isLoadingProfile)
+        toast.error("Mode utilisateur non chargé ou erreur de profil.");
+      if (isStartingSynergy) toast.info("Démarrage de la session en cours...");
+      return;
+    }
+
+    if (userMode === INTELLIGENTE_MODE) {
+      startSynergySession({ course: courseId });
+    } else {
+      setSelectedCourseId(courseId);
+      setActivePopup("play");
+    }
   };
 
   const closePopup = () => {
@@ -79,57 +120,55 @@ const Courses = ({ courses, subjectId, subjectData }) => {
       : "none";
 
   const renderPopup = () => {
-    if (!activePopup || !selectedCourseId || isLoadingProfile || !userMode) {
-      return null; 
+    if (
+      !activePopup ||
+      !selectedCourseId ||
+      isLoadingProfile ||
+      !userMode ||
+      profileError
+    ) {
+      if (activePopup && (isLoadingProfile || !userMode || profileError)) {
+      }
+      return null;
     }
 
     switch (userMode) {
       case CUSTOM_MODE:
-        if (activePopup === "play") {
+        if (activePopup === "play")
           return (
             <CustomSeason setPopup={closePopup} courseId={selectedCourseId} />
           );
-        }
-        if (activePopup === "schedule") {
+        if (activePopup === "schedule")
           return (
             <CustomSchedule setPopup={closePopup} courseId={selectedCourseId} />
           );
-        }
         break;
       case GUIDED_MODE:
-        if (activePopup === "play") {
+        if (activePopup === "play")
           return (
             <GuidedSeason setPopup={closePopup} courseId={selectedCourseId} />
           );
-        }
-        if (activePopup === "schedule") {
+        if (activePopup === "schedule")
           return (
             <GuidedSchedule setPopup={closePopup} courseId={selectedCourseId} />
           );
-        }
         break;
       case INTELLIGENTE_MODE:
-        if (activePopup === "play") {
-          return (
-            // <SynergySeason setPopup={closePopup} courseId={selectedCourseId} />
-            <></>
-          );
-        }
-        if (activePopup === "schedule") {
+        if (activePopup === "schedule")
           return (
             <SynergySchedule
               setPopup={closePopup}
               courseId={selectedCourseId}
             />
           );
-        }
+
         break;
       default:
         toast.warn(`Mode utilisateur inconnu: ${userMode}`);
         closePopup();
         return null;
     }
-    return null; 
+    return null;
   };
 
   return (
@@ -138,14 +177,17 @@ const Courses = ({ courses, subjectId, subjectData }) => {
         <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
           Q/C par cours
         </h3>
-        {validCourses.length > 0 && (
-          <Link
-            href={`/dashboard/question-bank/${subjectId}/question-per-course`}
-            className="text-[13px] font-medium text-[#F8589F] cursor-pointer hover:underline"
-          >
-            Voir tout
-          </Link>
-        )}
+
+        <div className="flex items-center gap-2">
+          {validCourses.length > 0 && (
+            <Link
+              href={`/dashboard/question-bank/${subjectId}/question-per-course`}
+              className="text-[13px] font-medium text-[#F8589F] cursor-pointer hover:underline"
+            >
+              Voir tout
+            </Link>
+          )}
+        </div>
       </div>
 
       <ul
@@ -162,26 +204,22 @@ const Courses = ({ courses, subjectId, subjectData }) => {
               : "0.5rem",
         }}
       >
-        {isLoadingProfile && ( 
+        {isLoadingProfile ? (
           <li className="text-center text-gray-500 py-10">
-            Chargement du profil...
+            <Loading simple={true} />
           </li>
-        )}
-        {!isLoadingProfile &&
-          profileError && (
-            <li className="text-center text-red-500 py-10">
-              Erreur de chargement du profil.
-            </li>
-          )}
-        {!isLoadingProfile && !profileError && validCourses.length === 0 ? ( 
+        ) : profileError ? (
+          <li className="text-center text-red-500 py-10">
+            Erreur de chargement du profil.
+          </li>
+        ) : validCourses.length === 0 ? (
           <li className="text-center text-gray-500 py-10">
             Aucun cours disponible.
           </li>
         ) : (
-          !isLoadingProfile &&
-          !profileError &&
           validCourses.map((item) => {
-            const buttonsDisabled = isLoadingProfile;
+            const buttonsDisabled =
+              isLoadingProfile || isStartingSynergy || !!profileError;
 
             return (
               <li
@@ -192,15 +230,18 @@ const Courses = ({ courses, subjectId, subjectData }) => {
               >
                 <div className="flex items-center gap-4 max-md:w-[80%]">
                   <Image
-                    src={subjectData.icon}
+                    src={subjectData.icon || "/default-icon.svg"}
                     alt="cours"
-                    className="w-[40px]"
+                    className="w-[40px] h-[40px]"
                     width={40}
                     height={40}
+                    onError={(e) => {
+                      e.target.src = "/default-icon.svg";
+                    }}
                   />
                   <div className="flex flex-col gap-[2px]">
                     <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px]"
+                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate"
                       title={item.name}
                     >
                       {item.name.length > 36
@@ -210,7 +251,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                     <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px]">
                       {subjectData.name} •
                       <span className="text-[#F8589F]">
-                        {item.total ?? 0} Questions
+                        {item.total ?? 0} Question{item.total !== 1 ? "s" : ""}
                       </span>
                     </span>
                   </div>
@@ -218,7 +259,8 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleScheduleClick(item.id)}
-                    disabled={buttonsDisabled} 
+                    disabled={buttonsDisabled}
+                    title="Planifier"
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}
@@ -227,13 +269,14 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                       src={planification}
                       alt="planification"
                       className="max-md:w-[24px] w-[24px]"
-                      width={28}
-                      height={28}
+                      width={24}
+                      height={24}
                     />
                   </button>
                   <button
                     onClick={() => handlePlayClick(item.id)}
-                    disabled={buttonsDisabled} 
+                    disabled={buttonsDisabled}
+                    title="Lancer"
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}

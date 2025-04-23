@@ -7,10 +7,12 @@ import BaseUrl from "@/components/BaseUrl";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const queryClient = useQueryClient();
   const [selectedMode, setSelectedMode] = useState(null);
+  const router = useRouter()
 
   const {
     data: availableModes,
@@ -72,6 +74,7 @@ const Page = () => {
     },
     onSuccess: () => {
       toast.success("Mode d'apprentissage mis à jour !");
+      router.push("/dashboard/question-bank")
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
     onError: (error) => {

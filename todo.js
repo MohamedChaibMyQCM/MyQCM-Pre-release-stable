@@ -1,4 +1,4 @@
-1- Onboarding.
+// 1- Onboarding.
 // 2- responsive.
 // 3- logo of landing page(lekhal, blida, nvidia).  
 // 4- responsive landing page.

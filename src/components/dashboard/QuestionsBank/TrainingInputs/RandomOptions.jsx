@@ -3,8 +3,8 @@ import { Switch } from "@/components/ui/switch";
 const RandomOptions = ({ name, value, setFieldValue }) => {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[15px] text-[#191919] font-[600]">
-        Mélanger l’ordre des options
+      <span className="text-[14px] text-[#191919] font-[500]">
+        Mélanger l&apos;ordre des options
       </span>
       <Switch
         checked={value}

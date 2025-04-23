@@ -2,44 +2,152 @@
 
 import Image from "next/image";
 import playSeasonIcon from "../../../../public/Icons/play.svg";
-import { useState } from "react";
-import TrainingSeason from "./TrainingSeason";
-import Loading from "@/components/Loading";
 import planification from "../../../../public/Icons/planification.svg";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import BaseUrl from "@/components/BaseUrl";
+import secureLocalStorage from "react-secure-storage";
+import Loading from "@/components/Loading"; 
+import toast from "react-hot-toast";
+import CustomSeason from "./TrainingPopups/CustomSeason"; 
+import CustomSchedule from './TrainingPopups/CustomShedule'
+import GuidedSeason from "./TrainingPopups/GuidedSeason"; 
+import GuidedSchedule from "./TrainingPopups/GuidedShedule"
+import SynergySeason from "./TrainingPopups/SynergySeason"; 
+import SynergySchedule from "./TrainingPopups/SynergyShedule"
+
+const CUSTOM_MODE = "Custom Mode";
+const GUIDED_MODE = "Guided Mode";
+const INTELLIGENTE_MODE = "Intelligente Mode"; 
 
 const Questions = ({
-  data = [],
-  isLoading = false,
-  error = null,
-  subjectData = { attachement: "", name: "Unknown Subject" },
+  data = [], 
+  isLoading: isLoadingCourses, 
+  error: coursesError, 
+  subjectData = { icon: "/default-icon.svg", name: "Unknown Subject" }, 
 }) => {
-  const [showTrainingPopup, setShowTrainingPopup] = useState(false);
+  
+  const {
+    data: userMode,
+    isLoading: isLoadingProfile,
+    error: profileError,
+  } = useQuery({
+    queryKey: ["userProfileMode"], 
+    queryFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+      const response = await BaseUrl.get("/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.mode &&
+        response.data.data.mode.name
+      ) {
+        return response.data.data.mode.name;
+      } else {
+        throw new Error("Unexpected profile data structure");
+      }
+    },
+    onError: (err) => {
+      toast.error(`Échec du chargement du mode profil: ${err.message}`);
+    },
+    enabled: !!secureLocalStorage.getItem("token"),
+  });
+
+  const [activePopup, setActivePopup] = useState(null); 
   const [selectedCourseId, setSelectedCourseId] = useState(null);
+
+  const handleScheduleClick = (courseId) => {
+    setSelectedCourseId(courseId);
+    setActivePopup("schedule");
+  };
 
   const handlePlayClick = (courseId) => {
     setSelectedCourseId(courseId);
-    setShowTrainingPopup(true);
+    setActivePopup("play");
   };
 
-  if (isLoading) {
-    return <Loading />;
+  const closePopup = () => {
+    setActivePopup(null);
+    setSelectedCourseId(null);
+  };
+
+  if (isLoadingCourses) {
+    return <Loading />; 
   }
 
-  if (error) {
+  if (coursesError) {
     return (
       <div className="p-4 text-red-600 bg-red-100 border border-red-400 rounded">
-        Erreur lors du chargement : {error.message}
+        Erreur lors du chargement des questions par cours :{" "}
+        {coursesError.message}
       </div>
     );
   }
 
-  if (data.length === 0 && !isLoading) {
-    return (
-      <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded">
-        Aucune question trouvée pour ce cours.
-      </div>
-    );
-  }
+  const buttonsDisabled = isLoadingProfile || !!profileError;
+
+  const renderPopup = () => {
+    if (
+      !activePopup ||
+      !selectedCourseId ||
+      isLoadingProfile ||
+      !userMode ||
+      profileError
+    ) {
+      if (activePopup && (isLoadingProfile || !userMode || profileError)) {
+        toast.info("Chargement du mode profil en cours...");
+      }
+      return null;
+    }
+
+    switch (userMode) {
+      case CUSTOM_MODE:
+        if (activePopup === "play")
+          return (
+            <CustomSeason setPopup={closePopup} courseId={selectedCourseId} />
+          );
+        if (activePopup === "schedule")
+          return (
+            <CustomSchedule setPopup={closePopup} courseId={selectedCourseId} />
+          );
+        break;
+      case GUIDED_MODE:
+        if (activePopup === "play")
+          return (
+            <GuidedSeason setPopup={closePopup} courseId={selectedCourseId} />
+          );
+        if (activePopup === "schedule")
+          return (
+            <GuidedSchedule setPopup={closePopup} courseId={selectedCourseId} />
+          );
+        break;
+      case INTELLIGENTE_MODE:
+        if (activePopup === "play")
+          return (
+            // <SynergySeason setPopup={closePopup} courseId={selectedCourseId} />
+            <></>
+          );
+        if (activePopup === "schedule")
+          return (
+            <SynergySchedule
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
+          );
+        break;
+      default:
+        console.warn("Unknown user mode:", userMode);
+        toast.warn(`Mode utilisateur inconnu: ${userMode}`);
+        closePopup(); 
+        return null;
+    }
+    return null;
+  };
 
   return (
     <div className="relative rounded-[20px]">
@@ -47,107 +155,130 @@ const Questions = ({
         <h1 className="font-Poppins font-[500] text-[22px] text-[#191919]">
           Questions par cours
         </h1>
+        {isLoadingProfile && (
+          <span className="text-sm text-gray-500">Chargement du profil...</span>
+        )}
+        {profileError && !isLoadingProfile && (
+          <span className="text-sm text-red-500">Erreur profil</span>
+        )}
       </div>
-      <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px]">
-        {data.map((item) => {
-          const MAX_NAME_LENGTH = 36;
-          const progress = item.progress_percentage || 0;
-          const displayName =
-            item.name.length > MAX_NAME_LENGTH
-              ? `${item.name.slice(0, MAX_NAME_LENGTH)}...`
-              : item.name;
-          const questionLabel = `Question${item.total !== 1 ? "s" : ""}`;
 
-          return (
-            <li
-              className="flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] hover:shadow-md duration-200"
-              key={item.id}
-            >
-              <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[80%]">
-                <Image
-                  src={subjectData.icon || "/default-icon.svg"}
-                  alt={`Icon for ${subjectData.name}`}
-                  width={40}
-                  height={40}
-                  className="w-[40px] h-[40px] max-md:w-[34px] max-md:h-[34px]"
-                  onError={(e) => {
-                    e.target.src = "/default-icon.svg";
-                  }}
-                />
-                <div className="flex flex-col gap-[2px]">
-                  <span
-                    className="font-Poppins text-[#191919] font-[500] text-[14px]"
-                    title={item.name}
-                  >
-                    {displayName}
-                  </span>
-                  <span className="font-Poppins text-[#666666] text-[12px]">
-                    {subjectData.name} •{" "}
-                    <span className="text-[#F8589F]">
-                      {item.total} {questionLabel}
-                    </span>
-                  </span>
-                </div>
-              </div>
+      {data.length === 0 ? (
+        <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded box">
+          Aucun cours (avec questions) trouvé pour cette matière.
+        </div>
+      ) : (
+        <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box">
+          {data.map((item) => {
+            const MAX_NAME_LENGTH = 36;
+            const progress = item.progress_percentage || 0;
+            const displayName =
+              item.name.length > MAX_NAME_LENGTH
+                ? `${item.name.slice(0, MAX_NAME_LENGTH)}...`
+                : item.name;
+            const questionLabel = `Question${item.total !== 1 ? "s" : ""}`;
 
-              <div className="flex items-center gap-8 mr-5 max-md:hidden">
-                <span className="text-[14px] text-[#F8589F] font-Inter font-medium">
-                  Précision
-                </span>
-                <div className="flex items-center gap-3 mr-5">
-                  <span
-                    role="progressbar"
-                    aria-valuenow={progress}
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    aria-label={`Progression: ${progress.toFixed(1)}%`}
-                    className="relative block w-[200px] h-[12px] bg-[#F5F5F5] rounded-[16px] overflow-hidden"
-                  >
+            return (
+              <li
+                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] duration-200 transition-all ${
+                  buttonsDisabled ? "opacity-60" : "hover:shadow-md"
+                }`}
+                key={item.id} 
+              >
+                <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[65%]">
+                  {" "}
+                  <Image
+                    src={subjectData.icon || "/default-icon.svg"}
+                    alt={`Icon for ${subjectData.name}`}
+                    width={40}
+                    height={40}
+                    className="w-[40px] h-[40px] max-md:w-[34px] max-md:h-[34px] shrink-0"
+                    onError={(e) => {
+                      e.target.src = "/default-icon.svg";
+                    }}
+                  />
+                  <div className="flex flex-col gap-[2px] overflow-hidden">
                     <span
-                      className="absolute left-0 h-[12px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]"
-                      style={{ width: `${progress}%` }}
-                    ></span>
-                  </span>
-                  <span className="text-[#191919] font-Inter font-medium text-[13px]">
-                    {progress.toFixed(1)}%
-                  </span>
+                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate" 
+                      title={item.name}
+                    >
+                      {displayName} 
+                    </span>
+                    <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap">
+                      {" "}
+                      {subjectData.name} •{" "}
+                      <span className="text-[#F8589F]">
+                        {item.total} {questionLabel}
+                      </span>
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <button onClick={() => handlePlayClick(item.id)}>
-                  <Image
-                    src={planification}
-                    alt="planification"
-                    className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
-                    width={22}
-                    height={22}
-                  />
-                </button>
-                <button
-                  onClick={() => handlePlayClick(item.id)}
-                  aria-label={`Lancer la session d'entraînement pour ${item.name}`}
-                  title="Lancer la session"
-                >
-                  <Image
-                    src={playSeasonIcon}
-                    alt=""
-                    width={22}
-                    height={22}
-                    className="max-md:w-[24px] w-[24px] hover:scale-110 duration-200"
-                  />
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      {showTrainingPopup && (
-        <TrainingSeason
-          setPopup={setShowTrainingPopup}
-          courseId={selectedCourseId}
-        />
+                <div className="hidden md:flex items-center gap-8 mr-5">
+                  <span className="text-[14px] text-[#F8589F] font-Inter font-medium">
+                    Précision
+                  </span>
+                  <div className="flex items-center gap-3 mr-5">
+                    <span
+                      role="progressbar"
+                      aria-valuenow={progress}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      aria-label={`Progression: ${progress.toFixed(1)}%`}
+                      className="relative block w-[200px] h-[12px] bg-[#F5F5F5] rounded-[16px] overflow-hidden"
+                    >
+                      <span
+                        className="absolute left-0 h-[12px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]"
+                        style={{ width: `${progress}%` }}
+                      ></span>
+                    </span>
+                    <span className="text-[#191919] font-Inter font-medium text-[13px] w-[50px] text-right">
+                      {progress.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <button
+                    onClick={() => handleScheduleClick(item.id)}
+                    disabled={buttonsDisabled}
+                    aria-label={`Planifier une session pour ${item.name}`}
+                    title="Planifier la session"
+                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
+                    }`}
+                  >
+                    <Image
+                      src={planification}
+                      alt="Planifier"
+                      className="max-md:w-[24px] w-[24px]" 
+                      width={24} 
+                      height={24}
+                    />
+                  </button>
+                  <button
+                    onClick={() => handlePlayClick(item.id)}
+                    disabled={buttonsDisabled}
+                    aria-label={`Lancer la session d'entraînement pour ${item.name}`}
+                    title="Lancer la session"
+                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
+                    }`}
+                  >
+                    <Image
+                      src={playSeasonIcon}
+                      alt="Lancer" 
+                      className="max-md:w-[24px] w-[24px]" 
+                      width={24} 
+                      height={24} 
+                    />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
+
+      {renderPopup()}
     </div>
   );
 };

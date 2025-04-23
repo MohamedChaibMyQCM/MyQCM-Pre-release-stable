@@ -26,6 +26,7 @@ const Study_time = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response.data.data);
       return response.data.data;
     },
   });
@@ -46,17 +47,28 @@ const Study_time = () => {
   const transformActivityData = () => {
     if (!userActivity) return [];
 
+    const dayMap = {
+      Dim: "Sun",
+      Lun: "Mon",
+      Mar: "Tue",
+      Mer: "Wed",
+      Jeu: "Thu",
+      Ven: "Fri",
+      Sam: "Sat",
+    };
+
     const daysOfWeek = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
     const MINUTES_PER_ACTIVITY = 2;
 
     return daysOfWeek.map((day) => {
-      const activities = userActivity[day] || [];
+      const englishDay = dayMap[day];
+      const activities = userActivity[englishDay] || [];
       const totalMinutes = activities.length * MINUTES_PER_ACTIVITY;
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
 
       return {
-        day,
+        day, 
         hours,
         minutes,
         totalMinutes,

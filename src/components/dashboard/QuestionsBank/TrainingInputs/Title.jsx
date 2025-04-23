@@ -1,16 +1,19 @@
 "use client";
 
 import React from "react";
+import titre from "../../../../../public/Question_Bank/titre.svg";
+import Image from "next/image";
 
 const Title = ({ value, onChange }) => {
   return (
-    <div>
+    <div className="flex items-center gap-3 w-full py-2 px-[12px] border border-gray-300  rounded-[14px]">
+      <Image src={titre} alt="titre" />
       <input
         type="text"
         value={value}
         onChange={onChange}
-        placeholder="Enter title"
-        className="w-full p-2 px-[20px] placeholder:text-[#191919] text-[15px] border border-gray-300 text-[#191919] outline-none rounded-[24px]"
+        placeholder="Créez un titre accrocheur pour votre séance exceptionnelle."
+        className="w-[100%] outline-none text-[13px] text-[#191919] placeholder:text-[#191919] font-medium "
       />
     </div>
   );

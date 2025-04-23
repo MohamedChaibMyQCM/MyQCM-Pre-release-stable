@@ -54,7 +54,6 @@ export default function DashboardPage() {
   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
   if (isLoadingUser) {
-    console.log("Rendering Loading component...");
     return <Loading />;
   }
 

@@ -10,11 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import TrainingDate from "../QuestionsBank/TrainingInputs/TrainingDate";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
+import SheduleDate from "./SheduleDate";
 
 const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   const [selectedUnit, setSelectedUnit] = React.useState("");
@@ -34,7 +34,6 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data?.data?.data);
         return response.data?.data?.data || [];
       } catch (err) {
         toast.error("Failed to fetch units.");
@@ -43,12 +42,10 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
     },
   });
 
-  // Sort units based on their names/numbers
   const units = React.useMemo(() => {
     if (!unitsRaw.length) return [];
 
     return [...unitsRaw].sort((a, b) => {
-      // Extract unit numbers if available
       const getUnitNumber = (name) => {
         const match = name.match(/UEI-(\d+)/);
         return match ? parseInt(match[1], 10) : Infinity;
@@ -57,10 +54,8 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
       const aNum = getUnitNumber(a.name);
       const bNum = getUnitNumber(b.name);
 
-      // Sort by unit number first
       if (aNum !== bNum) return aNum - bNum;
 
-      // If no number or same number, sort alphabetically
       return a.name.localeCompare(b.name);
     });
   }, [unitsRaw]);
@@ -265,7 +260,7 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
         </div>
         <div className="flex items-center gap-4 mb-6">
           <div className="flex-1">
-            <TrainingDate value={trainingDate} onChange={setTrainingDate} />
+            <SheduleDate value={trainingDate} onChange={setTrainingDate} />
           </div>
           <div className="flex-1">
             <span className="font-[600] text-[#191919] text-[15px]">Time</span>

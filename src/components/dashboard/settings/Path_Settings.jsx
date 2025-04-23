@@ -7,21 +7,21 @@ import { Label } from "@/components/ui/label";
 const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
   const learningModes = [
     {
-      id: "3fbd3d2f-3033-4dee-90d5-368c758c5291",
+      id: "1afb7737-c9c2-4411-9e61-5ceb02ce5e47",
       title: "Mode Intelligent",
       subtitle: "Propulsé par Synergy",
       description:
         "En Mode Intelligent, Synergy - notre moteur d'apprentissage avancé - personnalise votre expérience. C'est comme avoir un tuteur dédié qui comprend vos forces, vos faiblesses et votre style d'apprentissage. Synergy s'adapte en temps réel, se concentrant sur ce que vous devez maîtriser, rendant chaque session d'étude incroyablement efficace. C'est le moyen le plus rapide pour gagner en confiance et atteindre une véritable compréhension.",
     },
     {
-      id: "d2997e7d-8a8e-4153-8550-889fd697ae90",
+      id: "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69",
       title: "Mode Guidé",
       subtitle: "Votre Focus, Notre IA",
       description:
         "En Mode Guidé, vous contrôlez la direction, tout en bénéficiant de la sélection intelligente des questions de Synergy. Parfait pour lorsque vous souhaitez vous concentrer sur des domaines spécifiques, comme la préparation à un examen à venir ou le renforcement de vos connaissances sur un module particulier. Nous vous aiderons à maximiser chaque minute.",
     },
     {
-      id: "8770d57c-ad5f-4096-8f26-7cf8a1b67f79",
+      id: "6ecb99f5-6687-47f8-a218-b30fbc5d85ee",
       title: "Mode Personnalisé",
       subtitle: "Créez Votre Défi",
       description:
@@ -42,16 +42,15 @@ const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
     if (!mode) return null;
 
     if (mode.name.includes("Intelligent"))
-      return "3fbd3d2f-3033-4dee-90d5-368c758c5291";
+      return "1afb7737-c9c2-4411-9e61-5ceb02ce5e47";
     if (mode.name.includes("Guidé"))
-      return "d2997e7d-8a8e-4153-8550-889fd697ae90";
+      return "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69";
     if (mode.name.includes("Personnalisé") || mode.name.includes("Custom"))
-      return "8770d57c-ad5f-4096-8f26-7cf8a1b67f79";
+      return "6ecb99f5-6687-47f8-a218-b30fbc5d85ee";
 
     return null;
   };
 
-  // Get the corresponding learning mode ID
   const displayedSelectedModeId = getModeType(selectedMode);
 
   if (isLoading) {
@@ -93,15 +92,14 @@ const Path_Settings = ({ modes, selectedMode, onModeChange, isLoading }) => {
                 <button
                   type="button"
                   onClick={() => {
-                    // Find the corresponding API mode if available
                     let modeToSelect = mode.id;
                     if (modes) {
                       const apiMode = modes.find((m) => {
-                        if (mode.id === "3fbd3d2f-3033-4dee-90d5-368c758c5291")
+                        if (mode.id === "1afb7737-c9c2-4411-9e61-5ceb02ce5e47")
                           return m.name.includes("Intelligent");
-                        if (mode.id === "d2997e7d-8a8e-4153-8550-889fd697ae90")
+                        if (mode.id === "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69")
                           return m.name.includes("Guidé");
-                        if (mode.id === "8770d57c-ad5f-4096-8f26-7cf8a1b67f79")
+                        if (mode.id === "6ecb99f5-6687-47f8-a218-b30fbc5d85ee")
                           return (
                             m.name.includes("Personnalisé") ||
                             m.name.includes("Custom")

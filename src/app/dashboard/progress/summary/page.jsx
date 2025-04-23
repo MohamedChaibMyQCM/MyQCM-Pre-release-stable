@@ -62,10 +62,8 @@ const ProgressActivityPage = () => {
         const response = await BaseUrl.get("/progress/analytics", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("Activity Page - Analytics data:", response.data.data);
         return response.data.data;
       } catch (err) {
-        console.error("Activity Page - Analytics fetch error:", err);
         toast.error("Erreur lors du chargement des détails d'activité.");
         throw err;
       }
@@ -118,7 +116,7 @@ const ProgressActivityPage = () => {
         Données d&apos;activité incomplètes ou non disponibles.
       </div>
     );
-  }
+  }  
 
   return (
     <div className="space-y-8 p-6 mt-6">

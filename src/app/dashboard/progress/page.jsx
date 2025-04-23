@@ -70,7 +70,6 @@ const ProgressSummaryPage = () => {
         const response = await BaseUrl.get("/progress/analytics", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("Analytics data:", response.data.data);
         return response.data.data;
       } catch (err) {
         console.error("Analytics fetch error:", err);

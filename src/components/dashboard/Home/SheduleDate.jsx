@@ -2,10 +2,8 @@
 
 import { CaretDown, CaretLeft, CaretRight } from "phosphor-react";
 import { useState, useRef, useEffect } from "react";
-import date from "../../../../../public/Question_Bank/date.svg";
-import Image from "next/image";
 
-const TrainingDate = ({ value, onChange }) => {
+const SheduleDate = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(
@@ -143,24 +141,18 @@ const TrainingDate = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-2 w-full relative">
-      <label className="text-[15px] font-[600] text-[#191919]">
-        Choisissez la date de votre séance.
-      </label>
-      <div
-        className="relative w-full rounded-[14px] cursor-pointer flex items-center gap-3 bg-white border border-gray-300 py-[8px] px-[12px] "
-        ref={dropdownRef}
-      >
-        <Image src={date} alt="date" />
+      <label className="text-[15px] font-[600] text-[#191919]">Date</label>
+      <div className="relative w-full" ref={dropdownRef}>
         <div
-          className="w-full flex items-center justify-between text-[#191919] font-medium  hover:border-[#F8589F] transition-colors"
+          className="rounded-[20px] flex items-center bg-white border border-gray-300 text-[#191919] font-medium py-[10px] px-[20px] cursor-pointer hover:border-[#F8589F] transition-colors"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span className="flex-grow text-[13px] text-[#191919] placeholder:text-[#191919] font-medium ">
+          <span className="flex-grow text-[14px]">
             {formatDate(selectedDate)}
           </span>
           <CaretDown
             size={20}
-            className={`text-[13px] text-[#191919] placeholder:text-[#191919] font-medium ${
+            className={`text-[#191919] ml-2 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -229,4 +221,4 @@ const TrainingDate = ({ value, onChange }) => {
   );
 };
 
-export default TrainingDate;
+export default SheduleDate;

@@ -37,6 +37,7 @@ const Page = () => {
           },
         }
       );
+      console.log(response);
       return response.data.data;
     },
   });
@@ -44,7 +45,6 @@ const Page = () => {
   const { mutateAsync: Progress } = useMutation({
     mutationFn: async (data) => {
       const token = secureLocalStorage.getItem("token");
-      // Ensure response_options is always an array with at least one element
       const response_options =
         data.response_options && data.response_options.length > 0
           ? data.response_options
@@ -157,7 +157,7 @@ const Page = () => {
         <Image src={logo} alt="logo" className="w-[140px] max-md:w-[120px]" />
         <button
           onClick={handleEndSessionClick}
-          className="font-Inter font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+          className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
           disabled={result}
         >
           End Season

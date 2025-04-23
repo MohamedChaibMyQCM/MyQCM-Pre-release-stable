@@ -11,25 +11,6 @@ import secureLocalStorage from "react-secure-storage";
 const Page = () => {
   const { category: subjectId } = useParams();
 
-    const {
-      data: userProfile,
-      isLoading: isLoadingProfile,
-      error: profileError,
-    } = useQuery({
-      queryKey: ["userProfile"],
-      queryFn: async () => {
-        const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get("/user/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log(response);
-        return response.data.data;
-      },
-      onError: () => {
-        toast.error("Échec du chargement des paramètres de profil.");
-      },
-    });
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["subject"],
     queryFn: async () => {
@@ -65,7 +46,11 @@ const Page = () => {
   return (
     <div className="flex justify-between items-start p-[24px] pb-[40px] max-md:flex-col max-md:gap-12 max-md:px-[20px]">
       <Module data={data} />
-      <Courses courses={data2} subjectId={subjectId} subjectData={data} />
+      <Courses
+        courses={data2}
+        subjectId={subjectId}
+        subjectData={data}
+      />
     </div>
   );
 };

@@ -44,7 +44,6 @@ const  Mon_Emploi_Du_Temps = () => {
     return format(date, "EEE, d 'à' HH:mm");
   };
 
-  // Afficher l'état de chargement
   if (isLoading) {
     return (
       <div id="tour-my-schedule" className="flex-1">
@@ -58,7 +57,6 @@ const  Mon_Emploi_Du_Temps = () => {
     );
   }
 
-  // Afficher l'état d'erreur
   if (error) {
     return (
       <div id="tour-my-schedule" className="flex-1">
@@ -74,7 +72,6 @@ const  Mon_Emploi_Du_Temps = () => {
     );
   }
 
-  // Afficher l'état vide
   if (!scheduleData || scheduleData.length === 0) {
     return (
       <div id="tour-my-schedule" className="flex-1">
@@ -84,7 +81,7 @@ const  Mon_Emploi_Du_Temps = () => {
         <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
           <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
-              Aucune donnée pour l&apos;instant
+              Aucun planning pour le moment
             </span>
           </div>
         </div>

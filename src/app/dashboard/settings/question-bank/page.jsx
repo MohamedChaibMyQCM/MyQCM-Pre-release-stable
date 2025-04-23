@@ -38,7 +38,6 @@ const Page = () => {
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response.data.data);
       
       return response.data.data;
     },

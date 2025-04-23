@@ -92,12 +92,10 @@ const Quiz = ({
           time_spent: timeSpent > 0 ? timeSpent : 0,
         };
 
-        // Handle different question types appropriately
         if (quizData.type === "qcm" || quizData.type === "qcs") {
           payload.response_options = values.response_options;
           payload.response = values.response;
         } else {
-          // For QROC, ensure we have at least an empty array for response_options
           payload.response_options = [];
           payload.response = values.response;
         }
@@ -160,9 +158,8 @@ const Quiz = ({
       }
     } else {
       if (submittedAnswer) {
-        // Timer stops
       } else {
-        setTimeRemaining(0); // Skipped
+        setTimeRemaining(0);
       }
     }
 
@@ -302,7 +299,7 @@ const Quiz = ({
   }
 
   return (
-    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] z-[50] overflow-y-auto scrollbar-hide">
+    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] z-[50] overflow-y-auto scrollbar-hide max-xl:w-[90%]">
       <div className="flex items-center justify-between flex-wrap gap-y-2 ">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="bg-[#FF6EAF] flex items-center gap-2 rounded-[8px] px-[16px] py-[7px]">

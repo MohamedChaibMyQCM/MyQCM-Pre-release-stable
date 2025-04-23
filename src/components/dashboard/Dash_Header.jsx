@@ -74,6 +74,8 @@ const Dash_Header = () => {
     staleTime: 1000 * 60 * 1,
   });
 
+  // console.log(userNotification);
+
   const { data: userSubscription } = useQuery({
     queryKey: ["userSubscription"],
     queryFn: () => fetchData("/user/subscription/me"),

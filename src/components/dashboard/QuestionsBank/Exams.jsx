@@ -25,14 +25,14 @@ const Exams = () => {
 
       <div className="relative">
         <div className="absolute inset-0 bg-white bg-opacity-30 z-10 rounded-[16px] flex items-center justify-center">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
-            <span className="text-[#F8589F] font-medium text-[18px]">
+          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F] max-md:w-[90%] max-md:px-4">
+            <span className="text-[#F8589F] font-medium text-[18px] max-md:text-[15px] block text-center">
               À venir dans la prochaine mise à jour
             </span>
           </div>
         </div>
         <div className="rounded-[16px] box">
-          <ul className="grid grid-cols-1 sm:grid-cols-4 gap-5 bg-[#FFF] p-5 rounded-[16px] max-w-full opacity-30">
+          <ul className="grid grid-cols-4 gap-5 bg-[#FFF] p-5 rounded-[16px] max-w-full opacity-30 max-xl:grid-cols-3 max-md:grid-cols-1 ">
             {exams.map((item, index) => {
               return (
                 <li

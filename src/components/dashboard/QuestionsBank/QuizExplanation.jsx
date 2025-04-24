@@ -33,7 +33,6 @@ const QuizExplanation = ({
   const allMcqOptions = resultData?.options ?? [];
 
   const userResponsesWithContent = responseOptions.map((resp) => {
-    // Match each selected option with its full content from allMcqOptions
     const originalOption = allMcqOptions.find((opt) => opt.id === resp.id) || {
       content: "Option content missing",
     };
@@ -50,7 +49,7 @@ const QuizExplanation = ({
   return (
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide">
-        <div className="flex items-center justify-between sticky top-0 bg-white pb-2">
+        <div className="flex items-center justify-between top-0 bg-white pb-2">
           <span className="text-[19px] font-semibold text-[#191919]">
             {type == "qcm" || type == "qcs" ? "Explanation" : "Answers Analyse"}
           </span>
@@ -61,12 +60,8 @@ const QuizExplanation = ({
             onClick={() => setSeeExplanation(false)}
           />
         </div>
-        {/* 
-        <span className="block font-Poppins text-[#858494] text-[13px] font-medium sticky top-[60px] bg-white pb-2">
-          QUESTION {selectedQuiz + 1} OF {length}
-        </span> */}
 
-        <div className="flex flex-col gap-4 overflow-y-auto">
+        <div className="flex flex-col gap-4">
           {type == "qcm" || type == "qcs" ? (
             <>
               {userResponsesWithContent.filter((item) => !item.is_correct)
@@ -170,14 +165,14 @@ const QuizExplanation = ({
                 Analysis from MyQCM AI Assistant
               </span>
               <div
-                className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto custom-scrollbar font-Poppins font-medium text-[#0C092A] text-[14px]"
+                className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#0C092A] text-[14px]"
                 dangerouslySetInnerHTML={{ __html: qroFeedback }}
               />
             </div>
           )}
 
           <div
-            className={`flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 bg-white pt-4 ${
+            className={`flex flex-col sm:flex-row items-center justify-between gap-4  bottom-0 bg-white pt-4 ${
               type == "qcm" || type == "qcs" ? "sm:self-end" : ""
             }`}
           >

@@ -10,6 +10,8 @@ import { useFormik } from "formik";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import SkipQuestionPopup from "./SkipQuestionPopup";
+import think1 from '../../../../public/Question_Bank/think1.svg';
+import think2 from '../../../../public/Question_Bank/think2.svg';
 
 const Quiz = ({
   data,
@@ -21,6 +23,7 @@ const Quiz = ({
   setAnswer,
   trainingSessionId,
   handleSessionCompletion,
+  totalQuestions, // Add this prop to get the correct total from session details
 }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
@@ -33,6 +36,9 @@ const Quiz = ({
   const [processedAnswers] = useState(new Set());
   const [showSkipPopup, setShowSkipPopup] = useState(false);
   const timerRef = useRef(null);
+
+  // Get the actual number of questions to display (from session details or data array)
+  const displayTotalQuestions = totalQuestions || data.length || 1;
 
   const handleOptionClick = (option) => {
     if (submittedAnswer) return;
@@ -313,7 +319,7 @@ const Quiz = ({
             <div
               className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-500 ease-in-out"
               style={{
-                width: `${((selectedQuiz + 1) / (data.length || 1)) * 100}%`,
+                width: `${((selectedQuiz + 1) / displayTotalQuestions) * 100}%`,
               }}
             ></div>
           </div>
@@ -328,6 +334,11 @@ const Quiz = ({
           >
             {data[selectedQuiz]?.difficulty}
           </span>
+          <Image
+            src={think1}
+            alt="think"
+            className="ml-4 ml-0 max-md:w-[30px]"
+          />
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[13px] text-[#B5BEC6]">
@@ -345,7 +356,7 @@ const Quiz = ({
           <span className="block font-Poppins text-[#666666] text-[13px] font-medium mb-2">
             QUESTION{" "}
             <span className="text-[#F8589F]">
-              {selectedQuiz + 1}/{data.length || 1}{" "}
+              {selectedQuiz + 1}/{displayTotalQuestions}{" "}
             </span>
           </span>
           <div
@@ -476,7 +487,7 @@ const Quiz = ({
           handleNextQuestion={handleNextQuestion}
           type={data[selectedQuiz]?.type}
           selectedQuiz={selectedQuiz}
-          length={data.length}
+          length={displayTotalQuestions} 
         />
       )}
     </div>

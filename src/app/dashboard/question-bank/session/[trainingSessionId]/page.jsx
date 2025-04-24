@@ -57,15 +57,21 @@ const Page = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Session details response:", response.data.data);
-      return response.data.data;
+      const details = response.data.data;
+      setData((prev) => ({
+        ...prev,
+        total_mcqs: details?.number_of_questions || 0,
+      }));
+      return details;
     },
     enabled: !!trainingSessionId,
   });
 
   const {
     data: quiz,
-    isLoading,
-    error,
+    isLoading: isLoadingMcq,
+    error: errorMcq,
+    isFetching: isFetchingMcq,
   } = useQuery({
     queryKey: ["mcqs", trainingSessionId],
     queryFn: async () => {
@@ -74,25 +80,50 @@ const Page = () => {
         `/training-session/${trainingSessionId}/mcq`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("MCQ response:", response.data);
+      console.log("Initial/Current MCQ fetch response:", response.data);
       return response.data?.data;
     },
-    enabled: !!trainingSessionId,
+    enabled: !!trainingSessionId && !result,
     staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
-  const { mutateAsync: Progress } = useMutation({
+  const { mutate: fetchNextMcq, isLoading: isLoadingNextMcq } = useMutation({
+    mutationFn: async () => {
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get(
+        `/training-session/${trainingSessionId}/mcq`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("Next MCQ fetch response:", response.data);
+      if (!response.data?.data?.data || response.data.data.data.length === 0) {
+        console.log("No more questions data received from next fetch.");
+        return { data: [], is_final: true };
+      }
+      return response.data.data;
+    },
+    onSuccess: (nextMcqData) => {
+      console.log("Setting query data for mcqs:", nextMcqData);
+      queryClient.setQueryData(["mcqs", trainingSessionId], nextMcqData);
+      setAnswer(null);
+    },
+    onError: (error) => {
+      console.error("Error fetching next MCQ:", error);
+      toast.error("Failed to load the next question.");
+    },
+  });
+
+  const { mutateAsync: Progress, isLoading: isSubmitting } = useMutation({
     mutationFn: async (submittedData) => {
       const token = secureLocalStorage.getItem("token");
-
       const mcqId = submittedData?.mcq;
-      if (!mcqId || !trainingSessionId) {
-        toast.error(
-          "Missing mcqId or sessionId in Progress mutation:",
-          mcqId,
-          trainingSessionId,
-          submittedData
-        );
+      if (!mcqId) {
+        toast.error("Missing mcqId");
+        throw new Error("Missing mcqId");
+      }
+      if (!trainingSessionId) {
+        toast.error("Missing trainingSessionId");
+        throw new Error("Missing trainingSessionId");
       }
 
       const response_options =
@@ -101,22 +132,41 @@ const Page = () => {
           ? submittedData.response_options
           : null;
 
+      const payload = {
+        response_options: response_options,
+        response: submittedData.response || "",
+        time_spent: submittedData.time_spent || 0,
+        session: trainingSessionId,
+      };
+
       const submitResponse = await BaseUrl.post(
         `/mcq/submit/${mcqId}`,
-        {
-          response_options: response_options,
-          response: submittedData.response || "",
-          time_spent: submittedData.time_spent || 0,
-          session: trainingSessionId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log("Submission Response Data:", submitResponse.data.data);
       return submitResponse.data.data;
     },
     onSuccess: (responseData) => {
       setAnswer(responseData);
+      setData((prevData) => {
+        let { mcqs_success, mcqs_failed } = prevData;
+        const successRatio =
+          typeof responseData?.success_ratio === "number"
+            ? responseData.success_ratio
+            : -1;
+
+        if (successRatio === 1) {
+          mcqs_success += 1;
+        } else if (successRatio >= 0 && successRatio < 1) {
+          mcqs_failed += 1;
+        }
+        return {
+          ...prevData,
+          mcqs_success,
+          mcqs_failed,
+        };
+      });
     },
     onError: (error) => {
       console.error("Submission error:", error);
@@ -131,19 +181,30 @@ const Page = () => {
   });
 
   const handleSessionCompletion = useCallback(async () => {
-    if (isCompletingSession) return;
+    if (isCompletingSession || result) return;
     setIsCompletingSession(true);
-
+    console.log("Handling session completion");
     try {
       const response = await completeTrainingSessionInternal(trainingSessionId);
-
       const completionData = response.data || response;
 
-      setData((prev) => ({
-        ...prev,
-        ...(completionData || {}),
-        total_mcqs: SeasonDetails?.number_of_questions || 0,
-      }));
+      setData((prev) => {
+        const total =
+          prev.total_mcqs || SeasonDetails?.number_of_questions || 0;
+        const accuracy =
+          total > 0
+            ? Math.round(
+                ((completionData?.mcqs_success ?? prev.mcqs_success) / total) *
+                  100
+              )
+            : 0;
+        return {
+          ...prev,
+          ...(completionData || {}),
+          total_mcqs: total,
+          accuracy: completionData?.accuracy ?? accuracy,
+        };
+      });
       setResult(true);
       queryClient.invalidateQueries({
         queryKey: ["sessionDetails", trainingSessionId],
@@ -160,50 +221,33 @@ const Page = () => {
     } finally {
       setIsCompletingSession(false);
     }
-  }, [trainingSessionId, isCompletingSession, queryClient, SeasonDetails]);
+  }, [
+    trainingSessionId,
+    isCompletingSession,
+    queryClient,
+    SeasonDetails,
+    result,
+  ]);
 
-  useEffect(() => {
-    if (SeasonDetails) {
-      setData((prev) => ({
-        ...prev,
-        total_mcqs: SeasonDetails.number_of_questions || prev.total_mcqs,
-      }));
+  const processQuizData = useCallback((quizApiResponse) => {
+    if (
+      !quizApiResponse ||
+      !quizApiResponse.data ||
+      quizApiResponse.data.length === 0
+    ) {
+      console.log("processQuizData: No data found in response structure.");
+      return { currentQuestion: null, isFinal: true };
     }
-  }, [SeasonDetails]);
+    return {
+      currentQuestion: quizApiResponse.data[0],
+      isFinal: quizApiResponse.is_final || false,
+    };
+  }, []);
 
-  const processQuizData = useCallback(() => {
-    if (!quiz) return [];
-
-    if (Array.isArray(quiz)) return quiz;
-
-    if (Array.isArray(quiz.data)) return quiz.data;
-
-    if (quiz.questions && Array.isArray(quiz.questions)) return quiz.questions;
-
-    if (typeof quiz === "object" && quiz !== null) {
-      const possibleArrays = Object.values(quiz).filter(Array.isArray);
-      if (possibleArrays.length > 0) return possibleArrays[0];
-
-      if (quiz.id && (quiz.question || quiz.content)) return [quiz];
-    }
-
-    console.error("Unable to process quiz data into array format:", quiz);
-    return [];
-  }, [quiz]);
-
-  const questionsArray = processQuizData();
-
-  useEffect(() => {
-    if (questionsArray && questionsArray.length > 0) {
-      setData((prev) => ({
-        ...prev,
-        total_mcqs: questionsArray.length || prev.total_mcqs,
-      }));
-    }
-  }, [questionsArray]);
+  const { currentQuestion, isFinal } = processQuizData(quiz);
 
   const handleEndSessionClick = () => {
-    if (result || isCompletingSession) return;
+    if (result || isCompletingSession || isLoadingNextMcq) return;
     setShowConfirmationPopup(true);
   };
 
@@ -216,7 +260,13 @@ const Page = () => {
     setShowConfirmationPopup(false);
   };
 
-  if (isLoading || loadingDetails) {
+  const isLoadingInitial =
+    loadingDetails || (isLoadingMcq && !currentQuestion && !result);
+  const isLoadingQuestion =
+    isLoadingInitial || (isFetchingMcq && !result) || isLoadingNextMcq;
+  const combinedError = errorDetails || errorMcq;
+
+  if (isLoadingInitial) {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#FF6FAF]">
         <Loading />
@@ -224,13 +274,13 @@ const Page = () => {
     );
   }
 
-  if (error) {
+  if (combinedError && !result) {
     return (
       <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
-        <h2 className="text-2xl font-bold mb-4">Error Loading Quiz</h2>
+        <h2 className="text-2xl font-bold mb-4">Error Loading</h2>
         <p className="text-center mb-4">
-          {error.message ||
-            "Could not fetch quiz questions. Please try again later."}
+          {combinedError.message ||
+            "Could not fetch session or question data. Please try again later."}
         </p>
         <button
           onClick={() => router.back()}
@@ -238,29 +288,41 @@ const Page = () => {
         >
           Go Back
         </button>
+      </div>
+    );
+  }
+
+  if (!isLoadingInitial && !combinedError && !currentQuestion && !result) {
+    return (
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
+        <h2 className="text-2xl font-bold mb-4">No Questions Found</h2>
+        <p className="text-center mb-4">
+          There are no questions available for this training session, or the
+          session has already been completed.
+        </p>
+        <button
+          onClick={() => router.back()}
+          className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors mr-4"
+        >
+          Go Back
+        </button>
+        {SeasonDetails && SeasonDetails.status !== "COMPLETED" && (
+          <button
+            onClick={handleSessionCompletion}
+            disabled={isCompletingSession}
+            className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+          >
+            {isCompletingSession ? "Completing..." : "Complete Session"}
+          </button>
+        )}
       </div>
     );
   }
 
   const totalQuestions =
-    SeasonDetails?.number_of_questions || questionsArray.length || 0;
-
-  if (!isLoading && (!questionsArray || questionsArray.length === 0)) {
-    return (
-      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
-        <h2 className="text-2xl font-bold mb-4">No Questions Found</h2>
-        <p className="text-center mb-4">
-          There are no questions available for this training session.
-        </p>
-        <button
-          onClick={() => router.back()}
-          className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
-        >
-          Go Back
-        </button>
-      </div>
-    );
-  }
+    SeasonDetails?.number_of_questions || data.total_mcqs || 0;
+  const currentQuestionNumber =
+    data.mcqs_success + data.mcqs_failed + data.mcqs_skipped + 1;
 
   return (
     <div className="absolute inset-0 z-50 bg-[#FF6FAF] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] overflow-hidden">
@@ -270,27 +332,42 @@ const Page = () => {
           <button
             onClick={handleEndSessionClick}
             className={`font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors ${
-              isCompletingSession ? "opacity-50 cursor-not-allowed" : ""
+              isCompletingSession || isLoadingQuestion
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
-            disabled={isCompletingSession || result}
+            disabled={isCompletingSession || isLoadingQuestion || result}
           >
-            {isCompletingSession ? "Ending..." : "End Season"}
+            {isCompletingSession
+              ? "Ending..."
+              : isLoadingQuestion
+              ? "Loading..."
+              : "End Season"}
           </button>
         )}
       </div>
 
-      {questionsArray.length > 0 && !result && (
+      {isLoadingQuestion && !result && (
+        <div className="flex justify-center items-center flex-grow">
+          <Loading color="#FFFFFF" />
+        </div>
+      )}
+
+      {currentQuestion && !result && !isLoadingQuestion && (
         <Quiz
-          data={questionsArray}
+          key={currentQuestion.id}
+          questionData={currentQuestion}
           Progress={Progress}
+          isSubmitting={isSubmitting}
           answer={answer}
-          data1={{ ...data, total_mcqs: totalQuestions }}
-          setData={setData}
-          setResult={setResult}
           setAnswer={setAnswer}
-          trainingSessionId={trainingSessionId}
+          setData={setData}
+          isFinalQuestion={isFinal}
+          fetchNextMcq={fetchNextMcq}
+          isLoadingNextMcq={isLoadingNextMcq}
           handleSessionCompletion={handleSessionCompletion}
           totalQuestions={totalQuestions}
+          currentQuestionNumber={currentQuestionNumber}
         />
       )}
 

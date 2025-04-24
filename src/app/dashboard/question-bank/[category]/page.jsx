@@ -44,7 +44,7 @@ const Page = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="flex justify-between items-start p-[24px] pb-[40px] max-md:flex-col max-md:gap-12 max-md:px-[20px]">
+    <div className="flex justify-between items-start p-[24px] pb-[40px] max-md:flex-col max-md:gap-12 max-md:px-[20px] max-lg:flex-col max-lg:gap-8">
       <Module data={data} />
       <Courses
         courses={data2}

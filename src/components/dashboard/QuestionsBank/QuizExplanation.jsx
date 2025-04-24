@@ -4,7 +4,7 @@ import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
-const QuizExplanation = ({
+const  QuizExplanation = ({
   QuizData,
   setSeeExplanation,
   type,

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import EndSeason from "../../../../public/Quiz/endSeason.svg";
 
-const EndSeasonPopup = ({ onConfirm, onCancel }) => {
+const  EndSeasonPopup = ({ onConfirm, onCancel }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center p-4">
       <div className="flex flex-col items-center bg-white text-center rounded-[16px] w-[400px] py-4">

@@ -18,7 +18,7 @@ const QuizResult = ({ data, length }) => {
 
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-[100]">
-      <div className="bg-[#ffffff] w-[420px] p-[30px] rounded-[16px] flex flex-col gap-4">
+      <div className="bg-[#ffffff] w-[420px] p-[30px] rounded-[16px] flex flex-col gap-4 max-md:w-[96%]">
         <div className="flex items-center justify-between">
           <span className="font-medium text-[#191919] text-[19px]">
             Awesome!

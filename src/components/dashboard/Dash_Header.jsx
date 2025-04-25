@@ -74,7 +74,6 @@ const Dash_Header = () => {
     staleTime: 1000 * 60 * 1,
   });
 
-  // console.log(userNotification);
 
   const { data: userSubscription } = useQuery({
     queryKey: ["userSubscription"],
@@ -173,7 +172,7 @@ const Dash_Header = () => {
       }
 
       return (
-        <span className="font-[500] text-[16px] flex items-center">
+        <span className="font-[500] text-[16px] flex items-center max-md:hidden">
           {pathParts.length > 0 && <span className="text-[#B5BEC6]">/</span>}
           {pathParts.map((part, index) => {
             const isFirst = index === 0;
@@ -193,7 +192,6 @@ const Dash_Header = () => {
               isSubjectIdSegment && part === potentialSubjectId;
             let displayPartContent = decodedPart;
 
-            // Only change display content on client-side to prevent hydration mismatch
             if (isClient && isThisFetchedSubjectId) {
               displayPartContent = subjectData?.name || decodedPart;
             }
@@ -223,7 +221,7 @@ const Dash_Header = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-between py-5 px-6">
+    <div className="relative flex items-center justify-between py-5 px-6 max-md:pt-4">
       {renderHeaderText()}
 
       <div className="flex items-center gap-10 max-md:hidden">

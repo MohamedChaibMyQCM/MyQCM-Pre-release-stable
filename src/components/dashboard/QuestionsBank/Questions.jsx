@@ -189,7 +189,7 @@ const Questions = ({
       ) : (
         <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box">
           {data.map((item) => {
-            const MAX_NAME_LENGTH = 36;
+            const MAX_NAME_LENGTH = 26;
             const progress = item.progress_percentage || 0;
             const displayName =
               item.name.length > MAX_NAME_LENGTH
@@ -206,7 +206,7 @@ const Questions = ({
                 }`}
                 key={item.id}
               >
-                <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[65%]">
+                <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[82%]">
                   <Image
                     src={subjectData.icon || "/default-icon.svg"}
                     alt={`Icon for ${subjectData.name}`}
@@ -219,12 +219,17 @@ const Questions = ({
                   />
                   <div className="flex flex-col gap-[2px] overflow-hidden">
                     <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate"
+                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate md:hidden"
                       title={item.name}
                     >
                       {displayName}
                     </span>
-                    <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap">
+                    <span
+                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate max-md:hidden"
+                    >
+                      {item.name}
+                    </span>
+                    <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">
                       {subjectData.name} •{" "}
                       <span className="text-[#F8589F]">
                         {item.total} {questionLabel}

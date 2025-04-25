@@ -296,8 +296,8 @@ const Quiz = ({
     (questionData?.type === "qcm" || questionData?.type === "qcs"
       ? selectedOptions.length === 0
       : questionData?.type !== "qcm" &&
-        questionData?.type !== "qcs" && // Check if not qcm or qcs
-        !formik.values.response?.trim()); // Check if response is empty
+        questionData?.type !== "qcs" &&
+        !formik.values.response?.trim()); 
 
   return (
     <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] z-[50] overflow-y-auto scrollbar-hide max-xl:w-[90%]">
@@ -482,14 +482,6 @@ const Quiz = ({
           length={totalQuestions}
           selectedQuiz={currentQuestionNumber - 1}
           isLoadingNext={isLoadingNextMcq}
-        />
-      )}
-
-      {!checkAnswer && (
-        <Image
-          src={think2}
-          alt="think"
-          className="absolute bottom-[-60px] right-[-40px] w-[90px] max-lg:hidden z-10"
         />
       )}
     </div>

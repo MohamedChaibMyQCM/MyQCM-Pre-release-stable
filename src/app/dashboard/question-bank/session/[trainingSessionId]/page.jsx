@@ -300,21 +300,23 @@ const Page = () => {
           There are no questions available for this training session, or the
           session has already been completed.
         </p>
-        <button
-          onClick={() => router.back()}
-          className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors mr-4"
-        >
-          Go Back
-        </button>
-        {SeasonDetails && SeasonDetails.status !== "COMPLETED" && (
+        <div className="flex flex-col items-center gap-4">
           <button
-            onClick={handleSessionCompletion}
-            disabled={isCompletingSession}
+            onClick={() => router.back()}
             className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
           >
-            {isCompletingSession ? "Completing..." : "Complete Session"}
+            Go Back
           </button>
-        )}
+          {SeasonDetails && SeasonDetails.status !== "COMPLETED" && (
+            <button
+              onClick={handleSessionCompletion}
+              disabled={isCompletingSession}
+              className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+            >
+              {isCompletingSession ? "Completing..." : "Complete Session"}
+            </button>
+          )}
+        </div>
       </div>
     );
   }

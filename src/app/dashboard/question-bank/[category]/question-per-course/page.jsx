@@ -47,7 +47,7 @@ const Page = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="pt-[22px] pb-[40px] flex flex-col gap-8 px-[24px] overflow-hidden max-md:px-[20px] max-md:pt-[12px]">
+    <div className="pt-[22px] pb-[40px] flex flex-col gap-8 px-[24px] overflow-hidden max-md:px-[20px] max-md:pt-[0px]">
       <Questions data={data2} isLoading={isLoading} error={error} subjectData={data} />
     </div>
   );

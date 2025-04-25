@@ -48,7 +48,7 @@ const  QuizExplanation = ({
 
   return (
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
-      <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide">
+      <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide max-md:w-[96%]">
         <div className="flex items-center justify-between top-0 bg-white pb-2">
           <span className="text-[19px] font-semibold text-[#191919]">
             {type == "qcm" || type == "qcs" ? "Explanation" : "Answers Analyse"}

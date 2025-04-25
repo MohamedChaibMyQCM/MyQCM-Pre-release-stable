@@ -228,7 +228,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                 }`}
                 key={item.id}
               >
-                <div className="flex items-center gap-4 max-md:w-[80%]">
+                <div className="flex items-center gap-4 max-md:w-[70%]">
                   <Image
                     src={subjectData.icon || "/default-icon.svg"}
                     alt="cours"
@@ -244,11 +244,11 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                       className="font-Poppins text-[#191919] font-[500] text-[14px] truncate"
                       title={item.name}
                     >
-                      {item.name.length > 36
-                        ? `${item.name.slice(0, 36)}...`
+                      {item.name.length > 22
+                        ? `${item.name.slice(0, 16)}...`
                         : item.name}
                     </span>
-                    <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px]">
+                    <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px] max-md:flex-col max-md:items-start">
                       {subjectData.name} •
                       <span className="text-[#F8589F]">
                         {item.total ?? 0} Question{item.total !== 1 ? "s" : ""}

@@ -41,9 +41,9 @@ const SignUpStepOne = ({
   return (
     <div className="flex flex-col items-center gap-6 w-full">
       {" "}
-      <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-full">
+      {/* <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-full">
         <GoogleAuthButton />
-      </div>
+      </div> */}
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[260px] after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[260px] before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%] max-md:w-full max-md:after:w-[42%] max-md:before:w-[42%]">
         OU
       </span>

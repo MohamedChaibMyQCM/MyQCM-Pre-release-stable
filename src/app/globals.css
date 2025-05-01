@@ -19,7 +19,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #F8589F;
+  background: #f8589f;
   border-radius: 10px;
 }
 
@@ -105,7 +105,7 @@
 
 .scrollbar-hide {
   -ms-overflow-style: none;
-  scrollbar-width: none; 
+  scrollbar-width: none;
 }
 
 .recharts-responsive-container {
@@ -118,19 +118,12 @@
 }
 
 .study_time .recharts-wrapper {
-  padding-top: 14px;
   width: 540px !important;
   height: 327px !important;
 }
-
-@media (max-width: 768px) {
-  .study_time .recharts-surface  {
-    height: 230px !important;
-  }
-  .study_time .recharts-wrapper {
-    width: 374px !important;
-    height: 260px !important;
-  }
+.study_time .recharts-surface {
+  width: 490px !important;
+  height: 300px !important;
 }
 
 .accuracy .recharts-surface {
@@ -139,11 +132,11 @@
 
 .weak .recharts-surface {
   height: 290px !important;
-  width: 300px !important;
+  width: 380px !important;
 }
 
 .weak > div > div > div > div {
-  width: 300px !important;
+  width: 380px !important;
 }
 
 .performance > div > div > div {
@@ -159,13 +152,21 @@
 }
 
 @keyframes scroll-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes scroll-right {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .animate-alternate-scroll {
@@ -176,6 +177,25 @@
 
 [data-name="nextstep-overlay"] {
   width: 99.4vw !important;
-  /* overflow-x: hidden !important; */
 }
- 
+
+@media (max-width: 768px) {
+  .study_time .recharts-surface {
+    height: 230px !important;
+  }
+  .study_time .recharts-wrapper {
+    width: 374px !important;
+    height: 260px !important;
+  }
+  .study_time .recharts-surface {
+    height: 310px !important;
+    width: 450px !important;
+  }
+  .weak .recharts-surface {
+    height: 300px !important;
+    width: 320px !important;
+  }
+  .weak > div > div > div > div {
+    width: 300px !important;
+  }
+}

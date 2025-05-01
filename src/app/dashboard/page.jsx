@@ -48,6 +48,7 @@ export default function DashboardPage() {
 
     const isTourAlreadyActive = nextStepState?.currentTour != null;
 
+
     if (needsOnboarding && !isTourAlreadyActive) {
       startNextStep("dashboardHeaderIntro");
     }

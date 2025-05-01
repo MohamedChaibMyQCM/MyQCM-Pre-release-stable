@@ -47,7 +47,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
                 </span>
                 <span className="h-2 w-2 rounded-full bg-[#F64C4C]"></span>
               </div>
-              <span className="w-[32px] bg-[#E7E7E7] h-[1.6px] absolute left-[54px]"></span>
+              <span className="w-[32px] bg-[#E7E7E7] h-[1.6px] absolute left-[56px]"></span>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-[#47B881]"></span>
                 <span className="text-sm font-medium text-[#47B881]">Fort</span>

@@ -1,23 +1,19 @@
 import Image from "next/image";
-import exit from "../../../../public/Icons/exit.svg";
-import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
+import exit from "../../../../public/Icons/exit.svg"; // Ensure path is correct
+import accuracyPic from "../../../../public/Quiz/accuracyPic.svg"; // Ensure path is correct
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
-const  QuizExplanation = ({
+const QuizExplanation = ({
   QuizData,
   setSeeExplanation,
   type,
-  selectedQuiz,
-  length,
   handleNextQuestion,
 }) => {
-  const handleNext = handleNextQuestion;
-
   const resultData = QuizData?.data ? QuizData.data : QuizData;
 
   const getBackgroundColor = (ratio) => {
-    const safeRatio = typeof ratio === "number" ? ratio : 0;
+    const safeRatio = typeof ratio === "number" && !isNaN(ratio) ? ratio : 0;
     const res = safeRatio * 100;
     if (res >= 0 && res < 30) return "bg-red-600";
     if (res >= 30 && res < 70) return "bg-[#ECD14E]";
@@ -26,15 +22,20 @@ const  QuizExplanation = ({
 
   const successRatio = resultData?.success_ratio ?? 0;
   const responseOptions = resultData?.selected_options ?? [];
-  const correctOptionsData =
-    resultData?.options?.filter((opt) => opt.is_correct) ?? [];
-  const explanationText = resultData?.explanation;
-  const qroFeedback = resultData?.feedback;
   const allMcqOptions = resultData?.options ?? [];
+  const explanationText = resultData?.explanation; // Check this value
+  const qroFeedback = resultData?.feedback; // Check this value
+
+  const correctOptionsData =
+    type === "qcm" || type === "qcs"
+      ? allMcqOptions.filter((opt) => opt.is_correct)
+      : [];
 
   const userResponsesWithContent = responseOptions.map((resp) => {
     const originalOption = allMcqOptions.find((opt) => opt.id === resp.id) || {
       content: "Option content missing",
+      is_correct: false,
+      id: resp.id,
     };
     return {
       ...resp,
@@ -45,25 +46,35 @@ const  QuizExplanation = ({
   });
 
   const bgColor = getBackgroundColor(successRatio);
+  const isMCQ = type === "qcm" || type === "qcs";
 
   return (
+    // Modal container - Styling from your original snippet
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide max-md:w-[96%]">
+        {/* Header - Styling from your original snippet */}
         <div className="flex items-center justify-between top-0 bg-white pb-2">
           <span className="text-[19px] font-semibold text-[#191919]">
-            {type == "qcm" || type == "qcs" ? "Explanation" : "Answers Analyse"}
+            {isMCQ ? "Explanation" : "Answers Analyse"}
           </span>
           <Image
             src={exit}
             alt="exit"
             className="cursor-pointer"
             onClick={() => setSeeExplanation(false)}
+            width={24}
+            height={24}
           />
         </div>
 
+        {/* Content Body - Styling from your original snippet */}
         <div className="flex flex-col gap-4">
-          {type == "qcm" || type == "qcs" ? (
+          {" "}
+          {/* Original gap */}
+          {/* MCQ Specific: False and Correct Answers */}
+          {isMCQ ? (
             <>
+              {/* User's False Answers */}
               {userResponsesWithContent.filter((item) => !item.is_correct)
                 .length > 0 && (
                 <div className="flex flex-col gap-2">
@@ -75,7 +86,7 @@ const  QuizExplanation = ({
                       .filter((item) => !item.is_correct)
                       .map((item) => (
                         <li
-                          key={item.id}
+                          key={`user-false-${item.id}`}
                           className="border-[#F64C4C] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#F64C4C] text-[14px] flex items-center justify-between"
                         >
                           <span
@@ -88,6 +99,7 @@ const  QuizExplanation = ({
                 </div>
               )}
 
+              {/* Correct Answers */}
               <div className="flex flex-col gap-2 mt-2">
                 <span className="block text-[#191919] text-[15px] font-[500]">
                   Correct Answers
@@ -96,7 +108,7 @@ const  QuizExplanation = ({
                   {correctOptionsData.length > 0 ? (
                     correctOptionsData.map((item) => (
                       <li
-                        key={item.id}
+                        key={`correct-${item.id}`}
                         className="border-[#47B881] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#47B881] text-[14px] flex items-center justify-between"
                       >
                         <span
@@ -106,7 +118,7 @@ const  QuizExplanation = ({
                       </li>
                     ))
                   ) : (
-                    <li className="block text-[#191919] text-[15px] font-[500]">
+                    <li className="text-gray-500 text-[14px]">
                       Correct answer details not available.
                     </li>
                   )}
@@ -114,6 +126,7 @@ const  QuizExplanation = ({
               </div>
             </>
           ) : (
+            // Non-MCQ: Accuracy Display - Styling from your original snippet
             <div className="flex flex-col gap-2">
               <span className="block text-[#191919] text-[15px] font-[500]">
                 Accuracy of Your Answer
@@ -142,41 +155,50 @@ const  QuizExplanation = ({
               </div>
             </div>
           )}
-
-          {(explanationText || (type !== "qcm" && type !== "qcs" && false)) && (
+          {/* --- Conditional Explanation Section --- */}
+          {/* This entire block (title + content) only renders if explanationText is truthy */}
+          {explanationText && (
             <div className="flex flex-col gap-2 mt-2">
+              {" "}
+              {/* Container for title+content */}
+              {/* Explanation Title */}
               <span className="block text-[#191919] text-[15px] font-[500]">
-                {type == "qcm" || type == "qcs"
-                  ? "Explanation"
-                  : "Explanation from MyQCM Experts"}
+                {isMCQ ? "Explanation" : "Explanation from MyQCM Experts"}
               </span>
+              {/* Explanation Content Box */}
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
-                dangerouslySetInnerHTML={{
-                  __html: explanationText ?? "No explanation available.",
-                }}
+                dangerouslySetInnerHTML={{ __html: explanationText }}
               />
             </div>
           )}
-
-          {type !== "qcm" && type !== "qcs" && qroFeedback && (
+          {/* --- End Conditional Explanation Section --- */}
+          {/* --- Conditional Feedback Section --- */}
+          {/* This entire block (title + content) only renders if NOT MCQ AND qroFeedback is truthy */}
+          {!isMCQ && qroFeedback && (
             <div className="flex flex-col gap-2 mt-2">
+              {" "}
+              {/* Container for title+content */}
+              {/* Feedback Title */}
               <span className="block text-[#191919] text-[15px] font-[500]">
                 Analysis from MyQCM AI Assistant
               </span>
+              {/* Feedback Content Box */}
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#0C092A] text-[14px]"
                 dangerouslySetInnerHTML={{ __html: qroFeedback }}
               />
             </div>
           )}
-
+          {/* --- End Conditional Feedback Section --- */}
+          {/* Footer/Actions - Styling from your original snippet */}
           <div
-            className={`flex flex-col sm:flex-row items-center justify-between gap-4  bottom-0 bg-white pt-4 ${
-              type == "qcm" || type == "qcs" ? "sm:self-end" : ""
+            className={`flex flex-col sm:flex-row items-center justify-between gap-4 bottom-0 bg-white pt-4 ${
+              !isMCQ ? "" : "sm:self-end" // Original conditional alignment
             }`}
           >
-            {type !== "qcm" && type !== "qcs" && (
+            {/* Disclaimer (Non-MCQ) */}
+            {!isMCQ && (
               <span
                 className={`text-center sm:text-left font-medium text-[11px] text-[#191919] flex-1`}
               >
@@ -185,9 +207,10 @@ const  QuizExplanation = ({
                 please note that AI models can occasionally make errors.
               </span>
             )}
+            {/* Next Button */}
             <button
               className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
-              onClick={handleNext}
+              onClick={handleNextQuestion}
             >
               Next question
             </button>

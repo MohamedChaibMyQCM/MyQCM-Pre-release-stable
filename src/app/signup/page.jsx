@@ -45,7 +45,7 @@ const Page = () => {
   });
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!password && !confirmPassword) {
       setPasswordError("");
       return;
@@ -63,10 +63,7 @@ const Page = () => {
 
     validatePassword(password);
 
-    if (
-      !password ||
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
-    ) {
+    if (!password || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
       if (!passwordError) {
         setPasswordError("Format invalide.");
       }
@@ -75,7 +72,7 @@ const Page = () => {
     }
     if (
       passwordError &&
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)
     ) {
       setPasswordError("");
     }

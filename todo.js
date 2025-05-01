@@ -27,3 +27,17 @@
 // 27- course icon are the same as module icon.
 // 28- course unit issue.
 // 29- fix activation popup
+30- remove onboarding from phone and put video in phone.
+// 31- handle point in mcq.
+// 32- if it's nothink in explanation don't show it.
+33- activation card email.
+34- email logo.
+// 35- option minute.
+// 36- force et faibless.
+// 37- snapshot Tooltip.
+38- session reminder.
+// 39- Continuer l'apprentissage responsive hand scroll.
+40- mcq logique synergy AI.
+41- qroc animation.
+// 42- add module and  4 course.
+// 43- clickable logo

@@ -27,17 +27,30 @@
 // 27- course icon are the same as module icon.
 // 28- course unit issue.
 // 29- fix activation popup
-30- remove onboarding from phone and put video in phone.
+// 30- remove onboarding from phone and put video in phone.
 // 31- handle point in mcq.
 // 32- if it's nothink in explanation don't show it.
-33- activation card email.
-34- email logo.
+// 33- activation card email.
+// 34- email logo.
 // 35- option minute.
 // 36- force et faibless.
 // 37- snapshot Tooltip.
-38- session reminder.
+// 38- session reminder.
 // 39- Continuer l'apprentissage responsive hand scroll.
-40- mcq logique synergy AI.
-41- qroc animation.
+// 40- mcq logique synergy AI.
+// 41- qroc animation.
 // 42- add module and  4 course.
 // 43- clickable logo
+
+// 44- conditon pass.
+// 45- disable first, second, third unit.
+// 46- guided more recommanded.
+// 47- synergy on premium Plan.
+// 48- third student membership (100 qcm + 50 qroc + explanation true + synergy false + quided true + custom true + notification true).
+// 49- login notification.
+50- phone onboarding.
+// 51- first popup in welcome.
+// 52- session time up to 20 Day.
+// 53- postman gmail.
+54- qroc anim.
+// 55- welcome notif.

@@ -1,61 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react"; // Keep useState for internal tooltips like locked unit
 import Image from "next/image";
-import unit1 from "../../../../public/Home/unit1.svg";
-import unit2 from "../../../../public/Home/unit2.svg";
-import unit3 from "../../../../public/Home/unit3.svg";
-import unit4 from "../../../../public/Home/unit4.svg";
-import unit5 from "../../../../public/Home/unit5.svg";
-import unit6 from "../../../../public/Home/unit6.svg";
-import unit7 from "../../../../public/Home/unit7.svg";
-import unit8 from "../../../../public/Home/unit8.svg";
-import unit9 from "../../../../public/Home/unit9.svg";
-import play from "../../../../public/Home/play.svg";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-import secureLocalStorage from "react-secure-storage";
-import BaseUrl from "@/components/BaseUrl";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
-const Units = () => {
-  const router = useRouter();
-  const [currentUnit, setCurrentUnit] = useState(0);
+// Import unit images
+import unit1 from "../../../public/Home/unit1.svg";
+import unit2 from "../../../public/Home/unit2.svg";
+import unit3 from "../../../public/Home/unit3.svg";
+import unit4 from "../../../public/Home/unit4.svg";
+import unit5 from "../../../public/Home/unit5.svg";
+import unit6 from "../../../public/Home/unit6.svg";
+import unit7 from "../../../public/Home/unit7.svg";
+import unit8 from "../../../public/Home/unit8.svg";
+import unit9 from "../../../public/Home/unit9.svg";
+import play from "../../../public/Home/play.svg"; // This is the white play icon for the button
+
+const Units_onboarding = ({ highlightedElementInfo, isTourActive }) => {
+  // State for the component's own tooltips (not the main tour tooltip)
   const [showQuickSimTooltip, setShowQuickSimTooltip] = useState(false);
   const [showLockedUnitTooltip, setShowLockedUnitTooltip] = useState(false);
 
-  const {
-    data: units,
-    isLoading: isUnitsLoading,
-    error: unitsError,
-  } = useQuery({
-    queryKey: ["units"],
-    queryFn: async () => {
-      try {
-        const token = secureLocalStorage.getItem("token");
-        if (!token) {
-          console.warn("Authentication token not found for fetching units.");
-        }
-        const response = await BaseUrl.get("/unit/me", {
-          headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        });
-        return response.data?.data?.data || [];
-      } catch (err) {
-        console.error("Error fetching units:", err);
-        return [];
-      }
-    },
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  });
-
   const unitsData = [
     {
-      id: "08d2c45d-288c-468b-a12c-687420f4e4f8", // Unit 1 (Index 0)
+      id: "08d2c45d-288c-468b-a12c-687420f4e4f8",
       title: "Unité 01 : Cardio-respiratoire et Psychologie Médicale",
       description:
         "Découvrez l’interaction entre les systèmes cardiovasculaire et respiratoire, ainsi que l’importance des aspects psychologiques dans les soins. Cette unité propose cinq modules clés pour mieux comprendre leur rôle dans la santé et la prise en charge des patients.",
@@ -66,7 +34,7 @@ const Units = () => {
       position: { right: "2px", bottom: "-40px" },
     },
     {
-      id: "22b66563-bd6d-404d-a4a2-f2061b0b751d", // Unit 2 (Index 1)
+      id: "22b66563-bd6d-404d-a4a2-f2061b0b751d",
       title: "Unité 02 : Neurologie et Fonction Cognitive",
       description:
         "Plongez dans l'évaluation neurologique, les voies motrices et sensorielles, ainsi que les constatations dermatologiques de base. Reconnaissez les signes de lésions, les troubles du mouvement et les pathologies cutanées pour une compréhension clinique approfondie.",
@@ -77,7 +45,7 @@ const Units = () => {
       position: { right: "40px", bottom: "-20px" },
     },
     {
-      id: "bc602e71-b043-47d2-b2e5-b8f59252b12a", // Unit 3 (Index 2)
+      id: "bc602e71-b043-47d2-b2e5-b8f59252b12a",
       title: "Unité 03 : Systèmes Endocrinien, Reproducteur et Urinaire",
       description:
         "Examinez la régulation hormonale, la physiologie reproductive et la fonction rénale. Étudiez les troubles endocriniens courants, les problèmes de fertilité et les pathologies urinaires pour maîtriser les principes fondamentaux du diagnostic et de la prise en charge.",
@@ -88,7 +56,7 @@ const Units = () => {
       position: { right: "60px", bottom: "-5px" },
     },
     {
-      id: "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f", // Unit 4 (Index 3)
+      id: "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f",
       title: "Unité 04 : Systèmes Digestif et Hématopoïétique",
       description:
         "Étudiez l'anatomie et la fonction gastro-intestinale ainsi que la formation des cellules sanguines. Identifiez les troubles digestifs fréquents et les conditions hématologiques pour améliorer vos compétences diagnostiques et les résultats des patients.",
@@ -155,43 +123,16 @@ const Units = () => {
     },
   ];
 
-  useEffect(() => {
-    if (unitsData.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentUnit((prev) => (prev >= unitsData.length - 1 ? 0 : prev + 1));
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [unitsData.length]);
-
-  const handleStartUnit = (unitId) => {
-    const unit = unitsData.find((u) => u.id === unitId);
-    if (!unit) {
-      console.error(`Unit with ID ${unitId} not found in unitsData.`);
-      toast.error("Unité non trouvée.");
-      return;
-    }
-    const unitIndex = unitsData.findIndex((u) => u.id === unitId);
-    const unitNumber = unitIndex + 1;
-
-    if (unitNumber === 4) {
-      router.push(`/dashboard/question-bank?unitId=${unitId}`);
-    } else if (unitNumber >= 5 && unitNumber <= 9) {
-      router.push(`/dashboard/question-bank/${unitId}`);
-    } else {
-      console.warn(
-        `Navigation logic not defined or unit (${unitNumber}) should have been locked.`
-      );
-    }
-  };
-
-  const currentUnitIndex = Math.min(currentUnit, unitsData.length - 1);
+  const currentUnitIndex = 0; // Static: always show the first unit
   const currentUnitData = unitsData[currentUnitIndex];
-  const isCurrentUnitLocked = currentUnitIndex < 3;
+  const isCurrentUnitLocked = currentUnitIndex < 3; // Example: first 3 units are locked
 
   if (!currentUnitData) {
-    return null;
+    return (
+      <div className="w-full min-h-[180px] p-6 rounded-[20px] bg-gray-200 flex items-center justify-center">
+        Chargement des données de l&apos;unité...
+      </div>
+    );
   }
 
   const gradientStyle = {
@@ -200,22 +141,29 @@ const Units = () => {
     }, ${currentUnitData.endColor || "#AAAAAA"})`,
   };
 
-  // Common Tailwind classes for tooltips
-  const tooltipBaseClasses =
-    "absolute bottom-full left-0 mb-2 px-3 py-1.5 bg-zinc-800 text-white text-xs rounded-md shadow-lg z-20 w-max text-center";
-  // Arrow is centered within the tooltip's own coordinate system
-  const tooltipArrowClasses =
+  // Internal tooltip styles (NOT for the main tour)
+  const internalTooltipBaseClasses =
+    "absolute bottom-full left-0 mb-2 px-3 py-1.5 bg-zinc-800 text-white text-xs rounded-md shadow-lg z-50 w-max text-center"; // Increased z-index for internal tooltips
+  const internalTooltipArrowClasses =
     "absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-zinc-800";
+
+  // Helper to check if the main tour is highlighting this component
+  const isActiveTourTarget =
+    isTourActive &&
+    highlightedElementInfo &&
+    highlightedElementInfo.id === "tour-units-section";
 
   return (
     <div
-      id="tour-units-section"
-      className="relative w-full min-h-[180px] p-6 py-4 rounded-[20px] overflow-hidden transition-all duration-500 ease-in-out max-md:px-4 flex flex-col max-md:pb-10"
+      id="tour-units-section" // ID for the main tour to target
+      className={`relative w-full min-h-[180px] p-6 py-4 rounded-[20px] overflow-hidden transition-all duration-300 ease-in-out max-md:px-4 flex flex-col max-md:pb-10
+                  ${isActiveTourTarget ? "tour-highlight-active" : ""} 
+                  ${isTourActive ? "component-under-tour" : ""}`} // General class when tour is active
       style={gradientStyle}
     >
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentUnit}
+          key={currentUnitData.id} // Unique key for Framer Motion
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
@@ -229,19 +177,15 @@ const Units = () => {
             {currentUnitData.description}
           </p>
           <div className="flex items-center gap-5 max-md:justify-center max-md:flex-col max-md:gap-2 mb-4 max-md:mb-0">
+            {/* Button to start unit (static/disabled for demo) */}
             <div className="relative">
               <button
-                className={`group flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500] transition-all duration-200 ease-in-out hover:scale-105 whitespace-nowrap
+                className={`group flex items-center gap-2 text-[#FFFFFF] bg-[#191919] rounded-[20px] px-5 py-[6px] text-[13px] font-[500] transition-all duration-200 ease-in-out 
                   ${
                     isCurrentUnitLocked
                       ? "opacity-70 cursor-not-allowed hover:opacity-70"
-                      : "hover:opacity-90 hover:px-6"
+                      : "hover:opacity-90 hover:px-6 hover:scale-105"
                   }`}
-                onClick={() => {
-                  if (!isCurrentUnitLocked) {
-                    handleStartUnit(currentUnitData.id);
-                  }
-                }}
                 onMouseEnter={() => {
                   if (isCurrentUnitLocked) setShowLockedUnitTooltip(true);
                 }}
@@ -251,6 +195,8 @@ const Units = () => {
                 aria-describedby={
                   isCurrentUnitLocked ? "tooltip-locked-unit" : undefined
                 }
+                disabled={isCurrentUnitLocked} // Button is always disabled for the first unit in this static setup
+                // onClick={() => console.log("Start unit clicked (disabled)")}
               >
                 Commencer l&apos;unité{" "}
                 <Image
@@ -266,53 +212,51 @@ const Units = () => {
               <AnimatePresence>
                 {isCurrentUnitLocked && showLockedUnitTooltip && (
                   <motion.div
-                    id="tooltip-locked-unit"
+                    id="tooltip-locked-unit" // Not a target for the main tour
                     role="tooltip"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
-                    className={`${tooltipBaseClasses} max-w-[270px]`}
+                    className={`${internalTooltipBaseClasses} max-w-[270px]`} // Use internal tooltip styles
                   >
                     <div className="relative">
-                      {" "}
-                      {/* This inner relative div is key for the arrow's centering */}
                       <span>
                         Ces trois premières unités seront disponibles
                         prochainement.
                       </span>
-                      <div className={tooltipArrowClasses}></div>
+                      <div className={internalTooltipArrowClasses}></div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
+            {/* Button for quick simulation (static/disabled for demo) */}
             <div className="relative">
               <button
-                className="text-[13px] text-[#FFFFFF] font-[500] leading-5 tracking-[0.14px] underline whitespace-nowrap"
+                className="text-[13px] text-[#FFFFFF] font-[500] leading-5 tracking-[0.14px] underline whitespace-nowrap cursor-default"
                 onMouseEnter={() => setShowQuickSimTooltip(true)}
                 onMouseLeave={() => setShowQuickSimTooltip(false)}
-                aria-describedby="tooltip-quick-sim"
+                aria-describedby="tooltip-quick-sim" // Not a target for the main tour
+                // onClick={() => console.log("Quick sim clicked (disabled)")}
               >
                 Simulation rapide d&apos;examen
               </button>
               <AnimatePresence>
                 {showQuickSimTooltip && (
                   <motion.div
-                    id="tooltip-quick-sim"
+                    id="tooltip-quick-sim" // Not a target for the main tour
                     role="tooltip"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
-                    className={`${tooltipBaseClasses} max-w-[240px]`}
+                    className={`${internalTooltipBaseClasses} max-w-[240px]`} // Use internal tooltip styles
                   >
                     <div className="relative">
-                      {" "}
-                      {/* This inner relative div is key for the arrow's centering */}
                       <span>Fonctionnalité à venir prochainement.</span>
-                      <div className={tooltipArrowClasses}></div>
+                      <div className={internalTooltipArrowClasses}></div>
                     </div>
                   </motion.div>
                 )}
@@ -322,46 +266,54 @@ const Units = () => {
         </motion.div>
       </AnimatePresence>
 
+      {/* Pagination Dots (Static for demo) */}
       <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center z-10">
         <ul className="flex gap-2 items-center">
           {unitsData.map((_, index) => (
             <li
               key={`dot-${index}`}
-              className={`h-2 rounded-full bg-white cursor-pointer transition-all duration-300 ease-in-out ${
-                currentUnitIndex === index
-                  ? "w-6 opacity-100"
-                  : "w-2 opacity-50 hover:opacity-75"
+              className={`h-2 rounded-full bg-white transition-all duration-300 ease-in-out 
+                          ${
+                            currentUnitIndex === index
+                              ? "w-6 opacity-100"
+                              : "w-2 opacity-50"
+                          } 
+                          ${
+                            index !== currentUnitIndex ? "cursor-default" : ""
+                          }`}
+              aria-label={`Unité ${index + 1} ${
+                index === currentUnitIndex ? "(actuelle)" : ""
               }`}
-              onClick={() => setCurrentUnit(index)}
-              aria-label={`Aller à l'unité ${index + 1}`}
+              // onClick={() => setCurrentUnit(index)} // Removed: Dots are not interactive in this static setup
             />
           ))}
         </ul>
       </div>
 
+      {/* Unit Image */}
       <AnimatePresence>
         <motion.div
-          key={currentUnit + "-image"}
+          key={`${currentUnitData.id}-image`} // Unique key for Framer Motion
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="absolute max-md:hidden pointer-events-none"
+          className="absolute max-md:hidden pointer-events-none" // Image doesn't need to be interactive
           style={{
             width: `${currentUnitData.imageWidth || 150}px`,
             height: "auto",
             right: currentUnitData.position?.right || "20px",
             bottom: currentUnitData.position?.bottom || "10px",
-            zIndex: 1,
+            zIndex: 1, // Below content but visible
           }}
         >
           <Image
             src={currentUnitData.image}
             alt={`Icône ${currentUnitData.title}`}
             width={currentUnitData.imageWidth || 150}
-            height={currentUnitData.imageWidth || 150}
+            height={currentUnitData.imageWidth || 150} // Assuming square or height is derived from width
             style={{ display: "block", width: "100%", height: "auto" }}
-            priority={currentUnitIndex < 3}
+            priority={currentUnitIndex < 3} // Prioritize loading images for first few units
           />
         </motion.div>
       </AnimatePresence>
@@ -369,4 +321,4 @@ const Units = () => {
   );
 };
 
-export default Units;
+export default Units_onboarding;

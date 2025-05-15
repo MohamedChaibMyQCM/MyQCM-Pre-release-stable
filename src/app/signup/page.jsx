@@ -44,16 +44,19 @@ const Page = () => {
     },
   });
 
-  const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!password && !confirmPassword) {
+  // Updated validatePassword function
+  const validatePassword = (passwordToValidate) => {
+    if (!passwordToValidate && !confirmPassword) {
+      // Also check confirmPassword if relevant to clear error
       setPasswordError("");
-      return;
+      return true; // Or false, depending on how you use the return value. Here it means no error.
     }
-    if (!passwordRegex.test(password)) {
-      setPasswordError("8+ caractères, majuscule, minuscule, chiffre");
+    if (passwordToValidate.length < 8) {
+      setPasswordError("Doit contenir au moins 8 caractères");
+      return false;
     } else {
       setPasswordError("");
+      return true;
     }
   };
 
@@ -61,20 +64,14 @@ const Page = () => {
     e.preventDefault();
     if (isLoading) return;
 
-    validatePassword(password);
-
-    if (!password || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-      if (!passwordError) {
-        setPasswordError("Format invalide.");
-      }
-      toast.error("Veuillez entrer un mot de passe valide.");
+    // Validate password according to new rule (at least 8 characters)
+    if (!password || password.length < 8) {
+      setPasswordError("Doit contenir au moins 8 caractères"); // Set error if not already set by live validation
+      toast.error("Veuillez entrer un mot de passe d'au moins 8 caractères.");
       return;
-    }
-    if (
-      passwordError &&
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)
-    ) {
-      setPasswordError("");
+    } else {
+      // Clear error if password is now valid and an error was previously set
+      if (passwordError) setPasswordError("");
     }
 
     if (password !== confirmPassword) {
@@ -85,7 +82,7 @@ const Page = () => {
       toast.error(
         "Veuillez compléter les informations Nom et Avatar (Étape 1)"
       );
-      changeStep(1);
+      changeStep(1); // Ensure this uses the updated changeStep function
       return;
     }
 
@@ -93,7 +90,7 @@ const Page = () => {
       name: user_name,
       email: Email,
       password,
-      avatar: selectedAvatar || "https://example.com/default-avatar.jpg",
+      avatar: selectedAvatar || "https://example.com/default-avatar.jpg", // Consider a real default or ensure selectedAvatar is always set
     };
     signup(data);
   };
@@ -115,7 +112,21 @@ const Page = () => {
     }),
   };
 
+  // Updated changeStep function
   const changeStep = (newStep) => {
+    if (step === 1 && newStep > step) {
+      // Moving from step 1 to step 2
+      if (!user_name.trim()) {
+        toast.error("Veuillez entrer votre nom d'utilisateur.");
+        return;
+      }
+      if (!selectedAvatar) {
+        toast.error("Veuillez sélectionner un avatar.");
+        return;
+      }
+    }
+    // Add validation for Step 2 to Step 1 if needed, though less common for "back" buttons.
+
     setDirection(newStep > step ? 1 : -1);
     setStep(newStep);
   };
@@ -172,7 +183,7 @@ const Page = () => {
                 className="w-full"
               >
                 <SignUpStepOne
-                  setStep={changeStep}
+                  setStep={changeStep} // Pass the updated changeStep
                   setUserName={setUserName}
                   user_name={user_name}
                   selectedAvatar={selectedAvatar}
@@ -190,7 +201,7 @@ const Page = () => {
                 className="w-full"
               >
                 <SignUpStepTwo
-                  setStep={changeStep}
+                  setStep={changeStep} // Pass the updated changeStep
                   isLoading={isLoading}
                   Email={Email}
                   setEmail={setEmail}
@@ -203,8 +214,8 @@ const Page = () => {
                   showConfirmPassword={showConfirmPassword}
                   setShowConfirmPassword={setShowConfirmPassword}
                   passwordError={passwordError}
-                  validatePassword={validatePassword}
-                  handleSubmitStep2={handleSubmitStep}
+                  validatePassword={validatePassword} // Pass the updated validatePassword
+                  handleSubmitStep2={handleSubmitStep} // This is now your final submit handler for step 2
                 />
               </motion.div>
             )}

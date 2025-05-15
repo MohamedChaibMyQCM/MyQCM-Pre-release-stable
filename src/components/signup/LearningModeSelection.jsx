@@ -2,17 +2,24 @@
 
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query"; 
+import { useQuery } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import {
   CheckCircle,
   Info,
   CircleNotch as Spinner,
   Check,
+  Lock,
 } from "phosphor-react";
 
+// Constants for mode IDs for clarity
+const INTELLIGENT_MODE_ID = "1afb7737-c9c2-4411-9e61-5ceb02ce5e47";
+const GUIDED_MODE_ID = "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69";
+const CUSTOM_MODE_ID = "6ecb99f5-6687-47f8-a218-b30fbc5d85ee";
+
 const modeDetailsConfig = {
-  "1afb7737-c9c2-4411-9e61-5ceb02ce5e47": {
+  [INTELLIGENT_MODE_ID]: {
+    // Intelligent Mode (Synergy)
     subtitle: "Powered by Synergy",
     features: [
       "AI-Personalized Learning",
@@ -24,9 +31,12 @@ const modeDetailsConfig = {
       "Adaptive learning",
       "Maximizing retention",
     ],
-    isRecommended: true,
+    isRecommended: false,
+    isLocked: true,
+    lockMessage: "Ce mode est disponible dans le plan premium",
   },
-  "9fcd084a-a8a6-4004-ba9a-c8d1243d1d69": {
+  [GUIDED_MODE_ID]: {
+    // Guided Mode (Your Focus, Our AI)
     subtitle: "Your Focus, Our AI",
     features: [
       "Targeted Practice",
@@ -38,9 +48,10 @@ const modeDetailsConfig = {
       "Exam preparation",
       "Clinical rotations",
     ],
-    isRecommended: false,
+    isRecommended: true,
   },
-  "6ecb99f5-6687-47f8-a218-b30fbc5d85ee": {
+  [CUSTOM_MODE_ID]: {
+    // Custom Mode (Craft Your Challenge)
     subtitle: "Craft Your Challenge",
     features: ["Full Customization", "Exam Simulation", "Precision Revision"],
     bestFor: [
@@ -52,7 +63,7 @@ const modeDetailsConfig = {
   },
 };
 
-const BADGE_HEIGHT_CLASS = "h-7";
+const BADGE_HEIGHT_CLASS = "h-7"; // Approx 28px
 
 const LearningModeStep = ({
   selectedMode,
@@ -152,12 +163,50 @@ const LearningModeStep = ({
             features: [],
             bestFor: [],
             isRecommended: false,
+            isLocked: false,
+            lockMessage: "",
           };
           const isSelected = selectedMode === mode.id;
-          const hasBadge = details.isRecommended;
+          const isLocked = details.isLocked;
+          const hasBadge = details.isRecommended && !isLocked;
+
+          const cardContentBaseClasses =
+            "flex flex-col flex-grow p-5 bg-white transition-all duration-200 ease-in-out h-full border";
+
+          let cardContentDynamicClasses = "";
+
+          if (isLocked) {
+            // Locked cards have rounded-b-xl to match the hover tooltip's rounded-t-xl.
+            // The border-t-0 effect is handled by the mb-[-2px] of the (empty) badge placeholder.
+            cardContentDynamicClasses = `cursor-not-allowed opacity-60 rounded-b-xl border-x border-b border-gray-200`;
+          } else {
+            // For non-locked cards
+            const cardActualRoundingClasses = hasBadge
+              ? "rounded-b-xl"
+              : "rounded-xl";
+            const cardActualBorderHandling = hasBadge ? "border-t-0" : ""; // No top border for card content if badge is present
+
+            cardContentDynamicClasses = `cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#F8589F] hover:shadow-md`;
+            if (isSelected) {
+              cardContentDynamicClasses += ` ${cardActualRoundingClasses} ${cardActualBorderHandling} ${
+                hasBadge ? "border-x-2 border-b-2" : "border-2" // If badge, thicker border on sides/bottom for selected
+              } border-[#FD2E8A] shadow-lg`;
+            } else {
+              // Not selected, not locked
+              cardContentDynamicClasses += ` ${cardActualRoundingClasses} ${cardActualBorderHandling} ${
+                hasBadge ? "border-x border-b" : "border" // Standard border if badge, full border otherwise
+              } border-gray-200 hover:border-gray-300`;
+            }
+          }
 
           return (
-            <div key={mode.id} className="flex flex-col">
+            <div key={mode.id} className="flex flex-col relative group">
+              {/* Badge Placeholder / Area for Hover Tooltip */}
+              {/* This div always exists for consistent vertical alignment.
+                  It has mb-[-2px] which pulls the card content up.
+                  If 'hasBadge' is true, it displays the "Recommended" badge.
+                  If 'isLocked' is true, the hover tooltip will visually occupy this space.
+              */}
               <div className={`w-full ${BADGE_HEIGHT_CLASS} mb-[-2px]`}>
                 {hasBadge && (
                   <div className="w-full h-full py-1 bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] text-white text-xs font-semibold flex items-center justify-center rounded-t-xl shadow-sm">
@@ -166,40 +215,41 @@ const LearningModeStep = ({
                 )}
               </div>
 
+              {/* Card Content */}
               <div
                 role="radio"
-                aria-checked={isSelected}
-                tabIndex={0}
-                onClick={() => onModeChange(mode.id)}
+                aria-checked={isLocked ? undefined : isSelected}
+                aria-disabled={isLocked}
+                tabIndex={isLocked ? -1 : 0}
+                onClick={() => !isLocked && onModeChange(mode.id)}
                 onKeyDown={(e) =>
-                  (e.key === "Enter" || e.key === " ") && onModeChange(mode.id)
+                  !isLocked &&
+                  (e.key === "Enter" || e.key === " ") &&
+                  onModeChange(mode.id)
                 }
-                className={`flex flex-col flex-grow p-5 bg-white cursor-pointer transition-all duration-200 ease-in-out h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#F8589F] border
-                  ${hasBadge ? "rounded-b-xl border-t-0" : "rounded-xl"}
-                  ${
-                    isSelected
-                      ? `${
-                          hasBadge ? "border-x-2 border-b-2" : "border-2"
-                        } border-[#FD2E8A] shadow-lg`
-                      : `${
-                          hasBadge
-                            ? "border-gray-200 border-t-0"
-                            : "border-gray-200"
-                        } hover:border-gray-300`
-                  }`}
+                className={`${cardContentBaseClasses} ${cardContentDynamicClasses}`}
               >
                 <div className={`flex items-center justify-between mb-4 pt-1`}>
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                        isSelected
+                        isSelected && !isLocked
                           ? "border-[#FD2E8A] bg-[#FD2E8A]"
+                          : isLocked
+                          ? "border-gray-300 bg-gray-200"
                           : "border-gray-300 bg-white"
                       }`}
                       aria-hidden="true"
                     >
-                      {isSelected && (
+                      {isSelected && !isLocked && (
                         <Check size={12} weight="bold" className="text-white" />
+                      )}
+                      {isLocked && (
+                        <Lock
+                          size={12}
+                          weight="bold"
+                          className="text-gray-500"
+                        />
                       )}
                     </div>
                     <div>
@@ -275,6 +325,31 @@ const LearningModeStep = ({
                   </ul>
                 </div>
               </div>
+
+              {/* Tooltip for Locked Mode (styled like Recommended badge) */}
+              {isLocked && details.lockMessage && (
+                <div
+                  className="absolute top-0 left-0 right-0 
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                             pointer-events-none z-20"
+                  // This tooltip will overlay the empty BADGE_HEIGHT_CLASS div space.
+                  // Its height is implicitly determined by py-1, BADGE_HEIGHT_CLASS.
+                >
+                  <div
+                    className={`w-full ${BADGE_HEIGHT_CLASS} py-1 bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]
+                               text-white text-xs font-semibold 
+                               flex items-center justify-center 
+                               rounded-t-xl shadow-sm`}
+                  >
+                    <Lock
+                      size={14}
+                      weight="bold"
+                      className="mr-1.5 flex-shrink-0"
+                    />
+                    {details.lockMessage}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

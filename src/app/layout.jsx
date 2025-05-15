@@ -2,17 +2,9 @@ import React from "react";
 import Script from "next/script"; 
 import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { NextStepProvider } from "nextstepjs";
 import { MotionConfig } from "framer-motion";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-import {
-  dashboardHeaderTour,
-  progressSummaryTour,
-  progressActivityTour,
-} from "@/lib/tours";
-
 import "./globals.css";
-import NextStepClientWrapper from "@/components/NextStepClientWrapper"; 
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -27,12 +19,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  const allTours = [
-    ...dashboardHeaderTour,
-    ...progressSummaryTour,
-    ...progressActivityTour,
-  ];
-
   const clarityProjectId = "r69pxfi7m6"; 
 
   return (
@@ -40,12 +26,8 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.className}`}>
         <ReactQueryProvider>
           <MotionConfig>
-            <NextStepProvider>
               <Toaster />
-              <NextStepClientWrapper tours={allTours}>
                 {children}
-              </NextStepClientWrapper>
-            </NextStepProvider>
           </MotionConfig>
         </ReactQueryProvider>
 

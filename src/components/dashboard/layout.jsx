@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
 import Aside from "@/components/dashboard/Aside";
 import Loading from "@/components/Loading";
-import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
 import mind from "../../../public/Home/mind.svg";
@@ -20,10 +19,6 @@ const fetchApiData = async (url) => {
     });
     return response.data;
   } catch (error) {
-    console.error(
-      `API Fetch Error (${url}):`,
-      error.response?.data || error.message
-    );
     throw error;
   }
 };
@@ -54,7 +49,6 @@ export default function DashboardLayout({ children }) {
     if (!token && !isLoading) {
       const timer = setTimeout(() => {
         if (!secureLocalStorage.getItem("token")) {
-          toast.error("Session expired");
           router.push("/login");
         }
       }, 50);
@@ -68,13 +62,10 @@ export default function DashboardLayout({ children }) {
       secureLocalStorage.removeItem("token");
 
       if (status === 401) {
-        toast.error("Unauthorized session.");
         router.push("/login");
       } else if (status === 403) {
-        toast.error("Access Forbidden.");
         router.push("/waiting-list");
       } else {
-        toast.error("Please login again.");
         router.push("/login");
       }
     }
@@ -83,7 +74,6 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (isSuccess && userData) {
       if (userData?.data?.user_verified === false) {
-        toast("You are in the waiting list!", { icon: "👏" });
         router.push("/waiting-list");
       }
     }

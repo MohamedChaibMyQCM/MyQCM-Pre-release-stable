@@ -2,20 +2,17 @@
 
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNextStep } from "nextstepjs";
 import secureLocalStorage from "react-secure-storage";
 import Dash_Header from "@/components/dashboard/Dash_Header";
-import Calendar from "@/components/dashboard/Home/Calender";
-import Modules from "@/components/dashboard/Home/Modules";
-import Study_time from "@/components/dashboard/Home/Study_time";
-import Units from "@/components/dashboard/Home/Units";
+import Calendar from "../../components/dashboard/Home/Calender";
+import Modules from "../../components/dashboard/Home/Modules";
+import Study_time from "../../components/dashboard/Home/Study_time";
+import Units from "../../components/dashboard/Home/Units";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
 import Loading from "@/components/Loading";
 
 export default function DashboardPage() {
-  const { startNextStep, nextStepState } = useNextStep();
-
   const {
     data: userData,
     isLoading: isLoadingUser,
@@ -39,24 +36,10 @@ export default function DashboardPage() {
     },
   });
 
-  useEffect(() => {
-    const needsOnboarding =
-      !isLoadingUser &&
-      !isUserError &&
-      userData != null &&
-      userData.completed_introduction === false;
-
-    const isTourAlreadyActive = nextStepState?.currentTour != null;
-
-
-    if (needsOnboarding && !isTourAlreadyActive) {
-      startNextStep("dashboardHeaderIntro");
-    }
-  }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
-
   if (isLoadingUser) {
     return <Loading />;
   }
+  
 
   return (
     <div className="bg-[#F7F8FA] pb-10 min-h-screen">

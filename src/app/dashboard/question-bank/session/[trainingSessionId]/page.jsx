@@ -132,6 +132,7 @@ const Page = () => {
           ? submittedData.response_options
           : null;
 
+      // Create a copy without the skipped flag to send to the API
       const payload = {
         response_options: response_options,
         response: submittedData.response || "",
@@ -139,15 +140,33 @@ const Page = () => {
         session: trainingSessionId,
       };
 
+      // Store whether this was a skip operation
+      const isSkipOperation = !!submittedData.skipped;
+
       const submitResponse = await BaseUrl.post(
         `/mcq/submit/${mcqId}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Submission Response Data:", submitResponse.data.data);
-      return submitResponse.data.data;
+
+      // Return both the response data and our skip flag
+      return {
+        responseData: submitResponse.data.data,
+        isSkipOperation,
+      };
     },
-    onSuccess: (responseData) => {
+    onSuccess: (result) => {
+      const { responseData, isSkipOperation } = result;
+
+      // If this was a skip operation, we've already incremented the skip counter
+      // in the Quiz component, so we just set the answer and return
+      if (isSkipOperation) {
+        setAnswer(responseData);
+        return;
+      }
+
+      // Handle normal answer submission (non-skip)
       setAnswer(responseData);
       setData((prevData) => {
         let { mcqs_success, mcqs_failed } = prevData;

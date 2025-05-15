@@ -10,7 +10,6 @@ import { IoIosCheckmarkCircle } from "react-icons/io";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import SkipQuestionPopup from "./SkipQuestionPopup"; // Ensure path is correct
 import think1 from "../../../../public/Question_Bank/think1.svg"; // Ensure path is correct
-// import think2 from "../../../../public/Question_Bank/think2.svg"; // Removed as unused in original
 import toast from "react-hot-toast"; // Keep import if used elsewhere, though not in this snippet
 
 const Quiz = ({
@@ -26,6 +25,7 @@ const Quiz = ({
   handleSessionCompletion,
   totalQuestions,
   currentQuestionNumber,
+  // Remove skipMcq and isSkipping props
 }) => {
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
@@ -35,6 +35,8 @@ const Quiz = ({
   );
   const [showSkipPopup, setShowSkipPopup] = useState(false);
   const [skipInitiatedByTimeout, setSkipInitiatedByTimeout] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
+  const [thinkAnimating, setThinkAnimating] = useState(false); // Animation state for think icon
   const timerRef = useRef(null);
   const isMounted = useRef(true);
 
@@ -152,6 +154,11 @@ const Quiz = ({
       clearInterval(timerRef.current); // Stop timer on submit
       timerRef.current = null;
 
+      // Start think animation for QROC mode and keep it running until response
+      if (questionData?.type === "qroc" && isMounted.current) {
+        setThinkAnimating(true);
+      }
+
       const initialTime = questionData?.estimated_time || 0;
       const calculatedTimeSpent = initialTime - timeRemaining;
       const timeSpent = Math.max(0, calculatedTimeSpent); // Ensure non-negative time
@@ -175,12 +182,14 @@ const Quiz = ({
 
         if (isMounted.current) {
           setCheckAnswer(false); // Update state to show results/next button
+          setThinkAnimating(false); // Stop animation after the response is received
         }
       } catch (error) {
         console.error("Error submitting answer via Progress:", error);
-        toast.error("Submission failed. Please try again."); // Optional error feedback
-        // Consider re-enabling the checkAnswer state or timer if needed on error
-        // if (isMounted.current) setCheckAnswer(true);
+        toast.error("Submission failed. Please try again.");
+        if (isMounted.current) {
+          setThinkAnimating(false); // Stop animation on error too
+        }
       }
     },
   });
@@ -215,23 +224,67 @@ const Quiz = ({
   };
 
   // Confirm skip action
-  const handleConfirmSkip = () => {
+  const handleConfirmSkip = async () => {
     if (!isMounted.current) return;
     clearInterval(timerRef.current);
     timerRef.current = null;
     setShowSkipPopup(false);
 
-    // Update skip count in parent via setData prop
-    setData((prevData) => ({
-      ...prevData,
-      mcqs_skipped: (prevData.mcqs_skipped || 0) + 1,
-    }));
-
-    // Navigate
-    if (!isFinalQuestion) {
-      fetchNextMcq();
-    } else {
+    if (isFinalQuestion) {
+      // If it's the final question, complete the session
       handleSessionCompletion();
+      return;
+    }
+
+    // Use the Progress function with a skip flag
+    try {
+      setIsSkipping(true);
+
+      // First update the skip count locally
+      setData((prevData) => ({
+        ...prevData,
+        mcqs_skipped: (prevData.mcqs_skipped || 0) + 1,
+      }));
+
+      // Create a payload that indicates this was a skip
+      const skipPayload = {
+        mcq: questionData.id,
+        time_spent: 0,
+        skipped: true, // Add a flag to indicate this was skipped
+      };
+
+      // For QCS/QCM questions, we need to provide a valid options structure
+      if (questionData.type === "qcs" || questionData.type === "qcm") {
+        // For QCS, select a dummy option or the first available option
+        if (questionData.options && questionData.options.length > 0) {
+          skipPayload.response_options = [
+            { option: questionData.options[0].id },
+          ];
+        } else {
+          skipPayload.response_options = [];
+        }
+        skipPayload.response = null;
+      } else {
+        // For text-based questions
+        skipPayload.response_options = null;
+        skipPayload.response = "";
+      }
+
+      await Progress(skipPayload);
+
+      // Fetch the next question
+      fetchNextMcq();
+    } catch (error) {
+      console.error("Failed to skip question:", error);
+      toast.error("Failed to skip question. Please try again.");
+
+      // If there was an error, revert the skip count increment
+      setData((prevData) => ({
+        ...prevData,
+        mcqs_skipped: Math.max(0, (prevData.mcqs_skipped || 0) - 1),
+      }));
+    } finally {
+      setIsSkipping(false);
     }
   };
 
@@ -397,7 +450,13 @@ const Quiz = ({
             {questionData?.difficulty?.charAt(0).toUpperCase() +
               questionData?.difficulty?.slice(1)}
           </span>
-          <Image src={think1} alt="think" className="ml-0 max-md:w-[30px]" />
+          <Image
+            src={think1}
+            alt="think"
+            className={`ml-2 max-md:w-[30px] ${
+              thinkAnimating ? "animate-pulse-scale" : ""
+            }`}
+          />
         </div>
         {/* Timer */}
         <div className="flex items-center gap-3">
@@ -514,9 +573,11 @@ const Quiz = ({
             onClick={triggerSkipPopup}
             // Original styling
             className="text-[#F8589F] font-[500] text-[13px] disabled:text-gray-400 disabled:cursor-not-allowed"
-            disabled={!checkAnswer || isSubmitting || isLoadingNextMcq} // Disable when not appropriate
+            disabled={
+              !checkAnswer || isSubmitting || isLoadingNextMcq || isSkipping
+            }
           >
-            Skip Question
+            {isSkipping ? "Skipping..." : "Skip Question"}
           </button>
           {/* Check Answer / See Explanation / Next Button */}
           {checkAnswer ? (

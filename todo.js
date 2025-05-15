@@ -52,5 +52,5 @@
 // 51- first popup in welcome.
 // 52- session time up to 20 Day.
 // 53- postman gmail.
-54- qroc anim.
+// 54- qroc anim.
 // 55- welcome notif.

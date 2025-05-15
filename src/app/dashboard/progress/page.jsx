@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react"; 
-import { useNextStep } from "nextstepjs"; 
 import { useQuery } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import toast from "react-hot-toast"; 
@@ -12,8 +11,6 @@ import Strength_Stat from "@/components/dashboard/MyProgress/Strength_Stat";
 import Loading from "@/components/Loading";
 
 const ProgressSummaryPage = () => {
-  const { startNextStep, nextStepState } = useNextStep();
-
   const {
     data: userData,
     isLoading: isLoadingUser,
@@ -40,18 +37,6 @@ const ProgressSummaryPage = () => {
     },
     retry: 1, 
   });
-
-  useEffect(() => {
-    const canAttemptOnboarding = !isLoadingUser && userData != null;
-    const needsOnboarding =
-      canAttemptOnboarding && userData.completed_introduction === false;
-    const isTourAlreadyActive = nextStepState?.currentTour != null;
-
-    if (needsOnboarding && !isTourAlreadyActive) {
-      
-      startNextStep("progressSummary");
-    }
-  }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
   const {
     data: activityData,

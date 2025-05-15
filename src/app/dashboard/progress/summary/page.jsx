@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useNextStep } from "nextstepjs";
 import toast from "react-hot-toast";
 import React from "react";
 import Learning_calendar from "@/components/dashboard/MyProgress/Learning_calender";
@@ -14,8 +13,6 @@ import secureLocalStorage from "react-secure-storage";
 import Loading from "@/components/Loading";
 
 const ProgressActivityPage = () => {
-  const { startNextStep, nextStepState } = useNextStep();
-
  const {
    data: userData,
    isLoading: isLoadingUser,
@@ -71,17 +68,6 @@ const ProgressActivityPage = () => {
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
-
-   useEffect(() => {
-     const canAttemptOnboarding = !isLoadingUser && userData != null;
-     const needsOnboarding =
-       canAttemptOnboarding && userData.completed_introduction === false;
-     const isTourAlreadyActive = nextStepState?.currentTour != null;
-
-     if (needsOnboarding && !isTourAlreadyActive) {
-       startNextStep("progressActivity");
-     }
-   }, [isLoadingUser, isUserError, userData, nextStepState, startNextStep]);
 
   if (isLoadingAnalytics) {
     return (

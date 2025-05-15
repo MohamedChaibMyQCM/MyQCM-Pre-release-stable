@@ -8,13 +8,16 @@ import { X } from "phosphor-react";
 
 const QuizResult = ({ data, length }) => {
   const { category } = useParams();
-  
+
+  // Map the data properties correctly to match what we have in state
   const totalQuestions = data.total_mcqs || length;
-  const mcqSolved = data.total_mcqs_solved;
-  const correctAnswers = data.correct_answers;
-  const incorrectAnswers = data.incorrect_answers;
-  const skippedQuestions = data.mcqs_skipped;
-  const successRatio = data.avg_success_ratio;
+  const correctAnswers = data.mcqs_success || 0;
+  const incorrectAnswers = data.mcqs_failed || 0;
+  const skippedQuestions = data.mcqs_skipped || 0;
+  const accuracy = data.accuracy || 0;
+
+  // Calculate total solved (correct + incorrect)
+  const mcqSolved = correctAnswers + incorrectAnswers;
 
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-[100]">
@@ -34,7 +37,7 @@ const QuizResult = ({ data, length }) => {
               COMPLETION
             </span>
             <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {(successRatio * 100).toFixed(2)}%
+              {accuracy}%
             </span>
           </div>
           <div className="basis-[40%] flex flex-col gap-1">
@@ -50,7 +53,7 @@ const QuizResult = ({ data, length }) => {
               SKIPPED
             </span>
             <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {totalQuestions - mcqSolved} questions
+              {skippedQuestions} questions
             </span>
           </div>
           <div className="basis-[40%] flex flex-col gap-1">

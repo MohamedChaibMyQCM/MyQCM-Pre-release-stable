@@ -42,7 +42,7 @@ export default function OnboardingLayout({ children }) {
           .tour-highlight-active {
             z-index: 1000 !important; /* Above overlay */
           }
-          
+
           /* Make sure sidebar is above overlay */
           .fixed.w-\\[248px\\] {
             z-index: 500 !important;
@@ -56,15 +56,15 @@ export default function OnboardingLayout({ children }) {
             position: relative;
             z-index: 501 !important;
           }
-          
+
           /* Make sure menu elements are visible in mobile */
           @media (max-width: 1279px) {
-            .max-xl\\:fixed, 
+            .max-xl\\:fixed,
             .menu-toggle-btn,
             .max-xl\\:translate-x-0 {
               z-index: 1001 !important;
             }
-            
+
             /* Menu contents should be above overlay */
             .max-xl\\:translate-x-0 * {
               z-index: 1002 !important;

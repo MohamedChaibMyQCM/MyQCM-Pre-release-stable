@@ -10,41 +10,44 @@ import Units_onboarding from "../../components/onboarding/Units_onboarding";
 import Modules_onboarding from "../../components/onboarding/Modules_onboarding";
 import Calendar_onboarding from "../../components/onboarding/Calender_onboarding";
 import Study_time_onboarding from "../../components/onboarding/Study_time_onboarding";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../../components/Loading";
 
 const ONBOARDING_TOUR_STEPS = [
   {
     id: "tour-notification-icon",
-    content: "Notifications appear here. Check for updates!",
+    content: "Les notifications apparaissent ici. Consultez les mises à jour !",
     placement: "bottom-start",
     highlightPadding: 8,
   },
   {
     id: "tour-qcm-display",
-    content: "Your QCM (Multiple Choice Questions) count.",
+    content: "Votre nombre de QCM (Questions à Choix Multiples).",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-qroc-display",
-    content: "Your QROC (Open-Ended Questions) count.",
+    content: "Votre nombre de QROC (Questions à Réponse Ouverte Courte).",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-streak-display",
-    content: "Your current learning streak. Keep it going!",
+    content: "Votre série d'apprentissage actuelle. Continuez comme ça !",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-xp-display",
-    content: "Your experience points (XP) earned.",
+    content: "Vos points d'expérience (XP) gagnés.",
     placement: "bottom-end",
     highlightPadding: 8,
   },
   {
     id: "tour-units-section",
-    content: "Learning units are displayed here. Explore different subjects.",
+    content:
+      "Les unités d'apprentissage s'affichent ici. Explorez différents sujets.",
     placement: "bottom",
     scrollToElement: true,
     highlightPadding: 6,
@@ -52,28 +55,29 @@ const ONBOARDING_TOUR_STEPS = [
   {
     id: "tour-modules-section",
     content:
-      "Modules are specific lessons within each unit. Scroll to see more.",
+      "Les modules sont des leçons spécifiques au sein de chaque unité. Défilez pour en voir plus.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-calendar-section",
-    content: "Plan your study sessions using this calendar.",
+    content: "Planifiez vos sessions d'étude à l'aide de ce calendrier.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-studytime-section",
-    content: "Track your study time and see your progress.",
+    content: "Suivez votre temps d'étude et visualisez vos progrès.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "finish-onboarding-tour",
-    content: "You've completed the tour! You can now explore freely.",
+    content:
+      "Vous avez terminé la visite ! Vous pouvez maintenant explorer librement.",
     placement: "center",
     isFinalStep: true,
     highlightPadding: 0,
@@ -82,9 +86,41 @@ const ONBOARDING_TOUR_STEPS = [
 const ONBOARDING_TOUR_STORAGE_KEY =
   "fullOnboardingManualTourCompleted_v6.4_localstorage_fix"; // Incremented
 
+// API fetch function
+const fetchUserData = async () => {
+  try {
+    const token = secureLocalStorage.getItem("token");
+    if (!token) return null;
+
+    const response = await BaseUrl.get("/user/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching user data:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { isMobileView, setCurrentTourStep } = useOnboarding();
+
+  // Query to fetch user data
+  const {
+    data: userData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["userMeAuthCheck"],
+    queryFn: fetchUserData,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0);
@@ -101,86 +137,51 @@ export default function OnboardingPage() {
   const [isTooltipPositioned, setIsTooltipPositioned] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State to hold the localStorage value, initialized to null or false
-  const [tourInitiallyCompleted, setTourInitiallyCompleted] = useState(null);
-  const [appOnboardingInitiallyCompleted, setAppOnboardingInitiallyCompleted] =
-    useState(null);
-
-  // Safely access localStorage within useEffect
+  // Check if user has completed introduction and redirect if needed
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setTourInitiallyCompleted(
-        localStorage.getItem(ONBOARDING_TOUR_STORAGE_KEY) === "true"
-      );
-      setAppOnboardingInitiallyCompleted(
-        localStorage.getItem("onboarding_complete") === "true"
-      );
+    if (userData?.data?.completed_introduction) {
+      router.replace("/dashboard");
+    } else if (
+      userData &&
+      !isLoading &&
+      !userData?.data?.completed_introduction
+    ) {
+      // If we have user data and they haven't completed intro, start tour after a delay
+      const timer = setTimeout(() => {
+        setIsTourActive(true);
+      }, 700);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [userData, isLoading, router]);
 
   const markIntroductionComplete = async () => {
     // Ensure token exists on client side only
     if (typeof window === "undefined") return false;
     const token = secureLocalStorage.getItem("token");
-    if (!token) {
-      // Remove toast.error
-      return false;
-    }
+    if (!token) return false;
+
     try {
-      setIsSubmitting(true); // Set submitting here
+      setIsSubmitting(true);
       await BaseUrl.patch(
         "/user",
         { completed_introduction: true },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setIsSubmitting(false); // Reset on success
+      setIsSubmitting(false);
       return true;
     } catch (error) {
-      setIsSubmitting(false); // Reset on error
+      setIsSubmitting(false);
       console.error(
         "Error marking introduction as complete:",
         error.response?.data || error.message
       );
-      // Remove toast.error
       return false;
     }
   };
 
-  const handleFinishAppOnboarding = async () => {
-    if (isSubmitting) return;
-    // setIsSubmitting is handled within markIntroductionComplete now
-
-    // Remove toast notification for starting the process
-    // toast.loading("Finishing onboarding...", { id: "onboarding-save" });
-    const success = await markIntroductionComplete();
-
-    // Always set localStorage flags on client side
-    if (typeof window !== "undefined") {
-      localStorage.setItem(ONBOARDING_TOUR_STORAGE_KEY, "true");
-    }
-
-    if (success) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("onboarding_complete", "true");
-      }
-      // Remove success toast notification
-      // toast.success("Onboarding complete! Redirecting...", {
-      //   id: "onboarding-save",
-      // });
-      router.push("/dashboard");
-    } else {
-      // Error toast is still handled in markIntroductionComplete
-      // No need for additional error toast here
-    }
-    // setIsSubmitting is reset in markIntroductionComplete
-  };
-
   const handleFinishTourAndSubmit = async () => {
     if (isSubmitting) return;
-    // setIsSubmitting(true); // Handled in markIntroductionComplete
 
-    // Remove toast notification
-    // toast.loading("Finalizing onboarding...", { id: "onboarding-save" });
     setTooltipStyle((prev) => ({
       ...prev,
       opacity: 0,
@@ -188,37 +189,12 @@ export default function OnboardingPage() {
     }));
     setTimeout(() => setIsTourActive(false), 250);
 
-    if (typeof window !== "undefined")
-      localStorage.setItem(ONBOARDING_TOUR_STORAGE_KEY, "true");
     const success = await markIntroductionComplete();
 
     if (success) {
-      if (typeof window !== "undefined")
-        localStorage.setItem("onboarding_complete", "true");
-      // Remove success toast notification
-      // toast.success("Onboarding complete! Redirecting...", {
-      //   id: "onboarding-save",
-      // });
       router.push("/dashboard");
-    } else {
-      // Error toast is handled within markIntroductionComplete
     }
-    // setIsSubmitting handled in markIntroductionComplete
   };
-
-  // Initial tour activation effect
-  useEffect(() => {
-    // Wait until tourInitiallyCompleted state is set (meaning localStorage has been checked)
-    if (tourInitiallyCompleted === null) return;
-
-    if (!tourInitiallyCompleted) {
-      // If not completed
-      const timer = setTimeout(() => {
-        setIsTourActive(true);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
-  }, [tourInitiallyCompleted]); // Depend on the state variable
 
   // Effect to update highlighted element details & scroll if needed
   useEffect(() => {
@@ -521,7 +497,7 @@ export default function OnboardingPage() {
   };
 
   const handleFinishTourOnlyUI = () => {
-    // Finishes only the UI part of the tour
+    // User clicked outside the tooltip to skip
     setTooltipStyle((prev) => ({
       ...prev,
       opacity: 0,
@@ -529,33 +505,25 @@ export default function OnboardingPage() {
     }));
     setTimeout(() => {
       setIsTourActive(false);
-      if (typeof window !== "undefined") {
-        // Safe localStorage write
-        localStorage.setItem(ONBOARDING_TOUR_STORAGE_KEY, "true");
-      }
     }, 300);
   };
 
-  // Now this variable is derived from state that's safe from SSR issues
-  const canGoToDashboardDirectly =
-    tourInitiallyCompleted ||
-    (!isTourActive &&
-      currentTourStepIndex > 0 &&
-      ONBOARDING_TOUR_STEPS.length > 1) ||
-    appOnboardingInitiallyCompleted;
-
-  // If tourInitiallyCompleted is null, it means we haven't checked localStorage yet, so render a loading or minimal state.
-  // This prevents rendering content that depends on localStorage before it's available.
-  if (
-    tourInitiallyCompleted === null ||
-    appOnboardingInitiallyCompleted === null
-  ) {
+  // Show loading state while fetching user data
+  if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
-        Loading Onboarding State...
+        <Loading />
       </div>
     );
-    // Or a proper loading spinner component
+  }
+
+  // If error occurred or redirecting, show minimal loading
+  if (isError || userData?.data?.completed_introduction) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
+        Redirection...
+      </div>
+    );
   }
 
   return (
@@ -584,7 +552,7 @@ export default function OnboardingPage() {
               <>
                 <div className="tooltip-header">
                   <span className="step-indicator">
-                    Step {currentTourStepIndex + 1}/
+                    Étape {currentTourStepIndex + 1}/
                     {ONBOARDING_TOUR_STEPS.length}
                   </span>
                 </div>
@@ -612,7 +580,7 @@ export default function OnboardingPage() {
                         className="prev-button"
                         disabled={isSubmitting}
                       >
-                        <span>←</span> Prev
+                        <span>←</span> Précédent
                       </button>
                     )}
 
@@ -622,7 +590,7 @@ export default function OnboardingPage() {
                       className="skip-button"
                       disabled={isSubmitting}
                     >
-                      Skip
+                      Passer
                     </button>
                   )}
 
@@ -633,14 +601,14 @@ export default function OnboardingPage() {
                   >
                     {currentTourStepIndex === ONBOARDING_TOUR_STEPS.length - 1
                       ? isSubmitting
-                        ? "Finishing..."
-                        : "Finish ✓"
-                      : "Next →"}
+                        ? "Finalisation..."
+                        : "Terminer ✓"
+                      : "Suivant →"}
                   </button>
                 </div>
               </>
             ) : (
-              <p>Loading step...</p>
+              <p>Chargement de l'étape...</p>
             )}
           </div>
         </>
@@ -675,313 +643,358 @@ export default function OnboardingPage() {
       </div>
 
       <style jsx global>{`
-        /* Overlay styling with lower z-index */
+        /* Refined overlay with perfect blur */
         .manual-tour-overlay {
           position: fixed;
           top: 0;
           left: 0;
           width: 100vw;
           height: 100vh;
-          background: ${isMobileView ? 'transparent' : 'rgba(20, 20, 35, 0.5)'};
-          backdrop-filter: ${isMobileView ? 'none' : 'blur(2px)'};
-          z-index: 100 !important; /* Lower z-index so it doesn't block other elements */
+          background: ${isMobileView
+            ? "transparent"
+            : "rgba(20, 20, 35, 0.48)"};
+          backdrop-filter: ${isMobileView ? "none" : "blur(8px)"};
+          z-index: 100 !important;
           opacity: ${isTourActive ? 1 : 0};
-          transition: opacity 0.5s ease-in-out;
+          transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
           pointer-events: ${isTourActive ? "auto" : "none"};
         }
-        
-        /* Higher z-index for icons and sidebar elements */
-        aside.fixed, .max-xl\\:fixed, 
-        aside.fixed * {
-          z-index: 500 !important; 
-          position: relative !important;
-        }
-        
-        /* Ensure tooltip is at the highest z-index */
+
+        /* Luxurious and larger tooltip */
         .manual-tour-tooltip {
-          z-index: 20000 !important; /* Extremely high to ensure visibility */
           position: fixed !important;
+          background: linear-gradient(145deg, #ffffff, #f8faff);
+          border-radius: 20px;
+          padding: 24px 28px; /* Increased padding */
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.92) inset,
+            0 -8px 20px rgba(248, 88, 159, 0.08) inset,
+            0 2px 6px rgba(255, 255, 255, 0.95) inset;
+          z-index: 20000 !important;
+          max-width: 380px; /* Significantly larger width */
+          width: calc(100% - 32px);
+          margin: 16px;
+          font-size: 15px; /* Larger font */
+          line-height: 1.6;
+          pointer-events: auto !important;
+          color: #2d3748;
+          transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+          border: 1px solid rgba(255, 255, 255, 0.9);
+          transform-origin: center bottom;
         }
-        
-        /* Make tooltip content always visible */
-        .manual-tour-tooltip * {
-          z-index: 20001 !important;
-          position: relative !important;
+
+        /* Premium header styling */
+        .tooltip-header {
+          margin-bottom: 12px;
+          position: relative;
         }
-        
-        /* Tooltip buttons must be clickable */
+
+        .tooltip-header:after {
+          content: "";
+          position: absolute;
+          left: -28px;
+          right: -28px;
+          bottom: -6px;
+          height: 1px;
+          background: linear-gradient(
+            to right,
+            rgba(248, 88, 159, 0),
+            rgba(248, 88, 159, 0.18),
+            rgba(248, 88, 159, 0)
+          );
+        }
+
+        /* Sophisticated step indicator */
+        .step-indicator {
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          background: linear-gradient(90deg, #f8589f, #ff3d88);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 12px;
+          background-color: rgba(248, 88, 159, 0.08);
+          box-shadow: 0 0 0 1px rgba(248, 88, 159, 0.12) inset;
+        }
+
+        /* Larger, more readable content text */
+        .tooltip-content {
+          margin: 0 0 16px 0;
+          color: #1a202c;
+          font-weight: 500;
+          font-size: 16px; /* Increased font size */
+          line-height: 1.6;
+          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+          letter-spacing: 0.01em;
+        }
+
+        /* Enhanced progress bar */
+        .progress-bar {
+          height: 5px;
+          background: linear-gradient(
+            to right,
+            rgba(226, 232, 240, 0.5),
+            rgba(226, 232, 240, 0.7)
+          );
+          border-radius: 5px;
+          overflow: hidden;
+          margin-bottom: 18px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) inset;
+          position: relative;
+        }
+
+        .progress-bar:after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 50%;
+          background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.3),
+            rgba(255, 255, 255, 0)
+          );
+          border-radius: 5px 5px 0 0;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(to right, #f8589f, #ff3d88);
+          border-radius: 5px;
+          transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+          box-shadow: 0 0 12px rgba(248, 88, 159, 0.4);
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* Shimmer effect on progress bar */
+        .progress-fill:after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0.4),
+            rgba(255, 255, 255, 0)
+          );
+          transform: skewX(-25deg);
+          animation: shimmer-progress 2.5s infinite;
+        }
+
+        @keyframes shimmer-progress {
+          0% {
+            left: -100%;
+          }
+          100% {
+            left: 200%;
+          }
+        }
+
+        /* Polished single-line button container */
+        .tour-buttons-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 18px;
+          gap: 10px;
+          flex-wrap: nowrap; /* Keep single line */
+          width: 100%;
+        }
+
+        /* Premium button styling */
         .tour-buttons-container button {
-          z-index: 20002 !important;
+          flex: 0 0 auto;
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 14px;
+          white-space: nowrap;
+          min-width: 0;
+          border: none;
+          font-weight: 600;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          letter-spacing: 0.02em;
+          height: 34px; /* Taller buttons */
+          display: flex;
+          align-items: center;
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        
-        /* Highlighted elements should be above overlay */
+
+        .tour-buttons-container button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .tour-buttons-container .next-button {
+          background: linear-gradient(135deg, #f8589f, #ff3d88);
+          color: white;
+          margin-left: auto; /* Keep to right */
+          padding: 8px 18px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(248, 88, 159, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+
+        /* Elegant shimmer animation */
+        .tour-buttons-container .next-button::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
+          transition: 0.6s;
+        }
+
+        .tour-buttons-container .next-button:hover::before {
+          left: 100%;
+        }
+
+        .tour-buttons-container .prev-button,
+        .tour-buttons-container .skip-button {
+          background: white;
+          color: #4a5568;
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05),
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 -2px 10px rgba(248, 88, 159, 0.03) inset;
+        }
+
+        /* Mobile optimizations with better style */
+        @media (max-width: 767px) {
+          .manual-tour-tooltip {
+            max-width: 340px; /* Larger for mobile too */
+            padding: 20px 24px; /* More padding */
+            border-radius: 16px;
+          }
+
+          .tooltip-content {
+            font-size: 15px; /* Larger text on mobile */
+            margin-bottom: 14px;
+          }
+
+          .tour-buttons-container {
+            margin-top: 16px;
+          }
+
+          .tour-buttons-container button {
+            height: 32px;
+            padding: 6px 12px;
+          }
+        }
+
+        /* Spectacular highlight effect */
         .tour-highlight-active {
           z-index: 1000 !important;
           position: relative !important;
           background-color: white !important;
-        }
-        
-        /* Ensure menu button is visible */
-        .menu-toggle-btn {
-          z-index: 1500 !important;
-          position: relative !important;
+          outline: 2px solid rgba(248, 88, 159, 0.9);
+          outline-offset: 8px;
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8),
+            0 0 30px rgba(248, 88, 159, 0.5), 0 0 60px rgba(248, 88, 159, 0.2);
+          border-radius: 10px;
+          transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+          animation: pulse-highlight 3s infinite cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Enhanced pulse animation without white background */
         @keyframes pulse-highlight {
           0% {
-            box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
-              0 0 60px rgba(248, 88, 159, 0.15);
-            outline-color: rgba(248, 88, 159, 0.9);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8),
+              0 0 30px rgba(248, 88, 159, 0.5), 0 0 60px rgba(248, 88, 159, 0.2);
           }
           50% {
-            box-shadow: 0 0 40px 15px rgba(248, 88, 159, 0.5),
-              0 0 80px rgba(248, 88, 159, 0.2);
-            outline-color: rgba(248, 88, 159, 1);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9),
+              0 0 40px rgba(248, 88, 159, 0.6),
+              0 0 80px rgba(248, 88, 159, 0.25);
           }
           100% {
-            box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
-              0 0 60px rgba(248, 88, 159, 0.15);
-            outline-color: rgba(248, 88, 159, 0.9);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8),
+              0 0 30px rgba(248, 88, 159, 0.5), 0 0 60px rgba(248, 88, 159, 0.2);
           }
         }
 
-        /* Enhanced tooltip styling */
-        .manual-tour-tooltip {
-          position: fixed;
-          background: linear-gradient(145deg, #ffffff, #f8f9fd);
-          border-radius: 16px;
-          padding: 24px 28px;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(0, 0, 0, 0.08), 0 10px 20px rgba(248, 88, 159, 0.15);
-          z-index: 1010 !important; /* Ensure tooltip is above all other elements */
-          max-width: 400px;
-          width: calc(100% - 40px);
-          margin: 20px;
-          font-size: 16px;
-          line-height: 1.7;
-          pointer-events: auto !important; /* Ensure tooltip can be interacted with */
-          color: #2d3748;
-          transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1.5),
-            transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1.5),
-            visibility 0s linear 0.4s;
-          border: 1px solid rgba(248, 88, 159, 0.1);
-        }
-
-        .manual-tour-tooltip[style*="opacity: 1"] {
-          transition-delay: 0s, 0s, 0s !important;
-        }
-
-        /* Arrow styling for different positions */
+        /* Refined arrow styling */
         .manual-tour-tooltip::before {
           content: "";
           position: absolute;
           width: 16px;
           height: 16px;
-          background: white;
+          background: linear-gradient(135deg, #ffffff, #f8faff);
           transform: rotate(45deg);
           z-index: 1009;
-          box-shadow: -1px -1px 0 0 rgba(0, 0, 0, 0.08);
+          box-shadow: -1px -1px 0 rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
+        /* Arrow positions */
         .manual-tour-tooltip.top-arrow::before {
           top: -8px;
           left: calc(50% - 8px);
         }
 
+        .manual-tour-tooltip.bottom-arrow::before {
+          bottom: -8px;
+          left: calc(50% - 8px);
+          box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.05);
+        }
+
         .manual-tour-tooltip.top-left-arrow::before {
           top: -8px;
-          left: 30px;
+          left: 24px;
         }
 
         .manual-tour-tooltip.top-right-arrow::before {
           top: -8px;
-          right: 30px;
-        }
-
-        .manual-tour-tooltip.bottom-arrow::before {
-          bottom: -8px;
-          left: calc(50% - 8px);
-          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+          right: 24px;
         }
 
         .manual-tour-tooltip.bottom-left-arrow::before {
           bottom: -8px;
-          left: 30px;
-          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+          left: 24px;
+          box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.05);
         }
 
         .manual-tour-tooltip.bottom-right-arrow::before {
           bottom: -8px;
-          right: 30px;
-          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+          right: 24px;
+          box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.05);
         }
 
         .manual-tour-tooltip.none-arrow::before {
           display: none;
         }
 
-        /* Enhanced internal tooltip styling */
-        .tooltip-header {
-          margin-bottom: 12px;
-        }
-
-        .step-indicator {
-          font-size: 13px;
-          color: #f8589f;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          background: linear-gradient(90deg, #f8589f, #ff3d88);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          display: inline-block;
-        }
-
-        .tooltip-content {
-          margin: 0 0 20px 0;
-          color: #374151;
-          font-weight: 400;
-          font-size: 16px;
-          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-        }
-
-        .progress-bar {
-          height: 4px;
-          background-color: rgba(226, 232, 240, 0.8);
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 20px;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(to right, #f8589f, #ff3d88);
-          border-radius: 10px;
-          transition: width 0.5s ease;
-        }
-
-        /* Enhanced button styling */
-        .tour-buttons-container {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: 15px;
-          gap: 10px;
-          flex-direction: row;
-          flex-wrap: wrap;
-        }
-
-        .tour-buttons-container button {
-          border: none;
-          padding: 8px 16px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 600;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          min-width: 0;
-          z-index: 1011; /* Reverting from 1016 to 1011 */
-        }
-
-        .tour-buttons-container button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .tour-buttons-container .next-button {
-          background: linear-gradient(135deg, #f8589f, #ff3d88);
-          color: white;
-          padding: 8px 18px;
-        }
-
-        .tour-buttons-container .next-button:hover {
-          background: linear-gradient(135deg, #f75ea3, #ff4e96);
-          box-shadow: 0 4px 12px rgba(248, 88, 159, 0.3);
-        }
-
-        .tour-buttons-container .prev-button,
-        .tour-buttons-container .skip-button {
-          background-color: #f8f9fd;
-          color: #4a5568;
-          border: 1px solid #e2e8f0;
-        }
-
-        .tour-buttons-container .prev-button:hover,
-        .tour-buttons-container .skip-button:hover {
-          background-color: #f1f5f9;
-          color: #2d3748;
-          border-color: #cbd5e1;
-        }
-
-        /* Make sure tooltip is always above highlighted elements */
-        .manual-tour-tooltip {
-          z-index: 1010 !important;
-          pointer-events: auto !important; /* Ensure tooltip can be interacted with */
-        }
-
-        /* Ensure tooltip arrow stays below tooltip content but above highlighted elements */
-        .manual-tour-tooltip::before {
-          z-index: 1009;
-        }
-
-        /* Make sure all tooltip content stays above arrow */
-        .manual-tour-tooltip > * {
-          position: relative;
-          z-index: 1011;
-        }
-
-        /* Better highlight effect */
-        .tour-highlight-active::after {
+        /* Beautiful decorative elements */
+        .manual-tour-tooltip::after {
           content: "";
           position: absolute;
-          inset: -10px; /* Reverting from -14px to -10px */
-          border-radius: calc(var(--dynamic-border-radius, 10px) + 10px);
-          background: repeating-linear-gradient(
-            -45deg,
-            rgba(248, 88, 159, 0.07),
-            rgba(248, 88, 159, 0.07) 5px,
-            rgba(255, 255, 255, 0) 5px,
-            rgba(255, 255, 255, 0) 10px
+          top: -30%;
+          right: -30%;
+          width: 80%;
+          height: 80%;
+          background: radial-gradient(
+            circle at center,
+            rgba(248, 88, 159, 0.03) 0%,
+            transparent 70%
           );
-          z-index: -2;
-          animation: shimmer 3s infinite linear;
+          border-radius: 50%;
+          opacity: 0.6;
+          z-index: -1;
           pointer-events: none;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-          .manual-tour-tooltip {
-            max-width: 320px;
-            padding: 20px 24px;
-            font-size: 15px;
-          }
-
-          .tooltip-content {
-            font-size: 15px;
-            margin-bottom: 16px;
-          }
-
-          .tour-buttons-container button {
-            padding: 7px 14px;
-            font-size: 13px;
-          }
-
-          .progress-bar {
-            margin-bottom: 16px;
-          }
-
-          /* Ensure mobile elements are highlighted properly */
-          .tour-highlight-active {
-            outline-offset: 2px !important; /* Tighter outline for mobile */
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2),
-              0 0 20px 8px rgba(248, 88, 159, 0.35),
-              0 0 40px rgba(248, 88, 159, 0.15) !important;
-          }
         }
       `}</style>
     </div>

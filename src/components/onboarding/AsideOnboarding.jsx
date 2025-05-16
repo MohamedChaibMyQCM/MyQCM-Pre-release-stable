@@ -202,11 +202,7 @@ const AsideOnboarding = () => {
                 width={16}
                 height={16}
               />
-              {userNotification.filter((n) => !n.read).length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {userNotification.filter((n) => !n.read).length}
-                </span>
-              )}
+             
             </div>
           )}
 
@@ -364,13 +360,6 @@ const AsideOnboarding = () => {
           </div>
         </div>
       </aside>
-
-      {isNotificationOpen && (
-        <Notification
-          onClose={toggleNotification}
-          notifications={userNotification}
-        />
-      )}
 
       <style jsx global>{`
         /* Ensure menu toggle button and icons are visible */

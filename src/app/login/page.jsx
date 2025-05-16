@@ -46,7 +46,7 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
+    <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6 overflow-y-auto scrollbar-hide">
       <Image src={logo} alt="logo" className="w-[140px] mb-4" />
       <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
         <Link

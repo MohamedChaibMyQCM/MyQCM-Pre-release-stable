@@ -608,7 +608,7 @@ export default function OnboardingPage() {
                 </div>
               </>
             ) : (
-              <p>Chargement de l'étape...</p>
+              <p>Chargement de l&apos;étape...</p>
             )}
           </div>
         </>

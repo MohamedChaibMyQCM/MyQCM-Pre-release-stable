@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import secureLocalStorage from "react-secure-storage"; // For token
-import toast from "react-hot-toast";
 import BaseUrl from "../../components/BaseUrl";
+import { useOnboarding } from "../../context/OnboardingContext";
 import Dash_Onboarding from "../../components/onboarding/Dash_Onboarding";
 import Units_onboarding from "../../components/onboarding/Units_onboarding";
 import Modules_onboarding from "../../components/onboarding/Modules_onboarding";
@@ -84,6 +84,7 @@ const ONBOARDING_TOUR_STORAGE_KEY =
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { isMobileView, setCurrentTourStep } = useOnboarding();
 
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentTourStepIndex, setCurrentTourStepIndex] = useState(0);
@@ -122,10 +123,7 @@ export default function OnboardingPage() {
     if (typeof window === "undefined") return false;
     const token = secureLocalStorage.getItem("token");
     if (!token) {
-      toast.error("Authentication token not found. Please login again.", {
-        id: "auth-error",
-      });
-      router.push("/login");
+      // Remove toast.error
       return false;
     }
     try {
@@ -143,10 +141,7 @@ export default function OnboardingPage() {
         "Error marking introduction as complete:",
         error.response?.data || error.message
       );
-      toast.error(
-        error.response?.data?.message || "Failed to save onboarding status.",
-        { id: "onboarding-patch-error" }
-      );
+      // Remove toast.error
       return false;
     }
   };
@@ -155,7 +150,8 @@ export default function OnboardingPage() {
     if (isSubmitting) return;
     // setIsSubmitting is handled within markIntroductionComplete now
 
-    toast.loading("Finishing onboarding...", { id: "onboarding-save" });
+    // Remove toast notification for starting the process
+    // toast.loading("Finishing onboarding...", { id: "onboarding-save" });
     const success = await markIntroductionComplete();
 
     // Always set localStorage flags on client side
@@ -167,15 +163,47 @@ export default function OnboardingPage() {
       if (typeof window !== "undefined") {
         localStorage.setItem("onboarding_complete", "true");
       }
-      toast.success("Onboarding complete! Redirecting...", {
-        id: "onboarding-save",
-      });
+      // Remove success toast notification
+      // toast.success("Onboarding complete! Redirecting...", {
+      //   id: "onboarding-save",
+      // });
       router.push("/dashboard");
     } else {
-      // toast.error is handled in markIntroductionComplete
-      // No need for additional error toast here unless it's a different condition
+      // Error toast is still handled in markIntroductionComplete
+      // No need for additional error toast here
     }
     // setIsSubmitting is reset in markIntroductionComplete
+  };
+
+  const handleFinishTourAndSubmit = async () => {
+    if (isSubmitting) return;
+    // setIsSubmitting(true); // Handled in markIntroductionComplete
+
+    // Remove toast notification
+    // toast.loading("Finalizing onboarding...", { id: "onboarding-save" });
+    setTooltipStyle((prev) => ({
+      ...prev,
+      opacity: 0,
+      transform: "translateY(10px) scale(0.98)",
+    }));
+    setTimeout(() => setIsTourActive(false), 250);
+
+    if (typeof window !== "undefined")
+      localStorage.setItem(ONBOARDING_TOUR_STORAGE_KEY, "true");
+    const success = await markIntroductionComplete();
+
+    if (success) {
+      if (typeof window !== "undefined")
+        localStorage.setItem("onboarding_complete", "true");
+      // Remove success toast notification
+      // toast.success("Onboarding complete! Redirecting...", {
+      //   id: "onboarding-save",
+      // });
+      router.push("/dashboard");
+    } else {
+      // Error toast is handled within markIntroductionComplete
+    }
+    // setIsSubmitting handled in markIntroductionComplete
   };
 
   // Initial tour activation effect
@@ -196,26 +224,47 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!isTourActive || !ONBOARDING_TOUR_STEPS[currentTourStepIndex]) {
       setHighlightedElementInfo({ id: null, padding: 0 });
+      setCurrentTourStep(null);
       return;
     }
+
     const currentStep = ONBOARDING_TOUR_STEPS[currentTourStepIndex];
+    const stepId =
+      currentStep.id !== "finish-onboarding-tour" ? currentStep.id : null;
+
     setHighlightedElementInfo({
-      id: currentStep.id !== "finish-onboarding-tour" ? currentStep.id : null,
+      id: stepId,
       padding: currentStep.highlightPadding || 0,
     });
+
+    // Update the shared context with current tour step
+    setCurrentTourStep(stepId);
+
     setIsTooltipPositioned(false);
 
-    if (currentStep.id !== "finish-onboarding-tour") {
-      const targetElement = document.getElementById(currentStep.id);
-      if (targetElement && currentStep.scrollToElement) {
-        targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Wait a moment to allow mobile menu to open if needed
+    const scrollDelay =
+      isMobileView &&
+      [
+        "tour-qcm-display",
+        "tour-qroc-display",
+        "tour-streak-display",
+        "tour-xp-display",
+      ].includes(stepId)
+        ? 500
+        : 100;
+
+    setTimeout(() => {
+      if (stepId !== "finish-onboarding-tour") {
+        const targetElement = document.getElementById(stepId);
+        if (targetElement && currentStep.scrollToElement) {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       }
-    }
-  }, [isTourActive, currentTourStepIndex]);
+    }, scrollDelay);
+  }, [isTourActive, currentTourStepIndex, isMobileView, setCurrentTourStep]);
 
   const calculateAndSetTooltipPosition = useCallback(() => {
-    // ... (This function itself doesn't use localStorage, so it's fine) ...
-    // The complete calculateAndSetTooltipPosition from Response #13 remains unchanged here.
     if (
       !isTourActive ||
       !tooltipRef.current ||
@@ -223,14 +272,19 @@ export default function OnboardingPage() {
     ) {
       return;
     }
+
     const currentStep = ONBOARDING_TOUR_STEPS[currentTourStepIndex];
     const targetId = highlightedElementInfo.id;
     const targetElement =
       targetId && currentStep.id !== "finish-onboarding-tour"
         ? document.getElementById(targetId)
         : null;
+
+    // Add some delay for smooth transition
     requestAnimationFrame(() => {
       if (!tooltipRef.current || !isTourActive) return;
+
+      // Center positioning for final step or when target isn't found
       if (currentStep.placement === "center" || !targetElement) {
         setTooltipStyle({
           top: "50%",
@@ -238,94 +292,166 @@ export default function OnboardingPage() {
           transform: "translate(-50%, -50%) scale(1)",
           visibility: "visible",
           opacity: 1,
+          arrowPosition: "none",
         });
         setIsTooltipPositioned(true);
         return;
       }
+
       const targetRect = targetElement.getBoundingClientRect();
       const tooltipEl = tooltipRef.current;
       const tooltipHeight = tooltipEl.offsetHeight;
       const tooltipWidth = tooltipEl.offsetWidth;
-      const gap = 20;
-      if (
-        (tooltipHeight === 0 || tooltipWidth === 0) &&
-        currentStep.id !== "finish-onboarding-tour"
-      ) {
-        if (tooltipEl.style.visibility !== "visible") {
-          tooltipEl.style.visibility = "visible";
-          tooltipEl.style.opacity = "0";
+
+      // Larger gap for better visual separation
+      const BASE_GAP = 40;
+
+      // Enhanced logic for first step (notification icon)
+      if (currentTourStepIndex === 0) {
+        const isDesktop = window.innerWidth >= 1280;
+
+        if (isDesktop) {
+          const desktopElement = document.querySelector(
+            ".max-xl\\:hidden [id='tour-notification-icon']"
+          );
+          if (desktopElement) {
+            const desktopRect = desktopElement.getBoundingClientRect();
+            setTooltipStyle({
+              top: `${desktopRect.bottom + BASE_GAP}px`,
+              left: `${
+                desktopRect.left - tooltipWidth / 2 + desktopRect.width / 2
+              }px`,
+              transform: "translateY(0) scale(1)",
+              visibility: "visible",
+              opacity: 1,
+              arrowPosition: "top", // For arrow styling
+            });
+            setIsTooltipPositioned(true);
+            return;
+          }
         }
+
+        // Mobile position
+        setTooltipStyle({
+          top: `${targetRect.bottom + BASE_GAP}px`,
+          left: `${Math.max(
+            20,
+            Math.min(window.innerWidth - tooltipWidth - 20, targetRect.left)
+          )}px`,
+          transform: "translateY(0) scale(1)",
+          visibility: "visible",
+          opacity: 1,
+          arrowPosition: "top",
+        });
+        setIsTooltipPositioned(true);
         return;
       }
+
+      // Adaptive spacing based on element size
+      const gap = Math.max(BASE_GAP, Math.min(window.innerHeight * 0.05, 60));
       let newPos = {};
+      let arrowPosition = "top";
+
       switch (currentStep.placement) {
         case "bottom-start":
           newPos = { top: targetRect.bottom + gap, left: targetRect.left };
+          arrowPosition = "top-left";
           break;
         case "bottom":
           newPos = {
             top: targetRect.bottom + gap,
             left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
           };
+          arrowPosition = "top";
           break;
         case "bottom-end":
           newPos = {
             top: targetRect.bottom + gap,
             left: targetRect.right - tooltipWidth,
           };
+          arrowPosition = "top-right";
           break;
         case "top-start":
           newPos = {
             top: targetRect.top - tooltipHeight - gap,
             left: targetRect.left,
           };
+          arrowPosition = "bottom-left";
           break;
         case "top":
           newPos = {
             top: targetRect.top - tooltipHeight - gap,
             left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
           };
+          arrowPosition = "bottom";
           break;
         case "top-end":
           newPos = {
             top: targetRect.top - tooltipHeight - gap,
             left: targetRect.right - tooltipWidth,
           };
+          arrowPosition = "bottom-right";
           break;
         default:
           newPos = {
             top: targetRect.bottom + gap,
             left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
           };
+          arrowPosition = "top";
       }
-      let finalLeft = Math.max(gap, newPos.left);
-      if (finalLeft + tooltipWidth + gap > window.innerWidth)
-        finalLeft = window.innerWidth - tooltipWidth - gap;
-      let finalTop = Math.max(gap, newPos.top);
-      if (finalTop + tooltipHeight + gap > window.innerHeight) {
-        if (currentStep.placement.startsWith("bottom"))
-          finalTop = Math.max(gap, targetRect.top - tooltipHeight - gap);
-        else finalTop = Math.max(gap, window.innerHeight - tooltipHeight - gap);
+
+      // Ensure tooltip stays in viewport with margins
+      const margin = 20;
+      let finalLeft = Math.max(margin, newPos.left);
+      if (finalLeft + tooltipWidth + margin > window.innerWidth) {
+        finalLeft = window.innerWidth - tooltipWidth - margin;
       }
-      if (finalTop < gap && !currentStep.placement.startsWith("bottom")) {
-        if (currentStep.placement.startsWith("top"))
+
+      let finalTop = Math.max(margin, newPos.top);
+
+      // Handle vertical overflow
+      if (finalTop + tooltipHeight + margin > window.innerHeight) {
+        // Try to flip vertical position if we'd go off-screen
+        if (currentStep.placement.startsWith("bottom")) {
+          finalTop = Math.max(margin, targetRect.top - tooltipHeight - gap);
+          arrowPosition = arrowPosition.replace("top", "bottom");
+        } else {
+          finalTop = Math.max(
+            margin,
+            window.innerHeight - tooltipHeight - margin
+          );
+        }
+      }
+
+      if (finalTop < margin && !currentStep.placement.startsWith("bottom")) {
+        if (currentStep.placement.startsWith("top")) {
           finalTop = Math.min(
-            window.innerHeight - tooltipHeight - gap,
+            window.innerHeight - tooltipHeight - margin,
             targetRect.bottom + gap
           );
-        else finalTop = gap;
+          arrowPosition = arrowPosition.replace("bottom", "top");
+        } else {
+          finalTop = margin;
+        }
       }
-      if (finalTop < gap) finalTop = gap;
+
+      // Final positioning with proper arrow
       setTooltipStyle({
         top: `${finalTop}px`,
         left: `${finalLeft}px`,
         transform: "translateY(0px) scale(1)",
         visibility: "visible",
         opacity: 1,
+        arrowPosition: arrowPosition,
       });
       setIsTooltipPositioned(true);
     });
-  }, [isTourActive, currentTourStepIndex, highlightedElementInfo.id]);
+  }, [
+    isTourActive,
+    currentTourStepIndex,
+    highlightedElementInfo.id,
+    isMobileView,
+  ]);
 
   useEffect(() => {
     if (
@@ -410,35 +536,6 @@ export default function OnboardingPage() {
     }, 300);
   };
 
-  const handleFinishTourAndSubmit = async () => {
-    if (isSubmitting) return;
-    // setIsSubmitting(true); // Handled in markIntroductionComplete
-
-    toast.loading("Finalizing onboarding...", { id: "onboarding-save" });
-    setTooltipStyle((prev) => ({
-      ...prev,
-      opacity: 0,
-      transform: "translateY(10px) scale(0.98)",
-    }));
-    setTimeout(() => setIsTourActive(false), 250);
-
-    if (typeof window !== "undefined")
-      localStorage.setItem(ONBOARDING_TOUR_STORAGE_KEY, "true");
-    const success = await markIntroductionComplete();
-
-    if (success) {
-      if (typeof window !== "undefined")
-        localStorage.setItem("onboarding_complete", "true");
-      toast.success("Onboarding complete! Redirecting...", {
-        id: "onboarding-save",
-      });
-      router.push("/dashboard");
-    } else {
-      // Error toast is handled within markIntroductionComplete
-    }
-    // setIsSubmitting handled in markIntroductionComplete
-  };
-
   // Now this variable is derived from state that's safe from SSR issues
   const canGoToDashboardDirectly =
     tourInitiallyCompleted ||
@@ -462,7 +559,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="onboarding-page-container" style={{ position: "relative" }}>
+    <div className="onboarding-page-container relative">
       {isTourActive && (
         <>
           <div
@@ -471,51 +568,75 @@ export default function OnboardingPage() {
           ></div>
           <div
             ref={tooltipRef}
-            className="manual-tour-tooltip"
-            style={tooltipStyle}
+            className={`manual-tour-tooltip ${
+              tooltipStyle.arrowPosition || "top"
+            }-arrow`}
+            style={{
+              top: tooltipStyle.top || 0,
+              left: tooltipStyle.left || 0,
+              visibility: tooltipStyle.visibility || "hidden",
+              opacity: tooltipStyle.opacity || 0,
+              transform:
+                tooltipStyle.transform || "translateY(10px) scale(0.98)",
+            }}
           >
             {ONBOARDING_TOUR_STEPS[currentTourStepIndex] ? (
               <>
-                <p>{ONBOARDING_TOUR_STEPS[currentTourStepIndex].content}</p>
-                <div className="manual-tour-tooltip-buttons">
-                  <div>
-                    {" "}
-                    {currentTourStepIndex > 0 &&
-                      !ONBOARDING_TOUR_STEPS[currentTourStepIndex]
-                        .isFinalStep && (
-                        <button
-                          onClick={handlePrevStep}
-                          className="prev-button"
-                          disabled={isSubmitting}
-                        >
-                          Previous
-                        </button>
-                      )}{" "}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {" "}
-                    {!ONBOARDING_TOUR_STEPS[currentTourStepIndex]
+                <div className="tooltip-header">
+                  <span className="step-indicator">
+                    Step {currentTourStepIndex + 1}/
+                    {ONBOARDING_TOUR_STEPS.length}
+                  </span>
+                </div>
+                <p className="tooltip-content">
+                  {ONBOARDING_TOUR_STEPS[currentTourStepIndex].content}
+                </p>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${
+                        ((currentTourStepIndex + 1) /
+                          ONBOARDING_TOUR_STEPS.length) *
+                        100
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+                <div className="tour-buttons-container">
+                  {currentTourStepIndex > 0 &&
+                    !ONBOARDING_TOUR_STEPS[currentTourStepIndex]
                       .isFinalStep && (
                       <button
-                        onClick={handleFinishTourOnlyUI}
-                        className="skip-button"
+                        onClick={handlePrevStep}
+                        className="prev-button"
                         disabled={isSubmitting}
                       >
-                        Skip Tour
+                        <span>←</span> Prev
                       </button>
-                    )}{" "}
+                    )}
+
+                  {!ONBOARDING_TOUR_STEPS[currentTourStepIndex].isFinalStep && (
                     <button
-                      onClick={handleNextStep}
-                      className="next-button"
+                      onClick={handleFinishTourOnlyUI}
+                      className="skip-button"
                       disabled={isSubmitting}
                     >
-                      {currentTourStepIndex === ONBOARDING_TOUR_STEPS.length - 1
-                        ? isSubmitting
-                          ? "Finishing..."
-                          : "Finish"
-                        : "Next"}
-                    </button>{" "}
-                  </div>
+                      Skip
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handleNextStep}
+                    className="next-button"
+                    disabled={isSubmitting}
+                  >
+                    {currentTourStepIndex === ONBOARDING_TOUR_STEPS.length - 1
+                      ? isSubmitting
+                        ? "Finishing..."
+                        : "Finish ✓"
+                      : "Next →"}
+                  </button>
                 </div>
               </>
             ) : (
@@ -525,7 +646,8 @@ export default function OnboardingPage() {
         </>
       )}
 
-      <div className={`bg-[#F7F8FA] pb-10 min-h-screen`}>
+      {/* Restore the background class */}
+      <div className="bg-gradient-to-br from-[#fbfcff] to-[#f5f7fd] pb-10 min-h-screen w-full">
         <Dash_Onboarding
           highlightedElementInfo={highlightedElementInfo}
           isTourActive={isTourActive}
@@ -550,21 +672,6 @@ export default function OnboardingPage() {
             />
           </div>
         </div>
-        <div className="flex justify-center py-8 px-5">
-          <button
-            onClick={handleFinishAppOnboarding}
-            className={`px-8 py-3 bg-[#F8589F] text-white font-semibold rounded-lg shadow-md hover:bg-[#e0488a] focus:outline-none focus:ring-2 focus:ring-[#F8589F] focus:ring-opacity-50 transition-all duration-150 ease-in-out w-full sm:w-auto text-center ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Processing..."
-              : canGoToDashboardDirectly
-              ? "Go to Dashboard"
-              : "Complete Onboarding & Go to Dashboard"}
-          </button>
-        </div>
       </div>
 
       <style jsx global>{`
@@ -574,98 +681,298 @@ export default function OnboardingPage() {
           left: 0;
           width: 100vw;
           height: 100vh;
-          background-color: rgba(30, 30, 30, 0.7);
-          z-index: 10000;
+          background: rgba(20, 20, 35, 0.8);
+          backdrop-filter: blur(4px);
+          z-index: 1000;
           opacity: ${isTourActive ? 1 : 0};
-          transition: opacity 0.3s ease-in-out;
+          transition: opacity 0.5s ease-in-out, backdrop-filter 0.5s ease-in-out;
           pointer-events: ${isTourActive ? "auto" : "none"};
         }
 
         .tour-highlight-active {
           position: relative !important;
-          z-index: 10001 !important;
-          background-color: white !important; /* Ensure element's own background overrides overlay for spotlight */
+          z-index: 1005 !important; /* Keep the higher z-index */
+          background-color: white !important;
           outline: 3px solid rgba(248, 88, 159, 0.9);
-          outline-offset: var(--dynamic-outline-offset, 3px);
-          box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.1),
-            0 0 20px 5px rgba(248, 88, 159, 0.35);
+          outline-offset: 4px;
+          box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
+            0 0 30px 10px rgba(248, 88, 159, 0.35),
+            0 0 60px rgba(248, 88, 159, 0.15);
           border-radius: var(--dynamic-border-radius, 10px);
-          transition: outline 0.3s ease, box-shadow 0.3s ease, padding 0.2s ease,
-            margin 0.2s ease, border-radius 0.2s ease,
-            background-color 0.1s step-start;
+          transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
           background-clip: padding-box;
+          animation: pulse-highlight 3s infinite;
+          /* Removed transform: scale(1.03); to prevent sidebar overlap */
         }
 
+        /* More spacing around the highlight pattern */
+        .tour-highlight-active::after {
+          content: "";
+          position: absolute;
+          inset: -10px; /* Reverting from -14px to -10px */
+          border-radius: calc(var(--dynamic-border-radius, 10px) + 10px);
+          background: repeating-linear-gradient(
+            -45deg,
+            rgba(248, 88, 159, 0.07),
+            rgba(248, 88, 159, 0.07) 5px,
+            rgba(255, 255, 255, 0) 5px,
+            rgba(255, 255, 255, 0) 10px
+          );
+          z-index: -2;
+          animation: shimmer 3s infinite linear;
+          pointer-events: none;
+        }
+
+        /* Enhanced pulse animation with more visible outlines */
+        @keyframes pulse-highlight {
+          0% {
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
+              0 0 30px 10px rgba(248, 88, 159, 0.35),
+              0 0 60px rgba(248, 88, 159, 0.15);
+            outline-color: rgba(248, 88, 159, 0.9);
+          }
+          50% {
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.3),
+              0 0 40px 15px rgba(248, 88, 159, 0.5),
+              0 0 80px rgba(248, 88, 159, 0.2);
+            outline-color: rgba(248, 88, 159, 1);
+          }
+          100% {
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
+              0 0 30px 10px rgba(248, 88, 159, 0.35),
+              0 0 60px rgba(248, 88, 159, 0.15);
+            outline-color: rgba(248, 88, 159, 0.9);
+          }
+        }
+
+        /* Enhanced tooltip styling */
         .manual-tour-tooltip {
           position: fixed;
-          background-color: #ffffff;
-          border-radius: 10px;
-          padding: 20px 24px;
-          box-shadow: 0 10px 35px rgba(0, 0, 0, 0.22),
-            0 0 0 1px rgba(0, 0, 0, 0.08);
-          z-index: 10002;
-          max-width: 360px;
+          background: linear-gradient(145deg, #ffffff, #f8f9fd);
+          border-radius: 16px;
+          padding: 24px 28px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(0, 0, 0, 0.08), 0 10px 20px rgba(248, 88, 159, 0.15);
+          z-index: 1010 !important; /* Ensure tooltip is above all other elements */
+          max-width: 400px;
           width: calc(100% - 40px);
           margin: 20px;
-          font-size: 15px;
-          line-height: 1.65;
-          pointer-events: auto;
+          font-size: 16px;
+          line-height: 1.7;
+          pointer-events: auto !important; /* Ensure tooltip can be interacted with */
           color: #2d3748;
-          transition: opacity 0.2s ease-out, transform 0.2s ease-out,
-            visibility 0s linear 0.2s;
+          transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1.5),
+            transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1.5),
+            visibility 0s linear 0.4s;
+          border: 1px solid rgba(248, 88, 159, 0.1);
         }
+
         .manual-tour-tooltip[style*="opacity: 1"] {
           transition-delay: 0s, 0s, 0s !important;
         }
-        .manual-tour-tooltip[style*="visibility: hidden"] {
-          transition-delay: 0s, 0s, 0.25s !important;
+
+        /* Arrow styling for different positions */
+        .manual-tour-tooltip::before {
+          content: "";
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: white;
+          transform: rotate(45deg);
+          z-index: 1009;
+          box-shadow: -1px -1px 0 0 rgba(0, 0, 0, 0.08);
         }
 
-        .manual-tour-tooltip p {
-          margin: 0 0 20px 0;
+        .manual-tour-tooltip.top-arrow::before {
+          top: -8px;
+          left: calc(50% - 8px);
         }
-        .manual-tour-tooltip-buttons {
+
+        .manual-tour-tooltip.top-left-arrow::before {
+          top: -8px;
+          left: 30px;
+        }
+
+        .manual-tour-tooltip.top-right-arrow::before {
+          top: -8px;
+          right: 30px;
+        }
+
+        .manual-tour-tooltip.bottom-arrow::before {
+          bottom: -8px;
+          left: calc(50% - 8px);
+          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .manual-tour-tooltip.bottom-left-arrow::before {
+          bottom: -8px;
+          left: 30px;
+          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .manual-tour-tooltip.bottom-right-arrow::before {
+          bottom: -8px;
+          right: 30px;
+          box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .manual-tour-tooltip.none-arrow::before {
+          display: none;
+        }
+
+        /* Enhanced internal tooltip styling */
+        .tooltip-header {
+          margin-bottom: 12px;
+        }
+
+        .step-indicator {
+          font-size: 13px;
+          color: #f8589f;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          background: linear-gradient(90deg, #f8589f, #ff3d88);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          display: inline-block;
+        }
+
+        .tooltip-content {
+          margin: 0 0 20px 0;
+          color: #374151;
+          font-weight: 400;
+          font-size: 16px;
+          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .progress-bar {
+          height: 4px;
+          background-color: rgba(226, 232, 240, 0.8);
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(to right, #f8589f, #ff3d88);
+          border-radius: 10px;
+          transition: width 0.5s ease;
+        }
+
+        /* Enhanced button styling */
+        .tour-buttons-container {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-top: 15px;
-          gap: 12px;
+          gap: 10px;
+          flex-direction: row;
+          flex-wrap: wrap;
         }
-        .manual-tour-tooltip-buttons button {
+
+        .tour-buttons-container button {
           border: none;
-          padding: 10px 18px;
+          padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
           font-weight: 600;
-          transition: background-color 0.2s ease, color 0.2s ease,
-            transform 0.15s ease, box-shadow 0.15s ease;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          min-width: 0;
+          z-index: 1011; /* Reverting from 1016 to 1011 */
         }
-        .manual-tour-tooltip-buttons button:hover {
+
+        .tour-buttons-container button:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
         }
-        .manual-tour-tooltip-buttons button:active {
-          transform: translateY(-1px);
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-        .manual-tour-tooltip-buttons .next-button {
-          background-color: #f8589f;
+
+        .tour-buttons-container .next-button {
+          background: linear-gradient(135deg, #f8589f, #ff3d88);
           color: white;
+          padding: 8px 18px;
         }
-        .manual-tour-tooltip-buttons .next-button:hover {
-          background-color: #e0488a;
+
+        .tour-buttons-container .next-button:hover {
+          background: linear-gradient(135deg, #f75ea3, #ff4e96);
+          box-shadow: 0 4px 12px rgba(248, 88, 159, 0.3);
         }
-        .manual-tour-tooltip-buttons .prev-button,
-        .manual-tour-tooltip-buttons .skip-button {
-          background-color: #edf2f7;
+
+        .tour-buttons-container .prev-button,
+        .tour-buttons-container .skip-button {
+          background-color: #f8f9fd;
           color: #4a5568;
+          border: 1px solid #e2e8f0;
         }
-        .manual-tour-tooltip-buttons .prev-button:hover,
-        .manual-tour-tooltip-buttons .skip-button:hover {
-          background-color: #e2e8f0;
+
+        .tour-buttons-container .prev-button:hover,
+        .tour-buttons-container .skip-button:hover {
+          background-color: #f1f5f9;
           color: #2d3748;
+          border-color: #cbd5e1;
+        }
+
+        /* Make sure tooltip is always above highlighted elements */
+        .manual-tour-tooltip {
+          z-index: 1010 !important;
+          pointer-events: auto !important; /* Ensure tooltip can be interacted with */
+        }
+
+        /* Ensure tooltip arrow stays below tooltip content but above highlighted elements */
+        .manual-tour-tooltip::before {
+          z-index: 1009;
+        }
+
+        /* Make sure all tooltip content stays above arrow */
+        .manual-tour-tooltip > * {
+          position: relative;
+          z-index: 1011;
+        }
+
+        /* Better highlight effect */
+        .tour-highlight-active::after {
+          content: "";
+          position: absolute;
+          inset: -10px; /* Reverting from -14px to -10px */
+          border-radius: calc(var(--dynamic-border-radius, 10px) + 10px);
+          background: repeating-linear-gradient(
+            -45deg,
+            rgba(248, 88, 159, 0.07),
+            rgba(248, 88, 159, 0.07) 5px,
+            rgba(255, 255, 255, 0) 5px,
+            rgba(255, 255, 255, 0) 10px
+          );
+          z-index: -2;
+          animation: shimmer 3s infinite linear;
+          pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+          .manual-tour-tooltip {
+            max-width: 320px;
+            padding: 20px 24px;
+            font-size: 15px;
+          }
+
+          .tooltip-content {
+            font-size: 15px;
+            margin-bottom: 16px;
+          }
+
+          .tour-buttons-container button {
+            padding: 7px 14px;
+            font-size: 13px;
+          }
+
+          .progress-bar {
+            margin-bottom: 16px;
+          }
         }
       `}</style>
     </div>

@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const queryClient = useQueryClient();
   const [selectedMode, setSelectedMode] = useState(null);
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     data: availableModes,
@@ -27,7 +27,30 @@ const Page = () => {
       });
       return response.data.data.data;
     },
-  }); 
+  });
+
+  const token = secureLocalStorage.getItem("token");
+
+  const {
+    data: userData,
+    isLoading: isLoadingUser,
+    isFetching,
+    isError,
+    error,
+    isSuccess,
+  } = useQuery({
+    queryKey: ["userMeAuthCheck", token],
+    queryFn: async () => {
+      const response = await BaseUrl.get("/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data.data;
+    },
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
   const {
     data: userProfile,
@@ -40,7 +63,7 @@ const Page = () => {
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+      console.log("Profil utilisateur chargé :", response);
       return response.data.data;
     },
     onError: (error) => {
@@ -52,8 +75,7 @@ const Page = () => {
     if (!isLoadingProfile && !isLoadingModes) {
       if (userProfile?.mode?.id) {
         setSelectedMode(userProfile.mode.id);
-      }
-      else if (availableModes?.length > 0) {
+      } else if (availableModes?.length > 0) {
         setSelectedMode(availableModes[0].id);
       }
     }
@@ -74,7 +96,7 @@ const Page = () => {
     },
     onSuccess: () => {
       toast.success("Mode d'apprentissage mis à jour !");
-      router.push("/dashboard/question-bank")
+      router.push("/dashboard/question-bank");
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
     onError: (error) => {

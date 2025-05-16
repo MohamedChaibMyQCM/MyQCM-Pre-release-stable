@@ -3,12 +3,15 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
+import { useOnboarding } from "../../context/OnboardingContext";
 import streakIcon from "../../../public/Icons/streak.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import infiniteIcon from "../../../public/Icons/infinite.svg";
 
 const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { isMobileView, currentTourStep } = useOnboarding();
+
   const staticUserData = { name: "Valued User" };
   const staticUserSubscription = {
     plan: { mcqs: null, qrocs: 100 },
@@ -39,7 +42,7 @@ const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
   const isHighlighted = (id) =>
     isTourActive && highlightedElementInfo && highlightedElementInfo.id === id;
   const highlightPaddingClass = (id) =>
-    isHighlighted(id) && highlightedElementInfo.addPadding ? "p-1 -m-1" : "";
+    isHighlighted(id) && highlightedElementInfo.addPadding ? "p-1 -m-1" : ""; // Reverted back to p-1 -m-1
 
   return (
     <div
@@ -48,7 +51,7 @@ const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
       <span className="font-[500] text-[18px] text-[#191919]">
         Bienvenue Ici
       </span>
-      <div className="flex items-center gap-10 max-md:hidden">
+      <div className="flex items-center gap-10 max-xl:hidden">
         <Image
           id="tour-notification-icon"
           src={notificationIcon}
@@ -64,6 +67,9 @@ const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
           onClick={toggleNotification}
           width={16}
           height={16}
+          style={{
+            zIndex: isHighlighted("tour-notification-icon") ? 1002 : "auto",
+          }}
         />
         <div
           id="tour-qcm-display"
@@ -91,7 +97,6 @@ const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
             </span>
           )}
         </div>
-        {/* Repeat for qroc, streak, xp */}
         <div
           id="tour-qroc-display"
           className={`flex items-center rounded-md ${
@@ -130,7 +135,18 @@ const Dash_Onboarding = ({ highlightedElementInfo, isTourActive }) => {
           </span>
         </div>
       </div>
-      {/* Notification component if needed */}
+      {/* For smaller screens, these elements are rendered in AsideOnboarding when menu is open */}
+      {isMobileView &&
+        isTourActive &&
+        !document.getElementById(highlightedElementInfo?.id) && (
+          <div className="hidden-element-note text-sm text-gray-500 italic ml-auto">
+            {(highlightedElementInfo?.id === "tour-qcm-display" ||
+              highlightedElementInfo?.id === "tour-qroc-display" ||
+              highlightedElementInfo?.id === "tour-streak-display" ||
+              highlightedElementInfo?.id === "tour-xp-display") &&
+              "Click menu to see this element →"}
+          </div>
+        )}
     </div>
   );
 };

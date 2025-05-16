@@ -7,20 +7,24 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import secureLocalStorage from "react-secure-storage";
-import { aside_links } from "../../data/data"; // Assuming this path is correct for your project
-import LogoutConfirmationModal from "../Home/LogoutConfirmationModal"; // Assuming this path is correct
+import { aside_links } from "../../data/data";
+import LogoutConfirmationModal from "../Home/LogoutConfirmationModal";
+import { useOnboarding } from "../../context/OnboardingContext";
 import infinite from "../../../public/Icons/infinite.svg";
-import Notification from "../dashboard/Notification"; // Assuming this path is correct
+import Notification from "../dashboard/Notification";
 import logo from "../../../public/logoMyqcm.png";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
-import logoutIcon from "../../../public/Aside/logout.svg"; // Renamed to avoid conflict, path is good
+import logoutIcon from "../../../public/Aside/logout.svg";
 import menu from "../../../public/Home/Menu.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import streak from "../../../public/Icons/streak.svg";
 
 const AsideOnboarding = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Use the shared context for menu state
+  const { isMenuOpen, setIsMenuOpen, currentTourStep, isMobileView } =
+    useOnboarding();
+
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
@@ -64,7 +68,7 @@ const AsideOnboarding = () => {
     setIsMenuOpen(false);
     setShowLogoutConfirm(false);
     setIsNotificationOpen(false);
-  }, [path]);
+  }, [path, setIsMenuOpen]);
 
   const toggleNotification = () => {
     setIsNotificationOpen(!isNotificationOpen);
@@ -81,22 +85,31 @@ const AsideOnboarding = () => {
   };
 
   const confirmLogout = () => {
-    secureLocalStorage.removeItem("token"); // Client-side action
-    router.push(`/`); // Redirect to home or login page
-    setShowLogoutConfirm(false);
+    if (typeof window !== "undefined") {
+      secureLocalStorage.removeItem("token");
+      router.push("/login");
+    }
   };
 
   const closeLogoutModal = () => {
     setShowLogoutConfirm(false);
   };
 
+  // Check if element should be highlighted in tour
+  const isHighlighted = (id) => currentTourStep === id;
+
   return (
     <>
-      <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
+      <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md onboarding-aside max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
         {/* Top section / Mobile header content */}
         {isMenuOpen ? ( // Mobile menu open: show stats
           <>
-            <div className="flex-shrink-0">
+            <div
+              id="tour-qcm-display"
+              className={`flex-shrink-0 ${
+                isHighlighted("tour-qcm-display") ? "tour-highlight-active" : ""
+              }`}
+            >
               <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
                 {isQcmInfinite ? (
                   <div className="cursor-pointer">
@@ -114,13 +127,27 @@ const AsideOnboarding = () => {
                 <span className="text-[#F8589F]">QCM</span>
               </span>
             </div>
-            <div className="flex-shrink-0">
+            <div
+              id="tour-qroc-display"
+              className={`flex-shrink-0 ${
+                isHighlighted("tour-qroc-display")
+                  ? "tour-highlight-active"
+                  : ""
+              }`}
+            >
               <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
                 {remainingQrocs ?? 0}
                 <span className="text-[#F8589F]">QROC</span>
               </span>
             </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div
+              id="tour-streak-display"
+              className={`flex items-center gap-1 flex-shrink-0 ${
+                isHighlighted("tour-streak-display")
+                  ? "tour-highlight-active"
+                  : ""
+              }`}
+            >
               <span className="text-[#191919] font-[500] text-[17px]">
                 {currentStreak}
               </span>
@@ -132,7 +159,12 @@ const AsideOnboarding = () => {
                 height={13}
               />
             </div>
-            <div className="flex-shrink-0">
+            <div
+              id="tour-xp-display"
+              className={`flex-shrink-0 ${
+                isHighlighted("tour-xp-display") ? "tour-highlight-active" : ""
+              }`}
+            >
               <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
                 {currentXp}
                 <span className="text-[#F8589F]">XP</span>
@@ -155,8 +187,13 @@ const AsideOnboarding = () => {
         <div className="flex items-center gap-4 xl:hidden">
           {!isMenuOpen && (
             <div
+              id="tour-notification-icon"
               onClick={toggleNotification}
-              className="cursor-pointer relative"
+              className={`cursor-pointer relative ${
+                isHighlighted("tour-notification-icon")
+                  ? "tour-highlight-active"
+                  : ""
+              }`}
             >
               <Image
                 src={notificationIcon}
@@ -173,7 +210,13 @@ const AsideOnboarding = () => {
 
           <div
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="cursor-pointer"
+            className={`cursor-pointer ${
+              isMobileView &&
+              currentTourStep?.startsWith("tour-") &&
+              !currentTourStep?.includes("notification")
+                ? "tour-menu-button-hint"
+                : ""
+            }`}
           >
             {isMenuOpen ? (
               <X size={26} className="text-[#F8589F]" />
@@ -219,7 +262,7 @@ const AsideOnboarding = () => {
                 >
                   <Image
                     src={isActive ? item.hoverIcon : item.icon}
-                    alt={`${item.name} icon`} 
+                    alt={`${item.name} icon`}
                     className="w-[17px] font-[500]"
                   />
                   <span
@@ -282,9 +325,7 @@ const AsideOnboarding = () => {
               isSettingsActive ? "text-[#F8589F]" : ""
             }`}
           >
-            <div              
-              className="text-[#324054] flex items-center gap-4 cursor-pointer"
-            >
+            <div className="text-[#324054] flex items-center gap-4 cursor-pointer">
               <Image
                 src={isSettingsActive ? Psettings : settings}
                 alt="paramètres"
@@ -322,6 +363,79 @@ const AsideOnboarding = () => {
           notifications={userNotification}
         />
       )}
+
+      <style jsx global>{`
+        /* Add specific styling for the onboarding aside */
+        .fixed.w-\\[248px\\] {
+          z-index: 99 !important; /* Keep z-index lower than highlighted elements */
+        }
+
+        /* For mobile menu only, higher z-index to ensure it's accessible */
+        .max-xl\\:flex-row.max-xl\\:items-center .mobile-menu-button {
+          z-index: 1011 !important;
+        }
+
+        .tour-menu-button-hint {
+          position: relative;
+          animation: pulse-hint 1.5s infinite;
+        }
+
+        .tour-menu-button-hint::after {
+          content: "Click to see more";
+          position: absolute;
+          top: -35px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(248, 88, 159, 0.9);
+          color: white;
+          font-size: 12px;
+          padding: 5px 10px;
+          border-radius: 4px;
+          white-space: nowrap;
+          pointer-events: none;
+        }
+
+        .tour-menu-button-hint::before {
+          content: "";
+          position: absolute;
+          top: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-width: 5px;
+          border-style: solid;
+          border-color: rgba(248, 88, 159, 0.9) transparent transparent
+            transparent;
+          pointer-events: none;
+        }
+
+        @keyframes pulse-hint {
+          0%,
+          100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+
+        /* Better styling for mobile menu on onboarding */
+        @media (max-width: 1279px) {
+          .max-xl\\:translate-x-0 {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 101;
+          }
+
+          /* Fix position of highlights relative to tooltips */
+          .tour-highlight-active {
+            z-index: 1002 !important;
+          }
+
+          /* Ensure tooltips appear over highlighted elements */
+          .manual-tour-tooltip {
+            z-index: 1010 !important;
+          }
+        }
+      `}</style>
     </>
   );
 };

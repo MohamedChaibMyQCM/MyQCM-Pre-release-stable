@@ -32,25 +32,34 @@ const Page = () => {
   const token = secureLocalStorage.getItem("token");
 
   const {
-    data: userData,
-    isLoading: isLoadingUser,
-    isFetching,
-    isError,
+    data: subscriptionData,
+    isLoading: isLoadingSubscription,
     error,
     isSuccess,
   } = useQuery({
-    queryKey: ["userMeAuthCheck", token],
+    queryKey: ["currentSubscription"],
     queryFn: async () => {
-      const response = await BaseUrl.get("/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      const token = secureLocalStorage.getItem("token");
+      const response = await BaseUrl.get("/user/subscription/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      return response.data.data;
+      return response.data.data || null;
     },
-    enabled: !!token,
+    onError: () => {
+      toast.error(
+        "Erreur lors de la récupération des données d'abonnement. Veuillez réessayer."
+      );
+    },
     staleTime: 1000 * 60 * 5,
     retry: 1,
-    refetchOnWindowFocus: false,
   });
+
+  // Check if user has Premium plan
+  const hasPremiumPlan = subscriptionData?.plan?.name === "Premium";
+  const premiumTooltip =
+    "Ce mode est disponible uniquement avec le plan Premium";
 
   const {
     data: userProfile,
@@ -63,7 +72,6 @@ const Page = () => {
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Profil utilisateur chargé :", response);
       return response.data.data;
     },
     onError: (error) => {
@@ -113,7 +121,7 @@ const Page = () => {
     }
   };
 
-  const isLoading = isLoadingModes || isLoadingProfile;
+  const isLoading = isLoadingModes || isLoadingProfile || isLoadingSubscription;
 
   return (
     <div className="px-6">
@@ -122,6 +130,8 @@ const Page = () => {
         selectedMode={selectedMode}
         onModeChange={setSelectedMode}
         isLoading={isLoading}
+        hasPremiumPlan={hasPremiumPlan}
+        premiumTooltip={premiumTooltip}
       />
 
       {isLoading && (

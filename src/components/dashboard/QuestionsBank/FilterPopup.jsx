@@ -17,12 +17,25 @@ const FilterPopup = ({
   units,
   selectContentRef,
   isLoading,
+  hiddenUnitIds = [], // Receive hidden unit IDs from parent
 }) => {
-  // Sort units based on their names/numbers
+  // Filter and sort units
   const sortedUnits = useMemo(() => {
     if (!units || units.length === 0) return [];
 
-    return [...units].sort((a, b) => {
+    console.log("FilterPopup - Original units:", units);
+    console.log("FilterPopup - Hidden unit IDs:", hiddenUnitIds);
+
+    // Units should already be filtered by the parent component,
+    // but we'll double-check to ensure hidden units aren't shown
+    const filteredUnits = units.filter(
+      (unit) => !hiddenUnitIds.includes(unit.id)
+    );
+
+    console.log("FilterPopup - Units after filtering:", filteredUnits);
+
+    // Then sort the remaining units
+    return [...filteredUnits].sort((a, b) => {
       // Extract unit numbers if available
       const getUnitNumber = (name) => {
         const match = name.match(/UEI-(\d+)/);

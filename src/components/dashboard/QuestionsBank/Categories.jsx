@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -9,8 +9,8 @@ import toast from "react-hot-toast";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
 import FilterPopup from "./FilterPopup";
-import moduleIcon from "../../../../public/Icons/module.svg"; // Verify path & maybe use a more specific name if needed elsewhere
-import filter from "../../../../public/Question_Bank/filter.svg"; // Verify path
+import moduleIcon from "../../../../public/Icons/module.svg";
+import filter from "../../../../public/Question_Bank/filter.svg";
 import secureLocalStorage from "react-secure-storage";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,14 +19,21 @@ const Categories = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState("");
   const filterRef = useRef(null);
-  const selectContentRef = useRef(null); // Passed to FilterPopup to handle clicks inside it
+  const selectContentRef = useRef(null);
+
+  // Define hidden units with their IDs instead of names for more reliable filtering
+  const hiddenUnitIds = [
+    "22b66563-bd6d-404d-a4a2-f2061b0b751d", // UEI-2: Appareil Neurologique, Locomoteur et cutané
+    "bc602e71-b043-47d2-b2e5-b8f59252b12a", // UEI-3: Appareil endocrine, reproduction et urinaire
+    "08d2c45d-288c-468b-a12c-687420f4e4f8", // UEI-1: Cardio-Respiratoire et Psychologie médicale
+  ];
 
   useEffect(() => {
     const unitId = searchParams.get("unitId");
     if (unitId) {
       setSelectedUnitId(unitId);
     } else {
-      setSelectedUnitId(""); // Ensure reset if param removed
+      setSelectedUnitId("");
     }
   }, [searchParams]);
 
@@ -57,20 +64,44 @@ const Categories = () => {
       if (!secureLocalStorage.getItem("token")) return [];
       try {
         const token = secureLocalStorage.getItem("token");
-        // Increased offset assuming more units might exist than initially thought
         const response = await BaseUrl.get("/unit/me?offset=50", {
           headers: { Authorization: `Bearer ${token}` },
         });
         return response.data?.data?.data || [];
       } catch (err) {
         console.error("Categories: Error fetching units:", err);
-        // Avoid duplicate toasts if overall error is handled later
         return [];
       }
     },
-    staleTime: 1000 * 60 * 10, // Cache units for 10 mins
+    staleTime: 1000 * 60 * 10,
     retry: 1,
   });
+
+  // Filter out hidden units from the fetched units data
+  const filteredUnitsData = useMemo(() => {
+    if (!unitsData || unitsData.length === 0) return [];
+    console.log("Units before filtering:", unitsData);
+    const filtered = unitsData.filter(
+      (unit) => !hiddenUnitIds.includes(unit.id)
+    );
+    console.log("Hidden unit IDs to filter:", hiddenUnitIds);
+    console.log("Units after filtering:", filtered);
+    return filtered;
+  }, [unitsData]);
+
+  // Check if selected unit is a hidden unit
+  const isSelectedUnitHidden = useMemo(() => {
+    const isHidden = hiddenUnitIds.includes(selectedUnitId);
+    console.log("Selected unit ID:", selectedUnitId, "Is hidden?", isHidden);
+    return isHidden;
+  }, [selectedUnitId]);
+
+  // Reset selection if a hidden unit is selected
+  useEffect(() => {
+    if (isSelectedUnitHidden) {
+      setSelectedUnitId("");
+    }
+  }, [isSelectedUnitHidden]);
 
   const {
     data: profileData,
@@ -99,8 +130,31 @@ const Categories = () => {
     retry: 1,
   });
 
-  // Determine the unit ID for fetching subjects
-  const unitIdToFetch = selectedUnitId || profileData?.unit?.id;
+  // Check if profile's default unit is hidden
+  const isProfileUnitHidden = useMemo(() => {
+    if (!profileData?.unit?.id) return false;
+    const isHidden = hiddenUnitIds.includes(profileData.unit.id);
+    console.log(
+      "Profile default unit ID:",
+      profileData.unit.id,
+      "Is hidden?",
+      isHidden
+    );
+    return isHidden;
+  }, [profileData]);
+
+  // Determine unit ID for fetching, avoiding hidden units
+  const unitIdToFetch = useMemo(() => {
+    const result = selectedUnitId
+      ? isSelectedUnitHidden
+        ? ""
+        : selectedUnitId
+      : isProfileUnitHidden
+      ? ""
+      : profileData?.unit?.id;
+    console.log("Unit ID to fetch subjects:", result);
+    return result;
+  }, [selectedUnitId, isSelectedUnitHidden, profileData, isProfileUnitHidden]);
 
   const {
     data: subjectsData = [],
@@ -108,7 +162,7 @@ const Categories = () => {
     isFetching: isSubjectsFetching,
     error: subjectsError,
   } = useQuery({
-    queryKey: ["subjects", unitIdToFetch], 
+    queryKey: ["subjects", unitIdToFetch],
     queryFn: async () => {
       if (!secureLocalStorage.getItem("token") || !unitIdToFetch) return [];
       const token = secureLocalStorage.getItem("token");
@@ -119,24 +173,23 @@ const Categories = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        // console.log(response.data?.data?.data);
         return response.data?.data?.data || [];
       } catch (error) {
         console.error(
           `Categories: Error fetching subjects for unit ${unitIdToFetch}:`,
           error
         );
-        return []; 
+        return [];
       }
     },
     enabled: !!unitIdToFetch && !!secureLocalStorage.getItem("token"),
-    staleTime: 1000 * 60 * 5, // Cache subjects for 5 minutes
+    staleTime: 1000 * 60 * 5,
     retry: 1,
   });
 
   const resetFilter = () => {
     setSelectedUnitId("");
-    setShowFilter(false); 
+    setShowFilter(false);
   };
 
   const closeFilter = () => {
@@ -144,8 +197,8 @@ const Categories = () => {
   };
 
   const isInitialLoading =
-    isUnitsLoading || 
-    isProfileLoading || 
+    isUnitsLoading ||
+    isProfileLoading ||
     (!!unitIdToFetch &&
       isSubjectsLoading &&
       subjectsData?.length === 0 &&
@@ -188,8 +241,7 @@ const Categories = () => {
     },
   };
 
-  // Get selected unit name safely for button label
-  const selectedUnitName = unitsData?.find(
+  const selectedUnitName = filteredUnitsData?.find(
     (u) => u.id === selectedUnitId
   )?.name;
   const filterButtonLabel = selectedUnitId
@@ -202,33 +254,24 @@ const Categories = () => {
       }`
     : "Filtrer";
 
-  // Use item.icon from data, fallback to imported moduleIcon
   const getSubjectIcon = (subject) => {
-    // Check if subject.icon is a valid URL or path string
     if (
       subject &&
       typeof subject.icon === "string" &&
       subject.icon.length > 0
     ) {
-      // Basic check: assume it's a relative path or full URL from backend
-      // If backend provides full URLs, this is fine.
-      // If backend provides relative paths *needing* BaseUrl, adjust here.
-      // Example: return subject.icon.startsWith('http') ? subject.icon : `${process.env.NEXT_PUBLIC_API_BASE_URL}${subject.icon}`;
       return subject.icon;
     }
-    // Fallback to the locally imported icon
     return moduleIcon;
   };
 
   return (
-    // Structure and classes exactly as you provided in the prompt
     <div className="px-[24px] mb-[24px] max-md:px-[20px]">
       <div className="relative flex items-center justify-between mb-5">
         <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
           Modules
         </h3>
         <div className="relative" ref={filterRef}>
-          {/* Using your original filter button style */}
           <div
             className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-gray-50"
             onClick={() => setShowFilter(!showFilter)}
@@ -236,7 +279,6 @@ const Categories = () => {
             aria-haspopup="true"
             aria-expanded={showFilter}
           >
-            {/* Using derived label, keeping your style */}
             <button className="text-[14px] font-[500]">
               {filterButtonLabel}
             </button>
@@ -249,16 +291,17 @@ const Categories = () => {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="absolute right-0 mt-2 z-20" // z-index from your original
+                className="absolute right-0 mt-2 z-20"
               >
                 <FilterPopup
                   selectedUnit={selectedUnitId}
                   setSelectedUnit={setSelectedUnitId}
                   resetFilter={resetFilter}
                   closeFilter={closeFilter}
-                  units={unitsData || []} // Pass fetched units
-                  selectContentRef={selectContentRef} // Pass the ref
-                  isLoading={isUnitsLoading} // Let popup know if units are loading
+                  units={filteredUnitsData || []} // Pass filtered units instead of all units
+                  selectContentRef={selectContentRef}
+                  isLoading={isUnitsLoading}
+                  hiddenUnitIds={hiddenUnitIds} // Pass the hidden unit IDs
                 />
               </motion.div>
             )}
@@ -266,19 +309,15 @@ const Categories = () => {
         </div>
       </div>
 
-      {/* Grid layout and styles exactly as you provided */}
       <ul
         className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
-          // Dim slightly during background fetches after initial load
           isSubjectsFetching && !isInitialLoading
             ? "opacity-75 pointer-events-none"
             : "opacity-100"
         }`}
       >
-        {/* Handle empty state after loading and checking length */}
         {!isInitialLoading && subjectsData?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
-            {/* Your original empty state icon/text structure */}
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
               ? "Aucun module trouvé pour l'unité sélectionnée."
@@ -291,7 +330,6 @@ const Categories = () => {
                 (Voir tout)
               </button>
             )}
-            {/* Added suggestion if no default unit and no filter */}
             {!selectedUnitId && !profileData?.unit?.id && (
               <p className="text-xs mt-2 text-gray-400">
                 Sélectionnez une unité avec le filtre.
@@ -299,7 +337,6 @@ const Categories = () => {
             )}
           </div>
         ) : (
-          // Map over subjects, using your li structure and classes
           subjectsData?.map((item) => (
             <li
               key={item.id}
@@ -309,20 +346,18 @@ const Categories = () => {
                 href={`/dashboard/question-bank/${item.id}`}
                 className="flex items-center h-[84px] gap-4 px-[20px] rounded-[16px] cursor-pointer w-full"
               >
-                {/* Using the getSubjectIcon logic */}
                 <Image
                   src={getSubjectIcon(item)}
-                  alt="" // Decorative icon, alt can be empty
+                  alt=""
                   width={40}
                   height={40}
                   onError={(e) => {
                     e.currentTarget.src = moduleIcon.src;
-                  }} // Fallback on image load error
-                  className="flex-shrink-0" // Prevent icon shrinking
+                  }}
+                  className="flex-shrink-0"
                 />
                 <div className="flex flex-col gap-1 overflow-hidden min-w-0">
                   {" "}
-                  {/* Allow text truncate */}
                   <span
                     className="text-[#FFFFFF] font-Poppins font-semibold text-[14px] truncate"
                     title={item.name}
@@ -331,7 +366,6 @@ const Categories = () => {
                   </span>
                   <span className="text-[#FFC9E1] font-Poppins font-normal text-[12px]">
                     {item.totalQuestions ?? item.total ?? 0} Questions{" "}
-                    {/* Use consistent key */}
                   </span>
                 </div>
               </Link>

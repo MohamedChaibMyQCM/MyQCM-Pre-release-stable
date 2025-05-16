@@ -23,11 +23,11 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="fr">
-      <body className={`${poppins.className}`}>
+      <body className={`${poppins.variable} font-Poppins`}>
         <ReactQueryProvider>
           <MotionConfig>
-              <Toaster />
-                {children}
+            <Toaster />
+            {children}
           </MotionConfig>
         </ReactQueryProvider>
 

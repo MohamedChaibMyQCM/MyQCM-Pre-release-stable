@@ -14,9 +14,16 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const dropdownRef = useRef(null);
 
+  // Define hidden units with their IDs - same units we hide elsewhere
+  const hiddenUnitIds = [
+    "22b66563-bd6d-404d-a4a2-f2061b0b751d", // UEI-2: Appareil Neurologique, Locomoteur et cutané
+    "bc602e71-b043-47d2-b2e5-b8f59252b12a", // UEI-3: Appareil endocrine, reproduction et urinaire
+    "08d2c45d-288c-468b-a12c-687420f4e4f8", // UEI-1: Cardio-Respiratoire et Psychologie médicale
+  ];
+
   const extractUnitNumber = (unitName) => {
-    const match = unitName.match(/UEI-(\d+)/i); 
-    return match ? parseInt(match[1], 10) : Infinity; 
+    const match = unitName.match(/UEI-(\d+)/i);
+    return match ? parseInt(match[1], 10) : Infinity;
   };
 
   const { data: units = [], isLoading } = useQuery({
@@ -42,10 +49,12 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
     },
     enabled: !!year_of_study,
     select: (data) => {
+      // Filter out both thématique units AND our specified hidden units
       const filtered = data.filter(
         (unit) =>
           unit.name?.trim() !== "Unité d'enseignement thématique" &&
-          !unit.name?.includes("thématique")
+          !unit.name?.includes("thématique") &&
+          !hiddenUnitIds.includes(unit.id)
       );
       const sorted = filtered.sort((a, b) => {
         const numA = extractUnitNumber(a.name);
@@ -63,10 +72,10 @@ const CurrentUnit = ({ name, value, setFieldValue, year_of_study }) => {
         setSelectedUnit(unit);
       } else {
         setSelectedUnit(null);
-        setFieldValue(name, ""); 
+        setFieldValue(name, "");
       }
     } else if (!value) {
-      setSelectedUnit(null); 
+      setSelectedUnit(null);
     }
   }, [value, units, name, setFieldValue]);
 

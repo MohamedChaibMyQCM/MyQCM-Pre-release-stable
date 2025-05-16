@@ -400,7 +400,7 @@ const Page = () => {
           className={item.className}
         />
       ))}
-
+ 
       {showConfirmationPopup && (
         <EndSeasonPopup
           onConfirm={confirmEndSession}

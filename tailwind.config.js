@@ -78,7 +78,7 @@ module.exports = {
         "pulse-scale": "pulse-scale 1.2s infinite ease-in-out",
       },
       fontFamily: {
-        Poppins: ["var(--font-poppins)", "sans-serif"],
+        Poppins: ["var(--font-poppins)"],
       },
     },
   },

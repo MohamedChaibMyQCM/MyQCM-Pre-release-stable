@@ -3,8 +3,9 @@ const nextConfig = {
   images: {
     domains: ["server.myqcmdz.com", "localhost", "res.cloudinary.com"],
   },
+  // Add this to ensure font optimization
+  optimizeFonts: true, // ← This is key for next/font
   webpack: (config, { isServer }) => {
-    // Add video file support
     config.module.rules.push({
       test: /\.(mp4|webm|mov)$/,
       use: [

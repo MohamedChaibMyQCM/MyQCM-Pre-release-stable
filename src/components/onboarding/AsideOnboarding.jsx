@@ -100,7 +100,7 @@ const AsideOnboarding = () => {
 
   return (
     <>
-      <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md onboarding-aside max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0">
+      <aside className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0 max-xl:z-[200]">
         {/* Top section / Mobile header content */}
         {isMenuOpen ? ( // Mobile menu open: show stats
           <>
@@ -184,7 +184,7 @@ const AsideOnboarding = () => {
         )}
 
         {/* Mobile menu toggle and notification icon */}
-        <div className="flex items-center gap-4 xl:hidden">
+        <div className="flex items-center gap-4 xl:hidden z-[201]">
           {!isMenuOpen && (
             <div
               id="tour-notification-icon"
@@ -198,7 +198,9 @@ const AsideOnboarding = () => {
               <Image
                 src={notificationIcon}
                 alt="notification"
-                className="w-[16px]"
+                className="w-[16px] h-[16px]"
+                width={16}
+                height={16}
               />
               {userNotification.filter((n) => !n.read).length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -208,34 +210,40 @@ const AsideOnboarding = () => {
             </div>
           )}
 
-          <div
+          {/* Fixed Menu Button */}
+          <button
+            type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`cursor-pointer ${
-              isMobileView &&
-              currentTourStep?.startsWith("tour-") &&
-              !currentTourStep?.includes("notification")
-                ? "tour-menu-button-hint"
-                : ""
-            }`}
+            className="menu-toggle-btn z-[201] p-2 cursor-pointer bg-white rounded-md shadow-sm border border-gray-200"
           >
             {isMenuOpen ? (
-              <X size={26} className="text-[#F8589F]" />
+              <X size={24} className="text-[#F8589F]" />
             ) : (
-              <Image src={menu} alt="menu" className="w-[16px]" />
+              <svg
+                width="20"
+                height="14"
+                viewBox="0 0 20 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 1H19M1 7H19M1 13H19"
+                  stroke="#333"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
             )}
-          </div>
+          </button>
         </div>
 
         {/* Navigation Links */}
         <ul
-          className={`flex flex-col mb-40 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[calc(100vh-70px)] max-xl:pt-[60px] max-xl:pb-[90px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-transform max-xl:duration-300 max-xl:ease-in-out max-xl:overflow-y-auto max-xl:justify-between ${
+          className={`flex flex-col mb-40 gap-4 max-xl:fixed max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[calc(100vh-70px)] max-xl:pt-[60px] max-xl:pb-[90px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-all max-xl:duration-300 max-xl:ease-in-out max-xl:overflow-y-auto max-xl:justify-between max-xl:z-[199] ${
             isMenuOpen
-              ? "max-xl:translate-x-0"
-              : "max-xl:-translate-x-full max-xl:pointer-events-none"
+              ? "max-xl:translate-x-0 max-xl:opacity-100 max-xl:visible"
+              : "max-xl:-translate-x-full max-xl:opacity-0 max-xl:invisible"
           }`}
-          style={{
-            transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
-          }}
         >
           {aside_links.map((item, index) => {
             const isHome = item.href === "";
@@ -365,75 +373,46 @@ const AsideOnboarding = () => {
       )}
 
       <style jsx global>{`
-        /* Add specific styling for the onboarding aside */
-        .fixed.w-\\[248px\\] {
-          z-index: 99 !important; /* Keep z-index lower than highlighted elements */
-        }
-
-        /* For mobile menu only, higher z-index to ensure it's accessible */
-        .max-xl\\:flex-row.max-xl\\:items-center .mobile-menu-button {
-          z-index: 1011 !important;
-        }
-
-        .tour-menu-button-hint {
+        /* Ensure menu toggle button and icons are visible */
+        .menu-toggle-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
           position: relative;
-          animation: pulse-hint 1.5s infinite;
         }
 
-        .tour-menu-button-hint::after {
-          content: "Click to see more";
-          position: absolute;
-          top: -35px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(248, 88, 159, 0.9);
-          color: white;
-          font-size: 12px;
-          padding: 5px 10px;
-          border-radius: 4px;
-          white-space: nowrap;
-          pointer-events: none;
-        }
-
-        .tour-menu-button-hint::before {
-          content: "";
-          position: absolute;
-          top: -10px;
-          left: 50%;
-          transform: translateX(-50%);
-          border-width: 5px;
-          border-style: solid;
-          border-color: rgba(248, 88, 159, 0.9) transparent transparent
-            transparent;
-          pointer-events: none;
-        }
-
-        @keyframes pulse-hint {
-          0%,
-          100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.1);
-          }
-        }
-
-        /* Better styling for mobile menu on onboarding */
+        /* Fix menu visibility */
         @media (max-width: 1279px) {
           .max-xl\\:translate-x-0 {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            z-index: 101;
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
           }
 
-          /* Fix position of highlights relative to tooltips */
+          .max-xl\\:-translate-x-full {
+            transform: translateX(-100%) !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+          }
+
+          /* Keep highlighted elements with white background */
           .tour-highlight-active {
-            z-index: 1002 !important;
+            background-color: white !important;
           }
+        }
 
-          /* Ensure tooltips appear over highlighted elements */
-          .manual-tour-tooltip {
-            z-index: 1010 !important;
-          }
+        /* Fix for mobile menu interaction */
+        .fixed.w-\\[248px\\] {
+          z-index: 200 !important;
+        }
+
+        .menu-toggle-btn {
+          z-index: 201 !important;
+        }
+
+        /* Ensure button works */
+        .menu-toggle-btn:active {
+          transform: scale(0.95);
         }
       `}</style>
     </>

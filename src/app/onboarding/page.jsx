@@ -691,55 +691,51 @@ export default function OnboardingPage() {
 
         .tour-highlight-active {
           position: relative !important;
-          z-index: 1005 !important; /* Keep the higher z-index */
-          background-color: white !important;
+          z-index: 1005 !important;
+          background-color: white !important; /* Changed back to white */
           outline: 3px solid rgba(248, 88, 159, 0.9);
           outline-offset: 4px;
-          box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
-            0 0 30px 10px rgba(248, 88, 159, 0.35),
+          box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
             0 0 60px rgba(248, 88, 159, 0.15);
           border-radius: var(--dynamic-border-radius, 10px);
           transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-          background-clip: padding-box;
           animation: pulse-highlight 3s infinite;
-          /* Removed transform: scale(1.03); to prevent sidebar overlap */
         }
 
-        /* More spacing around the highlight pattern */
-        .tour-highlight-active::after {
-          content: "";
-          position: absolute;
-          inset: -10px; /* Reverting from -14px to -10px */
-          border-radius: calc(var(--dynamic-border-radius, 10px) + 10px);
-          background: repeating-linear-gradient(
-            -45deg,
-            rgba(248, 88, 159, 0.07),
-            rgba(248, 88, 159, 0.07) 5px,
-            rgba(255, 255, 255, 0) 5px,
-            rgba(255, 255, 255, 0) 10px
-          );
-          z-index: -2;
-          animation: shimmer 3s infinite linear;
-          pointer-events: none;
+        /* Mobile menu fixes - ensure menu functionality works */
+        @media (max-width: 1279px) {
+          /* Mobile menu styling to ensure it's visible and properly positioned */
+          aside.max-xl\\:w-full {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 200 !important;
+          }
+
+          /* Menu must always be above other content */
+          .max-xl\\:z-\\[199\\] {
+            z-index: 199 !important;
+          }
+
+          /* Menu button must be above everything */
+          .menu-toggle-btn,
+          .z-\\[201\\] {
+            z-index: 201 !important;
+          }
         }
 
-        /* Enhanced pulse animation with more visible outlines */
+        /* Enhanced pulse animation without white background */
         @keyframes pulse-highlight {
           0% {
-            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
-              0 0 30px 10px rgba(248, 88, 159, 0.35),
+            box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
               0 0 60px rgba(248, 88, 159, 0.15);
             outline-color: rgba(248, 88, 159, 0.9);
           }
           50% {
-            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.3),
-              0 0 40px 15px rgba(248, 88, 159, 0.5),
+            box-shadow: 0 0 40px 15px rgba(248, 88, 159, 0.5),
               0 0 80px rgba(248, 88, 159, 0.2);
             outline-color: rgba(248, 88, 159, 1);
           }
           100% {
-            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2),
-              0 0 30px 10px rgba(248, 88, 159, 0.35),
+            box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
               0 0 60px rgba(248, 88, 159, 0.15);
             outline-color: rgba(248, 88, 159, 0.9);
           }
@@ -972,6 +968,14 @@ export default function OnboardingPage() {
 
           .progress-bar {
             margin-bottom: 16px;
+          }
+
+          /* Ensure mobile elements are highlighted properly */
+          .tour-highlight-active {
+            outline-offset: 2px !important; /* Tighter outline for mobile */
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2),
+              0 0 20px 8px rgba(248, 88, 159, 0.35),
+              0 0 40px rgba(248, 88, 159, 0.15) !important;
           }
         }
       `}</style>

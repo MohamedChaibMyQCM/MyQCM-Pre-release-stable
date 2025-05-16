@@ -1,17 +1,12 @@
+/* No need for @import if using next/font */
+body {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+/* Tailwind integration (if used) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-
-body {
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Next.js font variable (should work in prod) */
-:root {
-  --font-poppins: 'Poppins', sans-serif;
-}
 
 .inputs {
   border: none !important;

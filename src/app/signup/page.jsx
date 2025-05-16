@@ -47,9 +47,8 @@ const Page = () => {
   // Updated validatePassword function
   const validatePassword = (passwordToValidate) => {
     if (!passwordToValidate && !confirmPassword) {
-      // Also check confirmPassword if relevant to clear error
       setPasswordError("");
-      return true; // Or false, depending on how you use the return value. Here it means no error.
+      return true;
     }
     if (passwordToValidate.length < 8) {
       setPasswordError("Doit contenir au moins 8 caractères");
@@ -64,13 +63,11 @@ const Page = () => {
     e.preventDefault();
     if (isLoading) return;
 
-    // Validate password according to new rule (at least 8 characters)
     if (!password || password.length < 8) {
-      setPasswordError("Doit contenir au moins 8 caractères"); // Set error if not already set by live validation
+      setPasswordError("Doit contenir au moins 8 caractères");
       toast.error("Veuillez entrer un mot de passe d'au moins 8 caractères.");
       return;
     } else {
-      // Clear error if password is now valid and an error was previously set
       if (passwordError) setPasswordError("");
     }
 
@@ -90,7 +87,7 @@ const Page = () => {
       name: user_name,
       email: Email,
       password,
-      avatar: selectedAvatar || "https://example.com/default-avatar.jpg", // Consider a real default or ensure selectedAvatar is always set
+      avatar: selectedAvatar || "https://example.com/default-avatar.jpg",
     };
     signup(data);
   };
@@ -132,7 +129,7 @@ const Page = () => {
   };
 
   return (
-    <section className="h-[100vh] w-[100vw] overflow-hidden flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px] max-xl:flex-col max-xl:items-center overflow-y-auto scrollbar-hide">
+    <section className="h-[100vh] w-[100vw] flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px] max-xl:flex-col max-xl:items-center overflow-y-auto overflow-x-hidden scrollbar-hide">
       <div className="flex flex-col gap-4 self-end max-xl:mx-auto shrink-0">
         <Image
           src={beta}
@@ -153,7 +150,7 @@ const Page = () => {
         />
       </div>
 
-      <div className="bg-[#FFF] w-full h-full pt-10 rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-8 flex-1 min-w-0">
+      <div className="bg-[#FFF] w-full h-full pt-10 pb-12 rounded-[16px] flex flex-col items-center gap-6 max-xl:py-8 flex-1 min-w-0 overflow-y-auto scrollbar-hide">
         <Image src={logo} alt="logo" className="w-[140px] mb-4" />
         <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
           <Link
@@ -170,7 +167,7 @@ const Page = () => {
           </Link>
         </div>
 
-        <div className="w-[567.09px] overflow-hidden relative flex-1 flex flex-col max-md:w-[90%]">
+        <div className="w-[567.09px] relative flex-1 flex flex-col max-md:w-[90%]">
           <AnimatePresence initial={false} mode="wait" custom={direction}>
             {step === 1 ? (
               <motion.div
@@ -214,8 +211,8 @@ const Page = () => {
                   showConfirmPassword={showConfirmPassword}
                   setShowConfirmPassword={setShowConfirmPassword}
                   passwordError={passwordError}
-                  validatePassword={validatePassword} // Pass the updated validatePassword
-                  handleSubmitStep2={handleSubmitStep} // This is now your final submit handler for step 2
+                  validatePassword={validatePassword}
+                  handleSubmitStep2={handleSubmitStep}
                 />
               </motion.div>
             )}

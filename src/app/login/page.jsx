@@ -46,7 +46,7 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6 overflow-y-auto scrollbar-hide">
+    <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
       <Image src={logo} alt="logo" className="w-[140px] mb-4" />
       <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
         <Link
@@ -125,7 +125,7 @@ const Page = () => {
         </Link>
         <button
           type="submit"
-          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium"
+          className="mb-10 bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium"
         >
           Se connecter
         </button>

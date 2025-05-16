@@ -32,25 +32,44 @@ export default function OnboardingLayout({ children }) {
 
           /* Ensuring proper z-index hierarchy for onboarding */
           .manual-tour-overlay {
-            z-index: 1000 !important;
+            z-index: 100 !important; /* Lower z-index to not block elements */
           }
 
           .manual-tour-tooltip {
-            z-index: 1010 !important;
+            z-index: 20000 !important; /* Extremely high z-index */
           }
 
           .tour-highlight-active {
-            z-index: 1005 !important; /* Increased to be higher than AsideOnboarding */
+            z-index: 1000 !important; /* Above overlay */
           }
-
-          /* Fix for aside z-index in onboarding context */
+          
+          /* Make sure sidebar is above overlay */
           .fixed.w-\\[248px\\] {
-            z-index: 99 !important; /* Lowered from 100 to ensure highlighted elements appear above */
+            z-index: 500 !important;
           }
 
-          /* Ensure the menu button in the mobile view is still accessible */
-          .fixed.w-\\[248px\\] .mobile-menu-button {
-            z-index: 1011 !important;
+          /* Ensure sidebar contents are visible */
+          aside.fixed svg,
+          aside.fixed img,
+          aside.fixed span,
+          .aside-content * {
+            position: relative;
+            z-index: 501 !important;
+          }
+          
+          /* Make sure menu elements are visible in mobile */
+          @media (max-width: 1279px) {
+            .max-xl\\:fixed, 
+            .menu-toggle-btn,
+            .max-xl\\:translate-x-0 {
+              z-index: 1001 !important;
+            }
+            
+            /* Menu contents should be above overlay */
+            .max-xl\\:translate-x-0 * {
+              z-index: 1002 !important;
+              position: relative !important;
+            }
           }
         `}</style>
       </main>

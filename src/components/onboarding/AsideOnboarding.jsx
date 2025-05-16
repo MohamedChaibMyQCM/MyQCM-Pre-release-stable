@@ -414,6 +414,24 @@ const AsideOnboarding = () => {
         .menu-toggle-btn:active {
           transform: scale(0.95);
         }
+
+        /* Force tooltip above everything */
+        .manual-tour-tooltip {
+          z-index: 10000 !important;
+        }
+
+        /* Mobile menu adjustments */
+        @media (max-width: 1279px) {
+          /* Ensure mobile menu appears above overlay but below tooltips */
+          .menu-toggle-btn {
+            z-index: 9900 !important;
+          }
+
+          .max-xl\\:translate-x-0,
+          .max-xl\\:fixed {
+            z-index: 9700 !important;
+          }
+        }
       `}</style>
     </>
   );

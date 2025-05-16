@@ -675,51 +675,56 @@ export default function OnboardingPage() {
       </div>
 
       <style jsx global>{`
+        /* Overlay styling with lower z-index */
         .manual-tour-overlay {
           position: fixed;
           top: 0;
           left: 0;
           width: 100vw;
           height: 100vh;
-          background: rgba(20, 20, 35, 0.8);
-          backdrop-filter: blur(4px);
-          z-index: 1000;
+          background: ${isMobileView ? 'transparent' : 'rgba(20, 20, 35, 0.5)'};
+          backdrop-filter: ${isMobileView ? 'none' : 'blur(2px)'};
+          z-index: 100 !important; /* Lower z-index so it doesn't block other elements */
           opacity: ${isTourActive ? 1 : 0};
-          transition: opacity 0.5s ease-in-out, backdrop-filter 0.5s ease-in-out;
+          transition: opacity 0.5s ease-in-out;
           pointer-events: ${isTourActive ? "auto" : "none"};
         }
-
-        .tour-highlight-active {
+        
+        /* Higher z-index for icons and sidebar elements */
+        aside.fixed, .max-xl\\:fixed, 
+        aside.fixed * {
+          z-index: 500 !important; 
           position: relative !important;
-          z-index: 1005 !important;
-          background-color: white !important; /* Changed back to white */
-          outline: 3px solid rgba(248, 88, 159, 0.9);
-          outline-offset: 4px;
-          box-shadow: 0 0 30px 10px rgba(248, 88, 159, 0.35),
-            0 0 60px rgba(248, 88, 159, 0.15);
-          border-radius: var(--dynamic-border-radius, 10px);
-          transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-          animation: pulse-highlight 3s infinite;
         }
-
-        /* Mobile menu fixes - ensure menu functionality works */
-        @media (max-width: 1279px) {
-          /* Mobile menu styling to ensure it's visible and properly positioned */
-          aside.max-xl\\:w-full {
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 200 !important;
-          }
-
-          /* Menu must always be above other content */
-          .max-xl\\:z-\\[199\\] {
-            z-index: 199 !important;
-          }
-
-          /* Menu button must be above everything */
-          .menu-toggle-btn,
-          .z-\\[201\\] {
-            z-index: 201 !important;
-          }
+        
+        /* Ensure tooltip is at the highest z-index */
+        .manual-tour-tooltip {
+          z-index: 20000 !important; /* Extremely high to ensure visibility */
+          position: fixed !important;
+        }
+        
+        /* Make tooltip content always visible */
+        .manual-tour-tooltip * {
+          z-index: 20001 !important;
+          position: relative !important;
+        }
+        
+        /* Tooltip buttons must be clickable */
+        .tour-buttons-container button {
+          z-index: 20002 !important;
+        }
+        
+        /* Highlighted elements should be above overlay */
+        .tour-highlight-active {
+          z-index: 1000 !important;
+          position: relative !important;
+          background-color: white !important;
+        }
+        
+        /* Ensure menu button is visible */
+        .menu-toggle-btn {
+          z-index: 1500 !important;
+          position: relative !important;
         }
 
         /* Enhanced pulse animation without white background */

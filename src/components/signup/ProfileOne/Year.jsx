@@ -11,13 +11,13 @@ const Year = ({ name, value, setFieldValue }) => {
 
   // Array of objects with French labels and English IDs
   const years = [
-    { label: "Première année", value: "First Year" },
-    { label: "Deuxième année", value: "Second Year" },
+    // { label: "Première année", value: "First Year" },
+    // { label: "Deuxième année", value: "Second Year" },
     { label: "Troisième année", value: "Third Year" },
-    { label: "Quatrième année", value: "Fourth Year" },
-    { label: "Cinquième année", value: "Fifth Year" },
-    { label: "Sixième année", value: "Sixth Year" },
-    { label: "Septième année", value: "Seventh Year" },
+    // { label: "Quatrième année", value: "Fourth Year" },
+    // { label: "Cinquième année", value: "Fifth Year" },
+    // { label: "Sixième année", value: "Sixth Year" },
+    // { label: "Septième année", value: "Seventh Year" },
   ];
 
   useEffect(() => {

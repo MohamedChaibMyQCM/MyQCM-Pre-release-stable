@@ -80,18 +80,18 @@ export default function DashboardLayout({ children }) {
     }
   }, [isError, error, router]);
 
-  useEffect(() => {
-    if (isSuccess && userData) {
-      if (userData?.data?.user_verified === false) {
-        toast("You are in the waiting list!", { icon: "👏" });
-        router.push("/waiting-list");
-      }
-    }
-  }, [isSuccess, userData, pathname, router]);
+  // useEffect(() => {
+  //   if (isSuccess && userData) {
+  //     if (userData?.data?.user_verified === false) {
+  //       toast("You are in the waiting list!", { icon: "👏" });
+  //       router.push("/waiting-list");
+  //     }
+  //   }
+  // }, [isSuccess, userData, pathname, router]);
 
-  const isAuthorized =
-    isSuccess && userData && userData?.data?.user_verified !== false;
-
+  // const isAuthorized =
+  //   isSuccess && userData && userData?.data?.user_verified !== false;
+ 
   const isSessionRoute = pathname?.includes(
     "/dashboard/question-bank/session/"
   );
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }) {
     );
   }
 
-  if (isAuthorized) {
+  // if (isAuthorized) {
     return (
       <main>
         {!userData?.data?.completed_introduction && (
@@ -149,11 +149,5 @@ export default function DashboardLayout({ children }) {
         </div>
       </main>
     );
-  }
-
-  return (
-    <div className="h-screen w-screen flex items-center justify-center">
-      <Loading />
-    </div>
-  );
+  // }
 }

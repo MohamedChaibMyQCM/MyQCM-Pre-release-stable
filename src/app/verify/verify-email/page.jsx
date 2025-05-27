@@ -12,6 +12,8 @@ function EmailVerificationContent() {
   const token = searchParams.get("token");
   const isVerifying = useRef(false);
 
+  console.log(token);
+
   useEffect(() => {
     if (!token) {
       toast.error("Lien de vérification invalide");
@@ -35,7 +37,7 @@ function EmailVerificationContent() {
           toast.error(
             response.data.message || "Échec de la vérification d'email"
           );
-          router.push("/signup");
+          // router.push("/signup");
         }
       } catch (error) {
         toast.error(

@@ -118,12 +118,12 @@ const Page = () => {
       const token = secureLocalStorage.getItem("token");
       const mcqId = submittedData?.mcq;
       if (!mcqId) {
-        toast.error("Missing mcqId");
-        throw new Error("Missing mcqId");
+        toast.error("ID de question manquant");
+        throw new Error("ID de question manquant");
       }
       if (!trainingSessionId) {
-        toast.error("Missing trainingSessionId");
-        throw new Error("Missing trainingSessionId");
+        toast.error("ID de session d'entraînement manquant");
+        throw new Error("ID de session d'entraînement manquant");
       }
 
       const response_options =
@@ -132,7 +132,6 @@ const Page = () => {
           ? submittedData.response_options
           : null;
 
-      // Create a copy without the skipped flag to send to the API
       const payload = {
         response_options: response_options,
         response: submittedData.response || "",
@@ -140,7 +139,6 @@ const Page = () => {
         session: trainingSessionId,
       };
 
-      // Store whether this was a skip operation
       const isSkipOperation = !!submittedData.skipped;
 
       const submitResponse = await BaseUrl.post(
@@ -150,7 +148,6 @@ const Page = () => {
       );
       console.log("Submission Response Data:", submitResponse.data.data);
 
-      // Return both the response data and our skip flag
       return {
         responseData: submitResponse.data.data,
         isSkipOperation,
@@ -159,14 +156,11 @@ const Page = () => {
     onSuccess: (result) => {
       const { responseData, isSkipOperation } = result;
 
-      // If this was a skip operation, we've already incremented the skip counter
-      // in the Quiz component, so we just set the answer and return
       if (isSkipOperation) {
         setAnswer(responseData);
         return;
       }
 
-      // Handle normal answer submission (non-skip)
       setAnswer(responseData);
       setData((prevData) => {
         let { mcqs_success, mcqs_failed } = prevData;
@@ -193,7 +187,7 @@ const Page = () => {
         ? error.response.data.message[0]
         : error?.response?.data?.message ||
           error.message ||
-          "Failed to submit answer";
+          "Échec de la soumission de la réponse";
       toast.error(message);
       setAnswer({ error: true, message: message });
     },
@@ -235,7 +229,7 @@ const Page = () => {
         ? error.response.data.message[0]
         : error?.response?.data?.message ||
           error.message ||
-          "Failed to mark session as complete";
+          "Échec de la finalisation de la session";
       toast.error(message);
     } finally {
       setIsCompletingSession(false);
@@ -296,16 +290,16 @@ const Page = () => {
   if (combinedError && !result) {
     return (
       <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
-        <h2 className="text-2xl font-bold mb-4">Error Loading</h2>
+        <h2 className="text-2xl font-bold mb-4">Erreur de chargement</h2>
         <p className="text-center mb-4">
           {combinedError.message ||
-            "Could not fetch session or question data. Please try again later."}
+            "Impossible de récupérer les données de session ou de question. Veuillez réessayer plus tard."}
         </p>
         <button
           onClick={() => router.back()}
           className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
         >
-          Go Back
+          Retour
         </button>
       </div>
     );
@@ -314,17 +308,17 @@ const Page = () => {
   if (!isLoadingInitial && !combinedError && !currentQuestion && !result) {
     return (
       <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
-        <h2 className="text-2xl font-bold mb-4">No Questions Found</h2>
+        <h2 className="text-2xl font-bold mb-4">Aucune question trouvée</h2>
         <p className="text-center mb-4">
-          There are no questions available for this training session, or the
-          session has already been completed.
+          Il n&apos;y a pas de questions disponibles pour cette session
+          d&apos;entraînement, ou la session a déjà été terminée.
         </p>
         <div className="flex flex-col items-center gap-4">
           <button
             onClick={() => router.back()}
             className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
           >
-            Go Back
+            Retour
           </button>
           {SeasonDetails && SeasonDetails.status !== "COMPLETED" && (
             <button
@@ -332,7 +326,7 @@ const Page = () => {
               disabled={isCompletingSession}
               className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
             >
-              {isCompletingSession ? "Completing..." : "Complete Session"}
+              {isCompletingSession ? "Finalisation..." : "Terminer la session"}
             </button>
           )}
         </div>
@@ -360,10 +354,10 @@ const Page = () => {
             disabled={isCompletingSession || isLoadingQuestion || result}
           >
             {isCompletingSession
-              ? "Ending..."
+              ? "Finalisation..."
               : isLoadingQuestion
-              ? "Loading..."
-              : "End Season"}
+              ? "Chargement..."
+              : "Terminer la session"}
           </button>
         )}
       </div>
@@ -400,7 +394,7 @@ const Page = () => {
           className={item.className}
         />
       ))}
- 
+
       {showConfirmationPopup && (
         <EndSeasonPopup
           onConfirm={confirmEndSession}

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
-import secureLocalStorage from "react-secure-storage"; // For token
+import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "../../components/BaseUrl";
 import { useOnboarding } from "../../context/OnboardingContext";
 import Dash_Onboarding from "../../components/onboarding/Dash_Onboarding";
@@ -16,77 +16,73 @@ import Loading from "../../components/Loading";
 const ONBOARDING_TOUR_STEPS = [
   {
     id: "tour-notification-icon",
-    content: "Les notifications apparaissent ici. Consultez les mises à jour !",
+    content: "Votre centre de notifications personnel. Recevez des rappels d'étude, des mises à jour de progrès et des annonces importantes de l'équipe MyQCM directement ici.",
     placement: "bottom-start",
     highlightPadding: 8,
   },
   {
     id: "tour-qcm-display",
-    content: "Votre nombre de QCM (Questions à Choix Multiples).",
+    content: "Votre compteur de Questions à Choix Multiples. Suivez le nombre de QCM que vous avez complétées aujourd'hui et votre progression vers vos objectifs quotidiens.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-qroc-display",
-    content: "Votre nombre de QROC (Questions à Réponse Ouverte Courte).",
+    content: "Votre compteur de Questions à Réponse Ouverte Courte. Ces questions développent votre capacité de rédaction et d'expression claire des concepts médicaux.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-streak-display",
-    content: "Votre série d'apprentissage actuelle. Continuez comme ça !",
+    content: "Votre série d'apprentissage quotidienne ! Plus vous étudiez régulièrement, plus votre série grandit. Maintenez votre momentum pour débloquer des récompenses spéciales.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-xp-display",
-    content: "Vos points d'expérience (XP) gagnés.",
+    content: "Vos points d'expérience (XP) gagnés. Chaque question réussie vous rapporte des XP. Accumulez des points pour débloquer de nouveaux niveaux et fonctionnalités.",
     placement: "bottom-end",
     highlightPadding: 8,
   },
   {
     id: "tour-units-section",
-    content:
-      "Les unités d'apprentissage s'affichent ici. Explorez différents sujets.",
+    content: "Vos unités d'apprentissage organisées par spécialité médicale. Chaque unité contient des modules structurés pour une progression logique dans vos études.",
     placement: "bottom",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-modules-section",
-    content:
-      "Les modules sont des leçons spécifiques au sein de chaque unité. Défilez pour en voir plus.",
+    content: "Les modules détaillés de chaque unité. Explorez les leçons spécifiques, suivez votre progression et accédez aux exercices pratiques adaptés à votre niveau.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-calendar-section",
-    content: "Planifiez vos sessions d'étude à l'aide de ce calendrier.",
+    content: "Votre planificateur d'étude intelligent. Organisez vos sessions de révision, définissez des rappels et visualisez votre calendrier d'apprentissage personnalisé.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-studytime-section",
-    content: "Suivez votre temps d'étude et visualisez vos progrès.",
+    content: "Votre tableau de bord de progression. Analysez votre temps d'étude quotidien, vos performances par matière et vos statistiques détaillées pour optimiser votre apprentissage.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "finish-onboarding-tour",
-    content:
-      "Vous avez terminé la visite ! Vous pouvez maintenant explorer librement.",
+    content: "Félicitations ! Vous maîtrisez maintenant les bases de MyQCM. Commencez votre parcours d'apprentissage personnalisé et excellez dans vos études médicales !",
     placement: "center",
     isFinalStep: true,
     highlightPadding: 0,
   },
 ];
 const ONBOARDING_TOUR_STORAGE_KEY =
-  "fullOnboardingManualTourCompleted_v6.4_localstorage_fix"; // Incremented
+  "fullOnboardingManualTourCompleted_v6.4_localstorage_fix";
 
-// API fetch function
 const fetchUserData = async () => {
   try {
     const token = secureLocalStorage.getItem("token");
@@ -109,7 +105,6 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { isMobileView, setCurrentTourStep } = useOnboarding();
 
-  // Query to fetch user data
   const {
     data: userData,
     isLoading,
@@ -137,7 +132,6 @@ export default function OnboardingPage() {
   const [isTooltipPositioned, setIsTooltipPositioned] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if user has completed introduction and redirect if needed
   useEffect(() => {
     if (userData?.data?.completed_introduction) {
       router.replace("/dashboard");
@@ -146,7 +140,6 @@ export default function OnboardingPage() {
       !isLoading &&
       !userData?.data?.completed_introduction
     ) {
-      // If we have user data and they haven't completed intro, start tour after a delay
       const timer = setTimeout(() => {
         setIsTourActive(true);
       }, 700);
@@ -155,7 +148,6 @@ export default function OnboardingPage() {
   }, [userData, isLoading, router]);
 
   const markIntroductionComplete = async () => {
-    // Ensure token exists on client side only
     if (typeof window === "undefined") return false;
     const token = secureLocalStorage.getItem("token");
     if (!token) return false;
@@ -196,7 +188,6 @@ export default function OnboardingPage() {
     }
   };
 
-  // Effect to update highlighted element details & scroll if needed
   useEffect(() => {
     if (!isTourActive || !ONBOARDING_TOUR_STEPS[currentTourStepIndex]) {
       setHighlightedElementInfo({ id: null, padding: 0 });
@@ -213,12 +204,10 @@ export default function OnboardingPage() {
       padding: currentStep.highlightPadding || 0,
     });
 
-    // Update the shared context with current tour step
     setCurrentTourStep(stepId);
 
     setIsTooltipPositioned(false);
 
-    // Wait a moment to allow mobile menu to open if needed
     const scrollDelay =
       isMobileView &&
       [
@@ -256,11 +245,9 @@ export default function OnboardingPage() {
         ? document.getElementById(targetId)
         : null;
 
-    // Add some delay for smooth transition
     requestAnimationFrame(() => {
       if (!tooltipRef.current || !isTourActive) return;
 
-      // Center positioning for final step or when target isn't found
       if (currentStep.placement === "center" || !targetElement) {
         setTooltipStyle({
           top: "50%",
@@ -279,10 +266,8 @@ export default function OnboardingPage() {
       const tooltipHeight = tooltipEl.offsetHeight;
       const tooltipWidth = tooltipEl.offsetWidth;
 
-      // Larger gap for better visual separation
       const BASE_GAP = 40;
 
-      // Enhanced logic for first step (notification icon)
       if (currentTourStepIndex === 0) {
         const isDesktop = window.innerWidth >= 1280;
 
@@ -300,14 +285,13 @@ export default function OnboardingPage() {
               transform: "translateY(0) scale(1)",
               visibility: "visible",
               opacity: 1,
-              arrowPosition: "top", // For arrow styling
+              arrowPosition: "top",
             });
             setIsTooltipPositioned(true);
             return;
           }
         }
 
-        // Mobile position
         setTooltipStyle({
           top: `${targetRect.bottom + BASE_GAP}px`,
           left: `${Math.max(
@@ -323,7 +307,6 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Adaptive spacing based on element size
       const gap = Math.max(BASE_GAP, Math.min(window.innerHeight * 0.05, 60));
       let newPos = {};
       let arrowPosition = "top";
@@ -376,7 +359,6 @@ export default function OnboardingPage() {
           arrowPosition = "top";
       }
 
-      // Ensure tooltip stays in viewport with margins
       const margin = 20;
       let finalLeft = Math.max(margin, newPos.left);
       if (finalLeft + tooltipWidth + margin > window.innerWidth) {
@@ -385,9 +367,7 @@ export default function OnboardingPage() {
 
       let finalTop = Math.max(margin, newPos.top);
 
-      // Handle vertical overflow
       if (finalTop + tooltipHeight + margin > window.innerHeight) {
-        // Try to flip vertical position if we'd go off-screen
         if (currentStep.placement.startsWith("bottom")) {
           finalTop = Math.max(margin, targetRect.top - tooltipHeight - gap);
           arrowPosition = arrowPosition.replace("top", "bottom");
@@ -411,7 +391,6 @@ export default function OnboardingPage() {
         }
       }
 
-      // Final positioning with proper arrow
       setTooltipStyle({
         top: `${finalTop}px`,
         left: `${finalLeft}px`,
@@ -471,7 +450,7 @@ export default function OnboardingPage() {
       });
       setHighlightedElementInfo({ id: null, padding: 0 });
     }
-  }, [isTourActive]); // Removed calculateAndSetTooltipPosition from here too.
+  }, [isTourActive]);
 
   const handleStepChange = (newStepIndex) => {
     setTooltipStyle((prev) => ({
@@ -497,7 +476,6 @@ export default function OnboardingPage() {
   };
 
   const handleFinishTourOnlyUI = () => {
-    // User clicked outside the tooltip to skip
     setTooltipStyle((prev) => ({
       ...prev,
       opacity: 0,
@@ -508,7 +486,6 @@ export default function OnboardingPage() {
     }, 300);
   };
 
-  // Show loading state while fetching user data
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
@@ -517,7 +494,6 @@ export default function OnboardingPage() {
     );
   }
 
-  // If error occurred or redirecting, show minimal loading
   if (isError || userData?.data?.completed_introduction) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
@@ -614,7 +590,6 @@ export default function OnboardingPage() {
         </>
       )}
 
-      {/* Restore the background class */}
       <div className="bg-gradient-to-br from-[#fbfcff] to-[#f5f7fd] pb-10 min-h-screen w-full">
         <Dash_Onboarding
           highlightedElementInfo={highlightedElementInfo}
@@ -643,7 +618,6 @@ export default function OnboardingPage() {
       </div>
 
       <style jsx global>{`
-        /* Refined overlay with perfect blur */
         .manual-tour-overlay {
           position: fixed;
           top: 0;
@@ -660,21 +634,20 @@ export default function OnboardingPage() {
           pointer-events: ${isTourActive ? "auto" : "none"};
         }
 
-        /* Luxurious and larger tooltip */
         .manual-tour-tooltip {
           position: fixed !important;
           background: linear-gradient(145deg, #ffffff, #f8faff);
           border-radius: 20px;
-          padding: 24px 28px; /* Increased padding */
+          padding: 24px 28px;
           box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15),
             0 0 0 1px rgba(255, 255, 255, 0.92) inset,
             0 -8px 20px rgba(248, 88, 159, 0.08) inset,
             0 2px 6px rgba(255, 255, 255, 0.95) inset;
           z-index: 20000 !important;
-          max-width: 380px; /* Significantly larger width */
+          max-width: 380px;
           width: calc(100% - 32px);
           margin: 16px;
-          font-size: 15px; /* Larger font */
+          font-size: 15px;
           line-height: 1.6;
           pointer-events: auto !important;
           color: #2d3748;
@@ -683,7 +656,6 @@ export default function OnboardingPage() {
           transform-origin: center bottom;
         }
 
-        /* Premium header styling */
         .tooltip-header {
           margin-bottom: 12px;
           position: relative;
@@ -704,7 +676,6 @@ export default function OnboardingPage() {
           );
         }
 
-        /* Sophisticated step indicator */
         .step-indicator {
           font-size: 13px;
           font-weight: 600;
@@ -720,18 +691,16 @@ export default function OnboardingPage() {
           box-shadow: 0 0 0 1px rgba(248, 88, 159, 0.12) inset;
         }
 
-        /* Larger, more readable content text */
         .tooltip-content {
           margin: 0 0 16px 0;
           color: #1a202c;
           font-weight: 500;
-          font-size: 16px; /* Increased font size */
+          font-size: 16px;
           line-height: 1.6;
           text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
           letter-spacing: 0.01em;
         }
 
-        /* Enhanced progress bar */
         .progress-bar {
           height: 5px;
           background: linear-gradient(
@@ -771,7 +740,6 @@ export default function OnboardingPage() {
           overflow: hidden;
         }
 
-        /* Shimmer effect on progress bar */
         .progress-fill:after {
           content: "";
           position: absolute;
@@ -798,18 +766,16 @@ export default function OnboardingPage() {
           }
         }
 
-        /* Polished single-line button container */
         .tour-buttons-container {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-top: 18px;
           gap: 10px;
-          flex-wrap: nowrap; /* Keep single line */
+          flex-wrap: nowrap;
           width: 100%;
         }
 
-        /* Premium button styling */
         .tour-buttons-container button {
           flex: 0 0 auto;
           padding: 8px 16px;
@@ -821,7 +787,7 @@ export default function OnboardingPage() {
           font-weight: 600;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
           letter-spacing: 0.02em;
-          height: 34px; /* Taller buttons */
+          height: 34px;
           display: flex;
           align-items: center;
           transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -835,7 +801,7 @@ export default function OnboardingPage() {
         .tour-buttons-container .next-button {
           background: linear-gradient(135deg, #f8589f, #ff3d88);
           color: white;
-          margin-left: auto; /* Keep to right */
+          margin-left: auto;
           padding: 8px 18px;
           position: relative;
           overflow: hidden;
@@ -843,7 +809,6 @@ export default function OnboardingPage() {
             0 0 0 1px rgba(255, 255, 255, 0.15) inset;
         }
 
-        /* Elegant shimmer animation */
         .tour-buttons-container .next-button::before {
           content: "";
           position: absolute;
@@ -874,16 +839,15 @@ export default function OnboardingPage() {
             0 -2px 10px rgba(248, 88, 159, 0.03) inset;
         }
 
-        /* Mobile optimizations with better style */
         @media (max-width: 767px) {
           .manual-tour-tooltip {
-            max-width: 340px; /* Larger for mobile too */
-            padding: 20px 24px; /* More padding */
+            max-width: 340px;
+            padding: 20px 24px;
             border-radius: 16px;
           }
 
           .tooltip-content {
-            font-size: 15px; /* Larger text on mobile */
+            font-size: 15px;
             margin-bottom: 14px;
           }
 
@@ -897,7 +861,6 @@ export default function OnboardingPage() {
           }
         }
 
-        /* Spectacular highlight effect */
         .tour-highlight-active {
           z-index: 1000 !important;
           position: relative !important;
@@ -927,7 +890,6 @@ export default function OnboardingPage() {
           }
         }
 
-        /* Refined arrow styling */
         .manual-tour-tooltip::before {
           content: "";
           position: absolute;
@@ -940,7 +902,6 @@ export default function OnboardingPage() {
           border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
-        /* Arrow positions */
         .manual-tour-tooltip.top-arrow::before {
           top: -8px;
           left: calc(50% - 8px);
@@ -978,7 +939,6 @@ export default function OnboardingPage() {
           display: none;
         }
 
-        /* Beautiful decorative elements */
         .manual-tour-tooltip::after {
           content: "";
           position: absolute;

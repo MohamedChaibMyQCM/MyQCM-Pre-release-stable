@@ -27,6 +27,8 @@ const Page = () => {
       });
       return response.data.data.data;
     },
+    staleTime: 1000 * 60, // 1 minute
+    refetchOnWindowFocus: true,
   });
 
   const token = secureLocalStorage.getItem("token");
@@ -52,12 +54,16 @@ const Page = () => {
         "Erreur lors de la récupération des données d'abonnement. Veuillez réessayer."
       );
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 30, // 30 seconds
     retry: 1,
+    refetchOnWindowFocus: true,
+    refetchInterval: 1000 * 60, // Refetch every minute
   });
 
-  // Check if user has Premium plan
-  const hasPremiumPlan = subscriptionData?.plan?.name === "Premium";
+  const hasPremiumPlan = isLoadingSubscription
+    ? false
+    : subscriptionData?.plan?.name === "Premium";
+
   const premiumTooltip =
     "Ce mode est disponible uniquement avec le plan Premium";
 
@@ -77,6 +83,8 @@ const Page = () => {
     onError: (error) => {
       toast.error("Échec du chargement des paramètres de profil.");
     },
+    staleTime: 1000 * 30, // 30 seconds
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {

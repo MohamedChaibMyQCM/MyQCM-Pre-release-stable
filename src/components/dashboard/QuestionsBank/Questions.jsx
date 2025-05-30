@@ -16,9 +16,9 @@ import GuidedSeason from "./TrainingPopups/GuidedSeason";
 import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
 
-const CUSTOM_MODE = "Custom Mode";
-const GUIDED_MODE = "Guided Mode";
-const INTELLIGENTE_MODE = "Intelligente Mode";
+const CUSTOM_MODE = "Mode Personnalisé";
+const GUIDED_MODE = "Mode Guidé";
+const INTELLIGENTE_MODE = "Mode Intelligent";
 
 const Questions = ({
   data = [],
@@ -52,6 +52,9 @@ const Questions = ({
       toast.error(`Échec du chargement du mode profil: ${err.message}`);
     },
     enabled: !!secureLocalStorage.getItem("token"),
+    staleTime: 1000 * 30, // 30 seconds
+    refetchOnWindowFocus: true,
+    refetchInterval: 1000 * 60, // Refetch every minute
   });
 
   const { mutate: startSynergySession, isPending: isStartingSynergy } =
@@ -120,8 +123,7 @@ const Questions = ({
     );
   }
 
-  const buttonsDisabled =
-    isLoadingProfile || !!profileError || isStartingSynergy;
+  const buttonsDisabled = isLoadingProfile || isStartingSynergy;
 
   const renderPopup = () => {
     if (
@@ -167,7 +169,7 @@ const Questions = ({
           );
         break;
       default:
-        toast.warn(`Mode utilisateur inconnu: ${userMode}`);
+        console.error(`Mode utilisateur inconnu: ${userMode}`);
         closePopup();
         return null;
     }
@@ -224,9 +226,7 @@ const Questions = ({
                     >
                       {displayName}
                     </span>
-                    <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate max-md:hidden"
-                    >
+                    <span className="font-Poppins text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
                       {item.name}
                     </span>
                     <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">
@@ -261,7 +261,13 @@ const Questions = ({
                     onClick={() => handleScheduleClick(item.id)}
                     disabled={buttonsDisabled}
                     aria-label={`Planifier session ${item.name}`}
-                    title="Planifier"
+                    title={
+                      buttonsDisabled
+                        ? isLoadingProfile
+                          ? "Chargement..."
+                          : "Session en cours..."
+                        : "Planifier"
+                    }
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}
@@ -278,7 +284,13 @@ const Questions = ({
                     onClick={() => handlePlayClick(item.id)}
                     disabled={buttonsDisabled}
                     aria-label={`Lancer session ${item.name}`}
-                    title="Lancer"
+                    title={
+                      buttonsDisabled
+                        ? isLoadingProfile
+                          ? "Chargement..."
+                          : "Session en cours..."
+                        : "Lancer"
+                    }
                     className={`disabled:opacity-50 disabled:cursor-not-allowed ${
                       !buttonsDisabled ? "hover:scale-110 duration-200" : ""
                     }`}

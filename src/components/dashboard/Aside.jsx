@@ -56,20 +56,27 @@ const Aside = () => {
 
   const queryOptions = {
     enabled: !!secureLocalStorage.getItem("token"),
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    staleTime: 1000 * 30, // 30 seconds instead of 5 minutes
+    refetchInterval: 1000 * 60, // Refetch every minute
   };
 
   const { data: userNotification } = useQuery({
     queryKey: ["userNotification"],
     queryFn: () => fetchData("/notification"),
-    ...queryOptions,
+    staleTime: 1000 * 15, // 15 seconds for notifications
+    refetchInterval: 1000 * 30, // Refetch every 30 seconds for notifications
+    refetchOnWindowFocus: true,
+    enabled: !!secureLocalStorage.getItem("token"),
   });
 
   const { data: userSubscription } = useQuery({
     queryKey: ["userSubscription"],
     queryFn: () => fetchData("/user/subscription/me"),
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 30, // 30 seconds instead of 15 minutes
+    refetchInterval: 1000 * 60, // Refetch every minute
+    refetchOnWindowFocus: true,
+    enabled: !!secureLocalStorage.getItem("token"),
   });
 
   const { data: streakData } = useQuery({

@@ -1,6 +1,6 @@
 import Image from "next/image";
-import exit from "../../../../public/Icons/exit.svg"; // Ensure path is correct
-import accuracyPic from "../../../../public/Quiz/accuracyPic.svg"; // Ensure path is correct
+import exit from "../../../../public/Icons/exit.svg";
+import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
@@ -23,8 +23,8 @@ const QuizExplanation = ({
   const successRatio = resultData?.success_ratio ?? 0;
   const responseOptions = resultData?.selected_options ?? [];
   const allMcqOptions = resultData?.options ?? [];
-  const explanationText = resultData?.explanation; // Check this value
-  const qroFeedback = resultData?.feedback; // Check this value
+  const explanationText = resultData?.explanation;
+  const qroFeedback = resultData?.feedback;
 
   const correctOptionsData =
     type === "qcm" || type === "qcs"
@@ -33,7 +33,7 @@ const QuizExplanation = ({
 
   const userResponsesWithContent = responseOptions.map((resp) => {
     const originalOption = allMcqOptions.find((opt) => opt.id === resp.id) || {
-      content: "Option content missing",
+      content: "Contenu de l'option manquant",
       is_correct: false,
       id: resp.id,
     };
@@ -49,17 +49,15 @@ const QuizExplanation = ({
   const isMCQ = type === "qcm" || type === "qcs";
 
   return (
-    // Modal container - Styling from your original snippet
     <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
       <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide max-md:w-[96%]">
-        {/* Header - Styling from your original snippet */}
         <div className="flex items-center justify-between top-0 bg-white pb-2">
           <span className="text-[19px] font-semibold text-[#191919]">
-            {isMCQ ? "Explanation" : "Answers Analyse"}
+            {isMCQ ? "Explication" : "Analyse des réponses"}
           </span>
           <Image
             src={exit}
-            alt="exit"
+            alt="fermer"
             className="cursor-pointer"
             onClick={() => setSeeExplanation(false)}
             width={24}
@@ -67,19 +65,14 @@ const QuizExplanation = ({
           />
         </div>
 
-        {/* Content Body - Styling from your original snippet */}
         <div className="flex flex-col gap-4">
-          {" "}
-          {/* Original gap */}
-          {/* MCQ Specific: False and Correct Answers */}
           {isMCQ ? (
             <>
-              {/* User's False Answers */}
               {userResponsesWithContent.filter((item) => !item.is_correct)
                 .length > 0 && (
                 <div className="flex flex-col gap-2">
                   <span className="block text-[#191919] text-[15px] font-[500]">
-                    Your False Answers
+                    Vos réponses incorrectes
                   </span>
                   <ul className="flex flex-col gap-3 w-[100%]">
                     {userResponsesWithContent
@@ -99,10 +92,9 @@ const QuizExplanation = ({
                 </div>
               )}
 
-              {/* Correct Answers */}
               <div className="flex flex-col gap-2 mt-2">
                 <span className="block text-[#191919] text-[15px] font-[500]">
-                  Correct Answers
+                  Réponses correctes
                 </span>
                 <ul className="flex flex-col gap-3 w-[100%]">
                   {correctOptionsData.length > 0 ? (
@@ -119,17 +111,16 @@ const QuizExplanation = ({
                     ))
                   ) : (
                     <li className="text-gray-500 text-[14px]">
-                      Correct answer details not available.
+                      Détails de la réponse correcte non disponibles.
                     </li>
                   )}
                 </ul>
               </div>
             </>
           ) : (
-            // Non-MCQ: Accuracy Display - Styling from your original snippet
             <div className="flex flex-col gap-2">
               <span className="block text-[#191919] text-[15px] font-[500]">
-                Accuracy of Your Answer
+                Précision de votre réponse
               </span>
               <div
                 className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
@@ -142,12 +133,12 @@ const QuizExplanation = ({
                   </span>
                 </div>
                 <span className="block text-[#FFFFFF] text-[15px] font-[500]">
-                  Percentage of Accuracy of Your Answer:{" "}
+                  Pourcentage de précision de votre réponse :{" "}
                   {Math.round(successRatio * 100)}%
                 </span>
                 <Image
                   src={accuracyPic}
-                  alt="accuracy img"
+                  alt="image de précision"
                   className="absolute top-[-8px] left-[-60px] w-[80px] hidden sm:block"
                   width={80}
                   height={80}
@@ -155,64 +146,51 @@ const QuizExplanation = ({
               </div>
             </div>
           )}
-          {/* --- Conditional Explanation Section --- */}
-          {/* This entire block (title + content) only renders if explanationText is truthy */}
+
           {explanationText && (
             <div className="flex flex-col gap-2 mt-2">
-              {" "}
-              {/* Container for title+content */}
-              {/* Explanation Title */}
               <span className="block text-[#191919] text-[15px] font-[500]">
-                {isMCQ ? "Explanation" : "Explanation from MyQCM Experts"}
+                {isMCQ ? "Explication" : "Explication des experts MyQCM"}
               </span>
-              {/* Explanation Content Box */}
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
                 dangerouslySetInnerHTML={{ __html: explanationText }}
               />
             </div>
           )}
-          {/* --- End Conditional Explanation Section --- */}
-          {/* --- Conditional Feedback Section --- */}
-          {/* This entire block (title + content) only renders if NOT MCQ AND qroFeedback is truthy */}
+
           {!isMCQ && qroFeedback && (
             <div className="flex flex-col gap-2 mt-2">
-              {" "}
-              {/* Container for title+content */}
-              {/* Feedback Title */}
               <span className="block text-[#191919] text-[15px] font-[500]">
-                Analysis from MyQCM AI Assistant
+                Analyse de l&apos;assistant IA MyQCM
               </span>
-              {/* Feedback Content Box */}
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#0C092A] text-[14px]"
                 dangerouslySetInnerHTML={{ __html: qroFeedback }}
               />
             </div>
           )}
-          {/* --- End Conditional Feedback Section --- */}
-          {/* Footer/Actions - Styling from your original snippet */}
+
           <div
             className={`flex flex-col sm:flex-row items-center justify-between gap-4 bottom-0 bg-white pt-4 ${
-              !isMCQ ? "" : "sm:self-end" // Original conditional alignment
+              !isMCQ ? "" : "sm:self-end"
             }`}
           >
-            {/* Disclaimer (Non-MCQ) */}
             {!isMCQ && (
               <span
                 className={`text-center sm:text-left font-medium text-[11px] text-[#191919] flex-1`}
               >
-                This answer has been reviewed and confirmed correct by MyQCM
-                Experts using AI assistance. While no mistakes were found,
-                please note that AI models can occasionally make errors.
+                Cette réponse a été examinée et confirmée correcte par les
+                experts MyQCM avec l&apos;assistance de l&apos;IA. Bien
+                qu&apos;aucune erreur n&apos;ait été trouvée, veuillez noter que
+                les modèles d&apos;IA peuvent parfois faire des erreurs.
               </span>
             )}
-            {/* Next Button */}
             <button
               className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
               onClick={handleNextQuestion}
             >
-              Next question
+              Question suivante
             </button>
           </div>
         </div>

@@ -21,9 +21,9 @@ const ITEM_PLUS_GAP_HEIGHT_APPROX = 80;
 const MAX_VISIBLE_ITEMS = 6;
 const GRADIENT_OVERLAY_HEIGHT = 120;
 
-const CUSTOM_MODE = "Custom Mode";
-const GUIDED_MODE = "Guided Mode";
-const INTELLIGENTE_MODE = "Intelligente Mode";
+const CUSTOM_MODE = "Mode Personnalisé";
+const GUIDED_MODE = "Mode Guidé";
+const INTELLIGENTE_MODE = "Mode Intelligent";
 
 const Courses = ({ courses, subjectId, subjectData }) => {
   const router = useRouter();
@@ -49,6 +49,9 @@ const Courses = ({ courses, subjectId, subjectData }) => {
       toast.error(`Échec du chargement du mode profil: ${err.message}`);
     },
     enabled: !!secureLocalStorage.getItem("token"),
+    staleTime: 1000 * 30, // 30 seconds
+    refetchOnWindowFocus: true,
+    refetchInterval: 1000 * 60, // Refetch every minute
   });
 
   const { mutate: startSynergySession, isPending: isStartingSynergy } =
@@ -164,7 +167,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
 
         break;
       default:
-        toast.warn(`Mode utilisateur inconnu: ${userMode}`);
+        console.error(`Mode utilisateur inconnu: ${userMode}`);
         closePopup();
         return null;
     }

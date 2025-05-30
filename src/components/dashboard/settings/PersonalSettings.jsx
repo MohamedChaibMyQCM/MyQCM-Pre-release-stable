@@ -112,7 +112,7 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                   {isEditing ? name : userData?.name || "Non renseigné"}
                 </div>
                 <div className="text-[#B5BEC6] text-[14px]">
-                  {subscriptionData?.plan?.name || "Gratuit"} Plan
+                  Plan {subscriptionData?.plan?.name || "Gratuit"}
                 </div>
               </div>
             </div>

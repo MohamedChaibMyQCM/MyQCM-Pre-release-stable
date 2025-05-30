@@ -34,12 +34,14 @@ export default function DashboardPage() {
         return null;
       }
     },
+    staleTime: 1000 * 30, // 30 seconds instead of default
+    refetchOnWindowFocus: true,
+    refetchInterval: 1000 * 60, // Refetch every minute
   });
 
   if (isLoadingUser) {
     return <Loading />;
   }
-  
 
   return (
     <div className="bg-[#F7F8FA] pb-10 min-h-screen">

@@ -10,7 +10,9 @@ import {
   CircleNotch as Spinner,
   Check,
   Lock,
+  X,
 } from "phosphor-react";
+import { useState } from "react";
 
 // Constants for mode IDs for clarity
 const INTELLIGENT_MODE_ID = "1afb7737-c9c2-4411-9e61-5ceb02ce5e47";
@@ -20,16 +22,16 @@ const CUSTOM_MODE_ID = "6ecb99f5-6687-47f8-a218-b30fbc5d85ee";
 const modeDetailsConfig = {
   [INTELLIGENT_MODE_ID]: {
     // Intelligent Mode (Synergy)
-    subtitle: "Powered by Synergy",
+    subtitle: "Alimenté par Synergy",
     features: [
-      "AI-Personalized Learning",
-      "Customizable Focus",
-      "Continuous Improvement",
+      "Apprentissage Personnalisé par IA",
+      "Focus Personnalisable",
+      "Amélioration Continue",
     ],
     bestFor: [
-      "Long-term preparation",
-      "Adaptive learning",
-      "Maximizing retention",
+      "Préparation à long terme",
+      "Apprentissage adaptatif",
+      "Maximisation de la rétention",
     ],
     isRecommended: false,
     isLocked: true,
@@ -37,27 +39,31 @@ const modeDetailsConfig = {
   },
   [GUIDED_MODE_ID]: {
     // Guided Mode (Your Focus, Our AI)
-    subtitle: "Your Focus, Our AI",
+    subtitle: "Votre Focus, Notre IA",
     features: [
-      "Targeted Practice",
-      "Flexible Question Selection",
-      "Adaptive Challenge Levels",
+      "Pratique Ciblée",
+      "Sélection Flexible des Questions",
+      "Niveaux de Défi Adaptatifs",
     ],
     bestFor: [
-      "Focused study on weak spots",
-      "Exam preparation",
-      "Clinical rotations",
+      "Étude ciblée sur les points faibles",
+      "Préparation d'examens",
+      "Rotations cliniques",
     ],
     isRecommended: true,
   },
   [CUSTOM_MODE_ID]: {
     // Custom Mode (Craft Your Challenge)
-    subtitle: "Craft Your Challenge",
-    features: ["Full Customization", "Exam Simulation", "Precision Revision"],
+    subtitle: "Créez Votre Défi",
+    features: [
+      "Personnalisation Complète",
+      "Simulation d'Examen",
+      "Révision de Précision",
+    ],
     bestFor: [
-      "Realistic exam prep",
-      "Clinical case practice",
-      "Controlled study sessions",
+      "Préparation d'examen réaliste",
+      "Pratique de cas cliniques",
+      "Sessions d'étude contrôlées",
     ],
     isRecommended: false,
   },
@@ -71,6 +77,9 @@ const LearningModeStep = ({
   onSubmit,
   onReturn,
 }) => {
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [selectedModeInfo, setSelectedModeInfo] = useState(null);
+
   const {
     data: modes = [],
     isLoading,
@@ -111,6 +120,11 @@ const LearningModeStep = ({
       console.error("onSubmit handler prop is missing from LearningModeStep");
       toast.error("Erreur interne : impossible de soumettre.");
     }
+  };
+
+  const handleInfoClick = (mode, details) => {
+    setSelectedModeInfo({ mode, details });
+    setShowInfoModal(true);
   };
 
   if (isLoading) {
@@ -210,7 +224,7 @@ const LearningModeStep = ({
               <div className={`w-full ${BADGE_HEIGHT_CLASS} mb-[-2px]`}>
                 {hasBadge && (
                   <div className="w-full h-full py-1 bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] text-white text-xs font-semibold flex items-center justify-center rounded-t-xl shadow-sm">
-                    Recommended
+                    Recommandé
                   </div>
                 )}
               </div>
@@ -265,9 +279,7 @@ const LearningModeStep = ({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toast("Fonctionnalité d'information à venir.", {
-                        icon: "💡",
-                      });
+                      handleInfoClick(mode, details);
                     }}
                     className="text-gray-400 hover:text-gray-600 ml-2 shrink-0 p-1"
                     aria-label={`Informations sur ${mode.name || "ce mode"}`}
@@ -302,7 +314,7 @@ const LearningModeStep = ({
 
                 <div className="mt-auto pt-4 border-t border-gray-100">
                   <span className="text-[#FD2E8A] font-semibold text-sm mb-2 block">
-                    Best For
+                    Idéal Pour
                   </span>
                   <ul className="flex flex-col gap-2 text-sm">
                     {(details.bestFor.length > 0
@@ -354,6 +366,119 @@ const LearningModeStep = ({
           );
         })}
       </div>
+
+      {/* Information Modal */}
+      {showInfoModal && selectedModeInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {selectedModeInfo.mode.name || "Mode inconnu"}
+                </h3>
+                <button
+                  onClick={() => setShowInfoModal(false)}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-[#FD2E8A] mb-2">
+                    Description
+                  </h4>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {selectedModeInfo.details.subtitle}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-[#FD2E8A] mb-2">
+                    Fonctionnalités
+                  </h4>
+                  <ul className="space-y-2">
+                    {selectedModeInfo.details.features.map((feature, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center gap-2 text-sm text-gray-700"
+                      >
+                        <CheckCircle
+                          size={16}
+                          weight="fill"
+                          className="text-[#47B881] shrink-0"
+                        />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-[#FD2E8A] mb-2">
+                    Idéal Pour
+                  </h4>
+                  <ul className="space-y-2">
+                    {selectedModeInfo.details.bestFor.map((item, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center gap-2 text-sm text-gray-700"
+                      >
+                        <span className="w-2 h-2 bg-[#FD2E8A] rounded-full shrink-0"></span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {selectedModeInfo.details.isLocked && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Lock size={16} className="text-orange-600" />
+                      <span className="font-medium text-orange-800">
+                        Mode Premium
+                      </span>
+                    </div>
+                    <p className="text-sm text-orange-700">
+                      {selectedModeInfo.details.lockMessage}
+                    </p>
+                  </div>
+                )}
+
+                {selectedModeInfo.details.isRecommended && (
+                  <div className="bg-pink-50 border border-pink-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle
+                        size={16}
+                        weight="fill"
+                        className="text-[#FD2E8A]"
+                      />
+                      <span className="font-medium text-[#FD2E8A]">
+                        Mode Recommandé
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700">
+                      Ce mode est recommandé pour la plupart des étudiants en
+                      médecine car il offre un équilibre parfait entre
+                      personnalisation et guidage IA.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => setShowInfoModal(false)}
+                  className="bg-[#F8589F] text-white px-4 py-2 rounded-[10px] text-sm font-medium hover:bg-[#FD2E8A] transition-colors"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-10 mt-12 relative z-0">
         <button

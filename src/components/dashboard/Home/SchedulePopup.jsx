@@ -45,7 +45,21 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   const units = React.useMemo(() => {
     if (!unitsRaw.length) return [];
 
-    return [...unitsRaw].sort((a, b) => {
+    const allowedUnits = unitsRaw.filter((unit) => {
+      const unitName = unit.name.trim();
+      const unitId = unit.id;
+
+      return (
+        unitId === "84d4c4c5-1f58-494d-a426-7a2d1a7b0e0f" ||
+        unitId === "9b8c9609-2253-4862-9df3-c43892dd5c7b" ||
+        unitName.includes("Unité d'enseignement intégré 4") ||
+        unitName.includes("UEI-4") ||
+        unitName.includes("Appareil digestif et Organes Hématopoïétiques") ||
+        unitName.startsWith("Unité d'enseignement thématique")
+      );
+    });
+
+    const sortedUnits = [...allowedUnits].sort((a, b) => {
       const getUnitNumber = (name) => {
         const match = name.match(/UEI-(\d+)/);
         return match ? parseInt(match[1], 10) : Infinity;
@@ -58,6 +72,8 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
 
       return a.name.localeCompare(b.name);
     });
+
+    return sortedUnits;
   }, [unitsRaw]);
 
   const { data: subjects = [], isLoading: isSubjectsLoading } = useQuery({

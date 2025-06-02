@@ -146,7 +146,10 @@ const Page = () => {
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Submission Response Data:", submitResponse.data.data);
+
+      if (submittedData.response && submittedData.response.trim() !== "") {
+        console.log("QROC Submission Response:", submitResponse.data);
+      }
 
       return {
         responseData: submitResponse.data.data,
@@ -182,7 +185,6 @@ const Page = () => {
       });
     },
     onError: (error) => {
-      console.error("Submission error:", error);
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
         : error?.response?.data?.message ||

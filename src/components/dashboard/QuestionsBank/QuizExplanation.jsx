@@ -25,6 +25,8 @@ const QuizExplanation = ({
   const allMcqOptions = resultData?.options ?? [];
   const explanationText = resultData?.explanation;
   const qroFeedback = resultData?.feedback;
+  const userAnswer = resultData?.response;
+  const expertAnswer = resultData?.answer;
 
   const correctOptionsData =
     type === "qcm" || type === "qcs"
@@ -118,32 +120,46 @@ const QuizExplanation = ({
               </div>
             </>
           ) : (
-            <div className="flex flex-col gap-2">
-              <span className="block text-[#191919] text-[15px] font-[500]">
-                Précision de votre réponse
-              </span>
-              <div
-                className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
-              >
-                <div className="bg-[#FFFFFF] w-[50px] h-[50px] rounded-full flex items-center justify-center flex-shrink-0">
-                  <span
-                    className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
-                  >
+            <>
+              <div className="flex flex-col gap-2">
+                <span className="block text-[#191919] text-[15px] font-[500]">
+                  Précision de votre réponse
+                </span>
+                <div
+                  className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
+                >
+                  <div className="bg-[#FFFFFF] w-[50px] h-[50px] rounded-full flex items-center justify-center flex-shrink-0">
+                    <span
+                      className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
+                    >
+                      {Math.round(successRatio * 100)}%
+                    </span>
+                  </div>
+                  <span className="block text-[#FFFFFF] text-[15px] font-[500]">
+                    Pourcentage de précision de votre réponse :{" "}
                     {Math.round(successRatio * 100)}%
                   </span>
+                  <Image
+                    src={accuracyPic}
+                    alt="image de précision"
+                    className="absolute top-[-8px] left-[-60px] w-[80px] hidden sm:block"
+                    width={80}
+                    height={80}
+                  />
                 </div>
-                <span className="block text-[#FFFFFF] text-[15px] font-[500]">
-                  Pourcentage de précision de votre réponse :{" "}
-                  {Math.round(successRatio * 100)}%
-                </span>
-                <Image
-                  src={accuracyPic}
-                  alt="image de précision"
-                  className="absolute top-[-8px] left-[-60px] w-[80px] hidden sm:block"
-                  width={80}
-                  height={80}
-                />
               </div>
+            </>
+          )}
+
+          {expertAnswer && !isMCQ && (
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="block text-[#191919] text-[15px] font-[500]">
+                Réponse des experts MyQCM
+              </span>
+              <div
+                className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#47B881] bg-[#F0F9F5] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
+                dangerouslySetInnerHTML={{ __html: expertAnswer }}
+              />
             </div>
           )}
 

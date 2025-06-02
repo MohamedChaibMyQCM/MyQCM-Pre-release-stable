@@ -15,8 +15,6 @@ const QuizResult = ({ data, length }) => {
   const skippedQuestions = data.mcqs_skipped || 0;
   const accuracy = data.accuracy || 0;
 
-  const mcqSolved = correctAnswers + incorrectAnswers;
-
   return (
     <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-[100]">
       <div className="bg-[#ffffff] w-[420px] p-[30px] rounded-[16px] flex flex-col gap-4 max-md:w-[96%]">

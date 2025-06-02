@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import skip from "../../../../public/Quiz/skip.svg";
 
-const SkipQuestionPopup = ({
+const  SkipQuestionPopup = ({
   onConfirmSkip,
   onCancelSkip,
   isTimeout = false,

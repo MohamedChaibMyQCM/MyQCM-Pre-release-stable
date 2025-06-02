@@ -103,10 +103,6 @@ const fetchUserData = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error(
-      "Error fetching user data:",
-      error.response?.data || error.message
-    );
     throw error;
   }
 };
@@ -173,10 +169,6 @@ export default function OnboardingPage() {
       return true;
     } catch (error) {
       setIsSubmitting(false);
-      console.error(
-        "Error marking introduction as complete:",
-        error.response?.data || error.message
-      );
       return false;
     }
   };

@@ -39,9 +39,65 @@ const Page = () => {
           "Content-Type": "application/json",
         },
       }),
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       secureLocalStorage.setItem("token", data.token);
-      router.push(`/dashboard`);
+
+      // Check user profile completion after successful login
+      try {
+        const userResponse = await BaseUrl.get("/user/me", {
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+
+        const userData = userResponse.data.data;
+
+        if (!userData.email_verified) {
+          router.push("/signup/verification");
+          return;
+        }
+
+        // Check profile completion using /user/profile endpoint
+        try {
+          const profileResponse = await BaseUrl.get("/user/profile", {
+            headers: { Authorization: `Bearer ${data.token}` },
+          });
+
+          const profileData = profileResponse.data.data;
+
+          // Check if profile is complete - all required fields must exist
+          if (
+            !profileData ||
+            !profileData.university?.id ||
+            !profileData.study_field ||
+            !profileData.year_of_study ||
+            !profileData.unit?.id ||
+            !profileData.mode?.id
+          ) {
+            router.push("/signup/set-profile");
+            return;
+          }
+        } catch (profileError) {
+          // If profile endpoint fails or returns 404, profile needs to be set
+          console.error("Error fetching profile:", profileError);
+          if (profileError.response?.status === 404) {
+            // Profile doesn't exist, redirect to setup
+            router.push("/signup/set-profile");
+            return;
+          }
+          // For other errors, still redirect to setup to be safe
+          router.push("/signup/set-profile");
+          return;
+        }
+
+        if (!userData.completed_introduction) {
+          router.push("/onboarding");
+          return;
+        }
+
+        router.push("/dashboard");
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+        router.push("/dashboard");
+      }
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)

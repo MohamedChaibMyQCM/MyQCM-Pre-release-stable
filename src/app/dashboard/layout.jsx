@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
     cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     retry: 1,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 30, 
+    refetchInterval: 1000 * 30,
   });
 
   useEffect(() => {
@@ -74,6 +74,8 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (mounted && isError) {
       const status = error?.response?.status;
+      const errorMessage = error?.response?.data?.message;
+
       secureLocalStorage.removeItem("token");
 
       if (status === 401) {
@@ -82,12 +84,31 @@ export default function DashboardLayout({ children }) {
       } else if (status === 403) {
         toast.error("Accès interdit.");
         router.push("/waiting-list");
+      } else if (
+        status === 400 &&
+        errorMessage === "User profile not completed"
+      ) {
+        toast.error("Profil incomplet. Veuillez compléter votre profil.");
+        router.push("/signup/set-profile");
       } else {
         toast.error("Veuillez vous reconnecter.");
         router.push("/login");
       }
     }
   }, [isError, error, router, mounted]);
+
+  // Check if user profile is complete when userData is available
+  useEffect(() => {
+    if (userData?.data && mounted) {
+      const user = userData.data;
+
+      if (!user.email_verified) {
+        toast.error("Email non vérifié. Veuillez vérifier votre email.");
+        router.push("/verify/verify-email");
+        return;
+      }
+    }
+  }, [userData, mounted, router]);
 
   const isSessionRoute = pathname?.includes(
     "/dashboard/question-bank/session/"

@@ -122,9 +122,8 @@ const VerificationPage = () => {
   const resendCodeMutation = useMutation({
     mutationFn: async () => {
       const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.post(
-        "/auth/user/email/resend",
-        {},
+      const response = await BaseUrl.get(
+        "/auth/user/email/request",
         {
           headers: {
             Authorization: `Bearer ${token}`,

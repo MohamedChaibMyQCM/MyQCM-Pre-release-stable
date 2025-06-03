@@ -139,7 +139,7 @@ const ActivationCardPage = () => {
             </button>
           </form>
         </div>
-        <div className="bg-white rounded-[16px] p-6 box">
+        {/* <div className="bg-white rounded-[16px] p-6 box">
           <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
             Achat de cartes d&apos;activation
           </h3>
@@ -151,7 +151,7 @@ const ActivationCardPage = () => {
           <span className="text-[#F8589F]">
             CopyFac : Student Service Copymed Pavillon 29
           </span>
-        </div>
+        </div> */}
       </div>{" "}
       <AnimatePresence>
         {showSuccessPopup && (

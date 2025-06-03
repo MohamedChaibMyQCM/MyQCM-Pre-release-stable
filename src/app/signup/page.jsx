@@ -5,7 +5,7 @@ import logo from "../../../public/logoMyqcm.png";
 import doctors from "../../../public/ShapeDocters.svg";
 import beta from "../../../public/auth/beta.svg";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SignUpStepOne from "@/components/signup/SignUpStepOne";
 import SignUpStepTwo from "@/components/signup/SignUpStepTwo";
 import { useMutation } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
 import { motion, AnimatePresence } from "framer-motion";
+import { checkAuthAndRedirect } from "@/utils/auth";
 
 const Page = () => {
   const [step, setStep] = useState(1);
@@ -26,7 +27,18 @@ const Page = () => {
   const [passwordError, setPasswordError] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [direction, setDirection] = useState(0);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const redirected = await checkAuthAndRedirect(router);
+      if (!redirected) {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const { mutate: signup, isLoading } = useMutation({
     mutationFn: (data) => BaseUrl.post("/auth/user/signup", data),
@@ -127,6 +139,18 @@ const Page = () => {
     setDirection(newStep > step ? 1 : -1);
     setStep(newStep);
   };
+
+  if (isCheckingAuth) {
+    return (
+      <section className="h-[100vh] w-[100vw] flex bg-[#FB63A6] items-center justify-center">
+        <div className="bg-[#FFFFFF] rounded-[16px] p-8 text-center">
+          <div className="text-[#F8589F]">
+            Vérification de l&apos;authentification...
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="h-[100vh] w-[100vw] flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px] max-xl:flex-col max-xl:items-center overflow-y-auto overflow-x-hidden scrollbar-hide">

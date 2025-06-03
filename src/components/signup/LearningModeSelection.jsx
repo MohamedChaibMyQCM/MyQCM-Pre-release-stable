@@ -23,6 +23,8 @@ const modeDetailsConfig = {
   [INTELLIGENT_MODE_ID]: {
     // Intelligent Mode (Synergy)
     subtitle: "Alimenté par Synergy",
+    description:
+      "Ce mode permet à la plateforme d'analyser précisément votre façon d'apprendre, pour vous enseigner exactement ce que vous avez besoin d'apprendre. Il adapte automatiquement le temps alloué à chaque question, ajuste la difficulté selon votre progression, et détermine précisément le moment idéal pour réviser chaque concept grâce au système de répétition espacée. Les questions sont mélangées pour éviter l'effet de mémorisation séquentielle, et les propositions des QCM sont aussi mélangées afin de garantir une réelle compréhension et non simplement une mémorisation de l'ordre.",
     features: [
       "Apprentissage Personnalisé par IA",
       "Focus Personnalisable",
@@ -40,6 +42,8 @@ const modeDetailsConfig = {
   [GUIDED_MODE_ID]: {
     // Guided Mode (Your Focus, Our AI)
     subtitle: "Votre Focus, Notre IA",
+    description:
+      "Ce mode vous permet de garder un contrôle optimal tout en bénéficiant d'une assistance IA équilibrée. Vous pouvez choisir le nombre précis de questions par séance ainsi que leur format (QCM ou QROC). L'intelligence artificielle prend alors le relais pour ajuster automatiquement la difficulté, l'ordre et la fréquence des questions restantes selon vos performances précédentes.",
     features: [
       "Pratique Ciblée",
       "Sélection Flexible des Questions",
@@ -55,6 +59,8 @@ const modeDetailsConfig = {
   [CUSTOM_MODE_ID]: {
     // Custom Mode (Craft Your Challenge)
     subtitle: "Créez Votre Défi",
+    description:
+      "Ce mode vous offre un contrôle absolu sur votre environnement d'apprentissage. Vous disposez de tous les paramètres nécessaires pour créer des séances adaptées à vos besoins spécifiques. Vous pouvez configurer intégralement les conditions de simulation d'examen, la révision ciblée ou encore les scénarios cliniques, garantissant ainsi une expérience d'apprentissage totalement personnalisée et parfaitement ajustée à vos objectifs pédagogiques.",
     features: [
       "Personnalisation Complète",
       "Simulation d'Examen",
@@ -390,7 +396,8 @@ const LearningModeStep = ({
                     Description
                   </h4>
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    {selectedModeInfo.details.subtitle}
+                    {selectedModeInfo.details.description ||
+                      selectedModeInfo.details.subtitle}
                   </p>
                 </div>
 

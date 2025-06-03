@@ -7,7 +7,7 @@ import { CaretLeft, Spinner } from "phosphor-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -15,6 +15,33 @@ const VerificationPage = () => {
   const router = useRouter();
   const [otpCode, setOtpCode] = useState("");
   const [isVerificationComplete, setIsVerificationComplete] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = secureLocalStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const response = await BaseUrl.get("/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.data?.data?.email_verified) {
+          router.push("/dashboard");
+          return;
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      }
+
+      setIsCheckingAuth(false);
+    };
+    checkAuth();
+  }, [router]);
 
   const {
     data: userProfile,
@@ -40,6 +67,7 @@ const VerificationPage = () => {
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    enabled: !isCheckingAuth,
   });
 
   const verifyEmailMutation = useMutation({
@@ -146,6 +174,16 @@ const VerificationPage = () => {
     const value = e.target.value.replace(/[^\d]/g, "").slice(0, 6);
     setOtpCode(value);
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="bg-[#FFF] w-full min-h-full rounded-[16px] flex items-center justify-center">
+        <div className="text-[#F8589F]">
+          Vérification de l&apos;authentification...
+        </div>
+      </div>
+    );
+  }
 
   if (isVerificationComplete) {
     return (

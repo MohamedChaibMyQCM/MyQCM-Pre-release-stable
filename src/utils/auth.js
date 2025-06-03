@@ -44,3 +44,38 @@ export const isTokenExpired = (token) => {
     return true;
   }
 };
+
+export const checkAuthAndRedirect = async (router) => {
+  if (typeof window === "undefined") return false;
+
+  const token = secureLocalStorage.getItem("token");
+  if (!token) return false;
+
+  if (isTokenExpired(token)) {
+    secureLocalStorage.removeItem("token");
+    return false;
+  }
+
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/user/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    if (response.data) {
+      router.push("/dashboard");
+      return true;
+    }
+  } catch (error) {
+    secureLocalStorage.removeItem("token");
+    return false;
+  }
+
+  return false;
+};

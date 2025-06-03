@@ -5,7 +5,7 @@ import logo from "../../../public/logoMyqcm.png";
 import Link from "next/link";
 import emailIcon from "../../../public/auth/email.svg";
 import passIcon from "../../../public/auth/password.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
@@ -13,12 +13,24 @@ import toast from "react-hot-toast";
 import GoogleAuthButton from "../comp/google-auth.button";
 import { Eye, EyeSlash } from "phosphor-react";
 import BaseUrl from "@/components/BaseUrl";
+import { checkAuthAndRedirect } from "@/utils/auth";
 
 const Page = () => {
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const redirected = await checkAuthAndRedirect(router);
+      if (!redirected) {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const { mutate: login } = useMutation({
     mutationFn: (data) =>
@@ -44,6 +56,16 @@ const Page = () => {
     const data = { email: Email, password };
     login(data);
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex items-center justify-center">
+        <div className="text-[#F8589F]">
+          Vérification de l&apos;authentification...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">

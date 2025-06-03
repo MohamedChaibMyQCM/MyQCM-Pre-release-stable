@@ -52,10 +52,11 @@ export default function DashboardLayout({ children }) {
     queryKey: ["userMeAuthCheck", token],
     queryFn: () => fetchApiData("/user/me"),
     enabled: !!token && mounted,
-    staleTime: 1000 * 30, // 30 seconds instead of 5 minutes
+    staleTime: 1000 * 10, // Reduce to 10 seconds for more frequent updates
+    cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     retry: 1,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60, // Refetch every minute
+    refetchInterval: 1000 * 30, // Refetch every 30 seconds instead of 1 minute
   });
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <main>
-      {userData?.data && !userData.data.completed_introduction && (
+      {userData?.data && userData.data.completed_introduction === false && (
         <div className="bg-[#00000040] fixed inset-0 w-full h-full z-[2000]">
           <div className="bg-white flex items-center justify-between px-[80px] py-[36px] rounded-b-[24px] max-md:px-[20px] max-md:flex-col max-md:gap-8">
             <div className="basis-[76%]">

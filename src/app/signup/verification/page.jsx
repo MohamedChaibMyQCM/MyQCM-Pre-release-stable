@@ -46,10 +46,8 @@ const VerificationPage = () => {
     mutationFn: async (otpCode) => {
       const token = secureLocalStorage.getItem("token");
 
-      // Validate OTP code format before processing
       const cleanOtpCode = String(otpCode).trim();
 
-      // Check if it's exactly 6 digits
       if (
         !cleanOtpCode ||
         cleanOtpCode.length !== 6 ||
@@ -58,7 +56,6 @@ const VerificationPage = () => {
         throw new Error("Le code doit contenir exactement 6 chiffres");
       }
 
-      // Convert to number and validate again
       const otpNumber = parseInt(cleanOtpCode, 10);
 
       if (isNaN(otpNumber) || otpNumber < 100000 || otpNumber > 999999) {
@@ -80,9 +77,7 @@ const VerificationPage = () => {
     onSuccess: () => {
       setIsVerificationComplete(true);
       toast.success("Email vérifié avec succès!");
-      setTimeout(() => {
-        router.push("/signup/set-profile");
-      }, 1500);
+      router.push("/signup/set-profile");
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)
@@ -92,7 +87,6 @@ const VerificationPage = () => {
           "Code de vérification invalide";
       toast.error(message);
 
-      // Clear the input on error
       setOtpCode("");
     },
   });
@@ -124,7 +118,6 @@ const VerificationPage = () => {
   const handleSubmitOtp = (e) => {
     e.preventDefault();
 
-    // Additional client-side validation
     const cleanCode = String(otpCode).trim();
 
     if (!cleanCode) {
@@ -150,7 +143,6 @@ const VerificationPage = () => {
   };
 
   const handleOtpChange = (e) => {
-    // Only allow numeric input and limit to 6 digits
     const value = e.target.value.replace(/[^\d]/g, "").slice(0, 6);
     setOtpCode(value);
   };

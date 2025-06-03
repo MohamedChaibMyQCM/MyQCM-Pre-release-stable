@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
     cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     retry: 1,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 30, // Refetch every 30 seconds instead of 1 minute
+    refetchInterval: 1000 * 30, 
   });
 
   useEffect(() => {

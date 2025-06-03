@@ -26,7 +26,6 @@ const Page = () => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    console.log("Complete session response:", response.data);
     return response.data;
   };
 
@@ -56,7 +55,6 @@ const Page = () => {
         `/training-session/${trainingSessionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Session details response:", response.data.data);
       const details = response.data.data;
       setData((prev) => ({
         ...prev,
@@ -80,7 +78,6 @@ const Page = () => {
         `/training-session/${trainingSessionId}/mcq`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Initial/Current MCQ fetch response:", response.data);
       return response.data?.data;
     },
     enabled: !!trainingSessionId && !result,
@@ -95,20 +92,16 @@ const Page = () => {
         `/training-session/${trainingSessionId}/mcq`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Next MCQ fetch response:", response.data);
       if (!response.data?.data?.data || response.data.data.data.length === 0) {
-        console.log("No more questions data received from next fetch.");
         return { data: [], is_final: true };
       }
       return response.data.data;
     },
     onSuccess: (nextMcqData) => {
-      console.log("Setting query data for mcqs:", nextMcqData);
       queryClient.setQueryData(["mcqs", trainingSessionId], nextMcqData);
       setAnswer(null);
     },
     onError: (error) => {
-      console.error("Error fetching next MCQ:", error);
       toast.error("Failed to load the next question.");
     },
   });
@@ -146,10 +139,6 @@ const Page = () => {
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      if (submittedData.response && submittedData.response.trim() !== "") {
-        console.log("QROC Submission Response:", submitResponse.data);
-      }
 
       return {
         responseData: submitResponse.data.data,
@@ -198,7 +187,6 @@ const Page = () => {
   const handleSessionCompletion = useCallback(async () => {
     if (isCompletingSession || result) return;
     setIsCompletingSession(true);
-    console.log("Handling session completion");
     try {
       const response = await completeTrainingSessionInternal(trainingSessionId);
       const completionData = response.data || response;
@@ -226,7 +214,6 @@ const Page = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["trainingSessions"] });
     } catch (error) {
-      console.error("Error completing session:", error);
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
         : error?.response?.data?.message ||
@@ -250,7 +237,6 @@ const Page = () => {
       !quizApiResponse.data ||
       quizApiResponse.data.length === 0
     ) {
-      console.log("processQuizData: No data found in response structure.");
       return { currentQuestion: null, isFinal: true };
     }
     return {

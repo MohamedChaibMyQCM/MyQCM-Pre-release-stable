@@ -30,22 +30,25 @@ export default function OnboardingLayout({ children }) {
             animation: fadeIn 0.5s ease-out;
           }
 
+          /* Ensuring proper z-index hierarchy for onboarding */
           .manual-tour-overlay {
-            z-index: 100 !important;
+            z-index: 100 !important; /* Lower z-index to not block elements */
           }
 
           .manual-tour-tooltip {
-            z-index: 20000 !important;
+            z-index: 20000 !important; /* Extremely high z-index */
           }
 
           .tour-highlight-active {
-            z-index: 1000 !important;
+            z-index: 1000 !important; /* Above overlay */
           }
 
+          /* Make sure sidebar is above overlay */
           .fixed.w-\\[248px\\] {
             z-index: 500 !important;
           }
 
+          /* Ensure sidebar contents are visible */
           aside.fixed svg,
           aside.fixed img,
           aside.fixed span,
@@ -54,6 +57,7 @@ export default function OnboardingLayout({ children }) {
             z-index: 501 !important;
           }
 
+          /* Make sure menu elements are visible in mobile */
           @media (max-width: 1279px) {
             .max-xl\\:fixed,
             .menu-toggle-btn,
@@ -61,6 +65,7 @@ export default function OnboardingLayout({ children }) {
               z-index: 1001 !important;
             }
 
+            /* Menu contents should be above overlay */
             .max-xl\\:translate-x-0 * {
               z-index: 1002 !important;
               position: relative !important;

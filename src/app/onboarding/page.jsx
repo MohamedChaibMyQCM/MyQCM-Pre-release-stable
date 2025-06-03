@@ -16,75 +16,65 @@ import Loading from "../../components/Loading";
 const ONBOARDING_TOUR_STEPS = [
   {
     id: "tour-notification-icon",
-    content:
-      "Votre centre de notifications personnel. Recevez des rappels d'étude, des mises à jour de progrès et des annonces importantes de l'équipe MyQCM directement ici.",
+    content: "Votre centre de notifications personnel. Recevez des rappels d'étude, des mises à jour de progrès et des annonces importantes de l'équipe MyQCM directement ici.",
     placement: "bottom-start",
     highlightPadding: 8,
   },
   {
     id: "tour-qcm-display",
-    content:
-      "Votre compteur de Questions à Choix Multiples. Suivez le nombre de QCM que vous avez complétées aujourd'hui et votre progression vers vos objectifs quotidiens.",
+    content: "Votre compteur de Questions à Choix Multiples. Suivez le nombre de QCM que vous avez complétées aujourd'hui et votre progression vers vos objectifs quotidiens.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-qroc-display",
-    content:
-      "Votre compteur de Questions à Réponse Ouverte Courte. Ces questions développent votre capacité de rédaction et d'expression claire des concepts médicaux.",
+    content: "Votre compteur de Questions à Réponse Ouverte Courte. Ces questions développent votre capacité de rédaction et d'expression claire des concepts médicaux.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-streak-display",
-    content:
-      "Votre série d'apprentissage quotidienne ! Plus vous étudiez régulièrement, plus votre série grandit. Maintenez votre momentum pour débloquer des récompenses spéciales.",
+    content: "Votre série d'apprentissage quotidienne ! Plus vous étudiez régulièrement, plus votre série grandit. Maintenez votre momentum pour débloquer des récompenses spéciales.",
     placement: "bottom",
     highlightPadding: 8,
   },
   {
     id: "tour-xp-display",
-    content:
-      "Vos points d'expérience (XP) gagnés. Chaque question réussie vous rapporte des XP. Accumulez des points pour débloquer de nouveaux niveaux et fonctionnalités.",
+    content: "Vos points d'expérience (XP) gagnés. Chaque question réussie vous rapporte des XP. Accumulez des points pour débloquer de nouveaux niveaux et fonctionnalités.",
     placement: "bottom-end",
     highlightPadding: 8,
   },
   {
     id: "tour-units-section",
-    content:
-      "Vos unités d'apprentissage organisées par spécialité médicale. Chaque unité contient des modules structurés pour une progression logique dans vos études.",
+    content: "Vos unités d'apprentissage organisées par spécialité médicale. Chaque unité contient des modules structurés pour une progression logique dans vos études.",
     placement: "bottom",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-modules-section",
-    content:
-      "Les modules détaillés de chaque unité. Explorez les leçons spécifiques, suivez votre progression et accédez aux exercices pratiques adaptés à votre niveau.",
+    content: "Les modules détaillés de chaque unité. Explorez les leçons spécifiques, suivez votre progression et accédez aux exercices pratiques adaptés à votre niveau.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-calendar-section",
-    content:
-      "Votre planificateur d'étude intelligent. Organisez vos sessions de révision, définissez des rappels et visualisez votre calendrier d'apprentissage personnalisé.",
+    content: "Votre planificateur d'étude intelligent. Organisez vos sessions de révision, définissez des rappels et visualisez votre calendrier d'apprentissage personnalisé.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "tour-studytime-section",
-    content:
-      "Votre tableau de bord de progression. Analysez votre temps d'étude quotidien, vos performances par matière et vos statistiques détaillées pour optimiser votre apprentissage.",
+    content: "Votre tableau de bord de progression. Analysez votre temps d'étude quotidien, vos performances par matière et vos statistiques détaillées pour optimiser votre apprentissage.",
     placement: "top",
     scrollToElement: true,
     highlightPadding: 6,
   },
   {
     id: "finish-onboarding-tour",
-    content:
-      "Félicitations ! Vous maîtrisez maintenant les bases de MyQCM. Commencez votre parcours d'apprentissage personnalisé et excellez dans vos études médicales !",
+    content: "Félicitations ! Vous maîtrisez maintenant les bases de MyQCM. Commencez votre parcours d'apprentissage personnalisé et excellez dans vos études médicales !",
     placement: "center",
     isFinalStep: true,
     highlightPadding: 0,
@@ -103,6 +93,10 @@ const fetchUserData = async () => {
     });
     return response.data;
   } catch (error) {
+    console.error(
+      "Error fetching user data:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -169,6 +163,10 @@ export default function OnboardingPage() {
       return true;
     } catch (error) {
       setIsSubmitting(false);
+      console.error(
+        "Error marking introduction as complete:",
+        error.response?.data || error.message
+      );
       return false;
     }
   };
@@ -488,23 +486,6 @@ export default function OnboardingPage() {
     }, 300);
   };
 
-  const handleSkipTour = async () => {
-    if (isSubmitting) return;
-
-    setTooltipStyle((prev) => ({
-      ...prev,
-      opacity: 0,
-      transform: "translateY(10px) scale(0.98)",
-    }));
-    setTimeout(() => setIsTourActive(false), 250);
-
-    const success = await markIntroductionComplete();
-
-    if (success) {
-      router.push("/dashboard");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
@@ -581,11 +562,11 @@ export default function OnboardingPage() {
 
                   {!ONBOARDING_TOUR_STEPS[currentTourStepIndex].isFinalStep && (
                     <button
-                      onClick={handleSkipTour}
+                      onClick={handleFinishTourOnlyUI}
                       className="skip-button"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Finalisation..." : "Passer"}
+                      Passer
                     </button>
                   )}
 

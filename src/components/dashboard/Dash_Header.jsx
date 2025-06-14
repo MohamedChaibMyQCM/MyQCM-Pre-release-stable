@@ -121,6 +121,12 @@ const Dash_Header = () => {
 
   const toggleNotification = () => setIsNotificationOpen(!isNotificationOpen);
 
+  const notificationsArray = userNotification?.data || [];
+  const unreadCount = notificationsArray.filter(
+    (notification) => notification.status === "pending"
+  ).length;
+  const totalCount = notificationsArray.length;
+
   const isQcmInfinite = userSubscription?.plan?.mcqs === null;
   const remainingMcqs = userSubscription
     ? !isQcmInfinite
@@ -230,16 +236,23 @@ const Dash_Header = () => {
       {renderHeaderText()}
 
       <div className="flex items-center gap-10 max-md:hidden">
-        <Image
-          id="tour-notification-icon"
-          src={notificationIcon}
-          alt="notification"
-          className="w-[16px] cursor-pointer"
-          onClick={toggleNotification}
-          width={16}
-          height={16}
-          style={{ height: "auto" }}
-        />
+        <div className="relative">
+          <Image
+            id="tour-notification-icon"
+            src={notificationIcon}
+            alt="notification"
+            className="w-[16px] cursor-pointer hover:opacity-70 transition-opacity"
+            onClick={toggleNotification}
+            width={16}
+            height={16}
+            style={{ height: "auto" }}
+          />
+          {unreadCount > 0 && (
+            <div className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-[#F8589F] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </div>
+          )}
+        </div>
 
         <div id="tour-qcm-display">
           {userSubscription && isQcmInfinite ? (
@@ -294,7 +307,7 @@ const Dash_Header = () => {
       {isNotificationOpen && (
         <Notification
           onClose={toggleNotification}
-          notifications={userNotification || []}
+          notifications={notificationsArray}
         />
       )}
     </div>

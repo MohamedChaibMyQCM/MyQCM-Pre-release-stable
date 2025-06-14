@@ -38,6 +38,7 @@ export default function DashboardPage() {
     refetchOnWindowFocus: true,
     refetchInterval: 1000 * 60, // Refetch every minute
   });
+  
 
   if (isLoadingUser) {
     return <Loading />;

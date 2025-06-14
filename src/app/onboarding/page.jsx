@@ -539,10 +539,7 @@ export default function OnboardingPage() {
     <div className="onboarding-page-container relative">
       {isTourActive && (
         <>
-          <div
-            className="manual-tour-overlay"
-            onClick={handleFinishTourOnlyUI}
-          ></div>
+          <div className="manual-tour-overlay"></div>
           <div
             ref={tooltipRef}
             className={`manual-tour-tooltip ${

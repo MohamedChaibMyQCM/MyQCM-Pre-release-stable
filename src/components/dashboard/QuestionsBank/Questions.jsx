@@ -29,7 +29,7 @@ const Questions = ({
   const router = useRouter();
 
   const {
-    data: userMode,
+    data: userProfile,
     isLoading: isLoadingProfile,
     error: profileError,
   } = useQuery({
@@ -42,20 +42,28 @@ const Questions = ({
       const response = await BaseUrl.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.data?.data?.mode?.name) {
-        return response.data.data.mode.name;
-      } else {
-        toast.error("Mode utilisateur introuvable dans la réponse.");
-      }
+      return response.data?.data;
     },
     onError: (err) => {
-      toast.error(`Échec du chargement du mode profil: ${err.message}`);
+      toast.error(`Échec du chargement du profil: ${err.message}`);
     },
     enabled: !!secureLocalStorage.getItem("token"),
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 1000 * 30,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60, // Refetch every minute
+    refetchInterval: 1000 * 60,
   });
+
+  const isUserFourthYear = userProfile?.year_of_study === "Fourth Year";
+  const userMode = userProfile?.mode?.name;
+
+  const radiologieCourse = {
+    id: "3ea02d7b-7539-493a-bac2-03e40d6a61a1",
+    name: "Revision Radiologie",
+    total: 87,
+    progress_percentage: 0,
+  };
+
+  const displayData = isUserFourthYear ? [radiologieCourse] : data;
 
   const { mutate: startSynergySession, isPending: isStartingSynergy } =
     useMutation({
@@ -112,7 +120,7 @@ const Questions = ({
     setSelectedCourseId(null);
   };
 
-  if (isLoadingCourses) {
+  if (isLoadingCourses || isLoadingProfile) {
     return <Loading />;
   }
   if (coursesError) {
@@ -133,8 +141,6 @@ const Questions = ({
       !userMode ||
       profileError
     ) {
-      if (activePopup && (isLoadingProfile || !userMode || profileError)) {
-      }
       return null;
     }
 
@@ -180,17 +186,17 @@ const Questions = ({
     <div className="relative rounded-[20px]">
       <div className="flex items-center justify-between mb-5">
         <h1 className="font-Poppins font-[500] text-[22px] text-[#191919]">
-          Questions par cours
+          {isUserFourthYear ? "Revision Radiologie" : "Questions par cours"}
         </h1>
       </div>
 
-      {data.length === 0 ? (
+      {displayData.length === 0 ? (
         <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded box">
           Aucun cours (avec questions) trouvé.
         </div>
       ) : (
         <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box">
-          {data.map((item) => {
+          {displayData.map((item) => {
             const MAX_NAME_LENGTH = 26;
             const progress = item.progress_percentage || 0;
             const displayName =
@@ -210,8 +216,14 @@ const Questions = ({
               >
                 <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[82%]">
                   <Image
-                    src={subjectData.icon || "/default-icon.svg"}
-                    alt={`Icon for ${subjectData.name}`}
+                    src={
+                      isUserFourthYear
+                        ? "https://res.cloudinary.com/dgxaezwuv/image/upload/v1744685292/Semiology_gbmjbf.svg"
+                        : subjectData.icon || "/default-icon.svg"
+                    }
+                    alt={`Icon for ${
+                      isUserFourthYear ? "Pneumologie" : subjectData.name
+                    }`}
                     width={40}
                     height={40}
                     className="w-[40px] h-[40px] max-md:w-[34px] max-md:h-[34px] shrink-0"
@@ -226,11 +238,11 @@ const Questions = ({
                     >
                       {displayName}
                     </span>
-                    <span className="font-Poppins text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
+                    <span className="font-Poppins w-[300px] text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
                       {item.name}
                     </span>
                     <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">
-                      {subjectData.name} •{" "}
+                      {isUserFourthYear ? "Pneumologie" : subjectData.name} •{" "}
                       <span className="text-[#F8589F]">
                         {item.total} {questionLabel}
                       </span>

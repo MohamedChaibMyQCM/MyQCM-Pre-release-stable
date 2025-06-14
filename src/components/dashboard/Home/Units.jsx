@@ -25,40 +25,48 @@ const Units = () => {
   const [showQuickSimTooltip, setShowQuickSimTooltip] = useState(false);
   const [showLockedUnitTooltip, setShowLockedUnitTooltip] = useState(false);
 
-  const {
-    data: units,
-    isLoading: isUnitsLoading,
-    error: unitsError,
-  } = useQuery({
-    queryKey: ["units"],
+  const { data: userPro, refetch: refetchUserPro } = useQuery({
+    queryKey: ["u"],
     queryFn: async () => {
       try {
         const token = secureLocalStorage.getItem("token");
-        if (!token) {
-          console.warn("Authentication token not found for fetching units.");
-        }
-        const response = await BaseUrl.get("/unit/me", {
+        const response = await BaseUrl.get("/user/profile", {
           headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
+            Authorization: `Bearer ${token}`,
           },
         });
-        return response.data?.data?.data || [];
+        return response.data?.data || {};
       } catch (err) {
-        console.error("Error fetching units:", err);
-        return [];
+        toast.error("Failed to fetch user data. Please try again later.");
       }
     },
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    retry: 1,
   });
+  console.log(userPro);
 
-  const unitsData = [
+  // Check if user is in fourth year
+  const isUserFourthYear = userPro?.year_of_study === "Fourth Year";
+
+  // Special pneumology unit for fourth-year students
+  const pneumologyUnit = {
+    id: "b7eeafcf-9922-4d58-8896-0c97e0efbe3f",
+    title: "Module Pneumologie (Expérimental)",
+    description:
+      "Testez notre moteur QROC nouvelle génération, doté d'une vision IA pour l'analyse d'images radiologiques. Mettez vos compétences d'interprétation à l'épreuve et recevez un feedback instantané pour affiner votre regard clinique.",
+    startColor: "#D17C81", // Updated background color as requested
+    endColor: "#F8589F",
+    image:
+      "https://res.cloudinary.com/dgxaezwuv/image/upload/v1749854368/Untitled_design_4_nvw81f.png",
+    imageWidth: 160,
+    position: { right: "40px", bottom: "18px" },
+  };
+
+  // Regular units data
+  const regularUnitsData = [
     {
       id: "08d2c45d-288c-468b-a12c-687420f4e4f8", // Unit 1 (Index 0)
       title: "Unité 01 : Cardio-respiratoire et Psychologie Médicale",
       description:
-        "Découvrez l’interaction entre les systèmes cardiovasculaire et respiratoire, ainsi que l’importance des aspects psychologiques dans les soins. Cette unité propose cinq modules clés pour mieux comprendre leur rôle dans la santé et la prise en charge des patients.",
+        "Découvrez l'interaction entre les systèmes cardiovasculaire et respiratoire, ainsi que l'importance des aspects psychologiques dans les soins. Cette unité propose cinq modules clés pour mieux comprendre leur rôle dans la santé et la prise en charge des patients.",
       startColor: "#F43A5D",
       endColor: "#F8589F",
       image: unit1,
@@ -155,8 +163,11 @@ const Units = () => {
     },
   ];
 
+  // Choose units data based on user's year
+  const unitsData = isUserFourthYear ? [pneumologyUnit] : regularUnitsData;
+
   useEffect(() => {
-    if (unitsData.length === 0) return;
+    if (unitsData.length <= 1) return; // Don't auto-rotate if only one unit
 
     const interval = setInterval(() => {
       setCurrentUnit((prev) => (prev >= unitsData.length - 1 ? 0 : prev + 1));
@@ -166,6 +177,12 @@ const Units = () => {
   }, [unitsData.length]);
 
   const handleStartUnit = (unitId) => {
+    // For pneumology unit, go directly to the specific path
+    if (unitId === pneumologyUnit.id) {
+      router.push(`/dashboard/question-bank/${unitId}`);
+      return;
+    }
+
     const unit = unitsData.find((u) => u.id === unitId);
     if (!unit) {
       console.error(`Unit with ID ${unitId} not found in unitsData.`);
@@ -188,7 +205,8 @@ const Units = () => {
 
   const currentUnitIndex = Math.min(currentUnit, unitsData.length - 1);
   const currentUnitData = unitsData[currentUnitIndex];
-  const isCurrentUnitLocked = currentUnitIndex < 3;
+  // Skip lock for pneumology unit
+  const isCurrentUnitLocked = !isUserFourthYear && currentUnitIndex < 3;
 
   if (!currentUnitData) {
     return null;
@@ -276,7 +294,6 @@ const Units = () => {
                   >
                     <div className="relative">
                       {" "}
-                      {/* This inner relative div is key for the arrow's centering */}
                       <span>
                         Ces trois premières unités seront disponibles
                         prochainement.
@@ -288,6 +305,7 @@ const Units = () => {
               </AnimatePresence>
             </div>
 
+            {/* Restored "Simulation rapide d'examen" for all users including fourth-year */}
             <div className="relative">
               <button
                 className="text-[13px] text-[#FFFFFF] font-[500] leading-5 tracking-[0.14px] underline whitespace-nowrap"
@@ -309,8 +327,6 @@ const Units = () => {
                     className={`${tooltipBaseClasses} max-w-[240px]`}
                   >
                     <div className="relative">
-                      {" "}
-                      {/* This inner relative div is key for the arrow's centering */}
                       <span>Fonctionnalité à venir prochainement.</span>
                       <div className={tooltipArrowClasses}></div>
                     </div>
@@ -322,22 +338,24 @@ const Units = () => {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center z-10">
-        <ul className="flex gap-2 items-center">
-          {unitsData.map((_, index) => (
-            <li
-              key={`dot-${index}`}
-              className={`h-2 rounded-full bg-white cursor-pointer transition-all duration-300 ease-in-out ${
-                currentUnitIndex === index
-                  ? "w-6 opacity-100"
-                  : "w-2 opacity-50 hover:opacity-75"
-              }`}
-              onClick={() => setCurrentUnit(index)}
-              aria-label={`Aller à l'unité ${index + 1}`}
-            />
-          ))}
-        </ul>
-      </div>
+      {unitsData.length > 1 && (
+        <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center z-10">
+          <ul className="flex gap-2 items-center">
+            {unitsData.map((_, index) => (
+              <li
+                key={`dot-${index}`}
+                className={`h-2 rounded-full bg-white cursor-pointer transition-all duration-300 ease-in-out ${
+                  currentUnitIndex === index
+                    ? "w-6 opacity-100"
+                    : "w-2 opacity-50 hover:opacity-75"
+                }`}
+                onClick={() => setCurrentUnit(index)}
+                aria-label={`Aller à l'unité ${index + 1}`}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
 
       <AnimatePresence>
         <motion.div
@@ -355,14 +373,30 @@ const Units = () => {
             zIndex: 1,
           }}
         >
-          <Image
-            src={currentUnitData.image}
-            alt={`Icône ${currentUnitData.title}`}
-            width={currentUnitData.imageWidth || 150}
-            height={currentUnitData.imageWidth || 150}
-            style={{ display: "block", width: "100%", height: "auto" }}
-            priority={currentUnitIndex < 3}
-          />
+          {typeof currentUnitData.image === "string" ? (
+            // For external images like the pneumology module
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={currentUnitData.image}
+              alt={`Icône ${currentUnitData.title}`}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          ) : (
+            // For imported SVG/images
+            <Image
+              src={currentUnitData.image}
+              alt={`Icône ${currentUnitData.title}`}
+              width={currentUnitData.imageWidth || 150}
+              height={currentUnitData.imageWidth || 150}
+              style={{ display: "block", width: "100%", height: "auto" }}
+              priority={currentUnitIndex < 3}
+            />
+          )}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -55,55 +55,6 @@ const Categories = () => {
   }, []);
 
   const {
-    data: unitsData,
-    isLoading: isUnitsLoading,
-    error: unitsError,
-  } = useQuery({
-    queryKey: ["units"],
-    queryFn: async () => {
-      if (!secureLocalStorage.getItem("token")) return [];
-      try {
-        const token = secureLocalStorage.getItem("token");
-        const response = await BaseUrl.get("/unit/me?offset=50", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        return response.data?.data?.data || [];
-      } catch (err) {
-        console.error("Categories: Error fetching units:", err);
-        return [];
-      }
-    },
-    staleTime: 1000 * 60 * 10,
-    retry: 1,
-  });
-
-  // Filter out hidden units from the fetched units data
-  const filteredUnitsData = useMemo(() => {
-    if (!unitsData || unitsData.length === 0) return [];
-    console.log("Units before filtering:", unitsData);
-    const filtered = unitsData.filter(
-      (unit) => !hiddenUnitIds.includes(unit.id)
-    );
-    console.log("Hidden unit IDs to filter:", hiddenUnitIds);
-    console.log("Units after filtering:", filtered);
-    return filtered;
-  }, [unitsData]);
-
-  // Check if selected unit is a hidden unit
-  const isSelectedUnitHidden = useMemo(() => {
-    const isHidden = hiddenUnitIds.includes(selectedUnitId);
-    console.log("Selected unit ID:", selectedUnitId, "Is hidden?", isHidden);
-    return isHidden;
-  }, [selectedUnitId]);
-
-  // Reset selection if a hidden unit is selected
-  useEffect(() => {
-    if (isSelectedUnitHidden) {
-      setSelectedUnitId("");
-    }
-  }, [isSelectedUnitHidden]);
-
-  const {
     data: profileData,
     isLoading: isProfileLoading,
     error: profileError,
@@ -130,21 +81,74 @@ const Categories = () => {
     retry: 1,
   });
 
+  // Check if user is in fourth year
+  const isUserFourthYear = profileData?.year_of_study === "Fourth Year";
+
+  // Special pneumologie module for fourth-year students
+  const pneumologieSubject = {
+    id: "b7eeafcf-9922-4d58-8896-0c97e0efbe3f",
+    name: "Pneumologie",
+    totalQuestions: 87,
+    icon: "https://res.cloudinary.com/dgxaezwuv/image/upload/v1744685292/Semiology_gbmjbf.svg",
+  };
+
+  const {
+    data: unitsData,
+    isLoading: isUnitsLoading,
+    error: unitsError,
+  } = useQuery({
+    queryKey: ["units"],
+    queryFn: async () => {
+      if (!secureLocalStorage.getItem("token")) return [];
+      try {
+        const token = secureLocalStorage.getItem("token");
+        const response = await BaseUrl.get("/unit/me?offset=50", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data?.data?.data || [];
+      } catch (err) {
+        console.error("Categories: Error fetching units:", err);
+        return [];
+      }
+    },
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+    enabled: !isUserFourthYear && !!secureLocalStorage.getItem("token"),
+  });
+
+  // Filter out hidden units from the fetched units data
+  const filteredUnitsData = useMemo(() => {
+    if (!unitsData || unitsData.length === 0) return [];
+    const filtered = unitsData.filter(
+      (unit) => !hiddenUnitIds.includes(unit.id)
+    );
+    return filtered;
+  }, [unitsData]);
+
+  // Check if selected unit is a hidden unit
+  const isSelectedUnitHidden = useMemo(() => {
+    const isHidden = hiddenUnitIds.includes(selectedUnitId);
+    return isHidden;
+  }, [selectedUnitId]);
+
+  // Reset selection if a hidden unit is selected
+  useEffect(() => {
+    if (isSelectedUnitHidden) {
+      setSelectedUnitId("");
+    }
+  }, [isSelectedUnitHidden]);
+
   // Check if profile's default unit is hidden
   const isProfileUnitHidden = useMemo(() => {
     if (!profileData?.unit?.id) return false;
     const isHidden = hiddenUnitIds.includes(profileData.unit.id);
-    console.log(
-      "Profile default unit ID:",
-      profileData.unit.id,
-      "Is hidden?",
-      isHidden
-    );
     return isHidden;
   }, [profileData]);
 
   // Determine unit ID for fetching, avoiding hidden units
   const unitIdToFetch = useMemo(() => {
+    if (isUserFourthYear) return null;
+
     const result = selectedUnitId
       ? isSelectedUnitHidden
         ? ""
@@ -152,9 +156,14 @@ const Categories = () => {
       : isProfileUnitHidden
       ? ""
       : profileData?.unit?.id;
-    console.log("Unit ID to fetch subjects:", result);
     return result;
-  }, [selectedUnitId, isSelectedUnitHidden, profileData, isProfileUnitHidden]);
+  }, [
+    selectedUnitId,
+    isSelectedUnitHidden,
+    profileData,
+    isProfileUnitHidden,
+    isUserFourthYear,
+  ]);
 
   const {
     data: subjectsData = [],
@@ -182,10 +191,18 @@ const Categories = () => {
         return [];
       }
     },
-    enabled: !!unitIdToFetch && !!secureLocalStorage.getItem("token"),
+    enabled:
+      !!unitIdToFetch &&
+      !!secureLocalStorage.getItem("token") &&
+      !isUserFourthYear,
     staleTime: 1000 * 60 * 5,
     retry: 1,
   });
+
+  // Use either pneumologie subject or regular subjects based on user's year
+  const displaySubjects = isUserFourthYear
+    ? [pneumologieSubject]
+    : subjectsData;
 
   const resetFilter = () => {
     setSelectedUnitId("");
@@ -197,14 +214,17 @@ const Categories = () => {
   };
 
   const isInitialLoading =
-    isUnitsLoading ||
-    isProfileLoading ||
-    (!!unitIdToFetch &&
-      isSubjectsLoading &&
-      subjectsData?.length === 0 &&
-      !subjectsError);
+    (!isUserFourthYear &&
+      (isUnitsLoading ||
+        isProfileLoading ||
+        (!!unitIdToFetch &&
+          isSubjectsLoading &&
+          subjectsData?.length === 0 &&
+          !subjectsError))) ||
+    (isUserFourthYear && isProfileLoading);
 
-  const hasError = subjectsError || unitsError || profileError;
+  const hasError =
+    (subjectsError || unitsError || profileError) && !isUserFourthYear;
 
   if (hasError) {
     const errorMessage =
@@ -271,52 +291,55 @@ const Categories = () => {
         <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
           Modules
         </h3>
-        <div className="relative" ref={filterRef}>
-          <div
-            className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-gray-50"
-            onClick={() => setShowFilter(!showFilter)}
-            role="button"
-            aria-haspopup="true"
-            aria-expanded={showFilter}
-          >
-            <button className="text-[14px] font-[500]">
-              {filterButtonLabel}
-            </button>
-            <Image src={filter} alt="filtre" className="w-[13px]" />
+        {!isUserFourthYear && (
+          <div className="relative" ref={filterRef}>
+            <div
+              className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-gray-50"
+              onClick={() => setShowFilter(!showFilter)}
+              role="button"
+              aria-haspopup="true"
+              aria-expanded={showFilter}
+            >
+              <button className="text-[14px] font-[500]">
+                {filterButtonLabel}
+              </button>
+              <Image src={filter} alt="filtre" className="w-[13px]" />
+            </div>
+            <AnimatePresence>
+              {showFilter && (
+                <motion.div
+                  variants={popupVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="absolute right-0 mt-2 z-20"
+                >
+                  <FilterPopup
+                    selectedUnit={selectedUnitId}
+                    setSelectedUnit={setSelectedUnitId}
+                    resetFilter={resetFilter}
+                    closeFilter={closeFilter}
+                    units={filteredUnitsData || []}
+                    selectContentRef={selectContentRef}
+                    isLoading={isUnitsLoading}
+                    hiddenUnitIds={hiddenUnitIds}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <AnimatePresence>
-            {showFilter && (
-              <motion.div
-                variants={popupVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="absolute right-0 mt-2 z-20"
-              >
-                <FilterPopup
-                  selectedUnit={selectedUnitId}
-                  setSelectedUnit={setSelectedUnitId}
-                  resetFilter={resetFilter}
-                  closeFilter={closeFilter}
-                  units={filteredUnitsData || []} // Pass filtered units instead of all units
-                  selectContentRef={selectContentRef}
-                  isLoading={isUnitsLoading}
-                  hiddenUnitIds={hiddenUnitIds} // Pass the hidden unit IDs
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        )}
       </div>
 
       <ul
         className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
-          isSubjectsFetching && !isInitialLoading
+          (isSubjectsFetching && !isInitialLoading) ||
+          (isUserFourthYear && isProfileLoading)
             ? "opacity-75 pointer-events-none"
             : "opacity-100"
         }`}
       >
-        {!isInitialLoading && subjectsData?.length === 0 ? (
+        {!isInitialLoading && displaySubjects?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
@@ -337,7 +360,7 @@ const Categories = () => {
             )}
           </div>
         ) : (
-          subjectsData?.map((item) => (
+          displaySubjects?.map((item) => (
             <li
               key={item.id}
               className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"
@@ -357,7 +380,6 @@ const Categories = () => {
                   className="flex-shrink-0"
                 />
                 <div className="flex flex-col gap-1 overflow-hidden min-w-0">
-                  {" "}
                   <span
                     className="text-[#FFFFFF] font-Poppins font-semibold text-[14px] truncate"
                     title={item.name}

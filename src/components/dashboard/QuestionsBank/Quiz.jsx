@@ -420,7 +420,7 @@ const Quiz = ({
             <Image
               src={questionData.attachment}
               alt="Quiz attachment"
-              className="w-full h-auto object-contain rounded"
+              className="w-[260px] h-auto object-contain rounded"
               width={360}
               height={240}
               priority={currentQuestionNumber < 3}

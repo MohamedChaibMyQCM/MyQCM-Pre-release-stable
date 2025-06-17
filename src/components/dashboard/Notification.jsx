@@ -145,13 +145,13 @@ const Notification = ({ onClose, notifications = [] }) => {
   return (
     <div
       ref={notificationRef}
-      className="absolute top-[60px] left-[58%] w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"
+      className="absolute top-[60px] right-[20%] w-[340px] bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] max-h-96 overflow-hidden max-xl:top-9 max-xl:right-[-30px] max-xl:w-[calc(100vw-2rem)] max-xl:max-w-[340px] max-md:right-[-1px]"
       style={{
         boxShadow:
           "0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
       }}
     >
-      <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+      <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
         <h3 className="font-semibold text-gray-900 text-lg">Notifications</h3>
         <button
           onClick={onClose}
@@ -202,7 +202,7 @@ const Notification = ({ onClose, notifications = [] }) => {
                     {getNotificationIcon(notification.notification_type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 gap-2">
                       <p className="text-sm font-semibold text-gray-900">
                         {getNotificationTypeLabel(
                           notification.notification_type
@@ -248,19 +248,6 @@ const Notification = ({ onClose, notifications = [] }) => {
                         </svg>
                       </a>
                     )}
-                    <div className="flex items-center justify-between mt-2">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          notification.channel === "in_app"
-                            ? "bg-purple-100 text-purple-800"
-                            : notification.channel === "email"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {notification.channel}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -231,14 +231,14 @@ const Questions = ({
                       e.target.src = "/default-icon.svg";
                     }}
                   />
-                  <div className="flex flex-col gap-[2px] overflow-hidden">
+                  <div className="flex flex-col gap-[2px] overflow-hidden w-[300px] max-xl:w-[200px] max-md:w-[160px]">
                     <span
                       className="font-Poppins text-[#191919] font-[500] text-[14px] truncate md:hidden"
                       title={item.name}
                     >
                       {displayName}
                     </span>
-                    <span className="font-Poppins w-[300px] text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
+                    <span className="font-Poppin text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
                       {item.name}
                     </span>
                     <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">

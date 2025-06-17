@@ -20,6 +20,7 @@ import logout from "../../../public/Aside/logout.svg";
 import menu from "../../../public/Home/Menu.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import streak from "../../../public/Icons/streak.svg";
+import { MdReportGmailerrorred } from "react-icons/md";
 
 const Aside = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,6 +32,7 @@ const Aside = () => {
 
   const afterDashboard = path.split("/dashboard/")[1] || "";
   const isSettingsActive = afterDashboard.startsWith("settings");
+  const isReportActive = afterDashboard.startsWith("report");
 
   const fetchData = async (url) => {
     const token = secureLocalStorage.getItem("token");
@@ -219,6 +221,12 @@ const Aside = () => {
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </div>
               )}
+              {isNotificationOpen && (
+                <Notification
+                  onClose={toggleNotification}
+                  notifications={notificationsArray}
+                />
+              )}
             </div>
           )}
 
@@ -328,11 +336,29 @@ const Aside = () => {
           </li>
         </ul>
         <div className="relative flex flex-col gap-1 pl-5 max-xl:hidden">
-          {" "}
           <div
-            className={`rounded-l-[12px] py-[14px] w-[88%] pl-[10px] ${
-              isSettingsActive ? "text-[#F8589F]" : ""
-            }`}
+            className="py-[14px] w-[88%] pl-[8px]"
+          >
+            <Link
+              href={`/dashboard/report`}
+              className="text-[#324054] flex items-center gap-4"
+            >
+              <MdReportGmailerrorred
+                className={`w-[20px] h-[20px] ${
+                  isReportActive ? "text-[#F8589F]" : "text-[#324054]"
+                }`}
+              />
+              <span
+                className={`text-[14.5px] font-[500] ${
+                  isReportActive ? "text-[#F8589F]" : ""
+                }`}
+              >
+                Signaler des bugs
+              </span>
+            </Link>
+          </div>
+          <div
+            className={`rounded-l-[12px] py-[14px] w-[88%] pl-[10px]`}
           >
             <Link
               href={`/dashboard/settings`}
@@ -377,13 +403,6 @@ const Aside = () => {
         onClose={closeLogoutModal}
         onConfirm={confirmLogout}
       />
-
-      {isNotificationOpen && (
-        <Notification
-          onClose={toggleNotification}
-          notifications={notificationsArray}
-        />
-      )}
     </>
   );
 };

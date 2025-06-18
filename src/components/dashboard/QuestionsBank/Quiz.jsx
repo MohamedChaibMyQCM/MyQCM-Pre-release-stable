@@ -219,27 +219,16 @@ const Quiz = ({
       const skipPayload = {
         mcq: questionData.id,
         time_spent: 0,
-        skipped: true,
+        is_skipped: true,
       };
 
-      if (questionData.type === "qcs" || questionData.type === "qcm") {
-        if (questionData.options && questionData.options.length > 0) {
-          skipPayload.response_options = [
-            { option: questionData.options[0].id },
-          ];
-        } else {
-          skipPayload.response_options = [];
-        }
-        skipPayload.response = null;
-      } else {
-        skipPayload.response_options = null;
-        skipPayload.response = "";
-      }
-
+      // When skipping, we don't need to send response options or response
+      // as the backend handles this specially for skipped questions
       await Progress(skipPayload);
 
       fetchNextMcq();
     } catch (error) {
+      console.error("Skip error:", error);
       toast.error("Failed to skip question. Please try again.");
 
       setData((prevData) => ({

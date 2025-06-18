@@ -15,6 +15,7 @@ import CustomSchedule from "./TrainingPopups/CustomShedule";
 import GuidedSeason from "./TrainingPopups/GuidedSeason";
 import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const CUSTOM_MODE = "Mode Personnalisé";
 const GUIDED_MODE = "Mode Guidé";
@@ -32,29 +33,16 @@ const Questions = ({
     data: userProfile,
     isLoading: isLoadingProfile,
     error: profileError,
-  } = useQuery({
-    queryKey: ["userProfileMode"],
-    queryFn: async () => {
-      const token = secureLocalStorage.getItem("token");
-      if (!token) {
-        throw new Error("No token found");
-      }
-      const response = await BaseUrl.get("/user/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data?.data;
-    },
-    onError: (err) => {
-      toast.error(`Échec du chargement du profil: ${err.message}`);
-    },
-    enabled: !!secureLocalStorage.getItem("token"),
-    staleTime: 1000 * 30,
-    refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60,
-  });
+  } = useUserProfile();
 
   const isUserFourthYear = userProfile?.year_of_study === "Fourth Year";
   const userMode = userProfile?.mode?.name;
+
+  // Add debug logging to help identify the issue
+  console.log("User profile loaded:", !!userProfile);
+  console.log("User mode:", userMode);
+  console.log("Profile loading:", isLoadingProfile);
+  console.log("Profile error:", profileError);
 
   const radiologieCourse = {
     id: "3ea02d7b-7539-493a-bac2-03e40d6a61a1",
@@ -102,11 +90,45 @@ const Questions = ({
   };
 
   const handlePlayClick = (courseId) => {
-    if (!userMode || isLoadingProfile || profileError) {
-      toast.error("Mode utilisateur non chargé ou erreur de profil.");
+    // Check if the token exists
+    const token = secureLocalStorage.getItem("token");
+    if (!token) {
+      toast.error(
+        "Veuillez vous connecter pour accéder à cette fonctionnalité."
+      );
       return;
     }
 
+    // Ensure the profile has loaded correctly
+    if (isLoadingProfile) {
+      toast.loading("Chargement du profil en cours...");
+      return;
+    }
+
+    if (profileError) {
+      toast.error(
+        "Erreur lors du chargement du profil. Veuillez actualiser la page."
+      );
+      console.error("Profile error details:", profileError);
+      return;
+    }
+
+    if (!userProfile) {
+      toast.error(
+        "Profil utilisateur non disponible. Veuillez actualiser la page."
+      );
+      return;
+    }
+
+    if (!userMode) {
+      toast.error(
+        "Mode utilisateur non défini. Veuillez contacter le support."
+      );
+      console.error("User profile without mode:", userProfile);
+      return;
+    }
+
+    // Now proceed with the normal flow
     if (userMode === INTELLIGENTE_MODE) {
       startSynergySession({ course: courseId });
     } else {
@@ -131,7 +153,9 @@ const Questions = ({
     );
   }
 
-  const buttonsDisabled = isLoadingProfile || isStartingSynergy;
+  // Make sure buttons are properly disabled when needed
+  const buttonsDisabled =
+    isLoadingProfile || isStartingSynergy || !userProfile || !userMode;
 
   const renderPopup = () => {
     if (

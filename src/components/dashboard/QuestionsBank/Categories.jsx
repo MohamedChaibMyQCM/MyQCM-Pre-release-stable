@@ -28,6 +28,12 @@ const Categories = () => {
     "08d2c45d-288c-468b-a12c-687420f4e4f8", // UEI-1: Cardio-Respiratoire et Psychologie médicale
   ];
 
+  // Define hidden module names
+  const hiddenModuleNames = [
+    "ACP : Anatomie et Cytologie Pathologique",
+    "Immunologie",
+  ];
+
   useEffect(() => {
     const unitId = searchParams.get("unitId");
     if (unitId) {
@@ -204,6 +210,13 @@ const Categories = () => {
     ? [pneumologieSubject]
     : subjectsData;
 
+  // Filter out the hidden modules
+  const filteredDisplaySubjects = useMemo(() => {
+    return displaySubjects.filter(
+      (subject) => !hiddenModuleNames.includes(subject.name)
+    );
+  }, [displaySubjects]);
+
   const resetFilter = () => {
     setSelectedUnitId("");
     setShowFilter(false);
@@ -339,7 +352,7 @@ const Categories = () => {
             : "opacity-100"
         }`}
       >
-        {!isInitialLoading && displaySubjects?.length === 0 ? (
+        {!isInitialLoading && filteredDisplaySubjects?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
@@ -360,7 +373,7 @@ const Categories = () => {
             )}
           </div>
         ) : (
-          displaySubjects?.map((item) => (
+          filteredDisplaySubjects?.map((item) => (
             <li
               key={item.id}
               className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"

@@ -12,6 +12,12 @@ const QuizExplanation = ({
 }) => {
   const resultData = QuizData?.data ? QuizData.data : QuizData;
 
+  // Helper function to format text with proper line breaks
+  const formatText = (text) => {
+    if (!text) return "";
+    return text.replace(/\\n/g, "<br />");
+  };
+
   const getBackgroundColor = (ratio) => {
     const safeRatio = typeof ratio === "number" && !isNaN(ratio) ? ratio : 0;
     const res = safeRatio * 100;
@@ -85,7 +91,9 @@ const QuizExplanation = ({
                           className="border-[#F64C4C] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#F64C4C] text-[14px] flex items-center justify-between"
                         >
                           <span
-                            dangerouslySetInnerHTML={{ __html: item.content }}
+                            dangerouslySetInnerHTML={{
+                              __html: formatText(item.content),
+                            }}
                           ></span>
                           <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
                         </li>
@@ -106,7 +114,9 @@ const QuizExplanation = ({
                         className="border-[#47B881] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#47B881] text-[14px] flex items-center justify-between"
                       >
                         <span
-                          dangerouslySetInnerHTML={{ __html: item.content }}
+                          dangerouslySetInnerHTML={{
+                            __html: formatText(item.content),
+                          }}
                         ></span>
                         <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
                       </li>
@@ -158,7 +168,7 @@ const QuizExplanation = ({
               </span>
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#47B881] bg-[#F0F9F5] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
-                dangerouslySetInnerHTML={{ __html: expertAnswer }}
+                dangerouslySetInnerHTML={{ __html: formatText(expertAnswer) }}
               />
             </div>
           )}
@@ -170,7 +180,9 @@ const QuizExplanation = ({
               </span>
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
-                dangerouslySetInnerHTML={{ __html: explanationText }}
+                dangerouslySetInnerHTML={{
+                  __html: formatText(explanationText),
+                }}
               />
             </div>
           )}
@@ -182,7 +194,7 @@ const QuizExplanation = ({
               </span>
               <div
                 className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#0C092A] text-[14px]"
-                dangerouslySetInnerHTML={{ __html: qroFeedback }}
+                dangerouslySetInnerHTML={{ __html: formatText(qroFeedback) }}
               />
             </div>
           )}

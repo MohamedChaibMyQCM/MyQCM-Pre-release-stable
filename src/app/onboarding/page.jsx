@@ -655,9 +655,9 @@ export default function OnboardingPage() {
           width: 100vw;
           height: 100vh;
           background: ${isMobileView
-            ? "transparent"
+            ? "rgba(20, 20, 35, 0.35)"
             : "rgba(20, 20, 35, 0.48)"};
-          backdrop-filter: ${isMobileView ? "none" : "blur(8px)"};
+          backdrop-filter: ${isMobileView ? "blur(4px)" : "blur(8px)"};
           z-index: 100 !important;
           opacity: ${isTourActive ? 1 : 0};
           transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
@@ -871,23 +871,130 @@ export default function OnboardingPage() {
 
         @media (max-width: 767px) {
           .manual-tour-tooltip {
-            max-width: 340px;
-            padding: 20px 24px;
+            max-width: calc(100% - 24px);
+            width: calc(100% - 24px);
+            padding: 20px;
             border-radius: 16px;
+            margin: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(255, 255, 255, 0.92) inset,
+              0 -8px 20px rgba(248, 88, 159, 0.08) inset,
+              0 2px 6px rgba(255, 255, 255, 0.95) inset;
+          }
+
+          .tooltip-header {
+            margin-bottom: 10px;
+          }
+
+          .step-indicator {
+            font-size: 12px;
+            padding: 4px 10px;
           }
 
           .tooltip-content {
             font-size: 15px;
             margin-bottom: 14px;
+            line-height: 1.5;
+          }
+
+          .progress-bar {
+            margin-bottom: 15px;
+            height: 4px;
           }
 
           .tour-buttons-container {
             margin-top: 16px;
+            flex-wrap: wrap;
           }
 
           .tour-buttons-container button {
-            height: 32px;
-            padding: 6px 12px;
+            height: 40px;
+            padding: 10px 16px;
+            font-size: 15px;
+            border-radius: 12px;
+            min-width: 80px;
+            justify-content: center;
+          }
+          
+          .tour-buttons-container .next-button,
+          .tour-buttons-container .prev-button {
+            flex: 0 1 auto;
+            flex-grow: 1;
+          }
+
+          .tour-buttons-container .skip-button {
+            order: -1;
+            margin-bottom: 10px;
+            flex-basis: 100%;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            font-weight: normal;
+            color: #718096;
+          }
+
+          .tour-highlight-active {
+            outline-offset: 5px !important;
+            animation: pulse-highlight-mobile 3s infinite cubic-bezier(0.22, 1, 0.36, 1);
+          }
+
+          @keyframes pulse-highlight-mobile {
+            0% {
+              box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(248, 88, 159, 0.4), 
+                0 0 40px rgba(248, 88, 159, 0.15);
+            }
+            50% {
+              box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9),
+                0 0 25px rgba(248, 88, 159, 0.5),
+                0 0 50px rgba(248, 88, 159, 0.2);
+            }
+            100% {
+              box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(248, 88, 159, 0.4), 
+                0 0 40px rgba(248, 88, 159, 0.15);
+            }
+          }
+
+          /* Better arrow positioning for mobile */
+          .manual-tour-tooltip.top-arrow::before,
+          .manual-tour-tooltip.bottom-arrow::before {
+            left: calc(50% - 8px);
+          }
+
+          .manual-tour-tooltip.top-left-arrow::before,
+          .manual-tour-tooltip.bottom-left-arrow::before {
+            left: 16px;
+          }
+
+          .manual-tour-tooltip.top-right-arrow::before,
+          .manual-tour-tooltip.bottom-right-arrow::before {
+            right: 16px;
+          }
+        }
+
+        /* Even smaller screens need additional adjustments */
+        @media (max-width: 360px) {
+          .manual-tour-tooltip {
+            padding: 16px;
+            max-width: calc(100% - 16px);
+            width: calc(100% - 16px);
+            margin: 8px;
+          }
+
+          .tooltip-content {
+            font-size: 14px;
+          }
+
+          .step-indicator {
+            font-size: 11px;
+            padding: 3px 8px;
+          }
+
+          .tour-buttons-container button {
+            height: 38px;
+            padding: 8px 12px;
+            font-size: 14px;
           }
         }
 

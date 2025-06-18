@@ -119,20 +119,22 @@ const Page = () => {
         throw new Error("ID de session d'entraînement manquant");
       }
 
-      const response_options =
-        submittedData.response_options &&
-        submittedData.response_options.length > 0
-          ? submittedData.response_options
-          : null;
-
+      // Create base payload
       const payload = {
-        response_options: response_options,
-        response: submittedData.response || "",
         time_spent: submittedData.time_spent || 0,
         session: trainingSessionId,
+        is_skipped: !!submittedData.is_skipped,
       };
 
-      const isSkipOperation = !!submittedData.skipped;
+      // If not skipped, add response data
+      if (!submittedData.is_skipped) {
+        payload.response_options =
+          submittedData.response_options &&
+          submittedData.response_options.length > 0
+            ? submittedData.response_options
+            : null;
+        payload.response = submittedData.response || "";
+      }
 
       const submitResponse = await BaseUrl.post(
         `/mcq/submit/${mcqId}`,
@@ -142,7 +144,7 @@ const Page = () => {
 
       return {
         responseData: submitResponse.data.data,
-        isSkipOperation,
+        isSkipOperation: !!submittedData.is_skipped,
       };
     },
     onSuccess: (result) => {

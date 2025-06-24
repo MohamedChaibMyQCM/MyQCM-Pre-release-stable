@@ -1,0 +1,29 @@
+- removed validation entity , and used redis instead,  
+- made validation more secure , 
+- moved user (password and google) , freelancer and admin auth methods to auth controller (/auth) 
+- restricted access to respository for other services that isnt the main owner and use services to access ressources instead , 
+- defined a global guard to avoid using and importing auth module guards . 
+- setup cloudinary to handle diffrent formats in their fodlers .
+- migrated all files to cloudinary storage ,
+- switched to yarn to avoid peer deeps error
+- add admin dashboard using admin js (to be configured more later with stricter rules and more efficent auth) 
+- add email templates (login and signup) with all data
+- applied a new reset password technique using jwt and sign it with user password to make sure its valid untill it expires or until the user reset his password
+- updated the reset password to be named change password and requires old password in case of token hijacking 
+- add enhanced docs on services 
+- enhance structer for better scalabality and seperated unrelated services 
+- add user activity , streak , xp and plan 
+- seperated auth modules for better rms (readability, maintainability, scalability)
+- init user streak and xp on profile setup 
+- fully refactored notification module 
+- fully refactored payments and plans handling module
+- add user xp logique and leveling up logique  
+- add activation cards full logique to handle them
+- improve and fix payments through chargily 
+- improved and fixed plan module to handle plans (create , update , delete and retreive)
+- improved and enhanced (subject , course , unit, mcq )
+- add training session
+- add user notifications settings (preferences) 
+- add modes
+- implement update user informations data 
+- implement user streak and xp , 

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification Code - MyQCM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fc;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      background: #ffffff;
+      margin: 20px auto;
+      padding: 0;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .header {
+      background: linear-gradient(135deg, #ff4081, #ff79a7);
+      padding: 30px;
+      border-radius: 16px 16px 0 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://res.cloudinary.com/ddqioccgt/image/upload/v1740635000/myqcm_pattern.png');
+      opacity: 0.1;
+      z-index: 0;
+    }
+    .header img {
+      max-width: 140px;
+      position: relative;
+      z-index: 1;
+    }
+    .content {
+      padding: 35px;
+      font-size: 16px;
+      color: #333;
+      text-align: center;
+    }
+    .content h2 {
+      font-size: 28px;
+      color: #ff4081;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    .content p {
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    .otp-box {
+      font-size: 26px;
+      font-weight: bold;
+      color: #ffffff;
+      background: linear-gradient(135deg, #ff4081, #ff79a7);
+      padding: 14px 32px;
+      border-radius: 12px;
+      display: inline-block;
+      letter-spacing: 4px;
+      margin: 25px 0;
+    }
+    .verification-notice {
+      background-color: #f9f5ff;
+      border-left: 4px solid #ff4081;
+      padding: 15px;
+      margin: 25px 0;
+      text-align: left;
+      border-radius: 8px;
+    }
+    .verification-notice p {
+      margin: 0;
+      color: #333;
+      font-size: 15px;
+    }
+    .divider {
+      height: 1px;
+      background-color: #eee;
+      margin: 25px 0;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px 35px 30px;
+      background-color: #f9fafc;
+      border-radius: 0 0 16px 16px;
+    }
+    .contact-info {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+    }
+    .contact-info a {
+      color: #ff4081;
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 480px) {
+      .container {
+        margin: 10px;
+      }
+      .content {
+        padding: 25px 20px;
+      }
+      .otp-box {
+        font-size: 22px;
+        padding: 12px 24px;
+        letter-spacing: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://res.cloudinary.com/dgxaezwuv/image/upload/v1748615201/MyQCM_logo_zxe7yu_dysxal.png" alt="MyQCM Logo">
+    </div>
+    <div class="content">
+      <h2>Email Verification</h2>
+      <p>Hi <%= name %>,</p>
+      <p>Use the 6-digit code below to verify your email address for your MyQCM account.</p>
+
+      <div class="otp-box">
+        <%= otp_code %>
+      </div>
+
+      <div class="verification-notice">
+        <p>This code is valid for the next 10 minutes. Do not share it with anyone.</p>
+      </div>
+
+      <p>If you did not request this, you can safely ignore this email.</p>
+      <p style="font-size: 14px; color: #777; margin-top: 30px;">If you have any questions or need assistance, our support team is always here to help!</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+      <p>&copy; 2025 MyQCM | All rights reserved.</p>
+      <div class="contact-info">
+        <p>Need help? Contact us at <a href="mailto:support@myqcmdz.com">support@myqcmdz.com</a></p>
+        <p>You're receiving this email because you signed up for MyQCM.</p>
+        <p><a href="{{privacyPolicyLink}}">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

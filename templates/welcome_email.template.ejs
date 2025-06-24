@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MyQCM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .button {
+            color: white !important; 
+            text-decoration: none;
+        }
+
+        .button:visited, 
+        .button:hover, 
+        .button:active, 
+        .button:focus {
+            color: white !important; 
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fc;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            margin: 20px auto;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff4081, #ff79a7);
+            padding: 30px;
+            border-radius: 16px 16px 0 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://res.cloudinary.com/ddqioccgt/image/upload/v1740635000/myqcm_pattern.png');
+            opacity: 0.1;
+            z-index: 0;
+        }
+        .header img {
+            max-width: 140px;
+            position: relative;
+            z-index: 1;
+        }
+        .content {
+            padding: 35px;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+        }
+        .welcome-text {
+            margin-bottom: 25px;
+        }
+        .content h2 {
+            font-size: 28px;
+            color: #ff4081; /* Changed from gradient to solid color */
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .content p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .verification-notice {
+            background-color: #f9f5ff;
+            border-left: 4px solid #ff4081;
+            padding: 15px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 8px;
+        }
+        .verification-notice p {
+            margin: 0;
+            color: #333;
+            font-size: 15px;
+        }
+        .features {
+            background: #f8f9fc;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .features h3 {
+            color: #ff4081;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .features ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        .features li {
+            padding: 10px 0;
+            font-size: 15px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        .features li:last-child {
+            border-bottom: none;
+        }
+        .features li span {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .button-container {
+            margin: 30px 0 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #ff4081, #ff79a7);
+            color: white !important; /* Added !important here as well */
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 50px;
+            margin: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.2);
+        }
+        .button:hover {
+            background: linear-gradient(135deg, #ff2d75, #ff6699);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.25);
+        }
+        .button.secondary {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            box-shadow: 0 4px 15px rgba(58, 123, 213, 0.2);
+        }
+        .button.secondary:hover {
+            background: linear-gradient(135deg, #3373cd, #00bfe6);
+            box-shadow: 0 6px 20px rgba(58, 123, 213, 0.25);
+        }
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 25px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            padding: 20px 35px 30px;
+            background-color: #f9fafc;
+            border-radius: 0 0 16px 16px;
+        }
+        .social-icons {
+            margin-top: 20px;
+        }
+        .social-icons a {
+            display: inline-block;
+            margin: 0 8px;
+            transition: transform 0.3s ease;
+        }
+        .social-icons a:hover {
+            transform: scale(1.1);
+        }
+        .social-icons img {
+            width: 28px;
+            height: 28px;
+            opacity: 0.85;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #999;
+        }
+        .contact-info a {
+            color: #ff4081;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 480px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+            .features {
+                padding: 20px 15px;
+            }
+            .button {
+                padding: 12px 24px;
+                font-size: 15px;
+                display: block;
+                margin: 8px auto;
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dgxaezwuv/image/upload/v1748615201/MyQCM_logo_zxe7yu_dysxal.png" alt="MyQCM Logo">
+        </div>
+        <div class="content">
+            <div class="welcome-text">
+                <h2>Welcome to MyQCM Aljazayr!</h2>
+                <p>Hi <%= name %>,</p>
+                <p>Thank you for joining MyQCM! We're excited to have you on board and can't wait to help you achieve your learning goals through our personalized learning platform.</p>
+            </div>
+            
+            <div class="button-container">
+                <div style="
+                    display: inline-block;
+                    padding: 18px 36px;
+                    background: linear-gradient(135deg, #ff4081, #ff79a7);
+                    color: white;
+                    font-weight: 700;
+                    font-size: 24px;
+                    border-radius: 50px;
+                    letter-spacing: 2px;
+                    box-shadow: 0 4px 15px rgba(255, 64, 129, 0.2);
+                ">
+                    <%= otp_code %>
+                </div>
+                <p style="margin-top: 16px; font-size: 14px; color: #666;">Enter this code in the app to verify your account</p>
+            </div>
+            <div class="features">
+                <h3>Discover What MyQCM Offers:</h3>
+                <ul>
+                    <li><span>📚</span> AI-enhanced quizzes that adapt to your learning style</li>
+                    <li><span>📊</span> Comprehensive progress tracking to visualize your improvement</li>
+                    <li><span>🎯</span> Personalized study plans based on your performance analytics</li>
+                    <li><span>💡</span> In-depth explanations to strengthen your understanding</li>
+                    <li><span>🏆</span> Interactive leaderboards to stay motivated and compete</li>
+                    <li><span>📱</span> Seamless experience across all your devices</li>
+                </ul>
+            </div>
+            
+            <p>Ready to transform the way you learn?</p>
+            <p style="font-size: 14px; color: #777; margin-top: 30px;">If you have any questions or need assistance, our support team is always here to help!</p>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="footer">
+            <p>&copy; 2025 MyQCM Aljazayr | All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></a>
+                <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></a>
+                <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"></a>
+                <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn"></a>
+            </div>
+            <div class="contact-info">
+                <p>Need help? Contact us at <a href="mailto:support@myqcmdz.com">support@myqcmdz.com</a></p>
+                <p>You're receiving this email because you signed up for MyQCM.</p>
+                <p><a href="{{privacyPolicyLink}}">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

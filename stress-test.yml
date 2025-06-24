@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30 # How long to run the test (in seconds)
+      arrivalRate: 5 # Starting requests per second
+      rampTo: 5000 # Ramp up to 1000 requests per second
+      name: "load"
+
+  defaults:
+    headers:
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM0NWNiMWRiLTE5M2ItNGRkNC1hZTI4LTIzZDczYjI1YzFlYSIsInJvbGUiOiJmcmVlbGFuY2VyIiwiaWF0IjoxNzI1NTEwMjAwLCJleHAiOjE3MjYxMTUwMDB9.CKHfyNPWs3-ZTl_p-Z__khDPzU7RLE3jY_DfvNIVUlw"
+
+scenarios:
+  - name: "Get all qcms"
+    flow:
+      - get:
+          url: "/mcq"

@@ -1,0 +1,52 @@
+est] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Session creation params: {"title":"Medical Exam Practice","qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false,"status":"in_progress","course":"da903e1a-f9a8-4872-99f3-79fdf00934fa"}
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Validating session creation parameters
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Defining training session parameters for user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Defining training session params for user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038 and course da903e1a-f9a8-4872-99f3-79fdf00934fa
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Fetching user profile for ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] User mode settings retrieved: {"id":"0f434f0c-4386-49ce-bd93-9bf1deab6c18","createdAt":"2025-04-03T17:34:50.687Z","updatedAt":"2025-04-03T17:34:50.687Z","name":"custome ","include_qcm_definer":"user","include_qcs_definer":"user","include_qroc_definer":"user","time_limit_definer":"user","number_of_questions_definer":"user","randomize_questions_order_definer":"user","randomize_options_order_definer":"user","difficulty_definer":"user"}
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Using DTO as base: {"title":"Medical Exam Practice","qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false,"status":"in_progress","course":"da903e1a-f9a8-4872-99f3-79fdf00934fa"}
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring session fields based on mode definers
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field qcm with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field qcs with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field qroc with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field time_limit with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field number_of_questions with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field randomize_questions_order with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Configuring field randomize_options_order with mode definer user
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Final session parameters: {"title":"Medical Exam Practice","qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false,"status":"in_progress","course":"da903e1a-f9a8-4872-99f3-79fdf00934fa"}
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Session parameters defined: {"title":"Medical Exam Practice","qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false,"status":"in_progress","course":"da903e1a-f9a8-4872-99f3-79fdf00934fa"}
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Creating training session entity
+[Nest] 36155  - 04/04/2025, 8:51:14 PM   DEBUG [TrainingSessionService] Saving training session to database
+[Nest] 36155  - 04/04/2025, 8:51:14 PM     LOG [TrainingSessionService] Training session created with ID: 826e1035-12af-43a4-9749-f69e6c6ff991
+
+[Nest] 36155  - 04/04/2025, 8:52:20 PM     LOG [TrainingSessionService] Getting MCQs for session 66f30c3a-115c-423a-ad24-16b7a78a05ea and user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Retrieving session details for 66f30c3a-115c-423a-ad24-16b7a78a05ea
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Finding previously attempted MCQs for user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038 in session 66f30c3a-115c-423a-ad24-16b7a78a05ea
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Found 0 already attempted MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Determining dynamic session parameters for user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038 and course da903e1a-f9a8-4872-99f3-79fdf00934fa
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Defining training session params for user ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038 and course da903e1a-f9a8-4872-99f3-79fdf00934fa
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Fetching user profile for ed5ef1f2-8a0c-47e4-b1d8-9d2ef7014038
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] User mode settings retrieved: {"id":"0f434f0c-4386-49ce-bd93-9bf1deab6c18","createdAt":"2025-04-03T17:34:50.687Z","updatedAt":"2025-04-03T17:34:50.687Z","name":"custome ","include_qcm_definer":"user","include_qcs_definer":"user","include_qroc_definer":"user","time_limit_definer":"user","number_of_questions_definer":"user","randomize_questions_order_definer":"user","randomize_options_order_definer":"user","difficulty_definer":"user"}
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Using existing session as base: 66f30c3a-115c-423a-ad24-16b7a78a05ea
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring session fields based on mode definers
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field qcm with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field qcs with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field qroc with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field time_limit with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field number_of_questions with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field randomize_questions_order with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Configuring field randomize_options_order with mode definer user
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Final session parameters: {"qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false}
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Extracting session filters from parameters
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Getting session filters from params: {"qcm":true,"qcs":true,"qroc":false,"time_limit":10,"number_of_questions":20,"randomize_questions_order":true,"randomize_options_order":false}
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Session filters extracted: {"selected_types":["qcm","qcs"],"randomize":true,"randomize_options":false,"time_limit":10,"number_of_questions":20}
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Session filters: types=qcm,qcs, randomize=true, time_limit=10
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Querying for unattempted MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Found 1 unattempted MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Applying time limit 10 to MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Applying time limit 10 to 1 MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM   DEBUG [TrainingSessionService] Setting 10 minutes time limit for all MCQs
+[Nest] 36155  - 04/04/2025, 8:52:20 PM     LOG [TrainingSessionService] Successfully retrieved 1 MCQs for session 66f30c3a-115c-423a-ad24-16b7a78a05ea
+
+[0] 0:node*                                                                                                                                            "nest start --watch ~/" 20:52 04-Apr-25
+

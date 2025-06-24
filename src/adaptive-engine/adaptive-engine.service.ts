@@ -182,16 +182,21 @@ export class AdaptiveEngineService {
     // Calculate updated mastery based on accuracy
     const isCorrect = accuracy_rate > correct_threshold;
 
-    if (isCorrect) {
-      const numerator = p_learn_temp * (1 - slipping_probability);
-      const denominator = numerator + (1 - p_learn_temp) * guessing_probability;
-      return numerator / denominator;
-    } else {
-      const numerator = p_learn_temp * slipping_probability;
-      const denominator =
-        numerator + (1 - p_learn_temp) * (1 - guessing_probability);
-      return numerator / denominator;
-    }
+    const updatedMastery = ((): number => {
+      if (isCorrect) {
+        const numerator = p_learn_temp * (1 - slipping_probability);
+        const denominator =
+          numerator + (1 - p_learn_temp) * guessing_probability;
+        return numerator / denominator;
+      } else {
+        const numerator = p_learn_temp * slipping_probability;
+        const denominator =
+          numerator + (1 - p_learn_temp) * (1 - guessing_probability);
+        return numerator / denominator;
+      }
+    })();
+
+    return Math.min(1, Math.max(0, updatedMastery));
   }
 
   /**

@@ -20,7 +20,7 @@ import { Progress } from "src/progress/entities/progress.entity";
 import { CreateTrainingSessionDto } from "./types/dtos/create-training-session.dto";
 import { TrainingSessionStatus } from "./types/enums/training-session.enum";
 import { TrainingSessionFilters } from "./types/interfaces/training-session-filters.interface";
-import { McqType } from "src/mcq/dto/mcq.type";
+import { McqType, McqDifficulty } from "src/mcq/dto/mcq.type";
 import { TrainingSessionReminderEmail } from "src/mail/types/training-session-reminder-email.interface";
 import { AssistantDeterminedFields } from "./assistant-determined-fields.interface";
 import { UserService } from "src/user/services/user.service";
@@ -227,11 +227,27 @@ export class TrainingSessionService {
     const { selected_types, randomize, time_limit, randomize_options } =
       this.getSessionFilters(dynamicSessionParams);
 
+    // Determine difficulty level based on the learner's current ability
+    const adaptiveLearner = await this.adaptiveEngineService.getAdaptiveLearner({
+      userId,
+      courseId: session.course.id,
+    });
+
+    let difficultyFilter: McqDifficulty;
+    if (adaptiveLearner.ability < 0.3) {
+      difficultyFilter = McqDifficulty.easy;
+    } else if (adaptiveLearner.ability < 0.7) {
+      difficultyFilter = McqDifficulty.medium;
+    } else {
+      difficultyFilter = McqDifficulty.hard;
+    }
+
     const unattempted_mcqs = await this.mcqService.findMcqsPaginated(
       {
         course: session.course.id,
         exclude_ids: attemptedMcqIds,
         type: selected_types,
+        difficulty: difficultyFilter,
       },
       { offset: 1 },
       { randomize, populate: ["options"] },
@@ -527,6 +543,12 @@ export class TrainingSessionService {
 
     if (sessionParams.qroc) {
       selected_types.push(McqType.qroc);
+    }
+
+    // If no specific question type is selected, default to QCM to avoid empty
+    // type filters which would return zero MCQs
+    if (selected_types.length === 0) {
+      selected_types.push(McqType.qcm);
     }
 
     return {

@@ -130,9 +130,9 @@ export class AdaptiveEngineService {
       irtParams,
     );
 
-    // Update learner profile
-    adaptive_learner.mastery = new_btk_mastery;
-    adaptive_learner.ability = new_irt_ability;
+    // Update learner profile with clamped values
+    adaptive_learner.mastery = Math.min(1, Math.max(0, new_btk_mastery));
+    adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
 
     return transactionManager
       ? transactionManager.save(adaptive_learner)
@@ -251,6 +251,8 @@ export class AdaptiveEngineService {
     const exponent = -discrimination * (ability - difficulty);
 
     // For a 3PL model including the guessing parameter:
-    return guessing + (1 - guessing) / (1 + Math.exp(exponent));
+    const probability = guessing + (1 - guessing) / (1 + Math.exp(exponent));
+    // Clamp to valid probability range
+    return Math.min(1, Math.max(0, probability));
   }
 }

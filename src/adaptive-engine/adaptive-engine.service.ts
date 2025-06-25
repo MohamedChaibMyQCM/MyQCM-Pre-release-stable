@@ -117,7 +117,7 @@ export class AdaptiveEngineService {
       adaptive_learner.course;
 
     // Calculate new mastery using BKT model
-    const new_btk_mastery = await this.calculateBkt(
+    const new_bkt_mastery = await this.calculateBkt(
       adaptive_learner,
       { guessing_probability, slipping_probability, learning_rate },
       options.accuracy_rate,
@@ -130,9 +130,9 @@ export class AdaptiveEngineService {
       irtParams,
     );
 
-    // Update learner profile
-    adaptive_learner.mastery = new_btk_mastery;
-    adaptive_learner.ability = new_irt_ability;
+    // Update learner profile with clamped values
+    adaptive_learner.mastery = Math.min(1, Math.max(0, new_bkt_mastery));
+    adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
 
     return transactionManager
       ? transactionManager.save(adaptive_learner)
@@ -182,16 +182,21 @@ export class AdaptiveEngineService {
     // Calculate updated mastery based on accuracy
     const isCorrect = accuracy_rate > correct_threshold;
 
-    if (isCorrect) {
-      const numerator = p_learn_temp * (1 - slipping_probability);
-      const denominator = numerator + (1 - p_learn_temp) * guessing_probability;
-      return numerator / denominator;
-    } else {
-      const numerator = p_learn_temp * slipping_probability;
-      const denominator =
-        numerator + (1 - p_learn_temp) * (1 - guessing_probability);
-      return numerator / denominator;
-    }
+    const updatedMastery = ((): number => {
+      if (isCorrect) {
+        const numerator = p_learn_temp * (1 - slipping_probability);
+        const denominator =
+          numerator + (1 - p_learn_temp) * guessing_probability;
+        return numerator / denominator;
+      } else {
+        const numerator = p_learn_temp * slipping_probability;
+        const denominator =
+          numerator + (1 - p_learn_temp) * (1 - guessing_probability);
+        return numerator / denominator;
+      }
+    })();
+
+    return Math.min(1, Math.max(0, updatedMastery));
   }
 
   /**
@@ -251,6 +256,8 @@ export class AdaptiveEngineService {
     const exponent = -discrimination * (ability - difficulty);
 
     // For a 3PL model including the guessing parameter:
-    return guessing + (1 - guessing) / (1 + Math.exp(exponent));
+    const probability = guessing + (1 - guessing) / (1 + Math.exp(exponent));
+    // Clamp to valid probability range
+    return Math.min(1, Math.max(0, probability));
   }
 }

@@ -814,7 +814,10 @@ export class McqService {
     // Handle enum filters
     if (filters.type) {
       if (Array.isArray(filters.type)) {
-        where_clause.type = In(filters.type);
+        // Avoid applying an empty IN() clause which would return no results
+        if (filters.type.length > 0) {
+          where_clause.type = In(filters.type);
+        }
       } else {
         where_clause.type = filters.type;
       }

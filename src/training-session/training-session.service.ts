@@ -241,7 +241,7 @@ export class TrainingSessionService {
       difficultyFilter = McqDifficulty.hard;
     }
 
-    const unattempted_mcqs = await this.mcqService.findMcqsPaginated(
+    let unattempted_mcqs = await this.mcqService.findMcqsPaginated(
       {
         course: session.course.id,
         exclude_ids: attemptedMcqIds,
@@ -252,9 +252,20 @@ export class TrainingSessionService {
       { randomize, populate: ["options"] },
     );
     if (unattempted_mcqs.data.length === 0) {
-      return {
-        data: [],
-      };
+      unattempted_mcqs = await this.mcqService.findMcqsPaginated(
+        {
+          course: session.course.id,
+          exclude_ids: attemptedMcqIds,
+          type: selected_types,
+        },
+        { offset: 1 },
+        { randomize, populate: ["options"] },
+      );
+      if (unattempted_mcqs.data.length === 0) {
+        return {
+          data: [],
+        };
+      }
     }
 
     unattempted_mcqs.data = this.applyFiltersToMcqs(unattempted_mcqs.data, {

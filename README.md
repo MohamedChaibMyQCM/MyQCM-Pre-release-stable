@@ -72,6 +72,8 @@ $ npm run start:prod or nest start prod
   AI algorithms analyze user performance data to recommend MCQs tailored to the user's strengths and weaknesses. This ensures that users are consistently challenged at an appropriate level, enhancing their learning experience.
 - #### Adaptive Learning Pathways :
   Based on user interactions and performance, the AI system dynamically adjusts the difficulty and type of MCQs presented to each user, promoting gradual improvement.
+- #### Session Difficulty Configuration :
+  Training sessions can specify a desired MCQ difficulty level or rely on the assistant to choose one adaptively.
 - #### Performance Evaluation :
   AI tools continuously monitor and evaluate user performance, offering feedback and suggestions for improvement. The system can identify areas where users excel or struggle and adjust content accordingly.
 - #### Intelligent Feedback :

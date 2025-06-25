@@ -39,7 +39,6 @@ import { ModeDefiner } from "src/mode/types/enums/mode-definier.enum";
 import { NotificationType } from "src/notification/types/enums/notification-type.enum";
 import { NotificationStatus } from "src/notification/types/enums/notification-status.enum";
 import { NotificationChannel } from "src/notification/types/enums/notification-channel.enum";
-import { skip } from "node:test";
 
 /**
  * Service responsible for managing training sessions in the e-learning platform

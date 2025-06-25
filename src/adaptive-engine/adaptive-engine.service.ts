@@ -129,9 +129,6 @@ export class AdaptiveEngineService {
       adaptive_learner,
       irtParams,
     );
-
-    // Update learner profile with clamped values
-    adaptive_learner.mastery = Math.min(1, Math.max(0, new_bkt_mastery));
     adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
 
     return transactionManager

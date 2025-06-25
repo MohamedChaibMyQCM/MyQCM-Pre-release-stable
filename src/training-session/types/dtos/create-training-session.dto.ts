@@ -10,6 +10,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { TrainingSessionStatus } from "../enums/training-session.enum";
+import { McqDifficulty } from "src/mcq/dto/mcq.type";
 
 export class CreateTrainingSessionDto {
   @ApiPropertyOptional({
@@ -50,6 +51,15 @@ export class CreateTrainingSessionDto {
   @IsBoolean()
   @IsOptional()
   qroc: boolean;
+
+  @ApiPropertyOptional({
+    description: "Desired difficulty level for selected MCQs",
+    enum: McqDifficulty,
+    example: McqDifficulty.medium,
+  })
+  @IsEnum(McqDifficulty)
+  @IsOptional()
+  difficulty?: McqDifficulty;
 
   @ApiProperty({
     description: "Time limit for the training session in minutes",

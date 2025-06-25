@@ -226,14 +226,17 @@ export class TrainingSessionService {
     const { selected_types, randomize, time_limit, randomize_options } =
       this.getSessionFilters(dynamicSessionParams);
 
-    // Determine difficulty level based on the learner's current ability
+    // Determine difficulty level: prefer session parameter if provided,
+    // otherwise map the learner's ability to a difficulty
     const adaptiveLearner = await this.adaptiveEngineService.getAdaptiveLearner({
       userId,
       courseId: session.course.id,
     });
 
     let difficultyFilter: McqDifficulty;
-    if (adaptiveLearner.ability < 0.3) {
+    if (dynamicSessionParams.difficulty) {
+      difficultyFilter = dynamicSessionParams.difficulty as McqDifficulty;
+    } else if (adaptiveLearner.ability < 0.3) {
       difficultyFilter = McqDifficulty.easy;
     } else if (adaptiveLearner.ability < 0.7) {
       difficultyFilter = McqDifficulty.medium;
@@ -683,10 +686,11 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
    *
    * @param params - Object containing userId and courseId
    * @param createTrainingSessionDto - Optional DTO for new session creation
-   * @param existingSession - Optional existing session to update
-   * @returns Session parameters with appropriate values
-   * @private
-   */
+  * @param existingSession - Optional existing session to update
+   * @returns Session parameters with appropriate values, including
+   * difficulty when enabled by the current mode
+  * @private
+  */
   private async defineTrainingSessionParams(
     params: { userId: string; courseId: string },
     createTrainingSessionDto?: CreateTrainingSessionDto,
@@ -710,6 +714,7 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
         number_of_questions: existingSession.number_of_questions,
         randomize_questions_order: existingSession.randomize_questions_order,
         randomize_options_order: existingSession.randomize_options_order,
+        difficulty: (existingSession as any).difficulty,
       };
     } else if (createTrainingSessionDto) {
       sessionData = { ...createTrainingSessionDto };
@@ -765,6 +770,15 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
       "randomize_options_order",
       assistantDeterminedFields,
       "Whether to randomize the order of answer options",
+    );
+
+    // Difficulty can be user defined or determined by the assistant
+    this.configureSessionField(
+      mode.difficulty_definer,
+      "difficulty",
+      assistantDeterminedFields,
+      "Difficulty level of the MCQs for this session",
+      McqDifficulty.medium,
     );
 
     // If time_limit is set to ORIGINAL, use null to indicate using original MCQ time limits
@@ -870,6 +884,17 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
             Math.max(Math.round(5 + adaptiveLearner.mastery * 20), 5),
             25,
           );
+          break;
+
+        case "difficulty":
+          // Map ability to a starting difficulty level
+          if (adaptiveLearner.ability < 0.3) {
+            result[field.field] = McqDifficulty.easy;
+          } else if (adaptiveLearner.ability < 0.7) {
+            result[field.field] = McqDifficulty.medium;
+          } else {
+            result[field.field] = McqDifficulty.hard;
+          }
           break;
 
         // Randomization based on mastery level

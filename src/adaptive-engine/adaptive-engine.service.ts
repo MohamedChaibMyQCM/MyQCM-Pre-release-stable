@@ -117,7 +117,7 @@ export class AdaptiveEngineService {
       adaptive_learner.course;
 
     // Calculate new mastery using BKT model
-    const new_btk_mastery = await this.calculateBkt(
+    const new_bkt_mastery = await this.calculateBkt(
       adaptive_learner,
       { guessing_probability, slipping_probability, learning_rate },
       options.accuracy_rate,
@@ -129,9 +129,6 @@ export class AdaptiveEngineService {
       adaptive_learner,
       irtParams,
     );
-
-    // Update learner profile with clamped values
-    adaptive_learner.mastery = Math.min(1, Math.max(0, new_btk_mastery));
     adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
 
     return transactionManager

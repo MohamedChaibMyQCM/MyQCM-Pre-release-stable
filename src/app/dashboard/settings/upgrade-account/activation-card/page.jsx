@@ -25,11 +25,9 @@ const ActivationCardPage = () => {
         { code: activationCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(response);
       return response.data;
     },
     onSuccess: (data) => {
-      console.log(data);
       const planDetails = {
         name: data?.data?.plan?.name || "Plan Premium",
         duration: data?.data?.plan?.duration_label || "Inconnue",
@@ -40,7 +38,6 @@ const ActivationCardPage = () => {
       setCode("");
     },
     onError: (error) => {
-      console.error("Erreur d’activation :", error);
       const errorMessage =
         error.response?.data?.message ||
         "Échec de l'activation. Vérifiez le code ou réessayez.";
@@ -64,7 +61,6 @@ const ActivationCardPage = () => {
       return;
     }
 
-    console.log("Soumission du code formaté :", trimmedCode);
     activateCard(trimmedCode);
   };
 

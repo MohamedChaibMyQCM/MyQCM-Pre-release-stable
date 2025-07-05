@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
+import { log } from "console";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -33,13 +34,6 @@ const Page = () => {
   });
 
   const token = secureLocalStorage.getItem("token");
-
-  const {
-    data: subscriptionData,
-    isLoading: isLoadingSubscription,
-    error: subscriptionError,
-    isSuccess,
-  } = useUserSubscription();
 
   const hasPremiumPlan = isLoadingSubscription
     ? false
@@ -134,11 +128,6 @@ const Page = () => {
       {modesError && (
         <div className="text-center mt-4 text-red-500">
           Erreur lors du chargement des modes.
-        </div>
-      )}
-      {subscriptionError && (
-        <div className="text-center mt-4 text-red-500">
-          Erreur lors du chargement de l&apos;abonnement.
         </div>
       )}
 

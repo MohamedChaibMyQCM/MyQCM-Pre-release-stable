@@ -11,6 +11,9 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import SkipQuestionPopup from "./SkipQuestionPopup";
 import think1 from "../../../../public/Question_Bank/think1.svg";
 import toast from "react-hot-toast";
+import FeedbackPopup from "./feedback/FeedbackPopup";
+import { useFeedbackSurvey } from "@/hooks/useFeedbackSurvey";
+import { useUserSubscription } from "@/hooks/useUserSubscription";
 
 const Quiz = ({
   questionData,
@@ -38,6 +41,29 @@ const Quiz = ({
   const [thinkAnimating, setThinkAnimating] = useState(false);
   const timerRef = useRef(null);
   const isMounted = useRef(true);
+
+  const { data: subscriptionData } = useUserSubscription();
+
+  const remainingQrocs = subscriptionData
+    ? Math.max(
+        0,
+        (subscriptionData?.plan?.qrocs ?? 0) -
+          (subscriptionData?.used_qrocs ?? 0)
+      )
+    : 0;
+
+  const { activeSurvey, closeSurvey, resetSurveys } =
+    useFeedbackSurvey(remainingQrocs);
+
+  // Debug effect
+  useEffect(() => {
+    console.log("Quiz component - activeSurvey changed:", activeSurvey);
+  }, [activeSurvey]);
+
+  // Debug effect for QROC count
+  useEffect(() => {
+    console.log("Quiz component - remainingQrocs changed:", remainingQrocs);
+  }, [remainingQrocs]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -149,6 +175,7 @@ const Quiz = ({
         const payload = {
           mcq: questionData.id,
           time_spent: timeSpent,
+          questionType: questionData.type,
         };
 
         if (questionData.type === "qcm" || questionData.type === "qcs") {
@@ -340,18 +367,29 @@ const Quiz = ({
       : !formik.values.response?.trim());
 
   return (
-    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[16px] mx-auto my-auto p-[20px] flex flex-col gap-6 max-md:w-[100%] z-[50] overflow-y-auto scrollbar-hide max-xl:w-[90%]">
-      <div className="flex items-center justify-between flex-wrap gap-y-2 ">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="bg-[#FF6EAF] flex items-center gap-2 rounded-[8px] px-[16px] py-[7px]">
-            <Image src={solver} alt="solver" className="w-[20px]" />
-            <span className="text-[13px] text-[#FFFFFF]">
-              Type: <span className="uppercase">{questionData?.type}</span>
+    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[20px] mx-auto p-[24px] flex flex-col gap-6 max-md:w-[99%] max-md:p-[16px] z-[50] overflow-y-auto scrollbar-hide max-xl:w-[85%] shadow-lg">
+      {/* Header with badges and timer */}
+      <div className="flex items-center justify-between flex-wrap gap-y-3 max-md:gap-y-2">
+        <div className="flex items-center gap-3 flex-wrap max-md:gap-2">
+          {/* Question type badge */}
+          <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] flex items-center gap-2 rounded-[10px] px-[16px] py-[8px] shadow-sm max-md:px-[12px] max-md:py-[6px]">
+            <Image
+              src={solver}
+              alt="solver"
+              className="w-[16px] max-md:w-[14px]"
+            />
+            <span className="text-[12px] text-[#FFFFFF] font-medium tracking-wide max-md:text-[10px]">
+              TYPE:{" "}
+              <span className="uppercase font-semibold">
+                {questionData?.type}
+              </span>
             </span>
           </div>
-          <div className="relative w-[160px] h-[7px] bg-[#85849436] rounded-[20px] overflow-hidden max-md:hidden">
+
+          {/* Progress bar - hidden on mobile */}
+          <div className="relative w-[180px] h-[8px] bg-[#F0F0F0] rounded-[20px] overflow-hidden max-md:hidden shadow-inner">
             <div
-              className="absolute top-0 left-0 h-full bg-[#FF6EAF] rounded-[20px] transition-all duration-300 ease-in-out"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px] transition-all duration-500 ease-out"
               style={{
                 width: `${
                   totalQuestions > 0
@@ -361,63 +399,86 @@ const Quiz = ({
               }}
             ></div>
           </div>
+
+          {/* Difficulty badge - hidden on mobile */}
           <span
-            className={`px-[18px] py-[7px] rounded-[8px] text-[#FFFFFF] text-[14px] max-md:hidden ${
+            className={`px-[18px] py-[7px] rounded-[10px] text-[#FFFFFF] text-[12px] font-medium max-md:hidden shadow-sm ${
               questionData?.difficulty === "easy"
-                ? "bg-[#47B881]"
+                ? "bg-gradient-to-r from-[#47B881] to-[#5AC99A]"
                 : questionData?.difficulty === "medium"
-                ? "bg-[#FFAA60]"
-                : "bg-[#F64C4C]"
+                ? "bg-gradient-to-r from-[#FFAA60] to-[#FFB87A]"
+                : "bg-gradient-to-r from-[#F64C4C] to-[#FF6B6B]"
             }`}
           >
             {questionData?.difficulty?.charAt(0).toUpperCase() +
               questionData?.difficulty?.slice(1)}
           </span>
-          <Image
-            src={think1}
-            alt="think"
-            className={`ml-2 max-md:w-[30px] ${
-              thinkAnimating ? "animate-pulse-scale" : ""
-            }`}
-          />
+
+          {/* Thinking animation */}
+          <div className="flex items-center max-md:ml-1">
+            <Image
+              src={think1}
+              alt="think"
+              className={`w-[32px] h-[32px] max-md:w-[28px] max-md:h-[28px] ${
+                thinkAnimating ? "animate-pulse-scale" : ""
+              }`}
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[13px] text-[#B5BEC6]">
-            Time Remaining{" "}
-            <span className="text-[#FF6EAF] font-semibold">
-              ({timeRemaining}s)
-            </span>
+
+        {/* Timer */}
+        <div className="flex items-center gap-2 bg-[#F8F9FA] px-[12px] py-[6px] rounded-[10px] max-md:bg-[#FFFFFF20] max-md:border max-md:border-[#E9ECEF]">
+          <Image
+            src={timer}
+            alt="timer"
+            className="w-[16px] opacity-70 max-md:w-[14px]"
+          />
+          <span className="text-[12px] text-[#6C757D] font-medium max-md:hidden">
+            Temps restant
           </span>
-          <Image src={timer} alt="timer" className="w-[24px] max-md:hidden" />
+          <span className="text-[12px] text-[#FF6EAF] font-bold max-md:text-[10px]">
+            {timeRemaining}s
+          </span>
         </div>
       </div>
+
+      {/* Question content */}
       <div className="flex gap-8 justify-between flex-col lg:flex-row">
         <div className="flex-1">
-          <span className="block font-Poppins text-[#666666] text-[13px] font-medium mb-2">
-            QUESTION{" "}
-            <span className="text-[#F8589F]">
-              {currentQuestionNumber}/{totalQuestions || "?"}
+          <div className="mb-4 max-md:hidden">
+            <span className="inline-block bg-[#F8F9FA] px-[12px] py-[6px] rounded-[8px] font-Poppins text-[#666666] text-[11px] font-semibold mb-3 tracking-wide">
+              QUESTION{" "}
+              <span className="text-[#F8589F]">
+                {currentQuestionNumber}/{totalQuestions || "?"}
+              </span>
             </span>
-          </span>
+          </div>
           <div
-            className="font-Poppins text-[#191919] font-medium prose max-w-none"
+            className="font-Poppins text-[#2C3E50] font-medium prose max-w-none text-[15px] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: questionData?.question || "" }}
           />
         </div>
+
+        {/* Attachment image */}
         {questionData?.attachment && (
-          <div className="lg:w-[360px] flex-shrink-0">
-            <Image
-              src={questionData.attachment}
-              alt="Quiz attachment"
-              className="w-[260px] h-auto object-contain rounded"
-              width={360}
-              height={240}
-              priority={currentQuestionNumber < 3}
-            />
+          <div className="lg:w-[240px] flex-shrink-0 max-md:flex max-md:items-center max-md:justify-center max-md:mt-4">
+            <div className="relative overflow-hidden rounded-[16px]">
+              <Image
+                src={questionData.attachment}
+                alt="Quiz attachment"
+                className="w-[280px] h-auto object-contain> max-md:w-[240px]"
+                width={360}
+                height={240}
+                priority={currentQuestionNumber < 3}
+              />
+            </div>
           </div>
         )}
       </div>
-      <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
+
+      {/* Answer form */}
+      <form className="flex flex-col gap-5 mt-2" onSubmit={formik.handleSubmit}>
+        {/* Multiple choice options */}
         {(questionData?.type === "qcm" || questionData?.type === "qcs") && (
           <ul className="flex flex-col gap-4">
             {questionData?.options?.map((item) => {
@@ -431,15 +492,15 @@ const Quiz = ({
               return (
                 <li
                   key={item.id}
-                  className={`text-[14px] flex items-center justify-between gap-2 font-Poppins font-medium border rounded-[16px] px-[20px] py-[8px] transition-colors duration-150 ${styling} ${
-                    !checkAnswer ? "cursor-default" : ""
+                  className={`text-[14px] flex items-center justify-between gap-3 font-Poppins font-medium border-2 rounded-[18px] px-[24px] py-[14px] transition-all duration-200 hover:shadow-md ${styling} ${
+                    !checkAnswer ? "cursor-default" : "cursor-pointer"
                   }`}
                   onClick={
                     checkAnswer ? () => handleOptionClick(item) : undefined
                   }
                 >
                   <span
-                    className={`flex-1`}
+                    className="flex-1 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: item.content || "" }}
                   />
                   {icon}
@@ -449,65 +510,70 @@ const Quiz = ({
           </ul>
         )}
 
+        {/* Text input for QROC */}
         {questionData?.type !== "qcm" && questionData?.type !== "qcs" && (
           <div className="relative">
             <Input
               name="response"
-              className={`font-Poppins font-medium placeholder:text-[13px] text-[13px] px-[16px] py-[19px] rounded-[14px] border-[1.6px] bg-white ${
+              className={`font-Poppins font-medium placeholder:text-[13px] text-[14px] px-[20px] py-[20px] rounded-[16px] border-2 bg-white transition-all duration-200 focus:shadow-lg ${
                 !checkAnswer
                   ? getBackgroundColor(answer?.success_ratio)
-                  : "border-[#EFEEFC] text-[#49465F]"
+                  : "border-[#E9ECEF] text-[#2C3E50] focus:border-[#FF6EAF] focus:ring-0"
               }`}
-              placeholder="Write Your Answer"
+              placeholder="Écrivez votre réponse ici..."
               value={formik.values.response}
               onChange={formik.handleChange}
               disabled={!checkAnswer || isSubmitting}
             />
             {!checkAnswer && answer && answer.success_ratio !== undefined && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                 {answer.success_ratio === 1 ? (
-                  <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-green-600" />
+                  <IoIosCheckmarkCircle className="w-[24px] h-[24px] text-green-600" />
                 ) : (
-                  <IoCloseCircleOutline className="w-[20px] h-[20px] text-red-600" />
+                  <IoCloseCircleOutline className="w-[24px] h-[24px] text-red-600" />
                 )}
               </div>
             )}
           </div>
         )}
 
-        <div className="self-end flex items-center gap-4 mt-3">
+        {/* Action buttons */}
+        <div className="flex items-center gap-4 mt-0 max-md:flex-col max-md:gap-3 justify-end">
+          {/* Skip button */}
           <button
             type="button"
             onClick={triggerSkipPopup}
-            className="text-[#F8589F] font-[500] text-[13px] disabled:text-gray-400 disabled:cursor-not-allowed"
+            className="text-[#F8589F] font-medium text-[13px] hover:text-[#E74C8C] transition-colors disabled:text-gray-400 disabled:cursor-not-allowed max-md:order-2"
             disabled={
               !checkAnswer || isSubmitting || isLoadingNextMcq || isSkipping
             }
           >
-            {isSkipping ? "Skipping..." : "Skip Question"}
+            {isSkipping ? "Passage en cours..." : "Passer la question"}
           </button>
+
+          {/* Main action button */}
           {checkAnswer ? (
             <button
               type="submit"
-              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full"
               disabled={isSubmitDisabled}
             >
-              {isSubmitting ? "Checking..." : "Check Answer"}
+              {isSubmitting ? "Vérification..." : "Vérifier la réponse"}
             </button>
           ) : (
             <button
               type="button"
               onClick={handleSeeExplanationOrNext}
-              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full"
               disabled={isLoadingNextMcq}
             >
               {isLoadingNextMcq
-                ? "Loading Next..."
+                ? "Chargement..."
                 : ["qcm", "qcs", "qroc"].includes(questionData?.type)
-                ? "See Explanation"
+                ? "Voir l'explication"
                 : isFinalQuestion
-                ? "Finish Session"
-                : "Next Question"}
+                ? "Terminer la session"
+                : "Question suivante"}
             </button>
           )}
         </div>
@@ -519,16 +585,19 @@ const Quiz = ({
           isTimeout={skipInitiatedByTimeout}
         />
       )}
-      {seeExplanation &&
-        !checkAnswer &&
-        answer && (
-          <QuizExplanation
-            QuizData={answer}
-            setSeeExplanation={setSeeExplanation}
-            handleNextQuestion={handleNextFromExplanation}
-            type={questionData?.type}
-          />
-        )}
+
+      {seeExplanation && !checkAnswer && answer && (
+        <QuizExplanation
+          QuizData={answer}
+          setSeeExplanation={setSeeExplanation}
+          handleNextQuestion={handleNextFromExplanation}
+          type={questionData?.type}
+        />
+      )}
+
+      {activeSurvey && (
+        <FeedbackPopup surveyType={activeSurvey} onClose={closeSurvey} />
+      )}
     </div>
   );
 };

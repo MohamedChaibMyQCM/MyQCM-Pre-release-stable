@@ -9,6 +9,7 @@ const QuizExplanation = ({
   setSeeExplanation,
   type,
   handleNextQuestion,
+  checkAndTriggerSurvey,
 }) => {
   const resultData = QuizData?.data ? QuizData.data : QuizData;
 
@@ -56,73 +57,90 @@ const QuizExplanation = ({
   const bgColor = getBackgroundColor(successRatio);
   const isMCQ = type === "qcm" || type === "qcs";
 
+  const handleNextQuestionClick = () => {
+    handleNextQuestion();
+    // Don't trigger survey here - let the Quiz component handle it after navigation
+  };
+
   return (
-    <div className="fixed z-[50] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#0000004D] p-4">
-      <div className="bg-[#FFFFFF] flex flex-col gap-4 w-[70%] max-h-[90vh] p-[26px] rounded-[16px] overflow-y-auto scrollbar-hide max-md:w-[96%]">
-        <div className="flex items-center justify-between top-0 bg-white pb-2">
-          <span className="text-[19px] font-semibold text-[#191919]">
-            {isMCQ ? "Explication" : "Analyse des réponses"}
-          </span>
-          <Image
-            src={exit}
-            alt="fermer"
-            className="cursor-pointer"
+    <div className="fixed z-[60] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#00000080] p-4">
+      <div className="bg-[#FFFFFF] flex flex-col gap-5 w-[75%] max-h-[92vh] p-[32px] rounded-[24px] overflow-y-auto scrollbar-hide max-md:w-[95%] max-md:p-[20px] shadow-xl border border-[#E9ECEF]">
+        {/* Header */}
+        <div className="flex items-center justify-between sticky top-0 bg-white pb-4 border-b border-[#F1F3F4]">
+          <h2 className="text-[20px] font-bold text-[#2C3E50] flex items-center gap-3">
+            <div className="w-[6px] h-[6px] bg-[#F8589F] rounded-full"></div>
+            {isMCQ ? "Explication détaillée" : "Analyse de votre réponse"}
+          </h2>
+          <button
             onClick={() => setSeeExplanation(false)}
-            width={24}
-            height={24}
-          />
+            className="w-[36px] h-[36px] flex items-center justify-center rounded-[12px] hover:bg-[#F8F9FA] transition-colors"
+          >
+            <Image
+              src={exit}
+              alt="fermer"
+              width={20}
+              height={20}
+              className="opacity-60"
+            />
+          </button>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           {isMCQ ? (
             <>
+              {/* Incorrect answers */}
               {userResponsesWithContent.filter((item) => !item.is_correct)
                 .length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <span className="block text-[#191919] text-[15px] font-[500]">
+                <div className="flex flex-col gap-3">
+                  <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                    <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
                     Vos réponses incorrectes
-                  </span>
-                  <ul className="flex flex-col gap-3 w-[100%]">
+                  </h3>
+                  <ul className="flex flex-col gap-3">
                     {userResponsesWithContent
                       .filter((item) => !item.is_correct)
                       .map((item) => (
                         <li
                           key={`user-false-${item.id}`}
-                          className="border-[#F64C4C] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#F64C4C] text-[14px] flex items-center justify-between"
+                          className="border-2 border-[#F64C4C] bg-[#FFF5F5] px-[20px] py-[14px] rounded-[16px] text-[#F64C4C] text-[14px] flex items-center justify-between shadow-sm"
                         >
                           <span
+                            className="flex-1 font-medium"
                             dangerouslySetInnerHTML={{
                               __html: formatText(item.content),
                             }}
-                          ></span>
-                          <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
+                          />
+                          <IoCloseCircleOutline className="w-[24px] h-[24px] text-[#F64C4C] ml-3" />
                         </li>
                       ))}
                   </ul>
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 mt-2">
-                <span className="block text-[#191919] text-[15px] font-[500]">
+              {/* Correct answers */}
+              <div className="flex flex-col gap-3">
+                <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                  <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
                   Réponses correctes
-                </span>
-                <ul className="flex flex-col gap-3 w-[100%]">
+                </h3>
+                <ul className="flex flex-col gap-3">
                   {correctOptionsData.length > 0 ? (
                     correctOptionsData.map((item) => (
                       <li
                         key={`correct-${item.id}`}
-                        className="border-[#47B881] px-[16px] py-[8px] rounded-[12px] border-[2px] text-[#47B881] text-[14px] flex items-center justify-between"
+                        className="border-2 border-[#47B881] bg-[#F0F9F5] px-[20px] py-[14px] rounded-[16px] text-[#47B881] text-[14px] flex items-center justify-between shadow-sm"
                       >
                         <span
+                          className="flex-1 font-medium"
                           dangerouslySetInnerHTML={{
                             __html: formatText(item.content),
                           }}
-                        ></span>
-                        <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
+                        />
+                        <IoIosCheckmarkCircle className="w-[24px] h-[24px] text-[#47B881] ml-3" />
                       </li>
                     ))
                   ) : (
-                    <li className="text-gray-500 text-[14px]">
+                    <li className="text-gray-500 text-[14px] bg-[#F8F9FA] px-[20px] py-[14px] rounded-[16px]">
                       Détails de la réponse correcte non disponibles.
                     </li>
                   )}
@@ -130,56 +148,67 @@ const QuizExplanation = ({
               </div>
             </>
           ) : (
-            <>
-              <div className="flex flex-col gap-2">
-                <span className="block text-[#191919] text-[15px] font-[500]">
-                  Précision de votre réponse
-                </span>
-                <div
-                  className={`relative flex items-center gap-3 rounded-[14px] px-[20px] py-[14px] ${bgColor}`}
-                >
-                  <div className="bg-[#FFFFFF] w-[50px] h-[50px] rounded-full flex items-center justify-center flex-shrink-0">
-                    <span
-                      className={`flex items-center justify-center font-Poppins font-medium text-[#FFFFFF] text-[13px] w-[42px] h-[42px] rounded-full ${bgColor}`}
-                    >
-                      {Math.round(successRatio * 100)}%
-                    </span>
-                  </div>
-                  <span className="block text-[#FFFFFF] text-[15px] font-[500]">
-                    Pourcentage de précision de votre réponse :{" "}
+            // QROC accuracy display
+            <div className="flex flex-col gap-4">
+              <h3 className="text-[#2C3E50] text-[16px] font-semibold">
+                Précision de votre réponse
+              </h3>
+              <div
+                className={`relative flex items-center gap-4 rounded-[20px] px-[24px] py-[20px] ${bgColor} shadow-lg`}
+              >
+                <div className="bg-[#FFFFFF] w-[60px] h-[60px] rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span
+                    className={`flex items-center justify-center font-Poppins font-bold text-[#FFFFFF] text-[16px] w-[52px] h-[52px] rounded-full ${bgColor}`}
+                  >
                     {Math.round(successRatio * 100)}%
                   </span>
-                  <Image
-                    src={accuracyPic}
-                    alt="image de précision"
-                    className="absolute top-[-8px] left-[-60px] w-[80px] hidden sm:block"
-                    width={80}
-                    height={80}
-                  />
                 </div>
+                <div className="flex-1">
+                  <span className="block text-[#FFFFFF] text-[16px] font-semibold">
+                    Niveau de précision : {Math.round(successRatio * 100)}%
+                  </span>
+                  <span className="block text-[#FFFFFF] text-[13px] opacity-90 mt-1">
+                    Votre réponse a été analysée par notre IA
+                  </span>
+                </div>
+                <Image
+                  src={accuracyPic}
+                  alt="image de précision"
+                  className="absolute top-[-12px] right-[-20px] w-[90px] hidden lg:block opacity-80"
+                  width={90}
+                  height={90}
+                />
               </div>
-            </>
+            </div>
           )}
 
+          {/* Expert answer for QROC */}
           {expertAnswer && !isMCQ && (
-            <div className="flex flex-col gap-2 mt-2">
-              <span className="block text-[#191919] text-[15px] font-[500]">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                <div className="w-[20px] h-[20px] bg-[#47B881] rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold">✓</span>
+                </div>
                 Réponse des experts MyQCM
-              </span>
+              </h3>
               <div
-                className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#47B881] bg-[#F0F9F5] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#47B881] bg-[#F0F9F5] px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{ __html: formatText(expertAnswer) }}
               />
             </div>
           )}
 
+          {/* Explanation */}
           {explanationText && (
-            <div className="flex flex-col gap-2 mt-2">
-              <span className="block text-[#191919] text-[15px] font-[500]">
-                {isMCQ ? "Explication" : "Explication des experts MyQCM"}
-              </span>
+            <div className="flex flex-col gap-3">
+              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                <div className="w-[20px] h-[20px] bg-[#F8589F] rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold">!</span>
+                </div>
+                {isMCQ ? "Explication détaillée" : "Explication des experts"}
+              </h3>
               <div
-                className="min-h-[100px] max-h-[200px] rounded-[10px] border-[2px] border-[#F8589F] bg-[#FFF5FA] px-[16px] py-[10px] overflow-y-auto scrollbar-hide text-[#191919] text-[14px]"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{
                   __html: formatText(explanationText),
                 }}
@@ -187,38 +216,36 @@ const QuizExplanation = ({
             </div>
           )}
 
+          {/* AI Feedback for QROC */}
           {!isMCQ && qroFeedback && (
-            <div className="flex flex-col gap-2 mt-2">
-              <span className="block text-[#191919] text-[15px] font-[500]">
-                Analyse de l&apos;assistant IA MyQCM
-              </span>
+            <div className="flex flex-col gap-3">
+              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                <div className="w-[20px] h-[20px] bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold">AI</span>
+                </div>
+                Analyse de l&apos;assistant IA
+              </h3>
               <div
-                className="min-h-[100px] max-h-[200px] rounded-[14px] border-[1px] border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[14px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#0C092A] text-[14px]"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#667eea] bg-gradient-to-r from-[#f7fafc] to-[#edf2f7] px-[20px] py-[16px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{ __html: formatText(qroFeedback) }}
               />
             </div>
           )}
 
-          <div
-            className={`flex flex-col sm:flex-row items-center justify-between gap-4 bottom-0 bg-white pt-4 ${
-              !isMCQ ? "" : "sm:self-end"
-            }`}
-          >
+          {/* Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4">
             {!isMCQ && (
-              <span
-                className={`text-center sm:text-left font-medium text-[11px] text-[#191919] flex-1`}
-              >
-                Cette réponse a été examinée et confirmée correcte par les
-                experts MyQCM avec l&apos;assistance de l&apos;IA. Bien
-                qu&apos;aucune erreur n&apos;ait été trouvée, veuillez noter que
-                les modèles d&apos;IA peuvent parfois faire des erreurs.
-              </span>
+              <p className="text-center sm:text-left text-[11px] text-[#6C757D] flex-1 leading-relaxed">
+                Cette réponse a été analysée par nos experts et notre IA. Bien
+                que nous nous efforcions d&apos;être précis, les modèles
+                d&apos;IA peuvent parfois commettre des erreurs.
+              </p>
             )}
             <button
-              className="bg-[#F8589F] text-[#FFFFFF] font-medium text-[13px] px-[16px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
-              onClick={handleNextQuestion}
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[32px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 max-md:w-full"
+              onClick={handleNextQuestionClick}
             >
-              Question suivante
+              Question suivante →
             </button>
           </div>
         </div>

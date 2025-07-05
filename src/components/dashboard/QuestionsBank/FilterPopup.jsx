@@ -23,16 +23,11 @@ const FilterPopup = ({
   const sortedUnits = useMemo(() => {
     if (!units || units.length === 0) return [];
 
-    console.log("FilterPopup - Original units:", units);
-    console.log("FilterPopup - Hidden unit IDs:", hiddenUnitIds);
-
     // Units should already be filtered by the parent component,
     // but we'll double-check to ensure hidden units aren't shown
     const filteredUnits = units.filter(
       (unit) => !hiddenUnitIds.includes(unit.id)
     );
-
-    console.log("FilterPopup - Units after filtering:", filteredUnits);
 
     // Then sort the remaining units
     return [...filteredUnits].sort((a, b) => {

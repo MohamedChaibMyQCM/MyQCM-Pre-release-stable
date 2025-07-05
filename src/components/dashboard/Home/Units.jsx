@@ -41,7 +41,6 @@ const Units = () => {
       }
     },
   });
-  console.log(userPro);
 
   // Check if user is in fourth year
   const isUserFourthYear = userPro?.year_of_study === "Fourth Year";

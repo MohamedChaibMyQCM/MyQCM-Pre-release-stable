@@ -95,7 +95,6 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
         return; // Don't submit if conversion resulted in null or 0
       }
 
-      // console.log("Submitting GuidedSeason data:", finalData); // For debugging
       startTrainingSession(finalData);
     },
     enableReinitialize: true, // Keep if `quiz` prop might update

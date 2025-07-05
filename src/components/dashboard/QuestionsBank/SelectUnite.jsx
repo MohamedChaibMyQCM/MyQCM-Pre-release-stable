@@ -21,8 +21,6 @@ const SelectUnite = ({ setselectunite }) => {
     },
   });
 
-  console.log(data);
-
   return (
     <div className="absolute box z-50 right-0 top-[40px] p-[20px] bg-[#FFFFFF] rounded-[16px] w-[220px]">
       <div className="flex items-center justify-between mb-3">

@@ -78,13 +78,12 @@ const Calender_onboarding = ({ highlightedElementInfo, isTourActive }) => {
     });
   };
   const handleDateClick = (day) => {
-    /* ... console logs for static demo ... */
     const clickedDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
       day
     );
-    console.log("Date clicked (static demo):", clickedDate);
+    // Date clicked for static demo
   };
   const hasScheduledSession = (day) => {
     /* ... as before ... */

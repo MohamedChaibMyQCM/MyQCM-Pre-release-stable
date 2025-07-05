@@ -43,7 +43,6 @@ const Page = () => {
   const { mutate: signup, isLoading } = useMutation({
     mutationFn: (data) => BaseUrl.post("/auth/user/signup", data),
     onSuccess: ({ data }) => {
-      console.log(data);
       secureLocalStorage.setItem("token", data.token);
       toast.success("Compte créé avec succès !");
       router.push("/signup/verification");

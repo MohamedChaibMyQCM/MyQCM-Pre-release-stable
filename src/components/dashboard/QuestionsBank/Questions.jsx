@@ -38,12 +38,6 @@ const Questions = ({
   const isUserFourthYear = userProfile?.year_of_study === "Fourth Year";
   const userMode = userProfile?.mode?.name;
 
-  // Add debug logging to help identify the issue
-  console.log("User profile loaded:", !!userProfile);
-  console.log("User mode:", userMode);
-  console.log("Profile loading:", isLoadingProfile);
-  console.log("Profile error:", profileError);
-
   const radiologieCourse = {
     id: "3ea02d7b-7539-493a-bac2-03e40d6a61a1",
     name: "Revision Radiologie",

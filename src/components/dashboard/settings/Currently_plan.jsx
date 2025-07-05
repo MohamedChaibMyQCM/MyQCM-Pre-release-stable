@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import card from "../../../../public/settings/card.svg";
-import { useQuery } from "@tanstack/react-query";
-import BaseUrl from "@/components/BaseUrl";
+import { useUserSubscription } from "@/hooks/useUserSubscription";
 import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
 
@@ -13,25 +12,7 @@ const Currently_plan = () => {
     isLoading,
     error,
     isSuccess,
-  } = useQuery({
-    queryKey: ["currentSubscription"],
-    queryFn: async () => {
-      const token = secureLocalStorage.getItem("token");
-      const response = await BaseUrl.get("/user/subscription/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data.data || null;
-    },
-    onError: () => {
-      toast.error(
-        "Erreur lors de la récupération des données d'abonnement. Veuillez réessayer."
-      );
-    },
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
-  });
+  } = useUserSubscription();
 
   const getOrdinalSuffix = (day) => {
     if (day > 3 && day < 21) return "";

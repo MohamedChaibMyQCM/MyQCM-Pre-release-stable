@@ -336,9 +336,7 @@ const Aside = () => {
           </li>
         </ul>
         <div className="relative flex flex-col gap-1 pl-5 max-xl:hidden">
-          <div
-            className="py-[14px] w-[88%] pl-[8px]"
-          >
+          <div className="py-[14px] w-[88%] pl-[8px]">
             <Link
               href={`/dashboard/report`}
               className="text-[#324054] flex items-center gap-4"
@@ -357,9 +355,7 @@ const Aside = () => {
               </span>
             </Link>
           </div>
-          <div
-            className={`rounded-l-[12px] py-[14px] w-[88%] pl-[10px]`}
-          >
+          <div className={`rounded-l-[12px] py-[14px] w-[88%] pl-[10px]`}>
             <Link
               href={`/dashboard/settings`}
               className="text-[#324054] flex items-center gap-4"

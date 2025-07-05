@@ -196,7 +196,6 @@ const Units_onboarding = ({ highlightedElementInfo, isTourActive }) => {
                   isCurrentUnitLocked ? "tooltip-locked-unit" : undefined
                 }
                 disabled={isCurrentUnitLocked} // Button is always disabled for the first unit in this static setup
-                // onClick={() => console.log("Start unit clicked (disabled)")}
               >
                 Commencer l&apos;unité{" "}
                 <Image

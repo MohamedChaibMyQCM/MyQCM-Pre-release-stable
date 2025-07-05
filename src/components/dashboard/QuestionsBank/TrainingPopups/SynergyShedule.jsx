@@ -8,13 +8,13 @@ import toast from "react-hot-toast";
 import { X } from "phosphor-react";
 import secureLocalStorage from "react-secure-storage";
 import Image from "next/image";
-import season from "../../../../../public/Question_Bank/season.svg"; 
+import season from "../../../../../public/Question_Bank/season.svg";
 import Title from "../TrainingInputs/Title";
-import TrainingDate from "../TrainingInputs/TrainingDate"; 
+import TrainingDate from "../TrainingInputs/TrainingDate";
 import TrainingHour from "../TrainingInputs/TrainingHour";
 
 const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
-  const router = useRouter(); 
+  const router = useRouter();
 
   const { mutate: scheduleSynergySession, isPending } = useMutation({
     mutationFn: (data) => {
@@ -49,10 +49,10 @@ const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
 
   const formik = useFormik({
     initialValues: {
-      title: quiz.title || "", 
-      training_date: quiz.training_date || "", 
-      training_time: quiz.training_time || "", 
-       qcm: quiz.qcm || false,
+      title: quiz.title || "",
+      training_date: quiz.training_date || "",
+      training_time: quiz.training_time || "",
+      qcm: quiz.qcm || false,
       qcs: true,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
@@ -104,24 +104,23 @@ const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
       ) {
         const formattedHours = hours.toString().padStart(2, "0");
         const formattedMinutes = minutes.toString().padStart(2, "0");
-        scheduledAtISO = `${values.training_date}T${formattedHours}:${formattedMinutes}:00Z`; 
+        scheduledAtISO = `${values.training_date}T${formattedHours}:${formattedMinutes}:00Z`;
       } else {
         toast.error(
           "Format de date ou d'heure invalide. Vérifiez la sélection (Date) et l'heure (HH:MM)."
         );
         return;
       }
-       const finalData = {
+      const finalData = {
         title: values.title,
-        status: "scheduled", 
+        status: "scheduled",
         scheduled_at: scheduledAtISO,
-        course: courseId, 
+        course: courseId,
       };
 
-      // console.log("Submitting Synergy Schedule Data:", finalData); 
       scheduleSynergySession(finalData);
     },
-    enableReinitialize: true, 
+    enableReinitialize: true,
   });
 
   return (

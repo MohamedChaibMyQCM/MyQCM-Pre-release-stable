@@ -12,11 +12,30 @@ import EndSeasonPopup from "@/components/dashboard/QuestionsBank/EndSeasonPopup"
 import { useParams, useRouter } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import Loading from "@/components/Loading";
+import { useUserSubscription } from "@/hooks/useUserSubscription";
 
 const Page = () => {
   const { trainingSessionId } = useParams();
   const queryClient = useQueryClient();
   const router = useRouter();
+
+  const {
+    data: subscriptionData,
+    isLoading: isLoadingSubscription,
+    error: subscriptionError,
+  } = useUserSubscription();
+
+  // Log subscription data for debugging
+  useEffect(() => {
+    if (subscriptionData) {
+      const remainingQrocs = Math.max(
+        0,
+        (subscriptionData?.plan?.qrocs ?? 0) -
+          (subscriptionData?.used_qrocs ?? 0)
+      );
+      console.log("Session Page - Remaining QROCs:", remainingQrocs);
+    }
+  }, [subscriptionData]);
 
   const completeTrainingSessionInternal = async (sessionId) => {
     const token = secureLocalStorage.getItem("token");
@@ -145,10 +164,11 @@ const Page = () => {
       return {
         responseData: submitResponse.data.data,
         isSkipOperation: !!submittedData.is_skipped,
+        questionType: submittedData.questionType,
       };
     },
     onSuccess: (result) => {
-      const { responseData, isSkipOperation } = result;
+      const { responseData, isSkipOperation, questionType } = result;
 
       if (isSkipOperation) {
         setAnswer(responseData);
@@ -174,6 +194,9 @@ const Page = () => {
           mcqs_failed,
         };
       });
+
+      // Invalidate subscription data for real-time QROC count updates
+      queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
     },
     onError: (error) => {
       const message = Array.isArray(error?.response?.data?.message)
@@ -330,13 +353,16 @@ const Page = () => {
     data.mcqs_success + data.mcqs_failed + data.mcqs_skipped + 1;
 
   return (
-    <div className="absolute inset-0 z-50 bg-[#FF6FAF] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] overflow-hidden">
+    <div className="absolute inset-0 z-50 bg-[#FF6FAF] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] max-md:py-[20px] overflow-hidden max-md:gap-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <Image src={logo} alt="logo" className="w-[140px] max-md:w-[120px]" />
+        <div className="flex items-center gap-4">
+          <Image src={logo} alt="logo" className="w-[140px] max-md:w-[120px]" />
+        </div>
         {!result && (
           <button
             onClick={handleEndSessionClick}
-            className={`font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors ${
+            className={`font-medium text-[13px] text-[#FFFFFF] rounded-[24px] px-[28px] py-[10px] border-2 border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors duration-300 ${
               isCompletingSession || isLoadingQuestion
                 ? "opacity-50 cursor-not-allowed"
                 : ""
@@ -350,6 +376,46 @@ const Page = () => {
               : "Terminer la session"}
           </button>
         )}
+      </div>
+
+      {/* Mobile-only progress bar and difficulty */}
+      <div className="flex items-center justify-between md:hidden bg-[#FFFFFF20] rounded-[10px] px-[12px] py-[8px] border border-[#FFFFFF15]">
+        <div className="flex items-center gap-2">
+          <div
+            className={`w-[4px] h-[4px] rounded-full ${
+              currentQuestion?.difficulty === "easy"
+                ? "bg-[#4ADE80]"
+                : currentQuestion?.difficulty === "medium"
+                ? "bg-[#FBBF24]"
+                : "bg-[#EF4444]"
+            }`}
+          ></div>
+          <span className="text-[#FFFFFF] text-[12px] font-semibold capitalize">
+            {currentQuestion?.difficulty === "easy"
+              ? "Facile"
+              : currentQuestion?.difficulty === "medium"
+              ? "Moyen"
+              : "Difficile"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[#FFFFFF] text-[12px] font-semibold">
+            {currentQuestionNumber}/{totalQuestions}
+          </span>
+          <div className="relative w-[60px] h-[3px] bg-[#FFFFFF20] rounded-[10px] overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full bg-[#FFFFFF] rounded-[10px] transition-all duration-500 ease-out"
+              style={{
+                width: `${
+                  totalQuestions > 0
+                    ? (currentQuestionNumber / totalQuestions) * 100
+                    : 0
+                }%`,
+              }}
+            ></div>
+          </div>
+        </div>
       </div>
 
       {isLoadingQuestion && !result && (

@@ -4,7 +4,7 @@ const AllowRepeat = ({ name, value, setFieldValue }) => {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[14px] text-[#191919] font-[500]">
-        Autoriser la répétition
+        Autoriser la répétition du MCQ
       </span>
       <Switch
         checked={value}

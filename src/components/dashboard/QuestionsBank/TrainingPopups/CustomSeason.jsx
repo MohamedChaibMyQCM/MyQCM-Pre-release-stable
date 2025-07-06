@@ -1,11 +1,11 @@
 "use client";
 
-import MultipleChoice from "../TrainingInputs/MultipleChoise"; 
-import ShortAnswer from "../TrainingInputs/ShortAnswer"; 
-import TimeLimit from "../TrainingInputs/TimeLimit"; 
+import MultipleChoice from "../TrainingInputs/MultipleChoise";
+import ShortAnswer from "../TrainingInputs/ShortAnswer";
+import TimeLimit from "../TrainingInputs/TimeLimit";
 import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion";
 import RandomQuiz from "../TrainingInputs/RandomQuiz";
-import RandomOptions from "../TrainingInputs/RandomOptions"; 
+import RandomOptions from "../TrainingInputs/RandomOptions";
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ import { X } from "phosphor-react";
 import secureLocalStorage from "react-secure-storage";
 import season from "../../../../../public/Question_Bank/season.svg";
 import Image from "next/image";
+import AllowRepeat from "../TrainingInputs/AllowRepeat";
 
 const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
   const router = useRouter();
@@ -47,18 +48,23 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
 
   const formik = useFormik({
     initialValues: {
+      title: quiz.title || "",
       qcm: quiz.qcm || false,
-      qcs: true, 
+      qcs: true,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
       randomize_questions_order: quiz.randomize_questions || false,
       randomize_options_order: quiz.randomize_options || false,
+      date: quiz.date || null,
+      time: quiz.time || "",
+      allow_repeat: quiz.allow_repeat || false, // <-- added
     },
     onSubmit: (values) => {
       const finalData = {
+        title: values.title,
         qcm: values.qcm,
-        qcs: values.qcs, 
+        qcs: values.qcs,
         qroc: values.qroc,
         time_limit: values.time_limit ? Number(values.time_limit) : null,
         number_of_questions: values.number_of_questions
@@ -66,9 +72,13 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
           : null,
         randomize_questions_order: values.randomize_questions_order,
         randomize_options_order: values.randomize_options_order,
+        date: values.date,
+        time: values.time,
+        allow_repeat: values.allow_repeat, // <-- added
         status: "in_progress",
         course: courseId,
       };
+      // console.log("Final Data:", finalData);
       
       startTrainingSession(finalData);
     },
@@ -131,6 +141,11 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
           </div>
 
           <div className="flex flex-col gap-5 mb-2 mt-3">
+            <AllowRepeat
+              name="allow_repeat"
+              value={formik.values.allow_repeat}
+              setFieldValue={formik.setFieldValue}
+            />
             <RandomQuiz
               name="randomize_questions_order"
               value={formik.values.randomize_questions_order}

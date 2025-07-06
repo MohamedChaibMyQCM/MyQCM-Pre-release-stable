@@ -19,6 +19,7 @@ import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion";
 import Title from "../TrainingInputs/Title";
 import TrainingDate from "../TrainingInputs/TrainingDate";
 import TrainingHour from "../TrainingInputs/TrainingHour";
+import AllowRepeat from "../TrainingInputs/AllowRepeat";
 
 const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
   const router = useRouter();
@@ -68,6 +69,7 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
       randomize_options_order: quiz.randomize_options || false, // Keep for UI component if present
       training_date: quiz.training_date || "", // Expecting YYYY-MM-DD
       training_time: quiz.training_time || "", // Expecting HH:MM
+      allow_repeat: quiz.allow_repeat || false, // <-- added
     },
     onSubmit: (values) => {
       // --- Validation ---
@@ -142,6 +144,7 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
         number_of_questions: values.number_of_questions
           ? Number(values.number_of_questions) // Ensure it's a number
           : null, // Or handle error if conversion fails / value is empty
+        allow_repeat: values.allow_repeat, // <-- added
         status: "scheduled", // Correct spelling
         scheduled_at: scheduledAtISO, // Combined ISO timestamp
         course: courseId,
@@ -215,6 +218,12 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
               />
             </div>
           </div>
+
+          <AllowRepeat
+            name="allow_repeat"
+            value={formik.values.allow_repeat}
+            setFieldValue={formik.setFieldValue}
+          />
 
           {/* Title, Date, Time Section (Unchanged) */}
           <div className="flex flex-col gap-4">

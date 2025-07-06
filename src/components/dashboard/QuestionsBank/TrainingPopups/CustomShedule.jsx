@@ -20,6 +20,7 @@ import RandomOptions from "../TrainingInputs/RandomOptions";
 import Title from "../TrainingInputs/Title"; // Assumed this accepts name, value, setFieldValue
 import TrainingDate from "../TrainingInputs/TrainingDate"; // Use the updated TrainingDate component
 import TrainingHour from "../TrainingInputs/TrainingHour"; // Use the updated TrainingHour component (type="time")
+import AllowRepeat from "../TrainingInputs/AllowRepeat";
 
 const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
   const router = useRouter(); // Keep router if needed elsewhere
@@ -68,6 +69,7 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
       randomize_options_order: quiz.randomize_options || false,
       training_date: quiz.training_date || "", // Expecting YYYY-MM-DD string or ""
       training_time: quiz.training_time || "", // Expecting HH:MM string or ""
+      allow_repeat: quiz.allow_repeat || false, // <-- added
     },
     onSubmit: (values) => {
       // Validate required fields for scheduling
@@ -108,7 +110,7 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
           }
         }
       }
-   if (
+      if (
         typeof values.training_date === "string" &&
         /^\d{4}-\d{2}-\d{2}$/.test(values.training_date) &&
         hours !== null &&
@@ -125,7 +127,7 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
         );
         return;
       }
-        const finalData = {
+      const finalData = {
         title: values.title,
         qcm: values.qcm,
         qcs: values.qcs,
@@ -139,12 +141,12 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
         status: "scheduled", // Changed status for scheduling payload
         scheduled_at: scheduledAtISO, // Use the combined ISO string
         course: courseId, // Make sure courseId is passed correctly as prop
+        allow_repeat: values.allow_repeat, // <-- added
       };
 
-      
       scheduleTrainingSession(finalData);
     },
-    enableReinitialize: true, 
+    enableReinitialize: true,
   });
 
   return (
@@ -213,6 +215,11 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
 
           {/* Section: Randomization Options */}
           <div className="flex flex-col gap-5 mb-2 mt-3">
+            <AllowRepeat
+              name="allow_repeat"
+              value={formik.values.allow_repeat}
+              setFieldValue={formik.setFieldValue}
+            />
             <RandomQuiz
               name="randomize_questions_order"
               value={formik.values.randomize_questions_order}

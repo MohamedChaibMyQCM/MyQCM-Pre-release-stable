@@ -66,7 +66,7 @@ const QuizExplanation = ({
     <div className="fixed z-[60] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#00000080] p-4">
       <div className="bg-[#FFFFFF] flex flex-col gap-5 w-[75%] max-h-[92vh] p-[32px] rounded-[24px] overflow-y-auto scrollbar-hide max-md:w-[95%] max-md:p-[20px] shadow-xl border border-[#E9ECEF]">
         {/* Header */}
-        <div className="flex items-center justify-between sticky top-0 bg-white pb-4 border-b border-[#F1F3F4]">
+        <div className="flex items-center justify-between top-0 bg-white pb-4 border-b border-[#F1F3F4]">
           <h2 className="text-[20px] font-bold text-[#2C3E50] flex items-center gap-3">
             <div className="w-[6px] h-[6px] bg-[#F8589F] rounded-full"></div>
             {isMCQ ? "Explication détaillée" : "Analyse de votre réponse"}
@@ -233,7 +233,7 @@ const QuizExplanation = ({
           )}
 
           {/* Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4">
             {!isMCQ && (
               <p className="text-center sm:text-left text-[11px] text-[#6C757D] flex-1 leading-relaxed">
                 Cette réponse a été analysée par nos experts et notre IA. Bien

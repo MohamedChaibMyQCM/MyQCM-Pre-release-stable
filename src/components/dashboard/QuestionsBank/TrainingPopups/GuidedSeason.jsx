@@ -1,8 +1,9 @@
 "use client";
 
-import MultipleChoice from "../TrainingInputs/MultipleChoise"; // Verify path
-import ShortAnswer from "../TrainingInputs/ShortAnswer"; // Verify path
-import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion"; // Verify path
+import MultipleChoice from "../TrainingInputs/MultipleChoise";
+import ShortAnswer from "../TrainingInputs/ShortAnswer";
+import NumberOfQuestion from "../TrainingInputs/NumberOfQuestion";
+import AllowRepeat from "../TrainingInputs/AllowRepeat";
 import { useFormik } from "formik";
 import BaseUrl from "@/components/BaseUrl";
 import { useMutation } from "@tanstack/react-query";
@@ -61,6 +62,7 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
       qcs: true, // Hardcoded to true based on desired payload
       qroc: quiz.qroc || false,
       number_of_questions: quiz.number_of_questions || "",
+      allow_repeat: quiz.allow_repeat || false, // <-- added
       // title, time_limit, randomizers are kept here if potentially coming from `quiz`,
       // but won't be included in the submitted 'finalData'.
       // title: quiz.title || "", // Example if needed for display (but not submission)
@@ -81,6 +83,7 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
         number_of_questions: values.number_of_questions
           ? Number(values.number_of_questions)
           : null,
+        allow_repeat: values.allow_repeat, // <-- added
         status: "in_progress",
         course: courseId, // Use the courseId passed as a prop
         // Fields explicitly excluded: title, time_limit, randomize_questions_order, randomize_options_order
@@ -152,6 +155,12 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
               />
             </div>
           </div>
+
+          <AllowRepeat
+            name="allow_repeat"
+            value={formik.values.allow_repeat}
+            setFieldValue={formik.setFieldValue}
+          />
 
           {/* Submit button (unchanged) */}
           <div className="flex items-center justify-center gap-6 mt-2">

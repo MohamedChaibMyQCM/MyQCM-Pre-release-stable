@@ -65,6 +65,7 @@ const TrainingSeason = ({ setPopup, courseId, quiz = {} }) => {
       randomize_options_order: quiz.randomize_options || false,
       date: quiz.date || null,
       time: quiz.time || "",
+      allow_repeat: quiz.allow_repeat || false, // <-- add this line
     },
     onSubmit: (values) => {
       const baseData = {
@@ -79,6 +80,7 @@ const TrainingSeason = ({ setPopup, courseId, quiz = {} }) => {
         randomize_questions_order: values.randomize_questions_order,
         randomize_options_order: values.randomize_options_order,
         course: courseId,
+        allow_repeat: values.allow_repeat, // <-- add this line
       };
 
       let finalData;
@@ -183,7 +185,6 @@ const TrainingSeason = ({ setPopup, courseId, quiz = {} }) => {
               />
             </div>
           </div>
-
           <div>
             <span className="text-[15px] font-[600] text-[#191919] mb-[10px] block">
               Nombre de questions

@@ -201,6 +201,18 @@ export class TrainingSessionService {
   async getSessionMcqs(userId: string, sessionId: string) {
     const session = await this.getSession({ sessionId, userId });
 
+    const { mode } =
+      await this.userProfileService.getAuthenticatedUserProfileById(userId);
+    const isAssistantMode =
+      mode.include_qcm_definer === ModeDefiner.ASSISTANT ||
+      mode.include_qcs_definer === ModeDefiner.ASSISTANT ||
+      mode.include_qroc_definer === ModeDefiner.ASSISTANT ||
+      mode.time_limit_definer === ModeDefiner.ASSISTANT ||
+      mode.number_of_questions_definer === ModeDefiner.ASSISTANT ||
+      mode.randomize_questions_order_definer === ModeDefiner.ASSISTANT ||
+      mode.randomize_options_order_definer === ModeDefiner.ASSISTANT ||
+      mode.difficulty_definer === ModeDefiner.ASSISTANT;
+
     // Get previously attempted MCQs to exclude them
     const attempted_progress_list = await this.progressService.findProgress(
       { user: userId, session: sessionId },
@@ -275,6 +287,14 @@ export class TrainingSessionService {
       time_limit,
       randomize_options,
     });
+
+    if (isAssistantMode && unattempted_mcqs.data.length > 0) {
+      await this.notificationQueue.add("assistant-push", {
+        userId,
+        sessionId,
+        mcqId: unattempted_mcqs.data[0].id,
+      });
+    }
 
     // Determine if all MCQs have been attempted
     const is_final =

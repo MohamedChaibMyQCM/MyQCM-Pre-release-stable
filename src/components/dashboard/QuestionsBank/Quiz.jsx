@@ -60,7 +60,6 @@ const Quiz = ({
     console.log("Quiz component - activeSurvey changed:", activeSurvey);
   }, [activeSurvey]);
 
-  // Debug effect for QROC count
   useEffect(() => {
     console.log("Quiz component - remainingQrocs changed:", remainingQrocs);
   }, [remainingQrocs]);

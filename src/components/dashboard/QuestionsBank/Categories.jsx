@@ -21,19 +21,6 @@ const Categories = () => {
   const filterRef = useRef(null);
   const selectContentRef = useRef(null);
 
-  // Define hidden units with their IDs instead of names for more reliable filtering
-  const hiddenUnitIds = [
-    "22b66563-bd6d-404d-a4a2-f2061b0b751d", // UEI-2: Appareil Neurologique, Locomoteur et cutané
-    "bc602e71-b043-47d2-b2e5-b8f59252b12a", // UEI-3: Appareil endocrine, reproduction et urinaire
-    "08d2c45d-288c-468b-a12c-687420f4e4f8", // UEI-1: Cardio-Respiratoire et Psychologie médicale
-  ];
-
-  // Define hidden module names
-  const hiddenModuleNames = [
-    "ACP : Anatomie et Cytologie Pathologique",
-    "Immunologie",
-  ];
-
   useEffect(() => {
     const unitId = searchParams.get("unitId");
     if (unitId) {
@@ -122,54 +109,12 @@ const Categories = () => {
     enabled: !isUserFourthYear && !!secureLocalStorage.getItem("token"),
   });
 
-  // Filter out hidden units from the fetched units data
-  const filteredUnitsData = useMemo(() => {
-    if (!unitsData || unitsData.length === 0) return [];
-    const filtered = unitsData.filter(
-      (unit) => !hiddenUnitIds.includes(unit.id)
-    );
-    return filtered;
-  }, [unitsData]);
-
-  // Check if selected unit is a hidden unit
-  const isSelectedUnitHidden = useMemo(() => {
-    const isHidden = hiddenUnitIds.includes(selectedUnitId);
-    return isHidden;
-  }, [selectedUnitId]);
-
-  // Reset selection if a hidden unit is selected
-  useEffect(() => {
-    if (isSelectedUnitHidden) {
-      setSelectedUnitId("");
-    }
-  }, [isSelectedUnitHidden]);
-
-  // Check if profile's default unit is hidden
-  const isProfileUnitHidden = useMemo(() => {
-    if (!profileData?.unit?.id) return false;
-    const isHidden = hiddenUnitIds.includes(profileData.unit.id);
-    return isHidden;
-  }, [profileData]);
-
-  // Determine unit ID for fetching, avoiding hidden units
+  // Determine unit ID for fetching
   const unitIdToFetch = useMemo(() => {
     if (isUserFourthYear) return null;
 
-    const result = selectedUnitId
-      ? isSelectedUnitHidden
-        ? ""
-        : selectedUnitId
-      : isProfileUnitHidden
-      ? ""
-      : profileData?.unit?.id;
-    return result;
-  }, [
-    selectedUnitId,
-    isSelectedUnitHidden,
-    profileData,
-    isProfileUnitHidden,
-    isUserFourthYear,
-  ]);
+    return selectedUnitId || profileData?.unit?.id;
+  }, [selectedUnitId, profileData, isUserFourthYear]);
 
   const {
     data: subjectsData = [],
@@ -209,13 +154,6 @@ const Categories = () => {
   const displaySubjects = isUserFourthYear
     ? [pneumologieSubject]
     : subjectsData;
-
-  // Filter out the hidden modules
-  const filteredDisplaySubjects = useMemo(() => {
-    return displaySubjects.filter(
-      (subject) => !hiddenModuleNames.includes(subject.name)
-    );
-  }, [displaySubjects]);
 
   const resetFilter = () => {
     setSelectedUnitId("");
@@ -274,7 +212,7 @@ const Categories = () => {
     },
   };
 
-  const selectedUnitName = filteredUnitsData?.find(
+  const selectedUnitName = unitsData?.find(
     (u) => u.id === selectedUnitId
   )?.name;
   const filterButtonLabel = selectedUnitId
@@ -332,10 +270,9 @@ const Categories = () => {
                     setSelectedUnit={setSelectedUnitId}
                     resetFilter={resetFilter}
                     closeFilter={closeFilter}
-                    units={filteredUnitsData || []}
+                    units={unitsData || []}
                     selectContentRef={selectContentRef}
                     isLoading={isUnitsLoading}
-                    hiddenUnitIds={hiddenUnitIds}
                   />
                 </motion.div>
               )}
@@ -352,7 +289,7 @@ const Categories = () => {
             : "opacity-100"
         }`}
       >
-        {!isInitialLoading && filteredDisplaySubjects?.length === 0 ? (
+        {!isInitialLoading && displaySubjects?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
@@ -373,7 +310,7 @@ const Categories = () => {
             )}
           </div>
         ) : (
-          filteredDisplaySubjects?.map((item) => (
+          displaySubjects?.map((item) => (
             <li
               key={item.id}
               className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"

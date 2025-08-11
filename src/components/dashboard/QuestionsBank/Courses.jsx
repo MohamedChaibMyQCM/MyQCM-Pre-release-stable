@@ -175,7 +175,13 @@ const Courses = ({ courses, subjectId, subjectData }) => {
   };
 
   return (
-    <div className="relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col max-lg:w-full">
+    <div
+      className={
+        validCourses.length <= MAX_VISIBLE_ITEMS
+          ? "relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box max-md:w-[100%] flex flex-col max-lg:w-full"
+          : "relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col max-lg:w-full"
+      }
+    >
       <div className="flex items-center justify-between mb-5 shrink-0">
         <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
           Q/C par cours

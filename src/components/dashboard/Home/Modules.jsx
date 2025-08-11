@@ -122,13 +122,6 @@ const Modules = () => {
       })
     : [];
 
-  // Filter out the hidden modules
-  const filteredModulesData = modulesData.filter(
-    (module) =>
-      module.title !== "ACP : Anatomie et Cytologie Pathologique" &&
-      module.title !== "Immunologie"
-  );
-
   const checkScrollButtons = useCallback(() => {
     const element = scrollContainerRef.current;
     if (element) {
@@ -244,7 +237,7 @@ const Modules = () => {
         )}
       </div>
 
-      {filteredModulesData.length > 0 ? (
+      {modulesData.length > 0 ? (
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto gap-4 ml-3 py-2 pb-6 scrollbar-hide scroll-smooth"
@@ -254,7 +247,7 @@ const Modules = () => {
           }}
         >
           <ul className="flex gap-4 flex-shrink-0">
-            {filteredModulesData.map((module) => (
+            {modulesData.map((module) => (
               <li
                 key={module.id}
                 className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex flex-col flex-shrink-0 transition-shadow duration-300 ease-in-out hover:shadow-lg"

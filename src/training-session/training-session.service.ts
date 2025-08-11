@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Logger,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
@@ -52,6 +53,7 @@ import { NotificationChannel } from "src/notification/types/enums/notification-c
  */
 @Injectable()
 export class TrainingSessionService {
+  private readonly logger = new Logger(TrainingSessionService.name);
   constructor(
     @InjectRepository(TrainingSession)
     private readonly trainingSessionRepository: Repository<TrainingSession>,
@@ -276,11 +278,6 @@ export class TrainingSessionService {
         { offset: 1 },
         { randomize, populate: ["options"] },
       );
-      if (unattempted_mcqs.data.length === 0) {
-        return {
-          data: [],
-        };
-      }
     }
 
     unattempted_mcqs.data = this.applyFiltersToMcqs(unattempted_mcqs.data, {
@@ -288,11 +285,23 @@ export class TrainingSessionService {
       randomize_options,
     });
 
-    if (isAssistantMode && unattempted_mcqs.data.length > 0) {
-      await this.notificationQueue.add("assistant-push", {
+    let assistantNext: Mcq = null;
+    if (isAssistantMode) {
+      const primary = unattempted_mcqs?.data?.[0] ?? null;
+      assistantNext = primary;
+      if (!assistantNext) {
+        assistantNext = await this.mcqService.findFallbackMcq({
+          moduleId: session.course.id,
+          userId,
+          notSeenMinutes: 120,
+          preferredDifficulty: McqDifficulty.easy,
+        });
+      }
+      this.logger.log("ASSISTANT_NEXT_SET", {
         userId,
         sessionId,
-        mcqId: unattempted_mcqs.data[0].id,
+        mcqId: assistantNext?.id,
+        source: primary ? "primary" : assistantNext ? "fallback" : "none",
       });
     }
 
@@ -300,10 +309,15 @@ export class TrainingSessionService {
     const is_final =
       attempted_progress_list.length + unattempted_mcqs.data.length >=
       session.number_of_questions;
-    return {
+    const result = {
       ...unattempted_mcqs,
       is_final,
-    };
+    } as any;
+
+    if (isAssistantMode) {
+      result.assistantNext = assistantNext;
+    }
+    return result;
   }
 
   /**

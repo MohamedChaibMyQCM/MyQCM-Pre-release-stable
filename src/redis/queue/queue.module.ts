@@ -5,6 +5,9 @@ import { RedisConfig } from "config/redis-config";
 import { MailModule } from "src/mail/mail.module";
 import { NotificationQueueProcessor } from "./notification-queue.processor";
 import { NotificationModule } from "src/notification/notification.module";
+import { McqModule } from "src/mcq/mcq.module";
+import { AssistantPushWorker } from "src/notifications/assistant-push.worker";
+import { NotificationsGateway } from "src/notifications/notifications.gateway";
 @Module({
   imports: [
     BullModule.forRoot({
@@ -29,8 +32,14 @@ import { NotificationModule } from "src/notification/notification.module";
     ),
     MailModule,
     NotificationModule,
+    McqModule,
   ],
-  providers: [EmailQueueProcessor, NotificationQueueProcessor],
+  providers: [
+    EmailQueueProcessor,
+    NotificationQueueProcessor,
+    AssistantPushWorker,
+    NotificationsGateway,
+  ],
   exports: [BullModule],
 })
 export class QueueModule {}

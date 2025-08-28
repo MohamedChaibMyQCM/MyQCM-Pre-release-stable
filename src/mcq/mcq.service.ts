@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { CreateMcqDto, CreateMcqInClinicalCase } from "./dto/create-mcq.dto";
 import { UpdateMcqDto } from "./dto/update-mcq.dto";
-import { McqType } from "./dto/mcq.type";
+import { McqType, McqDifficulty } from "./dto/mcq.type";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Mcq } from "./entities/mcq.entity";
 import {
@@ -49,6 +49,7 @@ import { UserSubscriptionService } from "src/user/services/user-subscription.ser
 import { UserSubscriptionUsageEnum } from "src/user/types/enums/user-subscription-usage.enum";
 import { AdaptiveEngineService } from "src/adaptive-engine/adaptive-engine.service";
 import { UserSubscription } from "src/user/entities/user-subscription.entity";
+import { Progress } from "src/progress/entities/progress.entity";
 
 @Injectable()
 export class McqService {
@@ -195,6 +196,49 @@ export class McqService {
       },
       relations: ["options"],
     });
+  }
+
+  async findFallbackMcq(params: {
+    moduleId: string;
+    userId: string;
+    notSeenMinutes: number;
+    preferredDifficulty: McqDifficulty | string;
+  }): Promise<Mcq | null> {
+    const { moduleId, userId, notSeenMinutes, preferredDifficulty } = params;
+    const notSeenDate = new Date(Date.now() - notSeenMinutes * 60 * 1000);
+
+    const buildQuery = (difficulty?: McqDifficulty | string) => {
+      const qb = this.mcqRepository
+        .createQueryBuilder("mcq")
+        .leftJoin(
+          Progress,
+          "progress",
+          "progress.mcqId = mcq.id AND progress.userId = :userId",
+          { userId },
+        )
+        .where("mcq.courseId = :moduleId", { moduleId })
+        .andWhere(
+          "(progress.id IS NULL OR progress.updatedAt <= :notSeenDate)",
+          { notSeenDate },
+        );
+
+      if (difficulty) {
+        qb.andWhere("mcq.difficulty = :difficulty", { difficulty });
+      }
+
+      return qb
+        .orderBy("mcq.difficulty", "ASC")
+        .addOrderBy("progress.updatedAt", "ASC", "NULLS FIRST")
+        .addOrderBy("mcq.id", "ASC")
+        .limit(1);
+    };
+
+    let mcq = await buildQuery(preferredDifficulty).getOne();
+    if (!mcq) {
+      mcq = await buildQuery().getOne();
+    }
+
+    return mcq || null;
   }
 
   /**

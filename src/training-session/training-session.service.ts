@@ -289,6 +289,25 @@ export class TrainingSessionService {
     if (isAssistantMode) {
       const primary = unattempted_mcqs?.data?.[0] ?? null;
       assistantNext = primary;
+      let needsFallback = !assistantNext;
+      if (!needsFallback && (this.mcqService as any).isRecentlySeen) {
+        try {
+          needsFallback = await (this.mcqService as any).isRecentlySeen({
+            userId,
+            mcqId: assistantNext.id,
+            notSeenMinutes: 10,
+          });
+        } catch {}
+      }
+      if (needsFallback) {
+        const recentAlt = await this.mcqService.findFallbackMcq({
+          moduleId: session.course.id,
+          userId,
+          notSeenMinutes: 10,
+          preferredDifficulty: difficultyFilter,
+        });
+        assistantNext = recentAlt ?? assistantNext;
+      }
       if (!assistantNext) {
         assistantNext = await this.mcqService.findFallbackMcq({
           moduleId: session.course.id,
@@ -301,7 +320,13 @@ export class TrainingSessionService {
         userId,
         sessionId,
         mcqId: assistantNext?.id,
-        source: primary ? "primary" : assistantNext ? "fallback" : "none",
+        source: primary
+          ? assistantNext?.id === primary.id
+            ? "primary"
+            : "primary_recent_replaced"
+          : assistantNext
+          ? "fallback"
+          : "none",
       });
     }
 
@@ -759,7 +784,7 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
         number_of_questions: existingSession.number_of_questions,
         randomize_questions_order: existingSession.randomize_questions_order,
         randomize_options_order: existingSession.randomize_options_order,
-        difficulty: (existingSession as any).difficulty,
+        difficulty: existingSession.difficulty,
       };
     } else if (createTrainingSessionDto) {
       sessionData = { ...createTrainingSessionDto };

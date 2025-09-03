@@ -1,0 +1,3 @@
+user_id,session_id,item_id,kc_id,correct,timestamp,locale,course_id,difficulty
+u2,ses2,item1,,1,2025-08-29T11:00:00Z,,course1,medium
+u2,ses2,item2,,1,2025-08-29T11:05:00Z,,course1,hard

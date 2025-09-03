@@ -1,0 +1,5 @@
+{
+  "keep_corrected_bkt": false,
+  "reason": "Synthetic sample is inconclusive and mixed; real export required. Use flag canary, evaluate on real data with 2% log-loss + 70% ECE improvement rule.",
+  "next_steps": ["Run export_attempts.ts and export_items.ts with real DB env","Label cohorts from deployment logs","Re-run run_eval.py","Decide rollout"]
+}

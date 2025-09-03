@@ -1,0 +1,47 @@
+Proposed patch to src/adaptive-engine/adaptive-engine.service.ts
+
+1) Fix BKT parameter handling and update order
+
+- Replace falsy checks with nullish checks and clamp params to [ε, 1-ε].
+- Apply posterior update first, then learning transition.
+
+Example change (illustrative):
+
+  // Before
+  if (!guessing_probability) guessing_probability = DefaultBktParamsConfig.guessing_probability;
+  if (!slipping_probability) slipping_probability = DefaultBktParamsConfig.slipping_probability;
+  if (!learning_rate) learning_rate = DefaultBktParamsConfig.learning_rate;
+  const p_learn_temp = mastery + (1 - mastery) * learning_rate;
+  // posterior using p_learn_temp ...
+
+  // After
+  const eps = 1e-6;
+  if (guessing_probability == null) guessing_probability = DefaultBktParamsConfig.guessing_probability;
+  if (slipping_probability == null) slipping_probability = DefaultBktParamsConfig.slipping_probability;
+  if (learning_rate == null) learning_rate = DefaultBktParamsConfig.learning_rate;
+  guessing_probability = Math.min(1 - eps, Math.max(eps, guessing_probability));
+  slipping_probability = Math.min(1 - eps, Math.max(eps, slipping_probability));
+  learning_rate = Math.min(1 - eps, Math.max(eps, learning_rate));
+  // posterior using prior = mastery ... then
+  const afterLearn = posterior + (1 - posterior) * learning_rate;
+
+2) Introduce IRT ability update (not probability assignment)
+
+- Do not set ability = probability. Instead, update theta via a small gradient step of log-likelihood using observation.
+- Store ability as latent score (optionally normalized for UI), not a probability.
+
+Pseudo-change in updateAdaptiveLearner:
+
+  const irtParams = await this.mapIrtValues(options);
+  const newTheta = await this.updateIrtAbility(adaptive_learner.ability, irtParams, options.accuracy_rate);
+  adaptive_learner.ability = newTheta;
+
+Add helper:
+
+  async updateIrtAbility(theta: number, irt: IrtParamsInterface, target: number | null): Promise<number> { /* ... */ }
+
+3) Prefer passing boolean correctness to BKT and IRT updates
+
+- Map partial credit to binary correctness upstream (per type/difficulty), or calibrate via validation.
+- Exclude QROC nulls from state updates.
+

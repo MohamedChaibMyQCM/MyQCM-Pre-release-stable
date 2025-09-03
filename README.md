@@ -35,9 +35,30 @@ $ npm i -g @nestjs/cli && npm install
 
 ### Environment Variables
 
-```bash
+Set up your environment variables before running the app.
 
+1) Copy the example file and edit values as needed:
+
+```bash
+cp .env.example .env
 ```
+
+2) Ensure you have a local PostgreSQL and Redis (or adjust to your setup). Example values in `.env.example` assume:
+- PostgreSQL at `localhost:5432` with user `postgres`/`postgres`, database `myqcm`.
+- Redis at `localhost:6379` with no password.
+
+Quick Windows tip (PowerShell) to just bypass the immediate APP_ENV error while you prepare `.env`:
+
+```powershell
+$env:APP_ENV = 'development'
+```
+
+Required keys are documented in `.env.example` and validated at startup. At minimum for development you must set:
+- `APP_ENV`, `APP_PORT`
+- Database: `DB_DRIVER`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
+- JWT: `JWT_SECRET`, `JWT_REFRESH_SECRET`
+
+Other keys have development-friendly defaults in `.env.example` but should be reviewed.
 
 ### Running the app
 
@@ -80,6 +101,15 @@ $ npm run start:prod or nest start prod
   Provides personalized feedback based on user answers, helping them understand their mistakes and learn effectively. The feedback is generated using AI to ensure relevance and accuracy.
 - #### Predictive Analysis :
   Uses machine learning models to predict user success and identify potential issues early, enabling proactive support and intervention.
+
+### Assistant configuration
+
+- Set `ASSISTANT_API_KEY` in `.env` to enable AI feedback for QROC answers and assistant-driven session parameters.
+- Optional overrides: `ASSISTANT_MODEL` (default: `gpt-4o-mini`) and `ASSISTANT_BASE_URL` for OpenAI-compatible endpoints.
+
+### Training sessions schema note
+
+- The `TrainingSession` entity now persists an optional `difficulty` (enum) which is used to filter MCQs when set, or is determined adaptively when the mode definer is `assistant`.
 
 ## Security Measures
 

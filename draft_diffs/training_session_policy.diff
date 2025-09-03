@@ -1,0 +1,26 @@
+Proposed patch to add short-lived caching for next-item selection
+
+Files:
+  - src/training-session/training-session.service.ts
+
+Sketch:
+
+  import { RedisService } from 'src/redis/redis.service';
+  // in constructor: private readonly redisService: RedisService
+
+  async getSessionMcqs(userId: string, sessionId: string) {
+    const cacheKey = `next:mcq:${userId}:${sessionId}`;
+    const cached = await this.redisService.get<any>(cacheKey, true);
+    if (cached) return cached; // short-circuit
+
+    // ... existing logic to compute unattempted_mcqs and assistantNext
+    const result = { ...unattempted_mcqs, is_final, assistantNext };
+
+    await this.redisService.set(cacheKey, result, 30 /* TTL seconds */);
+    return result;
+  }
+
+Invalidation rules:
+  - On progress creation for this user/session (in mcq.service.ts -> recordProgressAndUpdateMetrics), delete `next:mcq:${userId}:${sessionId}`.
+  - On session status/param changes, delete key.
+

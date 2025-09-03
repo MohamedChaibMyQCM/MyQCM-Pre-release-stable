@@ -8,9 +8,13 @@ import { getEnvOrFatal } from "common/utils/env.util";
 export class AssistantService {
   private readonly logger = new Logger(AssistantService.name);
   private readonly openaiApiKey: string;
+  private readonly model: string;
+  private readonly baseUrl: string;
 
   constructor(private readonly httpService: HttpService) {
     this.openaiApiKey = getEnvOrFatal("ASSISTANT_API_KEY");
+    this.model = process.env.ASSISTANT_MODEL || "gpt-4o-mini";
+    this.baseUrl = process.env.ASSISTANT_BASE_URL || "https://api.openai.com/v1";
   }
 
   async getAssistantResponseRatingAndFeedback(
@@ -21,7 +25,7 @@ export class AssistantService {
       return { rating: 1, feedback: "Perfect! Your answer is correct." };
     }
 
-    const url = "https://api.openai.com/v1/chat/completions";
+    const url = `${this.baseUrl}/chat/completions`;
     const prompt = `
       You are an AI assistant. Evaluate the user's response to the given question:
       - Rate the response on a scale of 0 to 1 based on correctness and relevance.
@@ -43,7 +47,7 @@ export class AssistantService {
         this.httpService.post(
           url,
           {
-            model: "gpt-4o-mini",
+            model: this.model,
             messages: [
               {
                 role: "user",

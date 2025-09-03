@@ -3,6 +3,7 @@ import { Course } from "src/course/entities/course.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, Entity, ManyToOne } from "typeorm";
 import { TrainingSessionStatus } from "../types/enums/training-session.enum";
+import { McqDifficulty } from "src/mcq/dto/mcq.type";
 
 @Entity()
 export class TrainingSession extends ChronoEntity {
@@ -28,6 +29,13 @@ export class TrainingSession extends ChronoEntity {
     default: true,
   })
   qroc: boolean;
+
+  @Column({
+    type: "enum",
+    enum: McqDifficulty,
+    nullable: true,
+  })
+  difficulty?: McqDifficulty | null;
 
   @Column({
     nullable: true, // use mcq original

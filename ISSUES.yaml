@@ -1,0 +1,99 @@
+- id: ADAPT-001
+  severity: high
+  file: src/adaptive-engine/adaptive-engine.service.ts:126
+  finding: "IRT ability misused as probability; no latent trait update"
+  evidence: "updateAdaptiveLearner assigns ability = 3PL probability (0–1). No item params or ability estimation."
+  fix: "Introduce proper IRT estimation (1PL/2PL/3PL) offline; store item params; update ability via MLE/MAP; keep theta unbounded (or standard scale)."
+  impact: "Invalid ‘ability’; selection bands become arbitrary; no generalization."
+  eta_hours: 16
+
+- id: ADAPT-002
+  severity: high
+  file: src/adaptive-engine/adaptive-engine.service.ts:204
+  finding: "No item parameters in DB; heuristics used for difficulty, guessing, discrimination"
+  evidence: "mapIrtValues fabricates params from difficulty enum, time ratio, and baseline."
+  fix: "Add item_params_irt table (a,b,c); train via EM/MML/SGD offline; apply identifiability constraints; handle item drift."
+  impact: "IRT predictions not scientifically grounded."
+  eta_hours: 24
+
+- id: ADAPT-003
+  severity: high
+  file: src/adaptive-engine/adaptive-engine.service.ts:164
+  finding: "BKT params use falsy checks; valid 0 overridden; params not clamped"
+  evidence: "if (!guessing_probability) { default } likewise for slip/learning; no [0,1] clamp."
+  fix: "Use nullish coalescing/undefined checks; clamp to [ε, 1-ε]; add unit tests for edge cases."
+  impact: "Numerical instability; incorrect posteriors; unpredictable updates."
+  eta_hours: 3
+
+- id: ADAPT-004
+  severity: medium
+  file: src/adaptive-engine/adaptive-engine.service.ts:179
+  finding: "BKT applies learning before posterior (nonstandard)"
+  evidence: "p_learn_temp computed then used as prior for Bayes update."
+  fix: "Update posterior from observation using current mastery, then apply learning transition to get next mastery."
+  impact: "Biased updates; slower/faster than intended learning; miscalibration."
+  eta_hours: 2
+
+- id: ADAPT-005
+  severity: medium
+  file: src/mcq/mcq.service.ts:1244
+  finding: "Binary correctness derived from thresholded success_ratio; QROC nulls"
+  evidence: "evaluateAttemptAccuracy returns partial credit; QROC can be null unless analysis enabled."
+  fix: "Feed true/false per-question correctness; calibrate threshold per type/difficulty; exclude nulls; log label source."
+  impact: "Label noise; degraded model fit and selection."
+  eta_hours: 6
+
+- id: ADAPT-006
+  severity: high
+  file: src/adaptive-engine/entities/adaptive-learner.entity.ts:18
+  finding: "No KC mapping; mastery tracked at course-level only"
+  evidence: "AdaptiveLearner has single mastery/ability per course; no KC table."
+  fix: "Introduce knowledge_components and item↔KC mapping; track learner×KC state; estimate per-KC BKT."
+  impact: "Over-generalized adaptation; limited personalization; misleading mastery."
+  eta_hours: 20
+
+- id: ADAPT-007
+  severity: medium
+  file: src/training-session/training-session.service.ts:940
+  finding: "Selection policy lacks exploration and repetition guardrails"
+  evidence: "Deterministic difficulty banding (0.3/0.7). Dedupe only inside-session; fallback includes last-seen>120m."
+  fix: "Add epsilon-greedy or UCB over difficulty/KC; enforce per-item repetition caps; progressive difficulty ramps."
+  impact: "Stagnation; potential over/under-challenge; suboptimal coverage."
+  eta_hours: 8
+
+- id: ADAPT-008
+  severity: medium
+  file: src/training-session/training-session.service.ts:200
+  finding: "No caching for next-item; repeated DB scans"
+  evidence: "getSessionMcqs recomputes filters and queries each call."
+  fix: "Cache candidate set/next MCQ for short TTL (15–60s) keyed by user:session; invalidate on attempt write or session param change."
+  impact: "Avoidable latency and DB load spikes."
+  eta_hours: 4
+
+- id: ADAPT-009
+  severity: medium
+  file: draft_diffs/sql/indices.sql:1
+  finding: "Missing composite indexes on hot paths"
+  evidence: "Queries on progress by user/time, session/time; MCQ selection by course,difficulty,type; AdaptiveLearner lookup by user,course."
+  fix: "Add indices: progress(userId, createdAt), progress(sessionId, createdAt), mcq(courseId, difficulty, type), unique(adaptive_learner(userId, courseId))."
+  impact: "Lower p95 latency, reduced CPU, better scalability."
+  eta_hours: 2
+
+- id: ADAPT-010
+  severity: high
+  file: draft_diffs/scripts/eval/run_eval.py:1
+  finding: "Missing evaluation harness and calibration assessment"
+  evidence: "No log-loss, Brier, AUC, ECE, or reliability diagrams; no ablations."
+  fix: "Adopt provided script; wire CI job to refresh metrics and push artifacts."
+  impact: "Cannot justify hybrid/single-model scientifically."
+  eta_hours: 12
+
+- id: ADAPT-011
+  severity: medium
+  file: src/mcq/entities/mcq.entity.ts:24
+  finding: "No content locale or language fields; fairness slicing impossible"
+  evidence: "Entity lacks locale; only OAuth uses `locale` state."
+  fix: "Add `language/locale` fields to MCQ and Progress; backfill; slice metrics by FR/AR."
+  impact: "Blind to locale disparities; harder to mitigate bias."
+  eta_hours: 6
+

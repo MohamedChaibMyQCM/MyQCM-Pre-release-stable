@@ -1285,14 +1285,19 @@ export class McqService {
         transactionManager,
       );
 
-      // Update adaptive learning metrics
-      await this.updateAdaptiveLearningMetrics(
-        user.id,
-        mcq,
-        attemptResult.success_ratio,
-        submitMcqAttemptDto.time_spent,
-        transactionManager,
-      );
+      // Update adaptive learning metrics only for graded attempts with a session
+      if (
+        submitMcqAttemptDto?.session != null &&
+        attemptResult?.success_ratio != null
+      ) {
+        await this.updateAdaptiveLearningMetrics(
+          user.id,
+          mcq,
+          attemptResult.success_ratio,
+          submitMcqAttemptDto.time_spent,
+          transactionManager,
+        );
+      }
 
       // Update user XP, activity, and subscription usage
       await this.updateUserMetrics(

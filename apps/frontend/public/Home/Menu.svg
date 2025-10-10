@@ -1,0 +1,14 @@
+<svg width="25" height="21" viewBox="0 0 25 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Menu" clip-path="url(#clip0_407_678)">
+<g id="Group 3">
+<line id="Line 3" x1="1.5625" y1="2.28564" x2="23.4375" y2="2.28564" stroke="#F8589F" stroke-width="3.125" stroke-linecap="round"/>
+<line id="Line 4" x1="4.6875" y1="10.619" x2="23.4375" y2="10.619" stroke="#F8589F" stroke-width="3.125" stroke-linecap="round"/>
+<line id="Line 5" x1="17.1875" y1="18.9523" x2="23.4375" y2="18.9523" stroke="#F8589F" stroke-width="3.125" stroke-linecap="round"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_407_678">
+<rect width="25" height="19.7917" fill="white" transform="translate(0 0.723145)"/>
+</clipPath>
+</defs>
+</svg>

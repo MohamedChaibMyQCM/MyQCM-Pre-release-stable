@@ -1,0 +1,53 @@
+--- a/src/mcq/mcq.service.ts
++++ b/src/mcq/mcq.service.ts
+@@
+  private async recordProgressAndUpdateMetrics(
+    user: JwtPayload,
+    mcq: Mcq,
+    submitMcqAttemptDto: SubmitMcqAttemptDto,
+    attemptResult: any,
+    gained_xp: number,
+    subscription: UserSubscription,
+    usageType: UserSubscriptionUsageEnum,
+  ) {
+    await this.mcqRepository.manager.transaction(async (transactionManager) => {
+      // Record user progress for this MCQ attempt
+      await this.progressService.createUserProgress(
+        user.id,
+        {
+          ...submitMcqAttemptDto,
+          ...attemptResult,
+          gained_xp,
+          mcq: mcq.id,
+          unit: mcq.unit.id,
+          course: mcq.course.id,
+          subject: mcq.subject.id,
+        },
+        transactionManager,
+      );
+
+      // Update adaptive learning metrics (graded attempts with known session only)
+      if (
+        submitMcqAttemptDto?.session &&
+        attemptResult?.success_ratio !== null &&
+        attemptResult?.success_ratio !== undefined
+      ) {
+        await this.updateAdaptiveLearningMetrics(
+          user.id,
+          mcq,
+          attemptResult.success_ratio,
+          submitMcqAttemptDto.time_spent,
+          transactionManager,
+        );
+      }
+
+      // Update user XP, activity, and subscription usage
+      await this.updateUserMetrics(
+        user.id,
+        subscription,
+        gained_xp,
+        usageType,
+        transactionManager,
+      );
+    });
+  }

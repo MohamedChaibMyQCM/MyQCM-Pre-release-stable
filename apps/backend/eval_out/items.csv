@@ -1,0 +1,3 @@
+item_id,kc_id,course_id,difficulty,type
+item1,,course1,medium,qcm
+item2,,course1,hard,qcm

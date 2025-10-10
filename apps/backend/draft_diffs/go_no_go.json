@@ -1,0 +1,13 @@
+{
+  "keep_hybrid": false,
+  "reason": "Hybrid lacks trained IRT and calibrated BKT; Δlogloss unknown, calibration unmeasured. No KC coverage. Fails threshold.",
+  "recommended_model": "BKT-only (corrected) or IRT-2PL after training",
+  "next_steps": [
+    "Implement evaluation harness and run ablations",
+    "Add KC mapping and per-KC mastery",
+    "Train IRT-2PL offline; store item params",
+    "Introduce epsilon-greedy policy and caching",
+    "Add indices and Prometheus model metrics"
+  ]
+}
+

@@ -1,0 +1,34 @@
+--- a/src/training-session/training-session.service.ts
++++ b/src/training-session/training-session.service.ts
+@@
+    let assistantNext: Mcq = null;
+    if (isAssistantMode) {
+      const primary = unattempted_mcqs?.data?.[0] ?? null;
+      assistantNext = primary;
+      // Lightweight repeat-exclusion: prefer a recently-unseen fallback over a recent primary
+      if (assistantNext) {
+        const recentAlt = await this.mcqService.findFallbackMcq({
+          moduleId: session.course.id,
+          userId,
+          notSeenMinutes: 10,
+          preferredDifficulty: difficultyFilter,
+        });
+        if (recentAlt && recentAlt.id !== assistantNext.id) {
+          assistantNext = recentAlt;
+        }
+      }
+      if (!assistantNext) {
+        assistantNext = await this.mcqService.findFallbackMcq({
+          moduleId: session.course.id,
+          userId,
+          notSeenMinutes: 120,
+          preferredDifficulty: McqDifficulty.easy,
+        });
+      }
+      this.logger.log("ASSISTANT_NEXT_SET", {
+        userId,
+        sessionId,
+        mcqId: assistantNext?.id,
+        source: primary ? (assistantNext?.id === primary.id ? "primary" : "primary_recent_replaced") : assistantNext ? "fallback" : "none",
+      });
+    }

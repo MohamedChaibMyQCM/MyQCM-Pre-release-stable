@@ -1,6 +1,12 @@
 import { ChronoEntity } from "abstract/base-chrono.entity";
 import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
-import { McqDifficulty, McqTag, McqType, QuizType } from "../dto/mcq.type";
+import {
+  McqApprovalStatus,
+  McqDifficulty,
+  McqTag,
+  McqType,
+  QuizType,
+} from "../dto/mcq.type";
 import { Freelancer } from "src/freelancer/entities/freelancer.entity";
 import { Option } from "src/option/entities/option.entity";
 import { University } from "src/university/entities/university.entity";
@@ -42,10 +48,17 @@ export class Mcq extends ChronoEntity {
   mcq_tags: McqTag;
 
   @Column({
+    type: "enum",
+    enum: McqApprovalStatus,
+    default: McqApprovalStatus.APPROVED,
+  })
+  approval_status: McqApprovalStatus;
+
+  @Column({
     type: "smallint",
     nullable: true,
     default: 10,
-    comment: "Estimated time to solve the MCQ in minutes.",
+    comment: "Estimated time to solve the MCQ in seconds.",
   })
   estimated_time: number;
 

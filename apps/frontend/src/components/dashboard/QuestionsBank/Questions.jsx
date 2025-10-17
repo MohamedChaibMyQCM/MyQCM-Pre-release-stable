@@ -17,9 +17,20 @@ import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
+const normalizeModeName = (modeName) => {
+  if (typeof modeName !== "string") {
+    return "";
+  }
+  return modeName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
 const CUSTOM_MODE = "Mode Personnalisé";
 const GUIDED_MODE = "Mode Guidé";
 const INTELLIGENTE_MODE = "Mode Intelligent";
+
+const NORMALIZED_CUSTOM_MODE = normalizeModeName(CUSTOM_MODE);
+const NORMALIZED_GUIDED_MODE = normalizeModeName(GUIDED_MODE);
+const NORMALIZED_INTELLIGENTE_MODE = normalizeModeName(INTELLIGENTE_MODE);
 
 const Questions = ({
   data = [],
@@ -35,7 +46,8 @@ const Questions = ({
     error: profileError,
   } = useUserProfile();
 
-  const userMode = userProfile?.mode?.name;
+  const userModeRaw = userProfile?.mode?.name;
+  const normalizedUserMode = normalizeModeName(userModeRaw);
 
   const displayData = data;
 
@@ -106,7 +118,7 @@ const Questions = ({
       return;
     }
 
-    if (!userMode) {
+    if (!normalizedUserMode) {
       toast.error(
         "Mode utilisateur non défini. Veuillez contacter le support."
       );
@@ -115,7 +127,7 @@ const Questions = ({
     }
 
     // Now proceed with the normal flow
-    if (userMode === INTELLIGENTE_MODE) {
+    if (normalizedUserMode === NORMALIZED_INTELLIGENTE_MODE) {
       startSynergySession({ course: courseId });
     } else {
       setSelectedCourseId(courseId);
@@ -141,21 +153,24 @@ const Questions = ({
 
   // Make sure buttons are properly disabled when needed
   const buttonsDisabled =
-    isLoadingProfile || isStartingSynergy || !userProfile || !userMode;
+    isLoadingProfile ||
+    isStartingSynergy ||
+    !userProfile ||
+    !normalizedUserMode;
 
   const renderPopup = () => {
     if (
       !activePopup ||
       !selectedCourseId ||
       isLoadingProfile ||
-      !userMode ||
+      !normalizedUserMode ||
       profileError
     ) {
       return null;
     }
 
-    switch (userMode) {
-      case CUSTOM_MODE:
+    switch (normalizedUserMode) {
+      case NORMALIZED_CUSTOM_MODE:
         if (activePopup === "play")
           return (
             <CustomSeason setPopup={closePopup} courseId={selectedCourseId} />
@@ -165,7 +180,7 @@ const Questions = ({
             <CustomSchedule setPopup={closePopup} courseId={selectedCourseId} />
           );
         break;
-      case GUIDED_MODE:
+      case NORMALIZED_GUIDED_MODE:
         if (activePopup === "play")
           return (
             <GuidedSeason setPopup={closePopup} courseId={selectedCourseId} />
@@ -175,7 +190,7 @@ const Questions = ({
             <GuidedSchedule setPopup={closePopup} courseId={selectedCourseId} />
           );
         break;
-      case INTELLIGENTE_MODE:
+      case NORMALIZED_INTELLIGENTE_MODE:
         if (activePopup === "schedule")
           return (
             <SynergySchedule
@@ -185,7 +200,9 @@ const Questions = ({
           );
         break;
       default:
-        console.error(`Mode utilisateur inconnu: ${userMode}`);
+        console.error(
+          `Mode utilisateur inconnu: ${userModeRaw || "(inconnu)"}`
+        );
         closePopup();
         return null;
     }

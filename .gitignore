@@ -2,3 +2,4 @@
 .next/
 dist/
 apps/backend/storage/
+*.env

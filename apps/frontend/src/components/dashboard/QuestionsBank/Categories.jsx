@@ -77,14 +77,6 @@ const Categories = () => {
   // Check if user is in fourth year
   const isUserFourthYear = profileData?.year_of_study === "Fourth Year";
 
-  // Special pneumologie module for fourth-year students
-  const pneumologieSubject = {
-    id: "b7eeafcf-9922-4d58-8896-0c97e0efbe3f",
-    name: "Pneumologie",
-    totalQuestions: 87,
-    icon: "https://res.cloudinary.com/dgxaezwuv/image/upload/v1744685292/Semiology_gbmjbf.svg",
-  };
-
   const {
     data: unitsData,
     isLoading: isUnitsLoading,
@@ -106,15 +98,13 @@ const Categories = () => {
     },
     staleTime: 1000 * 60 * 10,
     retry: 1,
-    enabled: !isUserFourthYear && !!secureLocalStorage.getItem("token"),
+    enabled: !!secureLocalStorage.getItem("token"),
   });
 
   // Determine unit ID for fetching
   const unitIdToFetch = useMemo(() => {
-    if (isUserFourthYear) return null;
-
     return selectedUnitId || profileData?.unit?.id;
-  }, [selectedUnitId, profileData, isUserFourthYear]);
+  }, [selectedUnitId, profileData]);
 
   const {
     data: subjectsData = [],
@@ -151,9 +141,7 @@ const Categories = () => {
   });
 
   // Use either pneumologie subject or regular subjects based on user's year
-  const displaySubjects = isUserFourthYear
-    ? [pneumologieSubject]
-    : subjectsData;
+  const displaySubjects = subjectsData;
 
   const resetFilter = () => {
     setSelectedUnitId("");

@@ -60,7 +60,6 @@
     "cache-manager": "^5.7.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "openai": "^4.80.0",
     "cloudinary": "^2.5.1",
     "config": "^3.3.12",
     "cookie-parser": "^1.4.6",
@@ -82,6 +81,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "node-mailjet": "^6.0.6",
     "nodemailer": "^6.9.15",
+    "openai": "^4.80.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -96,7 +96,8 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.20",
     "useragent": "^2.3.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

@@ -33,7 +33,13 @@ import { RolesGuard } from "common/guards/auth/roles.guard";
 import { Roles } from "common/decorators/auth/roles.decorator";
 import { BaseRoles } from "shared/enums/base-roles.enum";
 import { GetUser } from "common/decorators/auth/get-user.decorator";
-import { McqDifficulty, McqTag, McqType, QuizType } from "./dto/mcq.type";
+import {
+  McqApprovalStatus,
+  McqDifficulty,
+  McqTag,
+  McqType,
+  QuizType,
+} from "./dto/mcq.type";
 import { Freelancer } from "src/freelancer/entities/freelancer.entity";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ParseFormDataInterceptor } from "abstract/form-data.interceptor";
@@ -43,6 +49,9 @@ import { default_offset, default_page } from "shared/constants/pagination";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
 import { SubmitMcqAttemptDto } from "./dto/submit-mcq-attempt.dto";
 import { FacultyType } from "src/faculty/types/enums/faculty-type.enum";
+import { McqBatchUploadMetadataDto } from "./dto/mcq-batch-upload.dto";
+import { SpreadsheetMulterConfig } from "config/spreadsheet-multer.config";
+import { ApproveMcqBulkDto } from "./dto/approve-mcq.dto";
 @ApiTags("Mcq")
 @Controller("mcq")
 export class McqController {
@@ -72,6 +81,42 @@ export class McqController {
     return {
       message: `Mcq of type ${createMcqDto.type} cretaed succesfully`,
       status: HttpStatus.CREATED,
+    };
+  }
+
+  @Post("/batch-upload")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "Bulk create MCQs from a spreadsheet" })
+  @ApiResponse({
+    status: 201,
+    description: "Spreadsheet processed and MCQs created successfully",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Spreadsheet could not be processed",
+  })
+  @ApiBearerAuth("JWT-auth")
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(
+    FileInterceptor("file", SpreadsheetMulterConfig),
+    ParseFormDataInterceptor,
+  )
+  async batchUpload(
+    @Body() metadata: McqBatchUploadMetadataDto,
+    @UploadedFile() file: Express.Multer.File,
+    @GetUser() freelancer: JwtPayload,
+  ) {
+    const data = await this.mcqService.batchUploadFromSpreadsheet(
+      file,
+      metadata,
+      freelancer,
+    );
+
+    return {
+      message: `Imported ${data.created} question(s)`,
+      status: HttpStatus.CREATED,
+      data,
     };
   }
 
@@ -196,6 +241,11 @@ export class McqController {
     offset?: number,
     @Query("type", new ParseEnumPipe(McqType, { optional: true }))
     type?: McqType,
+    @Query(
+      "approval_status",
+      new ParseEnumPipe(McqApprovalStatus, { optional: true }),
+    )
+    approval_status?: McqApprovalStatus,
   ) {
     const data = await this.mcqService.findMcqsByFreelancerPaginated(
       freelancer.id,
@@ -204,6 +254,7 @@ export class McqController {
         page,
         offset,
       },
+      approval_status ? { approval_status } : {},
     );
     return {
       message: "Mcqs fetched succesfully",
@@ -233,6 +284,57 @@ export class McqController {
       message: "Mcq fetched succesfully",
       status: HttpStatus.OK,
       data,
+    };
+  }
+
+  @Post("approve")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "Approve a batch of MCQs" })
+  async approveMany(
+    @Body() payload: ApproveMcqBulkDto,
+    @GetUser() freelancer: JwtPayload,
+  ) {
+    const result = await this.mcqService.approveMcqs(
+      payload.mcqIds,
+      freelancer,
+    );
+    return {
+      message: `Approved ${result.updated} MCQ(s)`,
+      status: HttpStatus.OK,
+      data: result,
+    };
+  }
+
+  @Post("approve/all")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "Approve all pending MCQs" })
+  async approveAll(@GetUser() freelancer: JwtPayload) {
+    const result = await this.mcqService.approveAllPending(freelancer);
+    return {
+      message: `Approved ${result.updated} MCQ(s)`,
+      status: HttpStatus.OK,
+      data: result,
+    };
+  }
+
+  @Post(":mcqId/approve")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "Approve a single MCQ" })
+  async approveOne(
+    @Param("mcqId", ParseUUIDPipe) mcqId: string,
+    @GetUser() freelancer: JwtPayload,
+  ) {
+    const mcq = await this.mcqService.approveMcq(mcqId, freelancer);
+    return {
+      message: "Mcq approved succesfully",
+      status: HttpStatus.OK,
+      data: {
+        id: mcq.id,
+        approval_status: mcq.approval_status,
+      },
     };
   }
 

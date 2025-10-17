@@ -12,7 +12,13 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { McqDifficulty, McqTag, McqType, QuizType } from "./mcq.type";
+import {
+  McqApprovalStatus,
+  McqDifficulty,
+  McqTag,
+  McqType,
+  QuizType,
+} from "./mcq.type";
 import { CreateOptionDto } from "src/option/dto/create-option.dto";
 import { Type } from "class-transformer";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
@@ -36,8 +42,8 @@ export class CreateMcqDto {
   type: McqType;
 
   @ApiPropertyOptional({
-    description: "Estimated time to solve the MCQ in minutes.",
-    example: 10,
+    description: "Estimated time to solve the MCQ in seconds.",
+    example: 120,
   })
   @IsNotEmpty()
   @IsNumber()
@@ -171,6 +177,15 @@ export class CreateMcqDto {
   @IsUUID("4")
   @IsNotEmpty()
   course: string;
+
+  @ApiPropertyOptional({
+    description: "Approval status of the MCQ.",
+    enum: McqApprovalStatus,
+    default: McqApprovalStatus.APPROVED,
+  })
+  @IsOptional()
+  @IsEnum(McqApprovalStatus)
+  approval_status?: McqApprovalStatus;
 }
 export class CreateMcqInClinicalCase {
   @IsOptional()

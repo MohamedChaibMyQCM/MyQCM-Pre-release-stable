@@ -20,3 +20,8 @@ export enum QuizType {
   theorique = "theorique",
   pratique = "pratique",
 }
+
+export enum McqApprovalStatus {
+  PENDING = "pending",
+  APPROVED = "approved",
+}

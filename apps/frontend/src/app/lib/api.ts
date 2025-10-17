@@ -243,6 +243,6 @@ export async function uploadSignedFile(pathOrUrl: string, file: File | Blob) {
 export const redirectToLogin = () => {
   if (typeof window !== "undefined") {
     clearStoredTokens();
-    window.location.href = "/login";
+    window.location.href = "/freelence/login";
   }
 };

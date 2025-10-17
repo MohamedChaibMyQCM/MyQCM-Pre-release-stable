@@ -1,4 +1,10 @@
-import { McqDifficulty, McqTag, McqType, QuizType } from "src/mcq/dto/mcq.type";
+import {
+  McqApprovalStatus,
+  McqDifficulty,
+  McqTag,
+  McqType,
+  QuizType,
+} from "src/mcq/dto/mcq.type";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
 
 export interface McqFilters {
@@ -24,4 +30,5 @@ export interface McqFilters {
   subject?: string;
   course?: string;
   clinical_case?: string;
+  approval_status?: McqApprovalStatus | McqApprovalStatus[];
 }

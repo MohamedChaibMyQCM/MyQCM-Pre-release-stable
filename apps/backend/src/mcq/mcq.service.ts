@@ -5,7 +5,13 @@ import {
 } from "@nestjs/common";
 import { CreateMcqDto, CreateMcqInClinicalCase } from "./dto/create-mcq.dto";
 import { UpdateMcqDto } from "./dto/update-mcq.dto";
-import { McqType, McqDifficulty } from "./dto/mcq.type";
+import {
+  McqApprovalStatus,
+  McqType,
+  McqDifficulty,
+  McqTag,
+  QuizType,
+} from "./dto/mcq.type";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Mcq } from "./entities/mcq.entity";
 import {
@@ -50,6 +56,8 @@ import { UserSubscriptionUsageEnum } from "src/user/types/enums/user-subscriptio
 import { AdaptiveEngineService } from "src/adaptive-engine/adaptive-engine.service";
 import { UserSubscription } from "src/user/entities/user-subscription.entity";
 import { Progress } from "src/progress/entities/progress.entity";
+import { McqBatchUploadMetadataDto } from "./dto/mcq-batch-upload.dto";
+import * as XLSX from "xlsx";
 
 @Injectable()
 export class McqService {
@@ -169,10 +177,17 @@ export class McqService {
       page: default_page,
       offset: default_offset,
     },
+    extraFilters: Partial<McqFilters> = {},
+    options?: {
+      randomize?: boolean;
+      randomizeOptions?: boolean;
+      populate?: string[];
+    },
   ): Promise<PaginatedResponse<Mcq>> {
-    let filters: McqFilters = {
+    const filters: McqFilters = {
       freelancer: freelancerId,
       in_clinical_case: false,
+      ...extraFilters,
     };
 
     if (type) {
@@ -183,10 +198,14 @@ export class McqService {
       }
     }
 
-    return this.findMcqsPaginated(filters, {
-      page: pagination.page,
-      offset: pagination.offset,
-    });
+    return this.findMcqsPaginated(
+      filters,
+      {
+        page: pagination.page,
+        offset: pagination.offset,
+      },
+      options,
+    );
   }
 
   async findManyByIds(mcqIds: string[]) {
@@ -434,6 +453,8 @@ export class McqService {
           course: { id: createMcqDto.course },
           attachment: attachment ? attachment.path : null,
         });
+        mcq.approval_status =
+          createMcqDto.approval_status ?? McqApprovalStatus.APPROVED;
         await transactionalManager.save(mcq);
 
         if (
@@ -463,6 +484,234 @@ export class McqService {
         return mcq;
       },
     );
+  }
+
+  async batchUploadFromSpreadsheet(
+    file: Express.Multer.File,
+    metadata: McqBatchUploadMetadataDto,
+    freelancer: JwtPayload,
+  ): Promise<{
+    created: number;
+    failed: number;
+    errors: { row: number; message: string }[];
+    preview: {
+      id: string;
+      question: string;
+      type: McqType;
+      estimated_time: number;
+      approval_status: McqApprovalStatus;
+      difficulty: McqDifficulty;
+      quiz_type: QuizType;
+      options?: { content: string; is_correct: boolean }[];
+      answer?: string;
+      explanation?: string;
+    }[];
+  }> {
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+
+    const workbook = file.buffer
+      ? XLSX.read(file.buffer, { type: "buffer" })
+      : XLSX.readFile(file.path);
+
+    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+      throw new BadRequestException("Spreadsheet is empty");
+    }
+
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    if (!worksheet) {
+      throw new BadRequestException("Spreadsheet is empty");
+    }
+
+    const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
+      defval: "",
+    });
+
+    if (rawRows.length === 0) {
+      throw new BadRequestException(
+        "Spreadsheet does not contain any readable rows",
+      );
+    }
+
+    const errors: { row: number; message: string }[] = [];
+    let created = 0;
+    const preview: {
+      id: string;
+      question: string;
+      type: McqType;
+      estimated_time: number;
+      approval_status: McqApprovalStatus;
+      difficulty: McqDifficulty;
+      quiz_type: QuizType;
+      options?: { content: string; is_correct: boolean }[];
+      answer?: string;
+      explanation?: string;
+    }[] = [];
+
+    for (let index = 0; index < rawRows.length; index++) {
+      const rawRow = rawRows[index];
+      const rowNumber = index + 2; // account for header row
+      const normalizedRow = this.normalizeSpreadsheetRow(rawRow);
+
+      if (this.isSpreadsheetRowEmpty(normalizedRow)) {
+        continue;
+      }
+
+      try {
+        const question = this.getSpreadsheetString(
+          normalizedRow,
+          "questiontext",
+        );
+        if (!question) {
+          throw new Error("Question Text column is required");
+        }
+
+        const difficulty = this.parseSpreadsheetDifficulty(
+          normalizedRow.get("difficulty"),
+        );
+        const quizType = this.parseSpreadsheetQuizType(
+          normalizedRow.get("quiztype"),
+        );
+        const tag = this.parseSpreadsheetTag(normalizedRow.get("tag"));
+        const promo = this.parseSpreadsheetPromo(normalizedRow.get("promo"));
+
+        const estimatedTime = this.parseSpreadsheetEstimatedTime(
+          normalizedRow.get("timesec"),
+        );
+
+        const answerText = this.getSpreadsheetString(
+          normalizedRow,
+          "answertext",
+        );
+        const explanation = this.getSpreadsheetString(
+          normalizedRow,
+          "explanation",
+        );
+
+        const correctIndexes = this.parseCorrectIndexes(
+          normalizedRow.get("correctoptions"),
+        );
+
+        const options: { content: string; is_correct: boolean }[] = [];
+
+        for (let optionIndex = 1; optionIndex <= 5; optionIndex++) {
+          const key = `option${optionIndex}`;
+          const content = this.getSpreadsheetString(normalizedRow, key);
+          if (!content) {
+            continue;
+          }
+          options.push({
+            content,
+            is_correct: correctIndexes.includes(optionIndex),
+          });
+        }
+
+        const rawTypeLabel = this.getSpreadsheetString(
+          normalizedRow,
+          "questiontype",
+        ).toLowerCase();
+
+        const isQroc =
+          rawTypeLabel.includes("qroc") ||
+          rawTypeLabel.includes("qro") ||
+          rawTypeLabel.includes("short") ||
+          rawTypeLabel.includes("ouverte") ||
+          rawTypeLabel.includes("open");
+
+        let type: McqType;
+        let answer: string | undefined;
+        let finalExplanation: string | undefined =
+          explanation || undefined;
+
+        if (isQroc) {
+          if (!answerText) {
+            throw new Error("Answer Text is required for QROC questions");
+          }
+          type = McqType.qroc;
+          answer = answerText;
+          finalExplanation = undefined;
+        } else {
+          if (options.length < 2) {
+            throw new Error("Provide at least two options for MCQ rows");
+          }
+          if (correctIndexes.length === 0) {
+            throw new Error("Provide at least one correct option");
+          }
+          type = correctIndexes.length === 1 ? McqType.qcs : McqType.qcm;
+          answer = undefined;
+        }
+
+        const dto: CreateMcqDto = {
+          year_of_study: metadata.year_of_study,
+          type,
+          estimated_time: estimatedTime,
+          mcq_tags: tag,
+          quiz_type: quizType,
+          keywords: undefined,
+          question,
+          answer,
+          baseline: 1,
+          options:
+            type === McqType.qroc
+              ? undefined
+              : (options as unknown as CreateMcqDto["options"]),
+          explanation: finalExplanation,
+          difficulty,
+          promo,
+          university: metadata.university,
+          faculty: metadata.faculty,
+          unit: metadata.unit,
+          subject: metadata.subject,
+          course: metadata.course,
+          approval_status: McqApprovalStatus.PENDING,
+        };
+
+        const mcq = await this.create(dto, null, freelancer);
+        created += 1;
+        preview.push({
+          id: mcq.id,
+          question,
+          type,
+          estimated_time: estimatedTime,
+          approval_status: McqApprovalStatus.PENDING,
+          difficulty,
+          quiz_type: quizType,
+          options:
+            type === McqType.qroc
+              ? undefined
+              : options.map((option) => ({
+                  content: option.content,
+                  is_correct: option.is_correct,
+                })),
+          answer,
+          explanation: finalExplanation,
+        });
+      } catch (error) {
+        errors.push({
+          row: rowNumber,
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unable to import this row",
+        });
+      }
+    }
+
+    if (created === 0) {
+      const message =
+        errors.length > 0
+          ? `No questions were imported. First error: row ${errors[0].row} - ${errors[0].message}`
+          : "No valid rows found in spreadsheet";
+      throw new BadRequestException(message);
+    }
+
+    return {
+      created,
+      failed: errors.length,
+      errors,
+      preview,
+    };
   }
 
   /**
@@ -790,10 +1039,70 @@ export class McqService {
         await this.optionService.update(option.id, option);
       });
     }
-    const { options, ...restUpdateMcqDto } = updateMcqDto;
+    const { options, approval_status: _approvalStatus, ...restUpdateMcqDto } =
+      updateMcqDto;
     Object.assign(mcq, restUpdateMcqDto);
     await this.mcqRepository.save(mcq);
     return mcq;
+  }
+
+  async approveMcq(mcqId: string, freelancer: JwtPayload) {
+    const mcq = await this.getOneMcq(
+      { mcqId, freelancerId: freelancer.id },
+      false,
+    );
+
+    if (mcq.approval_status === McqApprovalStatus.APPROVED) {
+      return mcq;
+    }
+
+    mcq.approval_status = McqApprovalStatus.APPROVED;
+    return this.mcqRepository.save(mcq);
+  }
+
+  async approveMcqs(mcqIds: string[], freelancer: JwtPayload) {
+    if (!mcqIds || mcqIds.length === 0) {
+      return { updated: 0 };
+    }
+
+    const result = await this.mcqRepository
+      .createQueryBuilder()
+      .update(Mcq)
+      .set({ approval_status: McqApprovalStatus.APPROVED })
+      .where("id IN (:...ids)", { ids: mcqIds })
+      .andWhere(`"freelancerId" = :freelancerId`, {
+        freelancerId: freelancer.id,
+      })
+      .andWhere("approval_status = :pending", {
+        pending: McqApprovalStatus.PENDING,
+      })
+      .returning("id")
+      .execute();
+
+    return {
+      updated: result?.affected ?? 0,
+      ids: result?.raw?.map((row: { id: string }) => row.id) ?? [],
+    };
+  }
+
+  async approveAllPending(freelancer: JwtPayload) {
+    const result = await this.mcqRepository
+      .createQueryBuilder()
+      .update(Mcq)
+      .set({ approval_status: McqApprovalStatus.APPROVED })
+      .where(`"freelancerId" = :freelancerId`, {
+        freelancerId: freelancer.id,
+      })
+      .andWhere("approval_status = :pending", {
+        pending: McqApprovalStatus.PENDING,
+      })
+      .returning("id")
+      .execute();
+
+    return {
+      updated: result?.affected ?? 0,
+      ids: result?.raw?.map((row: { id: string }) => row.id) ?? [],
+    };
   }
 
   /**
@@ -890,6 +1199,16 @@ export class McqService {
         where_clause.difficulty = In(filters.difficulty);
       } else {
         where_clause.difficulty = filters.difficulty;
+      }
+    }
+
+    if (filters.approval_status) {
+      if (Array.isArray(filters.approval_status)) {
+        if (filters.approval_status.length > 0) {
+          where_clause.approval_status = In(filters.approval_status);
+        }
+      } else {
+        where_clause.approval_status = filters.approval_status;
       }
     }
 
@@ -993,6 +1312,213 @@ export class McqService {
    *   - For QCS: Exactly one correct option required
    *   - For QROC: No options allowed, answer required
    */
+  private normalizeLabel(value: any): string {
+    if (value === undefined || value === null) {
+      return "";
+    }
+    return String(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  private normalizeSpreadsheetRow(row: Record<string, any>): Map<string, any> {
+    return Object.entries(row).reduce((acc, [key, value]) => {
+      if (!key) {
+        return acc;
+      }
+      const normalizedKey = key
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "");
+      if (normalizedKey) {
+        acc.set(normalizedKey, value);
+      }
+      return acc;
+    }, new Map<string, any>());
+  }
+
+  private isSpreadsheetRowEmpty(row: Map<string, any>): boolean {
+    const keysToCheck = [
+      "questiontext",
+      "questiontype",
+      "option1",
+      "option2",
+      "option3",
+      "option4",
+      "option5",
+      "answertext",
+      "explanation",
+    ];
+
+    return keysToCheck.every(
+      (key) => this.getSpreadsheetString(row, key) === "",
+    );
+  }
+
+  private getSpreadsheetString(row: Map<string, any>, key: string): string {
+    const value = row.get(key);
+    if (value === undefined || value === null) {
+      return "";
+    }
+    if (typeof value === "string") {
+      return value.trim();
+    }
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? String(value).trim() : "";
+    }
+    return String(value).trim();
+  }
+
+  private parseCorrectIndexes(value: any): number[] {
+    if (value === undefined || value === null || value === "") {
+      return [];
+    }
+
+    const rawValue = Array.isArray(value)
+      ? value.map((item) => String(item)).join(",")
+      : String(value);
+
+    return rawValue
+      .split(/[^0-9]+/)
+      .map((part) => Number(part))
+      .filter(
+        (num) => Number.isInteger(num) && num >= 1 && num <= 5,
+      );
+  }
+
+  private parseSpreadsheetDifficulty(
+    value: any,
+    fallback: McqDifficulty = McqDifficulty.medium,
+  ): McqDifficulty {
+    const normalized = this.normalizeLabel(value);
+    if (normalized) {
+      const mapping: Record<string, McqDifficulty> = {
+        easy: McqDifficulty.easy,
+        facile: McqDifficulty.easy,
+        medium: McqDifficulty.medium,
+        moyen: McqDifficulty.medium,
+        hard: McqDifficulty.hard,
+        difficile: McqDifficulty.hard,
+      };
+      if (mapping[normalized]) {
+        return mapping[normalized];
+      }
+    }
+    return fallback;
+  }
+
+  private parseSpreadsheetQuizType(
+    value: any,
+    fallback: QuizType = QuizType.theorique,
+  ): QuizType {
+    const normalized = this.normalizeLabel(value).replace(/[^a-z0-9]+/g, "");
+    if (normalized) {
+      const mapping: Record<string, QuizType> = {
+        theorique: QuizType.theorique,
+        theory: QuizType.theorique,
+        standard: QuizType.theorique,
+        pratique: QuizType.pratique,
+        pratiquee: QuizType.pratique,
+        practical: QuizType.pratique,
+        practice: QuizType.pratique,
+      };
+      if (mapping[normalized]) {
+        return mapping[normalized];
+      }
+    }
+    return fallback;
+  }
+
+  private parseSpreadsheetTag(
+    value: any,
+    fallback: McqTag = McqTag.others,
+  ): McqTag {
+    const normalized = this.normalizeLabel(value).replace(/[^a-z0-9]+/g, "");
+    if (normalized) {
+      const mapping: Record<string, McqTag> = {
+        book: McqTag.book,
+        livre: McqTag.book,
+        serie: McqTag.serie,
+        series: McqTag.serie,
+        exam: McqTag.exam,
+        examen: McqTag.exam,
+        tdtp: McqTag.td_tp,
+        td: McqTag.td_tp,
+        tp: McqTag.td_tp,
+        others: McqTag.others,
+        autre: McqTag.others,
+        autres: McqTag.others,
+      };
+      if (mapping[normalized]) {
+        return mapping[normalized];
+      }
+    }
+    return fallback;
+  }
+
+  private parseSpreadsheetPromo(
+    value: any,
+    fallback: number = new Date().getFullYear(),
+  ): number {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      const rounded = Math.round(value);
+      if (rounded >= 2000 && rounded <= 2100) {
+        return rounded;
+      }
+    }
+
+    if (typeof value === "string") {
+      const match = value.match(/\b(20\d{2})\b/);
+      if (match) {
+        const year = Number(match[1]);
+        if (year >= 2000 && year <= 2100) {
+          return year;
+        }
+      }
+    }
+
+    return fallback;
+  }
+
+  private parseSpreadsheetEstimatedTime(
+    value: any,
+    fallback?: number,
+  ): number {
+    const parseNumeric = (input: any): number | null => {
+      if (typeof input === "number" && Number.isFinite(input)) {
+        return input;
+      }
+      if (typeof input === "string") {
+        const normalized = input.replace(",", ".").trim();
+        if (!normalized) {
+          return null;
+        }
+        const parsed = Number(normalized);
+        if (!Number.isNaN(parsed)) {
+          return parsed;
+        }
+      }
+      return null;
+    };
+
+    const seconds = parseNumeric(value);
+    if (seconds !== null) {
+      if (seconds <= 0) {
+        return Math.max(1, fallback ?? 2);
+      }
+      return Math.max(1, Math.round(seconds));
+    }
+
+    if (fallback !== undefined && fallback > 0) {
+      return Math.max(1, Math.round(fallback));
+    }
+
+    return 2;
+  }
+
   private validateMcqDto(
     createMcqDto: CreateMcqDto | CreateMcqInClinicalCase,
   ): void {

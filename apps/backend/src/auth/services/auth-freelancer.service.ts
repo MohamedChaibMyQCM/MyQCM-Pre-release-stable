@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { JwtPayload } from "../types/interfaces/payload.interface";
 import { BaseRoles } from "shared/enums/base-roles.enum";
 import { FreelancerService } from "src/freelancer/freelancer.service";
@@ -8,6 +8,10 @@ import {
 } from "src/freelancer/dto/signin-freelancer.dto";
 import { AuthService } from "../auth.service";
 import { SignupFreelancerDto } from "src/freelancer/dto/create-freelancer.dto";
+import { Request, Response } from "express";
+import { extractClientInfo } from "common/utils/client-info.util";
+import { verifyHash } from "common/utils/hashing";
+import { RefreshTokenPayload } from "shared/interfaces/refresh-token-interface";
 
 /**
  * Service responsible for handling authentication operations for freelancers
@@ -29,14 +33,28 @@ export class AuthFreelancerService {
    * @param signinFreelancer - DTO containing freelancer signin credentials
    * @returns JWT tokens for the authenticated freelancer
    */
-  async signinFreelancer(signinFreelancer: SigninFreelancerDto) {
+  async signinFreelancer(
+    signinFreelancer: SigninFreelancerDto,
+    req: Request,
+    res: Response,
+  ) {
     const freelancer = await this.freelancerService.signin(signinFreelancer);
     const payload: JwtPayload = {
       id: freelancer.id,
       email: freelancer.email,
       role: BaseRoles.FREELANCER,
     };
-    return this.authService.signTokens(payload);
+    const clientInfo = await extractClientInfo(req);
+    const tokens = await this.authService.signTokens(payload);
+    await this.authService.createSafeSession(
+      {
+        userId: `freelancer:${freelancer.id}`,
+        refreshToken: tokens.refreshToken,
+        clientInfo,
+      },
+      res,
+    );
+    return tokens;
   }
 
   /**
@@ -61,6 +79,8 @@ export class AuthFreelancerService {
    */
   async signinFreelancerByCode(
     signinFreelancerByCodeDto: SigninFreelancerByCodeDto,
+    req: Request,
+    res: Response,
   ) {
     const freelancer = await this.freelancerService.signinByCode(
       signinFreelancerByCodeDto,
@@ -70,7 +90,17 @@ export class AuthFreelancerService {
       email: freelancer.email,
       role: BaseRoles.FREELANCER,
     };
-    return this.authService.signTokens(payload);
+    const clientInfo = await extractClientInfo(req);
+    const tokens = await this.authService.signTokens(payload);
+    await this.authService.createSafeSession(
+      {
+        userId: `freelancer:${freelancer.id}`,
+        refreshToken: tokens.refreshToken,
+        clientInfo,
+      },
+      res,
+    );
+    return tokens;
   }
 
   /**
@@ -80,5 +110,22 @@ export class AuthFreelancerService {
    */
   async getFreelancer(payload: JwtPayload) {
     return this.freelancerService.getOneById(payload.id);
+  }
+
+  async refreshToken(req: Request, res: Response) {
+    const { refreshToken, iat, exp, ...payload } =
+      req.user as RefreshTokenPayload;
+    const clientInfo = await extractClientInfo(req);
+    const hashedRefreshToken = await this.authService.validateUserSession(
+      { clientInfo },
+      req,
+    );
+    if (
+      !hashedRefreshToken ||
+      !(await verifyHash(refreshToken, hashedRefreshToken))
+    ) {
+      throw new BadRequestException("Invalid refresh token");
+    }
+    return this.authService.generateAccessToken(payload as JwtPayload);
   }
 }

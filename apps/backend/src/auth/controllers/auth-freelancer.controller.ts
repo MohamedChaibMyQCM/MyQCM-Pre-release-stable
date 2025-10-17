@@ -1,4 +1,13 @@
-import { Body, Controller, HttpStatus, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -21,6 +30,9 @@ import { AuthFreelancerService } from "../services/auth-freelancer.service";
 import { SignupFreelancerDto } from "src/freelancer/dto/create-freelancer.dto";
 import { AccessTokenGuard } from "common/guards/auth/access-token.guard";
 import { RolesGuard } from "../../../common/guards/auth/roles.guard";
+import { RefreshTokenGuard } from "common/guards/auth/refresh-token.guard";
+import { Request, Response } from "express";
+import { ApiOkResponse } from "@nestjs/swagger";
 
 /**
  * Controller responsible for freelancer authentication operations
@@ -81,9 +93,16 @@ export class AuthFreelancerController {
   })
   @ApiUnauthorizedResponse({ description: "Invalid credentials" })
   @ApiNotFoundResponse({ description: "Freelancer not found" })
-  async signinFreelancer(@Body() signinFreelancerDto: SigninFreelancerDto) {
-    const token =
-      await this.authFreelancerService.signinFreelancer(signinFreelancerDto);
+  async signinFreelancer(
+    @Body() signinFreelancerDto: SigninFreelancerDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authFreelancerService.signinFreelancer(
+      signinFreelancerDto,
+      req,
+      res,
+    );
     return {
       message: "Freelancer signed in successfully",
       status: HttpStatus.OK,
@@ -112,12 +131,33 @@ export class AuthFreelancerController {
   @ApiNotFoundResponse({ description: "Freelancer not found or code expired" })
   async signinByCode(
     @Body() signinFreelancerByCodeDto: SigninFreelancerByCodeDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.authFreelancerService.signinFreelancerByCode(
       signinFreelancerByCodeDto,
+      req,
+      res,
     );
     return {
       message: "Freelancer signed in successfully",
+      status: HttpStatus.OK,
+      token,
+    };
+  }
+
+  @Get("/refresh")
+  @UseGuards(RefreshTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "Refresh freelancer access token" })
+  @ApiOkResponse({ description: "Token refreshed successfully" })
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authFreelancerService.refreshToken(req, res);
+    return {
+      message: "Token refreshed successfully",
       status: HttpStatus.OK,
       token,
     };

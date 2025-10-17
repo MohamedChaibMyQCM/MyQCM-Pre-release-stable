@@ -37,6 +37,7 @@ import { ModeModule } from "./mode/mode.module";
 import { AdaptiveEngineModule } from "./adaptive-engine/adaptive-engine.module";
 import { ReportModule } from "./report/report.module";
 import { FileModule } from "./file/file.module";
+import { GenerationModule } from "./generation/generation.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(PostgresConfig),
@@ -77,6 +78,7 @@ import { FileModule } from "./file/file.module";
     AdaptiveEngineModule,
     ReportModule,
     FileModule,
+    GenerationModule,
   ],
   providers: [
     {

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { McqService } from "./mcq.service";
 import { McqController } from "./mcq.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -21,7 +21,7 @@ import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module
     RedisModule,
     AssistantModule,
     ProgressModule,
-    UserModule,
+    forwardRef(() => UserModule),
     AdaptiveEngineModule,
   ],
   controllers: [McqController],

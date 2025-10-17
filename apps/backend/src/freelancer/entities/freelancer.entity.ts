@@ -15,6 +15,7 @@ import { Mcq } from "src/mcq/entities/mcq.entity";
 import { Wallet } from "src/wallet/entities/wallet.entity";
 import { Transaction } from "src/transaction/entities/transaction.entity";
 import { ClinicalCase } from "src/clinical_case/entities/clinical_case.entity";
+import { GenerationRequest } from "src/generation/entities/generation-request.entity";
 @Entity()
 export class Freelancer extends ChronoEntity {
   @Column({
@@ -69,6 +70,12 @@ export class Freelancer extends ChronoEntity {
 
   @OneToMany(() => Transaction, (transaction) => transaction.freelancer)
   transactions: Transaction[];
+
+  @OneToMany(
+    () => GenerationRequest,
+    (generationRequest) => generationRequest.freelancer,
+  )
+  generationRequests: GenerationRequest[];
 
   @Column({
     default: BaseRoles.FREELANCER,

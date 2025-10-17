@@ -1,4 +1,4 @@
-import { getEnvOrFatal } from "common/utils/env.util";
+﻿import { getEnvOrFatal } from "common/utils/env.util";
 import { ConnectionOptions } from "tls";
 
 export const PostgresConfig = {
@@ -17,3 +17,4 @@ export const PostgresConfig = {
     connectionTimeoutMillis: getEnvOrFatal<string>("POOL_MAX_CONN_LIFETIME"), // return an error after 2 seconds if connection could not be made
   },
 } as ConnectionOptions;
+

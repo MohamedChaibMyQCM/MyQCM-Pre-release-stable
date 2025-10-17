@@ -33,6 +33,8 @@ export class AuthUserService {
   private readonly EMAIL_VERIFICATION_SECRET = getEnvOrFatal<string>(
     "EMAIL_VERIFICATION_SECRET",
   );
+  private readonly skipEmailVerification =
+    (process.env.SKIP_EMAIL_VERIFICATION ?? "").toLowerCase() === "true";
 
   /**
    * Routes that are allowed for users without complete verification
@@ -84,8 +86,12 @@ export class AuthUserService {
       email: user.email,
       role: BaseRoles.USER,
     };
-    const otp_code = await this.generateUserEmailVerificationToken(user);
-    await this.userService.sendWelcomeEmail(user, otp_code);
+    if (this.skipEmailVerification) {
+      await this.userService.updateEmailVerificationStatus(user.id, true);
+    } else {
+      const otp_code = await this.generateUserEmailVerificationToken(user);
+      await this.userService.sendWelcomeEmail(user, otp_code);
+    }
 
     const client_info = await extractClientInfo(req);
     const tokens = await this.authService.signTokens(payload);

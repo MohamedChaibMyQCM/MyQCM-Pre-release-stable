@@ -8,100 +8,15 @@ import {
   type ChangeEvent,
   type FormEvent,
   type CSSProperties,
+  type SVGProps,
 } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   apiFetch,
   UnauthorizedError,
   redirectToLogin,
 } from "@/app/lib/api";
-
-const pageStyle: CSSProperties = {
-  maxWidth: 720,
-  margin: "3rem auto",
-  display: "grid",
-  gap: "1.5rem",
-  fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-};
-
-const formStyle: CSSProperties = {
-  display: "grid",
-  gap: "1rem",
-};
-
-const labelStyle: CSSProperties = {
-  display: "grid",
-  gap: "0.5rem",
-};
-
-const inputStyle: CSSProperties = {
-  padding: "0.5rem",
-  border: "1px solid #d1d5db",
-  borderRadius: 4,
-  fontSize: "1rem",
-};
-
-const buttonStyle: CSSProperties = {
-  padding: "0.75rem 1rem",
-  borderRadius: 4,
-  border: "none",
-  backgroundColor: "#111827",
-  color: "#ffffff",
-  fontSize: "1rem",
-  cursor: "pointer",
-};
-
-const cardListStyle: CSSProperties = {
-  display: "grid",
-  gap: "1rem",
-};
-
-const cardStyle: CSSProperties = {
-  border: "1px solid #e5e7eb",
-  borderRadius: 8,
-  padding: "1rem",
-  display: "grid",
-  gap: "0.75rem",
-  backgroundColor: "#ffffff",
-};
-
-const cardHeaderStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flexWrap: "wrap",
-  gap: "0.75rem",
-};
-
-const subtleTextStyle: CSSProperties = {
-  color: "#6b7280",
-  fontSize: "0.9rem",
-  margin: 0,
-};
-
-const actionRowStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "0.5rem",
-};
-
-const secondaryActionButton: CSSProperties = {
-  padding: "0.5rem 0.9rem",
-  borderRadius: 6,
-  border: "1px solid #111827",
-  backgroundColor: "#ffffff",
-  color: "#111827",
-  cursor: "pointer",
-};
-
-const approveActionButton: CSSProperties = {
-  padding: "0.5rem 0.9rem",
-  borderRadius: 6,
-  border: "1px solid #047857",
-  backgroundColor: "#047857",
-  color: "#ffffff",
-  cursor: "pointer",
-};
 
 const YEAR_OF_STUDY_OPTIONS = [
   "First Year",
@@ -123,6 +38,35 @@ const CONTENT_TYPE_OPTIONS: { value: "mcq" | "qroc"; label: string }[] = [
   { value: "mcq", label: "Multiple-choice questions (MCQ)" },
   { value: "qroc", label: "Short-answer questions (QROC)" },
 ];
+
+const WORKFLOW_TABS = [
+  {
+    value: "generate",
+    label: "AI generator",
+    description: "Upload a source file and let the assistant propose questions.",
+  },
+  {
+    value: "upload",
+    label: "Spreadsheet upload",
+    description: "Import a curated batch with fine-grained control.",
+  },
+] as const;
+
+const DEFAULT_PENDING_VIEW_LIMIT = 15;
+const PREVIEW_LIMIT = 5;
+const COURSE_CONTEXT_STORAGE_KEY = "freelancer-course-context";
+const COURSE_CONTEXT_PREFERENCE_KEY = "freelancer-course-context-remember";
+
+const CheckIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="M16.704 5.216a.75.75 0 0 0-1.24-.78l-6.416 7.166-2.596-2.596a.75.75 0 0 0-1.06 1.06l3.2 3.2a.75.75 0 0 0 1.102-.04l6.01-7.01Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+type StepStatus = "current" | "complete" | "upcoming";
 
 const LARGE_PAGE_SIZE = "1000";
 
@@ -163,6 +107,15 @@ type EditableMcq = {
   explanation?: string;
 };
 
+type PersistedCourseContext = {
+  university?: string;
+  faculty?: string;
+  year?: string;
+  unit?: string;
+  subject?: string;
+  course?: string;
+};
+
 const extractItems = (payload: any): any[] => {
   if (!payload) return [];
   if (Array.isArray(payload?.units)) return payload.units;
@@ -181,15 +134,33 @@ const extractItems = (payload: any): any[] => {
 
 const mapOptions = (items: any[]): SelectOption[] =>
   items
-    .map((item) => ({
-      id: item?.id ?? item?.uuid ?? item?._id ?? "",
-      name:
-        item?.name ??
-        item?.title ??
-        item?.label ??
-        item?.course_name ??
-        "Unnamed",
-    }))
+    .map((item) => {
+      const rawId =
+        item?.id ??
+        item?.uuid ??
+        item?._id ??
+        item?.value ??
+        item?.courseId ??
+        item?.course_id ??
+        item?.course?.id ??
+        "";
+      const id =
+        typeof rawId === "string"
+          ? rawId
+          : rawId !== null && rawId !== undefined
+          ? String(rawId)
+          : "";
+
+      return {
+        id,
+        name:
+          item?.name ??
+          item?.title ??
+          item?.label ??
+          item?.course_name ??
+          "Unnamed",
+      };
+    })
     .filter((option) => option.id);
 
 const unwrapResponse = <T,>(payload: any): T =>
@@ -227,12 +198,14 @@ export default function NewGenerationRequestPage() {
   const [selectedUnit, setSelectedUnit] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
+  const [hasLoadedPersistedContext, setHasLoadedPersistedContext] = useState(false);
+  const [rememberContext, setRememberContext] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
   const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([
     "mcq",
   ]);
 
-  const [mcqCount, setMcqCount] = useState<number>(0);
+  const [mcqCount, setMcqCount] = useState<number>(10);
   const [qrocCount, setQrocCount] = useState<number>(0);
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -255,6 +228,28 @@ export default function NewGenerationRequestPage() {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [editingMcq, setEditingMcq] = useState<EditableMcq | null>(null);
   const [editingSaving, setEditingSaving] = useState(false);
+  const [activeWorkflow, setActiveWorkflow] = useState<
+    (typeof WORKFLOW_TABS)[number]["value"]
+  >("generate");
+  const [previewExpanded, setPreviewExpanded] = useState(true);
+  const [pendingSearch, setPendingSearch] = useState("");
+  const [pendingViewLimit, setPendingViewLimit] = useState(
+    DEFAULT_PENDING_VIEW_LIMIT,
+  );
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const previewSectionRef = useRef<HTMLDivElement | null>(null);
+  const pendingSectionRef = useRef<HTMLDivElement | null>(null);
+  const editingSectionRef = useRef<HTMLDivElement | null>(null);
+  const editingQuestionInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const persistedContextRef = useRef<PersistedCourseContext | null>(null);
+  const hydrationStateRef = useRef({
+    university: false,
+    faculty: false,
+    year: false,
+    unit: false,
+    subject: false,
+    course: false,
+  });
 
   const toggleContentType = (value: "mcq" | "qroc") => {
     setSelectedContentTypes((prev) =>
@@ -263,6 +258,24 @@ export default function NewGenerationRequestPage() {
         : [...prev, value],
     );
   };
+
+  const scrollToPreview = useCallback(
+    (force: boolean = false) => {
+      if (!force && latestPreview.length === 0) {
+        return;
+      }
+      setPreviewExpanded(true);
+      previewSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    },
+    [latestPreview.length],
+  );
+
+  const scrollToPending = useCallback(() => {
+    setReviewModalOpen(true);
+  }, []);
 
   const loadPendingMcqs = useCallback(async () => {
     if (!selectedCourse) {
@@ -337,25 +350,29 @@ export default function NewGenerationRequestPage() {
       try {
         await apiFetch(`/mcq/${mcqId}/approve`, { method: "POST" });
         setPendingMessage("MCQ approved.");
+        toast.success("MCQ approved");
         await loadPendingMcqs();
+        scrollToPending();
       } catch (error) {
         if (error instanceof UnauthorizedError) {
           redirectToLogin();
           return;
         }
-        setPendingError(
+        const message =
           error instanceof Error
             ? error.message
-            : "Unable to approve this MCQ.",
-        );
+            : "Unable to approve this MCQ.";
+        setPendingError(message);
+        toast.error(message);
       }
     },
-    [loadPendingMcqs],
+    [loadPendingMcqs, scrollToPending],
   );
 
   const handleApproveAll = useCallback(async () => {
     if (pendingMcqs.length === 0) {
       setPendingMessage("No pending MCQs to approve.");
+      toast("No pending MCQs to approve.");
       return;
     }
 
@@ -365,19 +382,66 @@ export default function NewGenerationRequestPage() {
     try {
       await apiFetch(`/mcq/approve/all`, { method: "POST" });
       setPendingMessage("All pending MCQs approved.");
+      toast.success("All pending MCQs approved");
       await loadPendingMcqs();
+      scrollToPending();
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         redirectToLogin();
         return;
       }
-      setPendingError(
+      const message =
         error instanceof Error
           ? error.message
-          : "Unable to approve all MCQs.",
-      );
+          : "Unable to approve all MCQs.";
+      setPendingError(message);
+      toast.error(message);
     }
-  }, [loadPendingMcqs, pendingMcqs.length]);
+  }, [loadPendingMcqs, pendingMcqs.length, scrollToPending]);
+
+  const closeEditing = useCallback(() => {
+    setEditingMcq(null);
+  }, []);
+
+  const handleRemoveMcq = useCallback(
+    async (mcqId: string) => {
+      if (!mcqId) return;
+      setPendingMessage(null);
+      setPendingError(null);
+
+      if (typeof window !== "undefined") {
+        const confirmed = window.confirm(
+          "Remove this MCQ from the pending queue?",
+        );
+        if (!confirmed) {
+          return;
+        }
+      }
+
+      try {
+        await apiFetch(`/mcq/${mcqId}`, { method: "DELETE" });
+        setPendingMessage("MCQ removed.");
+        toast.success("MCQ removed");
+        if (editingMcq?.id === mcqId) {
+          closeEditing();
+        }
+        await loadPendingMcqs();
+        scrollToPending();
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          redirectToLogin();
+          return;
+        }
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to remove this MCQ.";
+        setPendingError(message);
+        toast.error(message);
+      }
+    },
+    [closeEditing, editingMcq, loadPendingMcqs, scrollToPending],
+  );
 
   const openEditMcq = useCallback(
     async (mcqId: string) => {
@@ -428,9 +492,12 @@ export default function NewGenerationRequestPage() {
     [],
   );
 
-  const closeEditing = useCallback(() => {
-    setEditingMcq(null);
-  }, []);
+  const closeReviewModal = useCallback(() => {
+    closeEditing();
+    setReviewModalOpen(false);
+    setPendingSearch("");
+    setPendingViewLimit(DEFAULT_PENDING_VIEW_LIMIT);
+  }, [closeEditing]);
 
   const updateEditingField = useCallback(
     (field: keyof EditableMcq, value: string | number) => {
@@ -507,6 +574,7 @@ export default function NewGenerationRequestPage() {
         body: formData,
       });
       setPendingMessage("MCQ updated.");
+      toast.success("MCQ updated");
       setEditingMcq(null);
       await loadPendingMcqs();
     } catch (error) {
@@ -514,9 +582,10 @@ export default function NewGenerationRequestPage() {
         redirectToLogin();
         return;
       }
-      setPendingError(
-        error instanceof Error ? error.message : "Unable to update MCQ.",
-      );
+      const message =
+        error instanceof Error ? error.message : "Unable to update MCQ.";
+      setPendingError(message);
+      toast.error(message);
     } finally {
       setEditingSaving(false);
     }
@@ -686,6 +755,155 @@ export default function NewGenerationRequestPage() {
   }, [selectedSubject]);
 
   useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.year
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.year = true;
+      }
+      return;
+    }
+    const savedYear = persistedContextRef.current?.year;
+    if (savedYear && YEAR_OF_STUDY_OPTIONS.includes(savedYear) && !selectedYear) {
+      setSelectedYear(savedYear);
+    }
+    hydrationStateRef.current.year = true;
+  }, [hasLoadedPersistedContext, rememberContext, selectedYear]);
+
+  useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.university
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.university = true;
+      }
+      return;
+    }
+    const savedUniversity = persistedContextRef.current?.university;
+    if (!savedUniversity) {
+      hydrationStateRef.current.university = true;
+      return;
+    }
+    if (!universities.length) {
+      return;
+    }
+    if (!selectedUniversity && universities.some((item) => item.id === savedUniversity)) {
+      setSelectedUniversity(savedUniversity);
+    }
+    hydrationStateRef.current.university = true;
+  }, [hasLoadedPersistedContext, rememberContext, selectedUniversity, universities]);
+
+  useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.faculty
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.faculty = true;
+      }
+      return;
+    }
+    const savedFaculty = persistedContextRef.current?.faculty;
+    if (!savedFaculty) {
+      hydrationStateRef.current.faculty = true;
+      return;
+    }
+    if (!selectedUniversity || !faculties.length) {
+      return;
+    }
+    if (!selectedFaculty && faculties.some((item) => item.id === savedFaculty)) {
+      setSelectedFaculty(savedFaculty);
+    }
+    hydrationStateRef.current.faculty = true;
+  }, [
+    faculties,
+    hasLoadedPersistedContext,
+    rememberContext,
+    selectedFaculty,
+    selectedUniversity,
+  ]);
+
+  useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.unit
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.unit = true;
+      }
+      return;
+    }
+    const savedUnit = persistedContextRef.current?.unit;
+    if (!savedUnit) {
+      hydrationStateRef.current.unit = true;
+      return;
+    }
+    if (!selectedYear || !units.length) {
+      return;
+    }
+    if (!selectedUnit && units.some((item) => item.id === savedUnit)) {
+      setSelectedUnit(savedUnit);
+    }
+    hydrationStateRef.current.unit = true;
+  }, [hasLoadedPersistedContext, rememberContext, selectedUnit, selectedYear, units]);
+
+  useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.subject
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.subject = true;
+      }
+      return;
+    }
+    const savedSubject = persistedContextRef.current?.subject;
+    if (!savedSubject) {
+      hydrationStateRef.current.subject = true;
+      return;
+    }
+    if (!selectedUnit || !subjects.length) {
+      return;
+    }
+    if (!selectedSubject && subjects.some((item) => item.id === savedSubject)) {
+      setSelectedSubject(savedSubject);
+    }
+    hydrationStateRef.current.subject = true;
+  }, [hasLoadedPersistedContext, rememberContext, selectedSubject, selectedUnit, subjects]);
+
+  useEffect(() => {
+    if (
+      !rememberContext ||
+      !hasLoadedPersistedContext ||
+      hydrationStateRef.current.course
+    ) {
+      if (!rememberContext) {
+        hydrationStateRef.current.course = true;
+      }
+      return;
+    }
+    const savedCourse = persistedContextRef.current?.course;
+    if (!savedCourse) {
+      hydrationStateRef.current.course = true;
+      return;
+    }
+    if (!selectedSubject || !courses.length) {
+      return;
+    }
+    if (!selectedCourse && courses.some((item) => item.id === savedCourse)) {
+      setSelectedCourse(savedCourse);
+    }
+    hydrationStateRef.current.course = true;
+  }, [courses, hasLoadedPersistedContext, rememberContext, selectedCourse, selectedSubject]);
+
+  useEffect(() => {
     if (!selectedCourse) {
       setPendingMcqs([]);
       return;
@@ -696,11 +914,163 @@ export default function NewGenerationRequestPage() {
   useEffect(() => {
     if (!selectedContentTypes.includes("mcq")) {
       setMcqCount(0);
+    } else if (mcqCount <= 0) {
+      setMcqCount(10);
     }
     if (!selectedContentTypes.includes("qroc")) {
       setQrocCount(0);
     }
-  }, [selectedContentTypes]);
+  }, [selectedContentTypes, mcqCount]);
+
+  useEffect(() => {
+    setPendingViewLimit(DEFAULT_PENDING_VIEW_LIMIT);
+  }, [pendingSearch, pendingMcqs]);
+
+  useEffect(() => {
+    setPendingSearch("");
+    setPendingViewLimit(DEFAULT_PENDING_VIEW_LIMIT);
+  }, [selectedCourse]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasLoadedPersistedContext) {
+      return;
+    }
+    if (!rememberContext) {
+      window.localStorage.removeItem(COURSE_CONTEXT_STORAGE_KEY);
+      persistedContextRef.current = null;
+      return;
+    }
+    if (!hydrationStateRef.current.course && persistedContextRef.current) {
+      return;
+    }
+    const payload: PersistedCourseContext = {
+      university: selectedUniversity || undefined,
+      faculty: selectedFaculty || undefined,
+      year: selectedYear || undefined,
+      unit: selectedUnit || undefined,
+      subject: selectedSubject || undefined,
+      course: selectedCourse || undefined,
+    };
+    persistedContextRef.current = payload;
+    try {
+      window.localStorage.setItem(
+        COURSE_CONTEXT_STORAGE_KEY,
+        JSON.stringify(payload),
+      );
+    } catch {
+      // ignore write failures
+    }
+  }, [
+    hasLoadedPersistedContext,
+    rememberContext,
+    selectedCourse,
+    selectedFaculty,
+    selectedSubject,
+    selectedUnit,
+    selectedUniversity,
+    selectedYear,
+  ]);
+
+  useEffect(() => {
+    if (latestPreview.length > 0) {
+      scrollToPreview(true);
+    }
+  }, [latestPreview.length, scrollToPreview]);
+
+  useEffect(() => {
+    if (!reviewModalOpen) {
+      return;
+    }
+    const node = pendingSectionRef.current;
+    if (node) {
+      node.focus({ preventScroll: true });
+      node.scrollTop = 0;
+    }
+  }, [reviewModalOpen]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const { body } = document;
+    const previousOverflow = body.style.overflow;
+
+    if (reviewModalOpen) {
+      body.style.overflow = "hidden";
+    }
+
+    return () => {
+      body.style.overflow = previousOverflow;
+    };
+  }, [reviewModalOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      setHasLoadedPersistedContext(true);
+      return;
+    }
+
+    const preference =
+      window.localStorage.getItem(COURSE_CONTEXT_PREFERENCE_KEY) === "true";
+    setRememberContext(preference);
+
+    if (preference) {
+      try {
+        const stored = window.localStorage.getItem(COURSE_CONTEXT_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored) as PersistedCourseContext;
+          persistedContextRef.current = parsed;
+        }
+      } catch {
+        // Ignore JSON parse errors and fall back to defaults.
+      }
+    }
+
+    setHasLoadedPersistedContext(true);
+  }, []);
+
+  useEffect(() => {
+    if (!reviewModalOpen) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeReviewModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeReviewModal, reviewModalOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasLoadedPersistedContext) {
+      return;
+    }
+    window.localStorage.setItem(
+      COURSE_CONTEXT_PREFERENCE_KEY,
+      rememberContext ? "true" : "false",
+    );
+    if (!rememberContext) {
+      window.localStorage.removeItem(COURSE_CONTEXT_STORAGE_KEY);
+      persistedContextRef.current = null;
+    }
+  }, [hasLoadedPersistedContext, rememberContext]);
+
+  useEffect(() => {
+    if (!reviewModalOpen || !editingMcq) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      editingSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      editingQuestionInputRef.current?.focus({ preventScroll: true });
+    }, 80);
+    return () => window.clearTimeout(timeout);
+  }, [editingMcq, reviewModalOpen]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -718,6 +1088,9 @@ export default function NewGenerationRequestPage() {
 
     if (selected && selected.size > 5 * 1024 * 1024) {
       setBatchError("Spreadsheet must be 5 MB or smaller.");
+      setBatchStatus(statusMessage);
+      toast.success(statusMessage);
+
       setBatchFile(null);
       if (batchFileInputRef.current) {
         batchFileInputRef.current.value = "";
@@ -733,32 +1106,44 @@ export default function NewGenerationRequestPage() {
     setError(null);
 
     if (!selectedUniversity || !selectedFaculty || !selectedYear) {
-      setError("Please choose university, faculty, and year of study.");
+      const message = "Please choose university, faculty, and year of study.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (!selectedUnit) {
-      setError("Please choose a unit.");
+      const message = "Please choose a unit.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (!selectedSubject) {
-      setError("Please choose a module.");
+      const message = "Please choose a module.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (!selectedCourse) {
-      setError("Please choose a course.");
+      const message = "Please choose a course.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (!file) {
-      setError("Please select a source document to upload.");
+      const message = "Please select a source document to upload.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (selectedContentTypes.length === 0) {
-      setError("Select at least one content type (MCQ or QROC).");
+      const message = "Select at least one content type (MCQ or QROC).";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -766,7 +1151,9 @@ export default function NewGenerationRequestPage() {
       selectedContentTypes.includes("mcq") &&
       (!Number.isFinite(mcqCount) || mcqCount <= 0)
     ) {
-      setError("Enter a positive number of MCQs to generate.");
+      const message = "Enter a positive number of MCQs to generate.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -774,7 +1161,9 @@ export default function NewGenerationRequestPage() {
       selectedContentTypes.includes("qroc") &&
       (!Number.isFinite(qrocCount) || qrocCount <= 0)
     ) {
-      setError("Enter a positive number of QROCs to generate.");
+      const message = "Enter a positive number of QROCs to generate.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -833,17 +1222,19 @@ export default function NewGenerationRequestPage() {
         method: "POST",
       });
 
+      toast.success("Generation request created");
       router.push(`/generation/${requestId}`);
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         redirectToLogin();
         return;
       }
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Unable to create generation request.");
-      }
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unable to create generation request.";
+      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
       setProgressMessage(null);
@@ -857,7 +1248,9 @@ export default function NewGenerationRequestPage() {
     setBatchResultErrors([]);
 
     if (loadingMetadata) {
-      setBatchError("Please wait for metadata to finish loading.");
+      const message = "Please wait for metadata to finish loading.";
+      setBatchError(message);
+      toast.error(message);
       return;
     }
 
@@ -869,14 +1262,17 @@ export default function NewGenerationRequestPage() {
       !selectedSubject ||
       !selectedCourse
     ) {
-      setBatchError(
-        "Select university, faculty, unit, module, and course before uploading.",
-      );
+      const message =
+        "Select university, faculty, unit, module, and course before uploading.";
+      setBatchError(message);
+      toast.error(message);
       return;
     }
 
     if (!batchFile) {
-      setBatchError("Choose a spreadsheet file to upload.");
+      const message = "Choose a spreadsheet file to upload.";
+      setBatchError(message);
+      toast.error(message);
       return;
     }
 
@@ -905,6 +1301,7 @@ export default function NewGenerationRequestPage() {
       });
 
       const result = response?.data;
+      let statusMessage = "Spreadsheet processed successfully.";
       if (result) {
         const previewItems = Array.isArray((result as any)?.preview)
           ? (result as any).preview
@@ -933,9 +1330,7 @@ export default function NewGenerationRequestPage() {
           }),
         );
         setLatestPreview(normalizedPreview);
-        setBatchStatus(
-          `Imported ${result.created} question(s). ${result.failed} row(s) skipped.`,
-        );
+        statusMessage = `Imported ${result.created} question(s). ${result.failed} row(s) skipped.`;
         setBatchResultErrors(result.errors ?? []);
         setPendingMessage(
           "Import complete. Review the pending MCQs below before approving.",
@@ -943,8 +1338,9 @@ export default function NewGenerationRequestPage() {
         await loadPendingMcqs();
       } else {
         setLatestPreview([]);
-        setBatchStatus("Spreadsheet processed successfully.");
       }
+      setBatchStatus(statusMessage);
+      toast.success(statusMessage);
 
       setBatchFile(null);
       if (batchFileInputRef.current) {
@@ -956,667 +1352,1055 @@ export default function NewGenerationRequestPage() {
         return;
       }
       setLatestPreview([]);
-      setBatchError(
+      const message =
         err instanceof Error
           ? err.message
-          : "Failed to upload the spreadsheet.",
-      );
+          : "Failed to upload the spreadsheet.";
+      setBatchError(message);
+      toast.error(message);
     } finally {
       setBatchSubmitting(false);
     }
   };
 
+  const contextComplete = Boolean(
+    selectedUniversity &&
+      selectedFaculty &&
+      selectedYear &&
+      selectedUnit &&
+      selectedSubject &&
+      selectedCourse,
+  );
+
+  const normalizedSearch = pendingSearch.trim().toLowerCase();
+  const pendingFiltered = normalizedSearch
+    ? pendingMcqs.filter((item) =>
+        item.question.toLowerCase().includes(normalizedSearch),
+      )
+    : pendingMcqs;
+  const visiblePending = pendingFiltered.slice(0, pendingViewLimit);
+  const hasMorePending = pendingFiltered.length > pendingViewLimit;
+  const previewToRender = previewExpanded
+    ? latestPreview.slice(0, PREVIEW_LIMIT)
+    : [];
+  const hasMorePreview = latestPreview.length > PREVIEW_LIMIT;
+
+  const hasCreatedContent = Boolean(
+    progressMessage ||
+      batchStatus ||
+      latestPreview.length > 0 ||
+      pendingMcqs.length > 0,
+  );
+  const needsReview = pendingMcqs.length > 0 || Boolean(editingMcq);
+  const currentStepIndex = !contextComplete
+    ? 0
+    : needsReview
+    ? 2
+    : hasCreatedContent
+    ? 1
+    : 1;
+
+  const steps = [
+    {
+      id: "context",
+      label: "Course context",
+      description: "Select the academic scope for this session.",
+    },
+    {
+      id: "create",
+      label: "Create questions",
+      description:
+        activeWorkflow === "generate"
+          ? "Use AI to transform your source files into draft MCQs."
+          : "Upload a prepared spreadsheet to import questions in bulk.",
+    },
+    {
+      id: "review",
+      label: "Review and approve",
+      description:
+        "Edit, approve, and publish your pending questions with confidence.",
+    },
+  ].map((step, index) => ({
+    ...step,
+    status:
+      index < currentStepIndex
+        ? ("complete" as StepStatus)
+        : index === currentStepIndex
+        ? ("current" as StepStatus)
+        : ("upcoming" as StepStatus),
+  }));
+
+  const pendingSummary =
+    pendingMcqs.length === 0
+      ? "No pending MCQs for this course yet."
+      : `${pendingMcqs.length} pending question${
+          pendingMcqs.length === 1 ? "" : "s"
+        } ready for review.`;
+
+  const metadataBlockingActions = false;
+  const disabledFromGeneration = submitting || metadataBlockingActions;
+  const disabledFromUpload = batchSubmitting || metadataBlockingActions;
+  const baseInputClasses =
+    "w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400";
+  const secondaryButtonClasses =
+    "inline-flex w-full items-center justify-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-500 disabled:bg-slate-100 disabled:translate-y-0 sm:w-auto";
+  const dangerButtonClasses =
+    "inline-flex w-full items-center justify-center rounded-full border border-rose-300 bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200 disabled:cursor-not-allowed disabled:border-rose-200 disabled:text-rose-300 disabled:bg-rose-50 disabled:translate-y-0 sm:w-auto";
+  const primaryButtonClasses =
+    "inline-flex w-full items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:border-emerald-500 hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 disabled:cursor-not-allowed disabled:border-emerald-300 disabled:bg-emerald-100 disabled:text-emerald-700 disabled:shadow-none disabled:translate-y-0 sm:w-auto";
+  const primaryButtonStyle = (disabled: boolean): CSSProperties => ({
+    backgroundColor: disabled ? "#d1fae5" : "#047857",
+    borderColor: disabled ? "#6ee7b7" : "#047857",
+    color: disabled ? "#065f46" : "#ffffff",
+  });
+  const showPreviewCard = latestPreview.length > 0 || Boolean(batchStatus);
+
+  const handleWorkflowTabClick = (
+    value: (typeof WORKFLOW_TABS)[number]["value"],
+  ) => {
+    if (!contextComplete) {
+      toast.error("Complete the course context first.");
+      return;
+    }
+    setActiveWorkflow(value);
+  };
+
+  const generateDisabledReason = !contextComplete
+    ? "Complete the course context first."
+    : disabledFromGeneration
+    ? "Still loading prerequisites."
+    : null;
+  const generateInlineHint = !file
+    ? "Attach the source document to launch generation."
+    : null;
+
+  const uploadDisabledReason = !contextComplete
+    ? "Complete the course context first."
+    : disabledFromUpload
+    ? "Upload already in progress."
+    : null;
+  const uploadInlineHint = !batchFile
+    ? "Choose a spreadsheet file to upload."
+    : null;
+
   return (
-    <main style={pageStyle}>
-      <header>
-        <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-          New Generation Request
-        </h1>
-        <p style={{ color: "#6b7280" }}>
-          Provide the course context, desired output counts, and upload a source
-          document to kick off AI generation.
-        </p>
-      </header>
-
-      <section
-        style={{
-          border: "1px solid #d1d5db",
-          borderRadius: 8,
-          padding: "1rem",
-          display: "grid",
-          gap: "1rem",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Course context</h2>
-        <p style={{ margin: 0, color: "#6b7280" }}>
-          These selections are reused for AI generation and spreadsheet uploads.
-        </p>
-        <div style={{ display: "grid", gap: "1rem" }}>
-          <label style={labelStyle}>
-            <span>University</span>
-            <select
-              value={selectedUniversity}
-              onChange={(event) => setSelectedUniversity(event.target.value)}
-              style={inputStyle}
-            >
-              <option value="">Select university</option>
-              {universities.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={labelStyle}>
-            <span>Faculty</span>
-            <select
-              value={selectedFaculty}
-              onChange={(event) => setSelectedFaculty(event.target.value)}
-              style={inputStyle}
-              disabled={!selectedUniversity || faculties.length === 0}
-            >
-              <option value="">Select faculty</option>
-              {faculties.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={labelStyle}>
-            <span>Year of study</span>
-            <select
-              value={selectedYear}
-              onChange={(event) => setSelectedYear(event.target.value)}
-              style={inputStyle}
-            >
-              <option value="">Select year</option>
-              {YEAR_OF_STUDY_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={labelStyle}>
-            <span>Unit</span>
-            <select
-              value={selectedUnit}
-              onChange={(event) => setSelectedUnit(event.target.value)}
-              style={inputStyle}
-              disabled={!selectedYear || units.length === 0}
-            >
-              <option value="">Select unit</option>
-              {units.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={labelStyle}>
-            <span>Module</span>
-            <select
-              value={selectedSubject}
-              onChange={(event) => setSelectedSubject(event.target.value)}
-              style={inputStyle}
-              disabled={!selectedUnit || subjects.length === 0}
-            >
-              <option value="">Select module</option>
-              {subjects.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={labelStyle}>
-            <span>Course</span>
-            <select
-              value={selectedCourse}
-              onChange={(event) => setSelectedCourse(event.target.value)}
-              style={inputStyle}
-              disabled={!selectedSubject || courses.length === 0}
-            >
-              <option value="">Select course</option>
-              {courses.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
-
-      <form style={formStyle} onSubmit={handleSubmit}>
-        <fieldset
-          style={{
-            border: "1px solid #d1d5db",
-            borderRadius: 8,
-            padding: "1rem",
-            display: "grid",
-            gap: "1rem",
-          }}
-        >
-          <legend style={{ padding: "0 0.5rem" }}>Generation details</legend>
-          <label style={labelStyle}>
-            <span>Difficulty</span>
-            <select
-              value={selectedDifficulty}
-              onChange={(event) => setSelectedDifficulty(event.target.value)}
-              style={inputStyle}
-              required
-            >
-              {DIFFICULTY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </fieldset>
-
-        <fieldset
-          style={{
-            border: "1px solid #d1d5db",
-            borderRadius: 8,
-            padding: "1rem",
-            display: "grid",
-            gap: "0.75rem",
-          }}
-        >
-          <legend style={{ padding: "0 0.5rem" }}>Content types</legend>
-          {CONTENT_TYPE_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-            >
-              <input
-                type="checkbox"
-                checked={selectedContentTypes.includes(option.value)}
-                onChange={() => toggleContentType(option.value)}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </fieldset>
-
-        <fieldset
-          style={{
-            border: "1px solid #d1d5db",
-            borderRadius: 8,
-            padding: "1rem",
-            display: "grid",
-            gap: "0.75rem",
-          }}
-        >
-          <legend style={{ padding: "0 0.5rem" }}>Requested counts</legend>
-          <label style={labelStyle}>
-            <span>MCQ count</span>
-            <input
-              type="number"
-              min={0}
-              value={mcqCount}
-              onChange={(event) => setMcqCount(Number(event.target.value) || 0)}
-              style={inputStyle}
-              disabled={!selectedContentTypes.includes("mcq")}
-            />
-          </label>
-
-          <label style={labelStyle}>
-            <span>QROC count</span>
-            <input
-              type="number"
-              min={0}
-              value={qrocCount}
-              onChange={(event) => setQrocCount(Number(event.target.value) || 0)}
-              style={inputStyle}
-              disabled={!selectedContentTypes.includes("qroc")}
-            />
-          </label>
-        </fieldset>
-
-        <label style={labelStyle}>
-          <span>Source document (PDF, PPTX, DOCX)</span>
-          <input
-            type="file"
-            accept=".pdf,.ppt,.pptx,.doc,.docx"
-            onChange={handleFileChange}
-            required
-          />
-        </label>
-
-        <button
-          type="submit"
-          style={buttonStyle}
-          disabled={submitting || loadingMetadata}
-        >
-          {submitting ? "Submitting..." : "Create request"}
-        </button>
-      </form>
-
-      {progressMessage && (
-        <p style={{ color: "#2563eb" }}>{progressMessage}</p>
-      )}
-
-      {error && (
-        <p style={{ color: "#b91c1c" }} role="alert">
-          {error}
-        </p>
-      )}
-
-      <section
-        style={{
-          border: "1px solid #d1d5db",
-          borderRadius: 8,
-          padding: "1rem",
-          display: "grid",
-          gap: "1rem",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "1.25rem" }}>
-          Batch upload from spreadsheet
-        </h2>
-        <p style={{ margin: 0, color: "#6b7280", lineHeight: 1.5 }}>
-          Upload an Excel (.xlsx, .xls) or CSV file with the columns{" "}
-          <strong>
-            Question Text, Question Type, Quiz Type, Difficulty, Tag, Promo,
-            Time (sec), Option 1-5, Correct Option(s), Answer Text, Explanation
-          </strong>
-          . For MCQs the service infers QCM/QCS based on the correct options,
-          and for QROC rows the answer text is saved directly.
-        </p>
-
-        <form style={formStyle} onSubmit={handleBatchUpload}>
-          <p style={{ margin: 0, color: "#6b7280" }}>
-            Course context is taken from the fields above. Difficulty, quiz type,
-            tag, promo year, and timings come directly from the spreadsheet
-            columns.
+    <div className="min-h-screen bg-[#F7F8FA] py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 lg:px-0">
+        <header className="flex flex-col gap-3">
+          <span className="text-sm font-semibold uppercase tracking-wide text-emerald-600">
+            Freelancer workspace
+          </span>
+          <h1 className="text-3xl font-semibold text-slate-900 md:text-4xl">
+            Question generation hub
+          </h1>
+          <p className="max-w-2xl text-base text-slate-600">
+            Guide freelancers through a calm, structured flow to create or
+            import new questions, then polish and approve them before release.
           </p>
-          <label style={labelStyle}>
-            <span>Spreadsheet file (.xlsx, .xls, .csv)</span>
-            <input
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={handleBatchFileChange}
-              ref={batchFileInputRef}
-              disabled={batchSubmitting}
-              required
-            />
-          </label>
+        </header>
 
-          <button
-            type="submit"
-            style={buttonStyle}
-            disabled={batchSubmitting || loadingMetadata}
-          >
-            {batchSubmitting ? "Uploading..." : "Upload questions"}
-          </button>
-        </form>
-      </section>
+        <ol className="grid gap-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:grid-cols-3">
+          {steps.map((step, index) => {
+            const statusStyles: Record<StepStatus, string> = {
+              complete:
+                "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm",
+              current:
+                "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm",
+              upcoming: "border-slate-200 bg-slate-50 text-slate-500",
+            };
+            const badgeStyles: Record<StepStatus, string> = {
+              complete: "bg-emerald-600 text-white",
+              current: "bg-indigo-600 text-white",
+              upcoming: "bg-white text-slate-500",
+            };
 
-      {batchStatus && (
-        <p style={{ color: "#047857", marginTop: 0 }}>{batchStatus}</p>
-      )}
-
-      {batchError && (
-        <p style={{ color: "#b91c1c" }} role="alert">
-          {batchError}
-        </p>
-      )}
-
-      {batchResultErrors.length > 0 && (
-        <div
-          style={{
-            borderLeft: "4px solid #f97316",
-            background: "#fff7ed",
-            padding: "0.75rem 1rem",
-            borderRadius: 8,
-            color: "#92400e",
-          }}
-        >
-          <p style={{ margin: 0, fontWeight: 600 }}>Rows skipped</p>
-          <ul
-            style={{
-              margin: "0.5rem 0 0",
-              paddingLeft: "1.25rem",
-              display: "grid",
-              gap: "0.25rem",
-              fontSize: "0.95rem",
-            }}
-          >
-            {batchResultErrors.slice(0, 5).map((item) => (
-              <li key={`${item.row}-${item.message}`}>
-                Row {item.row}: {item.message}
+            return (
+              <li
+                key={step.id}
+                className={`flex flex-col gap-3 rounded-2xl border p-4 transition-transform duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${statusStyles[step.status]}`}
+              >
+                <span className="flex items-center gap-3 text-sm font-semibold">
+                  <span
+                    className={`flex h-9 w-9 items-center justify-center rounded-full border border-white text-base font-semibold ${badgeStyles[step.status]}`}
+                  >
+                    {step.status === "complete" ? (
+                      <CheckIcon className="h-5 w-5" />
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  {step.label}
+                </span>
+                <p className="text-sm text-slate-500">{step.description}</p>
               </li>
-            ))}
-          </ul>
-          {batchResultErrors.length > 5 && (
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.85rem" }}>
-              {batchResultErrors.length - 5} additional row(s) skipped.
-            </p>
-          )}
-        </div>
-      )}
+            );
+          })}
+        </ol>
 
-      {latestPreview.length > 0 && (
-        <section
-          style={{
-            border: "1px solid #d1d5db",
-            borderRadius: 8,
-            padding: "1rem",
-            display: "grid",
-            gap: "1rem",
-            backgroundColor: "#f9fafb",
-          }}
-        >
-          <div style={cardHeaderStyle}>
-            <h2 style={{ margin: 0 }}>Latest upload preview</h2>
-            <p style={subtleTextStyle}>
-              {latestPreview.length} item{latestPreview.length > 1 ? "s" : ""}
-            </p>
-          </div>
-          <p style={{ ...subtleTextStyle, margin: 0 }}>
-            These questions were parsed from your last spreadsheet upload. Use
-            this preview to double-check the imported content before approving
-            it.
-          </p>
-          <div style={cardListStyle}>
-            {latestPreview.map((item) => (
-              <article key={item.id || item.question} style={cardStyle}>
-                <div style={cardHeaderStyle}>
-                  <span style={{ fontWeight: 600 }}>
-                    {(item.type ?? "mcq").toUpperCase()}
-                  </span>
-                  <span style={subtleTextStyle}>
-                    Estimated time: {formatSeconds(item.estimated_time)}
-                  </span>
-                </div>
-                <div
-                  style={{ lineHeight: 1.5 }}
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      item.question && item.question.trim().length > 0
-                        ? item.question
-                        : "<em>No question provided.</em>",
-                  }}
-                />
-                <p style={subtleTextStyle}>
-                  Difficulty: {item.difficulty ?? "-"} • Quiz type:{" "}
-                  {item.quiz_type ?? "-"}
-                </p>
-                {item.options && item.options.length > 0 ? (
-                  <ul
-                    style={{
-                      margin: 0,
-                      paddingLeft: "1.25rem",
-                      display: "grid",
-                      gap: "0.25rem",
-                    }}
-                  >
-                    {item.options.map((option, optionIndex) => (
-                      <li key={option.id ?? `${item.id}-${optionIndex}`}>
-                        {option.is_correct ? "✅ " : ""}
-                        {option.content && option.content.trim().length > 0
-                          ? option.content
-                          : "Empty option"}
-                      </li>
-                    ))}
-                  </ul>
-                ) : item.answer ? (
-                  <p style={subtleTextStyle}>Answer: {item.answer}</p>
-                ) : null}
-                {item.explanation && item.explanation.trim().length > 0 && (
-                  <p style={subtleTextStyle}>Explanation: {item.explanation}</p>
-                )}
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-      <section
-        style={{
-          border: "1px solid #d1d5db",
-          borderRadius: 8,
-          padding: "1rem",
-          display: "grid",
-          gap: "1rem",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <div style={cardHeaderStyle}>
-          <h2 style={{ margin: 0 }}>Pending MCQs</h2>
-          <button
-            type="button"
-            style={approveActionButton}
-            onClick={handleApproveAll}
-            disabled={pendingLoading || pendingMcqs.length === 0}
-          >
-            Approve all
-          </button>
-        </div>
-        <p style={{ ...subtleTextStyle, margin: 0 }}>
-          Newly imported MCQs stay pending until you approve them. Edit any item
-          to fix mistakes, then approve individually or all at once.
-        </p>
-
-        {pendingMessage && (
-          <p style={{ color: "#047857", margin: 0 }}>{pendingMessage}</p>
-        )}
-
-        {pendingError && (
-          <p style={{ color: "#b91c1c", margin: 0 }} role="alert">
-            {pendingError}
-          </p>
-        )}
-
-        {pendingLoading ? (
-          <p style={subtleTextStyle}>Loading pending MCQs…</p>
-        ) : pendingMcqs.length > 0 ? (
-          <div style={cardListStyle}>
-            {pendingMcqs.map((item) => (
-              <article key={item.id} style={cardStyle}>
-                <div style={cardHeaderStyle}>
-                  <span style={{ fontWeight: 600 }}>
-                    {(item.type ?? "mcq").toUpperCase()} •{" "}
-                    {item.difficulty ?? "-"}
-                  </span>
-                  <span style={subtleTextStyle}>
-                    Estimated time: {formatSeconds(item.estimated_time)}
-                  </span>
-                </div>
-                <div
-                  style={{ lineHeight: 1.5 }}
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      item.question && item.question.trim().length > 0
-                        ? item.question
-                        : "<em>No question provided.</em>",
-                  }}
-                />
-                {item.options && item.options.length > 0 ? (
-                  <ul
-                    style={{
-                      margin: 0,
-                      paddingLeft: "1.25rem",
-                      display: "grid",
-                      gap: "0.25rem",
-                    }}
-                  >
-                    {item.options.map((option, optionIndex) => (
-                      <li key={option.id ?? `${item.id}-${optionIndex}`}>
-                        {option.is_correct ? "✅ " : ""}
-                        {option.content && option.content.trim().length > 0
-                          ? option.content
-                          : "Empty option"}
-                      </li>
-                    ))}
-                  </ul>
-                ) : item.answer ? (
-                  <p style={subtleTextStyle}>Answer: {item.answer}</p>
-                ) : null}
-                {item.explanation && item.explanation.trim().length > 0 && (
-                  <p style={subtleTextStyle}>Explanation: {item.explanation}</p>
-                )}
-
-                <div style={actionRowStyle}>
-                  <button
-                    type="button"
-                    style={secondaryActionButton}
-                    onClick={() => openEditMcq(item.id)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    style={approveActionButton}
-                    onClick={() => handleApproveMcq(item.id)}
-                    disabled={pendingLoading}
-                  >
-                    Approve
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p style={subtleTextStyle}>
-            No pending MCQs for this course. Upload a spreadsheet to add more
-            questions.
-          </p>
-        )}
-
-        {editingMcq && (
+        <section className="flex flex-col gap-6">
           <div
-            style={{
-              borderTop: "1px solid #e5e7eb",
-              paddingTop: "1rem",
-              display: "grid",
-              gap: "0.75rem",
-            }}
+            ref={pendingSectionRef}
+            className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
-            <h3 style={{ margin: 0 }}>Edit MCQ</h3>
-            <label style={labelStyle}>
-              <span>Question</span>
-              <textarea
-                value={editingMcq.question}
-                onChange={(event) =>
-                  updateEditingField("question", event.target.value)
-                }
-                style={{ ...inputStyle, minHeight: "6rem" }}
-              />
-            </label>
-
-            <label style={labelStyle}>
-              <span>Estimated time (seconds)</span>
-              <input
-                type="number"
-                min={1}
-                value={editingMcq.estimated_time}
-                onChange={(event) =>
-                  updateEditingField(
-                    "estimated_time",
-                    Math.max(1, Number(event.target.value) || 1),
-                  )
-                }
-                style={inputStyle}
-              />
-            </label>
-
-            {(editingMcq.type === "qcm" || editingMcq.type === "qcs") && (
-              <section style={{ display: "grid", gap: "0.75rem" }}>
-                <h4 style={{ margin: 0 }}>Answer options</h4>
-                {editingMcq.options.map((option, index) => (
-                  <div
-                    key={option.id ?? `${editingMcq.id}-${index}`}
-                    style={{
-                      border: "1px solid #e5e7eb",
-                      borderRadius: 6,
-                      padding: "0.75rem",
-                      display: "grid",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    <label
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={option.is_correct}
-                        onChange={() => toggleOptionCorrect(index)}
-                      />
-                      <span>Correct</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={option.content}
-                      onChange={(event) =>
-                        updateOptionContent(index, event.target.value)
-                      }
-                      style={inputStyle}
-                      placeholder={`Option ${index + 1}`}
-                    />
-                  </div>
-                ))}
-              </section>
-            )}
-
-            {editingMcq.type === "qroc" && (
-              <label style={labelStyle}>
-                <span>Expected answer</span>
-                <input
-                  type="text"
-                  value={editingMcq.answer ?? ""}
-                  onChange={(event) =>
-                    updateEditingField("answer", event.target.value)
-                  }
-                  style={inputStyle}
-                />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 1</p>
+                <h2 className="text-lg font-semibold text-slate-900">Course context</h2>
+                <p className="text-sm text-slate-500">
+                  These selections are reused for AI generation and spreadsheet uploads.
+                </p>
+              </div>
+              <div className="flex flex-col items-start gap-2 text-xs sm:items-end">
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-medium ${
+                    contextComplete
+                      ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {contextComplete ? "Ready" : "Complete required fields"}
+                </span>
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-500">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-slate-300 text-indigo-600 transition-colors duration-200 focus:ring-indigo-500"
+                    checked={rememberContext}
+                    onChange={(event) => setRememberContext(event.target.checked)}
+                  />
+                  <span>Remember these selections on this device</span>
+                </label>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">University</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedUniversity}
+                  onChange={(event) => setSelectedUniversity(event.target.value)}
+                  disabled={loadingMetadata}
+                >
+                  <option value="">Select university</option>
+                  {universities.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
               </label>
-            )}
-
-            <label style={labelStyle}>
-              <span>Explanation (optional)</span>
-              <textarea
-                value={editingMcq.explanation ?? ""}
-                onChange={(event) =>
-                  updateEditingField("explanation", event.target.value)
-                }
-                style={{ ...inputStyle, minHeight: "4.5rem" }}
-              />
-            </label>
-
-            <div style={actionRowStyle}>
-              <button
-                type="button"
-                style={secondaryActionButton}
-                onClick={closeEditing}
-                disabled={editingSaving}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                style={approveActionButton}
-                onClick={saveEditingMcq}
-                disabled={editingSaving}
-              >
-                {editingSaving ? "Saving..." : "Save changes"}
-              </button>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">Faculty</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedFaculty}
+                  onChange={(event) => setSelectedFaculty(event.target.value)}
+                  disabled={!selectedUniversity || faculties.length === 0}
+                >
+                  <option value="">Select faculty</option>
+                  {faculties.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">Year of study</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedYear}
+                  onChange={(event) => setSelectedYear(event.target.value)}
+                >
+                  <option value="">Select year</option>
+                  {YEAR_OF_STUDY_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">Unit</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedUnit}
+                  onChange={(event) => setSelectedUnit(event.target.value)}
+                  disabled={!selectedYear || units.length === 0}
+                >
+                  <option value="">Select unit</option>
+                  {units.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">Module</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedSubject}
+                  onChange={(event) => setSelectedSubject(event.target.value)}
+                  disabled={!selectedUnit || subjects.length === 0}
+                >
+                  <option value="">Select module</option>
+                  {subjects.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-600">Course</span>
+                <select
+                  className={baseInputClasses}
+                  value={selectedCourse}
+                  onChange={(event) => setSelectedCourse(event.target.value)}
+                  disabled={!selectedSubject || courses.length === 0}
+                >
+                  <option value="">Select course</option>
+                  {courses.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
-        )}
-      </section>
-    </main>
+
+          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 2</p>
+                <h2 className="text-lg font-semibold text-slate-900">Create questions</h2>
+                <p className="text-sm text-slate-500">
+                  Choose an approach to produce fresh content quickly or import prepared batches.
+                </p>
+              </div>
+              <div className="flex flex-col items-start gap-1 text-xs text-slate-500 sm:items-end">
+                <span>
+                  {contextComplete
+                    ? "Context locked for this session."
+                    : "Complete step 1 to unlock actions."}
+                </span>
+                {submitting || batchSubmitting ? (
+                  <span className="inline-flex items-center gap-2 text-indigo-600">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" />
+                    Working...
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {WORKFLOW_TABS.map((tab) => {
+                const isActive = activeWorkflow === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => handleWorkflowTabClick(tab.value)}
+                    className={`group rounded-2xl border px-4 py-3 text-left transition-transform duration-200 hover:-translate-y-0.5 ${
+                      isActive
+                        ? "border-indigo-400 bg-indigo-50 shadow-sm"
+                        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                    }`}
+                    disabled={!contextComplete && !isActive}
+                  >
+                    <span
+                      className={`text-sm font-semibold ${
+                        isActive ? "text-indigo-700" : "text-slate-700"
+                      }`}
+                    >
+                      {tab.label}
+                    </span>
+                    <span className="mt-1 block text-xs text-slate-500">
+                      {tab.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-6 border-t border-slate-100 pt-6">
+              {activeWorkflow === "generate" ? (
+                <form className="grid gap-6" onSubmit={handleSubmit}>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-slate-700">Difficulty</span>
+                      <select
+                        className={baseInputClasses}
+                        value={selectedDifficulty}
+                        onChange={(event) => setSelectedDifficulty(event.target.value)}
+                        required
+                        disabled={disabledFromGeneration}
+                      >
+                        {DIFFICULTY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="flex flex-col gap-2">
+                        <span className="text-sm font-medium text-slate-700">MCQ count</span>
+                        <input
+                          type="number"
+                          min={0}
+                          className={baseInputClasses}
+                          value={mcqCount}
+                          onChange={(event) => setMcqCount(Number(event.target.value) || 0)}
+                          disabled={
+                            disabledFromGeneration ||
+                            !selectedContentTypes.includes("mcq")
+                          }
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2">
+                        <span className="text-sm font-medium text-slate-700">QROC count</span>
+                        <input
+                          type="number"
+                          min={0}
+                          className={baseInputClasses}
+                          value={qrocCount}
+                          onChange={(event) => setQrocCount(Number(event.target.value) || 0)}
+                          disabled={
+                            disabledFromGeneration ||
+                            !selectedContentTypes.includes("qroc")
+                          }
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {CONTENT_TYPE_OPTIONS.map((option) => {
+                      const checked = selectedContentTypes.includes(option.value);
+                      return (
+                        <label
+                          key={option.value}
+                          className={`flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition ${
+                            checked
+                              ? "border-indigo-400 bg-indigo-50 shadow-sm"
+                              : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            checked={checked}
+                            onChange={() => toggleContentType(option.value)}
+                            disabled={disabledFromGeneration}
+                          />
+                          <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-slate-800">
+                              {option.label}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {option.value === "mcq"
+                                ? "Multiple-choice questions"
+                                : "Short free-form answers"}
+                            </span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">Source document</span>
+                    <input
+                      type="file"
+                      accept=".pdf,.ppt,.pptx,.doc,.docx"
+                      onChange={handleFileChange}
+                      required
+                      disabled={disabledFromGeneration}
+                      className="block w-full cursor-pointer rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 file:mr-4 file:rounded-full file:border-none file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    />
+                    <span className="text-xs text-slate-500">
+                      Accepted formats: PDF, PPT, PPTX, DOC, DOCX.
+                    </span>
+                  </label>
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm font-medium text-slate-600">
+                        Ready to launch? Start the AI generation or hop to the review queue.
+                      </p>
+                      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                        <button
+                          type="submit"
+                          className={primaryButtonClasses}
+                          style={primaryButtonStyle(disabledFromGeneration)}
+                          disabled={disabledFromGeneration}
+                          title={
+                            generateDisabledReason ?? "Send this request to the AI generator."
+                          }
+                        >
+                          {submitting ? "Submitting..." : "Generate MCQs now"}
+                        </button>
+                        <button
+                          type="button"
+                          className={secondaryButtonClasses}
+                          onClick={scrollToPending}
+                          disabled={pendingMcqs.length === 0}
+                          title={
+                            pendingMcqs.length === 0
+                              ? "You have no pending MCQs for this course yet."
+                              : "Jump to the review queue."
+                          }
+                        >
+                          View pending approvals
+                        </button>
+                      </div>
+                    </div>
+                    {generateDisabledReason && (
+                      <p className="text-xs text-slate-500 sm:text-right">
+                        {generateDisabledReason}
+                      </p>
+                    )}
+                    {generateInlineHint && (
+                      <p className="mt-1 text-xs text-slate-500 sm:text-right">
+                        {generateInlineHint}
+                      </p>
+                    )}
+                  </div>
+                  {progressMessage && (
+                    <div className="rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+                      {progressMessage}
+                    </div>
+                  )}
+                  {error && (
+                    <div
+                      className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                      role="alert"
+                    >
+                      {error}
+                    </div>
+                  )}
+                </form>
+              ) : (
+                <form className="grid gap-6" onSubmit={handleBatchUpload}>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">Spreadsheet template</span>
+                    <p className="text-sm text-slate-500">
+                      Include every column so the importer can match answers and metadata.
+                    </p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                      <span className="font-semibold text-slate-700">Columns:</span>{" "}
+                      Question Text, Question Type, Quiz Type, Difficulty, Tag, Promo, Time (sec), Option 1-5,
+                      Correct Option(s), Answer Text, Explanation.
+                    </div>
+                  </div>
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">Spreadsheet file</span>
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleBatchFileChange}
+                      ref={batchFileInputRef}
+                      disabled={disabledFromUpload}
+                      required
+                      className="block w-full cursor-pointer rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 file:mr-4 file:rounded-full file:border-none file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    />
+                    <span className="text-xs text-slate-500">
+                      Upload .xlsx, .xls, or .csv files prepared from your template.
+                    </span>
+                  </label>
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm font-medium text-slate-600">
+                        Upload your spreadsheet and instantly review the imported questions.
+                      </p>
+                      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                        <button
+                          type="submit"
+                          className={primaryButtonClasses}
+                          style={primaryButtonStyle(disabledFromUpload || !contextComplete)}
+                          disabled={disabledFromUpload || !contextComplete}
+                          title={
+                            uploadDisabledReason ??
+                            "Upload the spreadsheet and process its rows."
+                          }
+                        >
+                          {batchSubmitting ? "Uploading..." : "Upload questions"}
+                        </button>
+                        <button
+                          type="button"
+                          className={secondaryButtonClasses}
+                          onClick={() => scrollToPreview()}
+                          disabled={latestPreview.length === 0}
+                          title={
+                            latestPreview.length === 0
+                              ? "Upload a spreadsheet to see its preview."
+                              : "Jump to the recently imported questions."
+                          }
+                        >
+                          Review uploaded questions
+                        </button>
+                      </div>
+                    </div>
+                    {uploadDisabledReason && (
+                      <p className="text-xs text-slate-500 sm:text-right">
+                        {uploadDisabledReason}
+                      </p>
+                    )}
+                    {uploadInlineHint && (
+                      <p className="mt-1 text-xs text-slate-500 sm:text-right">
+                        {uploadInlineHint}
+                      </p>
+                    )}
+                  </div>
+                  {batchStatus && (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                      {batchStatus}
+                    </div>
+                  )}
+                  {batchError && (
+                    <div
+                      className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                      role="alert"
+                    >
+                      {batchError}
+                    </div>
+                  )}
+                  {batchResultErrors.length > 0 && (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                      <p className="font-semibold text-amber-800">Rows to double-check</p>
+                      <ul className="mt-2 space-y-1">
+                        {batchResultErrors.map((item) => (
+                          <li key={`${item.row}-${item.message}`} className="flex items-start gap-3">
+                            <span className="font-semibold text-amber-800">Row {item.row}</span>
+                            <span className="text-amber-700">{item.message}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </form>
+              )}
+            </div>
+          </div>
+
+          {showPreviewCard && (
+            <div
+              ref={previewSectionRef}
+              className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Snapshot
+                  </p>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Latest import preview
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    {latestPreview.length > 0
+                      ? `Showing ${
+                          previewExpanded ? previewToRender.length : 0
+                        } of ${latestPreview.length} question${
+                          latestPreview.length === 1 ? "" : "s"
+                        } just imported.`
+                      : "No preview available yet. Upload a spreadsheet to see a sample."}
+                  </p>
+                </div>
+                {latestPreview.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewExpanded((prev) => !prev)}
+                    className={secondaryButtonClasses}
+                  >
+                    {previewExpanded ? "Hide preview" : "Show preview"}
+                  </button>
+                )}
+              </div>
+              {previewExpanded && previewToRender.length > 0 && (
+                <div className="mt-6 grid gap-4">
+                  {previewToRender.map((item) => (
+                    <article
+                      key={item.id}
+                      className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500">
+                        <span className="rounded-full bg-white px-3 py-1">
+                          {(item.type ?? "mcq").toUpperCase()}
+                        </span>
+                        <span>{item.difficulty ?? "-"}</span>
+                        <span>{item.quiz_type ?? "-"}</span>
+                        <span>{formatSeconds(item.estimated_time)}</span>
+                      </div>
+                      <div
+                        className="mt-3 text-sm leading-6 text-slate-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            item.question && item.question.trim().length > 0
+                              ? item.question
+                              : "<em>No question provided.</em>",
+                        }}
+                      />
+                      {item.options && item.options.length > 0 ? (
+                        <ul className="mt-3 grid gap-1 text-sm text-slate-600">
+                          {item.options.map((option, optionIndex) => (
+                            <li key={option.id ?? `${item.id}-${optionIndex}`}>
+                              {option.is_correct ? "[Correct] " : ""}
+                              {option.content && option.content.trim().length > 0
+                                ? option.content
+                                : "Empty option"}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : item.answer ? (
+                        <p className="mt-3 text-sm text-slate-600">Answer: {item.answer}</p>
+                      ) : null}
+                    </article>
+                  ))}
+                </div>
+              )}
+              {hasMorePreview && previewExpanded && (
+                <p className="mt-4 text-xs text-slate-500">
+                  Showing the first {PREVIEW_LIMIT} questions. Review the full set inside the pending area.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 3</p>
+                <h2 className="text-lg font-semibold text-slate-900">Review and approve</h2>
+                <p className="text-sm text-slate-500">{pendingSummary}</p>
+              </div>
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <button
+                  type="button"
+                  onClick={scrollToPending}
+                  className={primaryButtonClasses}
+                  style={primaryButtonStyle(false)}
+                >
+                  Open review workspace
+                </button>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col gap-4 text-sm text-slate-500">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 text-slate-500">
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      pendingLoading ? "animate-pulse bg-indigo-500" : "bg-emerald-500"
+                    }`}
+                  />
+                  {pendingLoading ? "Refreshing list..." : "Up to date"}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {pendingError ? (
+                    <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-rose-600">
+                      {pendingError}
+                    </span>
+                  ) : pendingMessage ? (
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
+                      {pendingMessage}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-slate-600">
+                Open the review workspace to browse, edit, approve, or remove pending MCQs imported from spreadsheets.
+              </div>
+            </div>
+          </div>
+          {reviewModalOpen && (
+            <div className="fixed inset-0 z-50 flex justify-center overflow-y-auto px-4 py-6 sm:items-center sm:py-12">
+              <div
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                onClick={closeReviewModal}
+              />
+              <div className="relative z-10 flex w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl max-h-[90vh]">
+                <div className="flex flex-col gap-4 border-b border-slate-200 p-6 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Pending workspace
+                    </p>
+                    <h2 className="text-xl font-semibold text-slate-900">Review pending MCQs</h2>
+                    <p className="text-sm text-slate-500">{pendingSummary}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      className={primaryButtonClasses}
+                      onClick={handleApproveAll}
+                      style={primaryButtonStyle(pendingLoading || pendingFiltered.length === 0)}
+                      disabled={pendingLoading || pendingFiltered.length === 0}
+                    >
+                      {pendingLoading ? "Processing..." : "Approve all"}
+                    </button>
+                    <button
+                      type="button"
+                      className={secondaryButtonClasses}
+                      onClick={closeReviewModal}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+                <div
+                  ref={pendingSectionRef}
+                  tabIndex={-1}
+                  className="flex-1 overflow-y-auto p-6 focus:outline-none"
+                >
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                    {editingMcq ? (
+                      <div
+                        ref={editingSectionRef}
+                        className="order-first w-full rounded-2xl border border-indigo-200 bg-indigo-50/80 p-6 text-sm text-slate-700 shadow-sm transition-all duration-300 lg:sticky lg:top-6 lg:order-none lg:max-h-[calc(90vh-8rem)] lg:w-[28rem] lg:overflow-y-auto"
+                      >
+                        <h3 className="text-base font-semibold text-indigo-900">Edit MCQ</h3>
+                        <div className="mt-4 grid gap-4">
+                          <label className="flex flex-col gap-2">
+                            <span className="text-sm font-medium text-slate-700">Question</span>
+                            <textarea
+                              ref={editingQuestionInputRef}
+                              value={editingMcq.question}
+                              onChange={(event) =>
+                                updateEditingField("question", event.target.value)
+                              }
+                              className={`${baseInputClasses} min-h-[6rem]`}
+                            />
+                          </label>
+                          <label className="flex flex-col gap-2">
+                            <span className="text-sm font-medium text-slate-700">
+                              Estimated time (seconds)
+                            </span>
+                            <input
+                              type="number"
+                              min={1}
+                              value={editingMcq.estimated_time}
+                              onChange={(event) =>
+                                updateEditingField(
+                                  "estimated_time",
+                                  Math.max(1, Number(event.target.value) || 1),
+                                )
+                              }
+                              className={baseInputClasses}
+                            />
+                          </label>
+                          {(editingMcq.type === "qcm" || editingMcq.type === "qcs") && (
+                            <div className="grid gap-3">
+                              <p className="text-sm font-medium text-slate-700">Answer options</p>
+                              {editingMcq.options.map((option, index) => (
+                                <div
+                                  key={option.id ?? `${editingMcq.id}-${index}`}
+                                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                                >
+                                  <label className="flex items-center gap-3 text-sm text-slate-700">
+                                    <input
+                                      type="checkbox"
+                                      checked={option.is_correct}
+                                      onChange={() => toggleOptionCorrect(index)}
+                                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <span>Mark as correct</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={option.content}
+                                    onChange={(event) =>
+                                      updateOptionContent(index, event.target.value)
+                                    }
+                                    className={`${baseInputClasses} mt-3`}
+                                    placeholder={`Option ${index + 1}`}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {editingMcq.type === "qroc" && (
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">Expected answer</span>
+                              <input
+                                type="text"
+                                value={editingMcq.answer ?? ""}
+                                onChange={(event) =>
+                                  updateEditingField("answer", event.target.value)
+                                }
+                                className={baseInputClasses}
+                              />
+                            </label>
+                          )}
+                          <label className="flex flex-col gap-2">
+                            <span className="text-sm font-medium text-slate-700">
+                              Explanation (optional)
+                            </span>
+                            <textarea
+                              value={editingMcq.explanation ?? ""}
+                              onChange={(event) =>
+                                updateEditingField("explanation", event.target.value)
+                              }
+                              className={`${baseInputClasses} min-h-[5rem]`}
+                            />
+                          </label>
+                          <div className="flex flex-wrap gap-3">
+                            <button
+                              type="button"
+                              className={secondaryButtonClasses}
+                              onClick={closeEditing}
+                              disabled={editingSaving}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              className={primaryButtonClasses}
+                              onClick={saveEditingMcq}
+                              style={primaryButtonStyle(editingSaving)}
+                              disabled={editingSaving}
+                            >
+                              {editingSaving ? "Saving..." : "Save changes"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="hidden lg:flex lg:w-[28rem] lg:flex-shrink-0">
+                        <div className="w-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+                          Select a pending question to preview and edit it here.
+                        </div>
+                      </div>
+                    )}
+                    <div
+                      className={`flex-1 space-y-4 ${editingMcq ? "order-last lg:order-none" : "order-first lg:order-none"}`}
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <input
+                          type="search"
+                          value={pendingSearch}
+                          onChange={(event) => setPendingSearch(event.target.value)}
+                          placeholder="Search within pending questions"
+                          className={`${baseInputClasses} sm:max-w-md`}
+                        />
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              pendingLoading ? "animate-pulse bg-indigo-500" : "bg-emerald-500"
+                            }`}
+                          />
+                          {pendingLoading ? "Refreshing list..." : "Up to date"}
+                        </div>
+                      </div>
+                      {pendingMessage && (
+                        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                          {pendingMessage}
+                        </div>
+                      )}
+                      {pendingError && (
+                        <div
+                          className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                          role="alert"
+                        >
+                          {pendingError}
+                        </div>
+                      )}
+                      {pendingLoading ? (
+                        <div className="grid gap-3">
+                          {Array.from({ length: 3 }).map((_, index) => (
+                            <div key={index} className="h-24 animate-pulse rounded-2xl bg-slate-100" />
+                          ))}
+                        </div>
+                      ) : pendingFiltered.length > 0 ? (
+                        <div className="grid gap-4">
+                          {visiblePending.map((item) => (
+                            <article
+                              key={item.id}
+                              className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-200"
+                            >
+                              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500">
+                                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">
+                                  {(item.type ?? "mcq").toUpperCase()}
+                                </span>
+                                <span>{item.difficulty ?? "-"}</span>
+                                <span>{item.quiz_type ?? "-"}</span>
+                                <span>{formatSeconds(item.estimated_time)}</span>
+                              </div>
+                              <div
+                                className="mt-3 text-sm leading-6 text-slate-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
+                                dangerouslySetInnerHTML={{
+                                  __html:
+                                    item.question && item.question.trim().length > 0
+                                      ? item.question
+                                      : "<em>No question provided.</em>",
+                                }}
+                              />
+                              {item.options && item.options.length > 0 ? (
+                                <ul className="mt-3 grid gap-1 text-sm text-slate-600">
+                                  {item.options.map((option, optionIndex) => (
+                                    <li key={option.id ?? `${item.id}-${optionIndex}`}>
+                                      {option.is_correct ? "[Correct] " : ""}
+                                      {option.content && option.content.trim().length > 0
+                                        ? option.content
+                                        : "Empty option"}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : item.answer ? (
+                                <p className="mt-3 text-sm text-slate-600">Answer: {item.answer}</p>
+                              ) : null}
+                              {item.explanation && item.explanation.trim().length > 0 && (
+                                <p className="mt-2 text-sm text-slate-500">
+                                  Explanation: {item.explanation}
+                                </p>
+                              )}
+                              <div className="mt-4 flex flex-wrap gap-3">
+                                <button
+                                  type="button"
+                                  className={dangerButtonClasses}
+                                  onClick={() => handleRemoveMcq(item.id)}
+                                  disabled={pendingLoading}
+                                >
+                                  Remove
+                                </button>
+                                <button
+                                  type="button"
+                                  className={secondaryButtonClasses}
+                                  onClick={() => openEditMcq(item.id)}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className={primaryButtonClasses}
+                                  onClick={() => handleApproveMcq(item.id)}
+                                  style={primaryButtonStyle(pendingLoading)}
+                                  disabled={pendingLoading}
+                                >
+                                  Approve
+                                </button>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                          Nothing pending for this course yet. Upload a spreadsheet or run an AI generation to create items.
+                        </div>
+                      )}
+                      {hasMorePending && (
+                        <button
+                          type="button"
+                          className={secondaryButtonClasses}
+                          onClick={() =>
+                            setPendingViewLimit((limit) => limit + DEFAULT_PENDING_VIEW_LIMIT)
+                          }
+                        >
+                          Load more
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
   );
 }

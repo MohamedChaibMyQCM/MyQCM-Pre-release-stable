@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import timer from "../../../../public/Quiz/Timer.svg";
 import solver from "../../../../public/Quiz/solver.svg";
 import { Input } from "@/components/ui/input";
 import QuizExplanation from "./QuizExplanation";
@@ -14,6 +13,7 @@ import toast from "react-hot-toast";
 import FeedbackPopup from "./feedback/FeedbackPopup";
 import { useFeedbackSurvey } from "@/hooks/useFeedbackSurvey";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
+import SegmentedTimerMyQCM from "./SegmentedTimerMyQCM";
 
 const Quiz = ({
   questionData,
@@ -32,9 +32,10 @@ const Quiz = ({
   const [checkAnswer, setCheckAnswer] = useState(true);
   const [seeExplanation, setSeeExplanation] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [timeRemaining, setTimeRemaining] = useState(
+  const [initialTime, setInitialTime] = useState(
     questionData?.estimated_time || 0
   );
+  const [timeRemaining, setTimeRemaining] = useState(initialTime);
   const [showSkipPopup, setShowSkipPopup] = useState(false);
   const [skipInitiatedByTimeout, setSkipInitiatedByTimeout] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
@@ -70,8 +71,9 @@ const Quiz = ({
     setSeeExplanation(false);
     setSelectedOptions([]);
     setAnswer(null);
-    const initialTime = questionData?.estimated_time || 0;
-    setTimeRemaining(initialTime);
+    const newInitialTime = questionData?.estimated_time || 0;
+    setInitialTime(newInitialTime);
+    setTimeRemaining(newInitialTime);
     setShowSkipPopup(false);
     setSkipInitiatedByTimeout(false);
 
@@ -166,7 +168,6 @@ const Quiz = ({
         setThinkAnimating(true);
       }
 
-      const initialTime = questionData?.estimated_time || 0;
       const calculatedTimeSpent = initialTime - timeRemaining;
       const timeSpent = Math.max(0, calculatedTimeSpent);
 
@@ -366,7 +367,7 @@ const Quiz = ({
       : !formik.values.response?.trim());
 
   return (
-    <div className="relative bg-[#FFFFFF] w-[70%] rounded-[20px] mx-auto p-[24px] flex flex-col gap-6 max-md:w-[99%] max-md:p-[16px] z-[50] overflow-y-auto scrollbar-hide max-xl:w-[85%] shadow-lg">
+    <div className="relative bg-[#FFFFFF] w-full max-w-[820px] rounded-[20px] mx-auto p-[24px] flex flex-col gap-6 max-md:max-w-none max-md:p-[16px] z-[50] overflow-y-auto shadow-lg">
       {/* Header with badges and timer */}
       <div className="flex items-center justify-between flex-wrap gap-y-3 max-md:gap-y-2">
         <div className="flex items-center gap-3 flex-wrap max-md:gap-2">
@@ -425,20 +426,17 @@ const Quiz = ({
           </div>
         </div>
 
-        {/* Timer */}
-        <div className="flex items-center gap-2 bg-[#F8F9FA] px-[12px] py-[6px] rounded-[10px] max-md:bg-[#FFFFFF20] max-md:border max-md:border-[#E9ECEF]">
-          <Image
-            src={timer}
-            alt="timer"
-            className="w-[16px] opacity-70 max-md:w-[14px]"
+        {initialTime > 0 && (
+          <SegmentedTimerMyQCM
+            total={initialTime}
+            remaining={timeRemaining}
+            running={checkAnswer && timeRemaining > 0}
+            segments={4}
+            warnFrom={0.25}
+            barWidth={120}
+            barHeight={8}
           />
-          <span className="text-[12px] text-[#6C757D] font-medium max-md:hidden">
-            Temps restant
-          </span>
-          <span className="text-[12px] text-[#FF6EAF] font-bold max-md:text-[10px]">
-            {timeRemaining}s
-          </span>
-        </div>
+        )}
       </div>
 
       {/* Question content */}

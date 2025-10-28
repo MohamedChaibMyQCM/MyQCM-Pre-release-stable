@@ -338,6 +338,7 @@ export class McqService {
           "course",
           "university",
           "freelancer",
+          "clinical_case",
         ]
       : [];
     const mcq = await this.mcqRepository.findOne({
@@ -756,6 +757,7 @@ export class McqService {
     }
     const { transaction_amount } = (await this.redisService.get(
       RedisKeys.getRedisTransactionConfig(),
+      true,
     )) as TransactionConfigInterface;
     await this.transactionService.createCreditTransaction(
       freelancer.id,
@@ -1004,7 +1006,7 @@ export class McqService {
     freelancerId: string,
     updateMcqDto: UpdateMcqDto,
   ) {
-    const mcq = await this.getOneMcq({ mcqId, freelancerId });
+    const mcq = await this.getOneMcq({ mcqId, freelancerId }, true);
     this.validateMcqUpdateDto({ ...updateMcqDto, type: mcq.type }); // check that update dto doesnt cause any problem
 
     //TODO refactor this to be better
@@ -1034,13 +1036,29 @@ export class McqService {
     if (attachment) {
       mcq.attachment = attachment.path;
     }
-    if (updateMcqDto.options) {
-      updateMcqDto.options.map(async (option) => {
-        await this.optionService.update(option.id, option);
-      });
+    if (updateMcqDto.options_to_delete?.length) {
+      await Promise.all(
+        updateMcqDto.options_to_delete.map((optionId) =>
+          this.optionService.remove(optionId),
+        ),
+      );
     }
-    const { options, approval_status: _approvalStatus, ...restUpdateMcqDto } =
-      updateMcqDto;
+    if (updateMcqDto.options) {
+      await Promise.all(
+        updateMcqDto.options.map((option) => {
+          if (option.id) {
+            return this.optionService.update(option.id, option);
+          }
+          return this.optionService.create(option, mcq);
+        }),
+      );
+    }
+    const {
+      options,
+      options_to_delete: _optionsToDelete,
+      approval_status: _approvalStatus,
+      ...restUpdateMcqDto
+    } = updateMcqDto;
     Object.assign(mcq, restUpdateMcqDto);
     await this.mcqRepository.save(mcq);
     return mcq;

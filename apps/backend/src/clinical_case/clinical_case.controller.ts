@@ -21,6 +21,7 @@ import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Freelancer } from "src/freelancer/entities/freelancer.entity";
 import { CreateMcqInClinicalCase } from "src/mcq/dto/create-mcq.dto";
 import { GetUser } from "common/decorators/auth/get-user.decorator";
+import { UpdateMcqDto } from "src/mcq/dto/update-mcq.dto";
 
 @ApiTags("Clinical Case")
 @Controller("clinical-case")
@@ -35,13 +36,17 @@ export class ClinicalCaseController {
     @Body() createClinicalCaseDto: CreateClinicalCaseDto,
     @GetUser() freelancer: Freelancer,
   ) {
-    const data = await this.clinicalCaseService.create(
+    const createdCase = await this.clinicalCaseService.create(
       createClinicalCaseDto,
       freelancer,
     );
     return {
-      meessage: "Clinical case was cretaed succesfully",
+      message: "Clinical case was created successfully",
       status: HttpStatus.CREATED,
+      data: {
+        id: createdCase.id,
+        title: createdCase.title,
+      },
     };
   }
 
@@ -62,6 +67,7 @@ export class ClinicalCaseController {
     return {
       message: `Mcq of type ${createMcqInClinicalCaseDto.type} cretaed succesfully`,
       status: HttpStatus.CREATED,
+      data,
     };
   }
 
@@ -105,6 +111,25 @@ export class ClinicalCaseController {
     };
   }
 
+  @Get(":clinicalCaseId/full")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "get clinical case with questions for editing" })
+  async findOneFull(
+    @Param("clinicalCaseId") clinicalCaseId: string,
+    @GetUser() freelancer: Freelancer,
+  ) {
+    const data = await this.clinicalCaseService.findOneWithDetailsForFreelancer(
+      clinicalCaseId,
+      freelancer,
+    );
+    return {
+      meessage: "Clinical case fetched succesfully",
+      status: HttpStatus.OK,
+      data,
+    };
+  }
+
   @Get(":clinicalCaseId")
   @ApiOperation({ summary: "get one clinical case" })
   @UseGuards(AccessTokenGuard, RolesGuard)
@@ -134,16 +159,64 @@ export class ClinicalCaseController {
     return {
       meessage: "Clinical case updated succesfully",
       status: HttpStatus.OK,
+      data,
+    };
+  }
+
+  @Patch(":clinicalCaseId/mcq/:mcqId")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "update an mcq inside clinical case" })
+  async updateMcq(
+    @Param("clinicalCaseId") clinicalCaseId: string,
+    @Param("mcqId") mcqId: string,
+    @Body() updateMcqDto: UpdateMcqDto,
+    @GetUser() freelancer: Freelancer,
+  ) {
+    const data = await this.clinicalCaseService.updateMcqInClinicalCase(
+      clinicalCaseId,
+      mcqId,
+      freelancer,
+      updateMcqDto,
+    );
+    return {
+      message: "Clinical case MCQ updated succesfully",
+      status: HttpStatus.OK,
+      data,
     };
   }
 
   @Delete(":clinicalCaseId")
   @ApiOperation({ summary: "delete clinical case" })
   @UseGuards(AccessTokenGuard, RolesGuard)
-  async remove(@Param("clinicalCaseId") clinicalCaseId: string) {
-    const data = await this.clinicalCaseService.remove(clinicalCaseId);
+  @Roles(BaseRoles.FREELANCER)
+  async remove(
+    @Param("clinicalCaseId") clinicalCaseId: string,
+    @GetUser() freelancer: Freelancer,
+  ) {
+    await this.clinicalCaseService.remove(clinicalCaseId, freelancer);
     return {
       meessage: "Clinical case deleted succesfully",
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Delete(":clinicalCaseId/mcq/:mcqId")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  @ApiOperation({ summary: "remove an mcq from clinical case" })
+  async removeMcqFromCase(
+    @Param("clinicalCaseId") clinicalCaseId: string,
+    @Param("mcqId") mcqId: string,
+    @GetUser() freelancer: Freelancer,
+  ) {
+    await this.clinicalCaseService.removeMcqFromClinicalCase(
+      clinicalCaseId,
+      mcqId,
+      freelancer,
+    );
+    return {
+      message: "MCQ removed from clinical case succesfully",
       status: HttpStatus.OK,
     };
   }

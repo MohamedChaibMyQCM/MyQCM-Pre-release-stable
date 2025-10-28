@@ -10,6 +10,7 @@ import {
   type CSSProperties,
   type SVGProps,
 } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
@@ -1498,6 +1499,31 @@ export default function NewGenerationRequestPage() {
             import new questions, then polish and approve them before release.
           </p>
         </header>
+
+        <div className="flex flex-col gap-3 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm ring-1 ring-slate-100">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+              Clinical cases
+            </span>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Need to input a full clinical case manually?
+            </h2>
+            <p className="text-sm text-slate-600">
+              Switch to the dedicated builder to capture the scenario, objectives, and MCQs for a case without going through the AI workflow.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/generation/clinical-case/new"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#F8589F] to-[#E74C8C] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:shadow-lg"
+            >
+              Open the clinical case builder
+            </Link>
+            <span className="text-xs text-slate-500">
+              You can come back here at any time to resume question generation.
+            </span>
+          </div>
+        </div>
 
         <ol className="grid gap-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:grid-cols-3">
           {steps.map((step, index) => {

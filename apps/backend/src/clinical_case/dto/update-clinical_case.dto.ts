@@ -1,13 +1,19 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  IsArray,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   Min,
 } from "class-validator";
+import { FacultyType } from "src/faculty/types/enums/faculty-type.enum";
+import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
+import { McqType } from "src/mcq/dto/mcq.type";
 
 export class UpdateClinicalCaseDto {
   @ApiProperty({
@@ -70,4 +76,88 @@ export class UpdateClinicalCaseDto {
   @IsString()
   @IsNotEmpty()
   scenario: string;
+
+  @ApiPropertyOptional({
+    description: "Faculty type associated with the case",
+    enum: FacultyType,
+  })
+  @IsOptional()
+  @IsEnum(FacultyType)
+  faculty_type?: FacultyType;
+
+  @ApiPropertyOptional({
+    description: "Year of study associated with the case",
+    enum: YearOfStudy,
+  })
+  @IsOptional()
+  @IsEnum(YearOfStudy)
+  year_of_study?: YearOfStudy;
+
+  @ApiProperty({
+    description: "Updated pedagogical objectives",
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  objectives?: string[];
+
+  @ApiProperty({
+    description: "Updated tags",
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @ApiPropertyOptional({
+    description: "University id to associate with the case",
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID("4")
+  university?: string;
+
+  @ApiPropertyOptional({
+    description: "Faculty id to associate with the case",
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID("4")
+  faculty?: string;
+
+  @ApiPropertyOptional({
+    description: "Unit id to associate with the case",
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID("4")
+  unit?: string;
+
+  @ApiPropertyOptional({
+    description: "Subject id to associate with the case",
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID("4")
+  subject?: string;
+
+  @ApiPropertyOptional({
+    description: "Course id shared across MCQs",
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID("4")
+  course?: string;
+
+  @ApiPropertyOptional({
+    description: "Clinical case MCQ type (applied when adding new MCQs)",
+    enum: McqType,
+  })
+  @IsOptional()
+  @IsEnum(McqType)
+  type?: McqType;
 }

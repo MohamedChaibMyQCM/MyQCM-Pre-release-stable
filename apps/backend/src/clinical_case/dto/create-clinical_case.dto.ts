@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
   Max,
@@ -97,6 +98,30 @@ export class CreateClinicalCaseDto {
   @IsString()
   @IsNotEmpty()
   scenario: string;
+
+  @ApiProperty({
+    description: "Pedagogical objectives associated with this clinical case",
+    type: [String],
+    example: [
+      "Identifier les signes cliniques d\'un syndrome coronarien aigu inferieur.",
+      "Comprendre la strategie diagnostique initiale aux urgences.",
+    ],
+  })
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  objectives: string[];
+
+  @ApiProperty({
+    description: "Tags that categorise the clinical case",
+    type: [String],
+    example: ["Equipe pedagogique", "General"],
+    required: false,
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  tags: string[] = [];
 
   @ApiProperty({
     description: "Type of the MCQ.",

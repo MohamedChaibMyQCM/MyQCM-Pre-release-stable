@@ -6,8 +6,9 @@ import { McqType } from "src/mcq/dto/mcq.type";
 import { Subject } from "src/subject/entities/subject.entity";
 import { Unit } from "src/unit/entities/unit.entity";
 import { University } from "src/university/entities/university.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { FacultyType } from "src/faculty/types/enums/faculty-type.enum";
+import { Mcq } from "src/mcq/entities/mcq.entity";
 
 @Entity()
 export class ClinicalCase extends ChronoEntity {
@@ -36,6 +37,20 @@ export class ClinicalCase extends ChronoEntity {
 
   @Column()
   scenario: string;
+
+  @Column({
+    type: "text",
+    array: true,
+    default: () => "ARRAY[]::text[]",
+  })
+  objectives: string[];
+
+  @Column({
+    type: "text",
+    array: true,
+    default: () => "ARRAY[]::text[]",
+  })
+  tags: string[];
 
   @Column({
     type: "enum",
@@ -69,6 +84,11 @@ export class ClinicalCase extends ChronoEntity {
     onDelete: "SET NULL",
   })
   freelancer: Freelancer;
+
+  @OneToMany(() => Mcq, (mcq) => mcq.clinical_case, {
+    cascade: false,
+  })
+  mcqs: Mcq[];
 
   @Column({
     type: "smallint",

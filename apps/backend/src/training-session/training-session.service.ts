@@ -316,6 +316,38 @@ export class TrainingSessionService {
           preferredDifficulty: McqDifficulty.easy,
         });
       }
+      if (assistantNext) {
+        const [assistantWithFilters] = this.applyFiltersToMcqs(
+          [assistantNext],
+          { time_limit, randomize_options },
+        );
+        assistantNext = assistantWithFilters;
+        const existingIndex = unattempted_mcqs.data.findIndex(
+          (mcq) => mcq.id === assistantNext.id,
+        );
+        if (existingIndex >= 0) {
+          unattempted_mcqs.data[existingIndex] = assistantNext;
+        } else if (unattempted_mcqs.offset === 1) {
+          unattempted_mcqs.data = [assistantNext];
+        } else {
+          unattempted_mcqs.data = [assistantNext, ...unattempted_mcqs.data];
+        }
+        const pageSize =
+          unattempted_mcqs.offset && unattempted_mcqs.offset > 0
+            ? unattempted_mcqs.offset
+            : unattempted_mcqs.data.length || 1;
+        if (!unattempted_mcqs.offset || unattempted_mcqs.offset <= 0) {
+          unattempted_mcqs.offset = pageSize;
+        }
+        unattempted_mcqs.total = Math.max(
+          unattempted_mcqs.total,
+          unattempted_mcqs.data.length,
+        );
+        unattempted_mcqs.total_pages = Math.max(
+          1,
+          Math.ceil(unattempted_mcqs.total / pageSize),
+        );
+      }
       this.logger.log("ASSISTANT_NEXT_SET", {
         userId,
         sessionId,

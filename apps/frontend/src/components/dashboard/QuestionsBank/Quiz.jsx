@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import solver from "../../../../public/Quiz/solver.svg";
 import { Input } from "@/components/ui/input";
@@ -299,6 +299,18 @@ const Quiz = ({
     }
   };
 
+  const multiChoiceQuestion = questionData?.type === "qcm";
+  const correctOptionIds = useMemo(() => {
+    if (!questionData?.options?.length) {
+      return new Set();
+    }
+    return new Set(
+      questionData.options
+        .filter((option) => option?.is_correct)
+        .map((option) => option.id),
+    );
+  }, [questionData]);
+
   const getOptionStyling = (optionId) => {
     let classes = "border-[#EFEEFC] text-[#191919] bg-white";
     const isSelectedByUser = selectedOptions.some(
@@ -309,9 +321,7 @@ const Quiz = ({
       const selectedOptionData = answer.selected_options?.find(
         (o) => o.id == optionId
       );
-      const isCorrect = answer.correct_options?.some(
-        (co) => co.id === optionId
-      );
+      const isCorrect = correctOptionIds.has(optionId);
 
       if (selectedOptionData) {
         classes = selectedOptionData.is_correct
@@ -319,12 +329,17 @@ const Quiz = ({
           : "border-[#F64C4C] text-[#F64C4C]";
       } else {
         if (isCorrect) {
-          classes = "border-[#EFEEFC] text-[#191919] bg-white";
+          if (multiChoiceQuestion) {
+            classes =
+              "border-[#FEC84B] bg-[#FFF6DB] text-[#A45A00] shadow-sm";
+          } else {
+            classes = "border-[#47B881] text-[#47B881]";
+          }
         } else {
           classes += " pointer-events-none opacity-70";
         }
       }
-      classes += " bg-white";
+      classes += " pointer-events-none";
     } else {
       if (isSelectedByUser) {
         classes = "bg-[#FFF5FA] text-[#F8589F] border-[#F8589F]";
@@ -350,10 +365,18 @@ const Quiz = ({
         <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
       );
     } else {
-      const isCorrectUnselected = answer.correct_options?.some(
-        (co) => co.id === optionId
-      );
+      const isCorrectUnselected = correctOptionIds.has(optionId);
       if (isCorrectUnselected) {
+        if (multiChoiceQuestion) {
+          return (
+            <span className="flex items-center justify-center w-[20px] h-[20px] text-[12px] font-semibold text-[#A45A00] bg-[#FEC84B] rounded-full">
+              !
+            </span>
+          );
+        }
+        return (
+          <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
+        );
       }
     }
     return null;

@@ -257,7 +257,16 @@ export class McqService {
       mcq = await buildQuery().getOne();
     }
 
-    return mcq || null;
+    if (!mcq) {
+      return null;
+    }
+
+    const mcqWithOptions = await this.mcqRepository.findOne({
+      where: { id: mcq.id },
+      relations: ["options"],
+    });
+
+    return mcqWithOptions ?? mcq;
   }
 
   /**

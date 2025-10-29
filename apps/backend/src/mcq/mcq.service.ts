@@ -119,11 +119,34 @@ export class McqService {
       ...pagination,
     };
 
+    const { type: rawTypeFilter, ...restFilters } = filters;
+
     const qb = this.mcqRepository
       .createQueryBuilder("mcq")
-      .where(this.generateWhereClauseFromFilters(filters))
+      .where(this.generateWhereClauseFromFilters(restFilters))
       .skip((page - 1) * offset)
       .take(offset);
+
+    if (rawTypeFilter) {
+      const typeFilters = Array.isArray(rawTypeFilter)
+        ? rawTypeFilter
+        : [rawTypeFilter];
+      const normalizedTypes = typeFilters
+        .filter((value) => value != null)
+        .map((value) => value.toString().toLowerCase());
+
+      if (normalizedTypes.length > 0) {
+        const allowNullAsQcm = normalizedTypes.includes(McqType.qcm);
+        const lowerClause = "(LOWER(CAST(mcq.type AS TEXT)) IN (:...normalizedTypes))";
+        const clauses = [lowerClause];
+        if (allowNullAsQcm) {
+          clauses.push("mcq.type IS NULL");
+        }
+        qb.andWhere(`(${clauses.join(" OR ")})`, {
+          normalizedTypes,
+        });
+      }
+    }
 
     // Always load options if we need to randomize them
     const populateOptions = options?.populate || [];
@@ -803,13 +826,14 @@ export class McqService {
     );
 
     if(submitMcqAttemptDto.is_skipped){
-     const attemptResult = {
+      const attemptResult = {
         is_skipped: true,
         success_ratio: 0, // A skipped MCQ has 0 success ratio
+        is_correct: false,
         gained_xp: 0,     // No XP gained for skipping
         feedback: "MCQ skipped by user.",
         selected_options: [], // No options selected for a skipped MCQ
-        user_response: null,  // No response for a skipped MCQ
+        response: null,  // No response for a skipped MCQ
       };
       await this.progressService.createUserProgress(
         user.id,
@@ -1673,26 +1697,39 @@ export class McqService {
     } = {
       analysis: false,
     },
-  ): Promise<{ rating: number | null; feedback: string | string }> {
+  ): Promise<{
+    rating: number | null;
+    feedback: string | null;
+    isCorrect: boolean;
+  }> {
     let rating: number | null;
-    let feedback: string | string;
+    let feedback: string | null;
+    let isCorrect = false;
 
     if (mcq.type === McqType.qroc) {
-      // For qroc, if analysis is false then return null
+      const expected = this.normalizeFreeResponse(mcq.answer);
+      const received = this.normalizeFreeResponse(
+        submitMcqAttemptDto.response ?? "",
+      );
       if (!options.analysis) {
-        return {
-          rating: null,
-          feedback: null,
-        };
+        isCorrect = expected.length > 0 && received === expected;
+        rating = isCorrect ? 1 : 0;
+        feedback = isCorrect
+          ? "Correct."
+          : "La r\u00e9ponse ne correspond pas \u00e0 la correction attendue.";
+      } else {
+        const response =
+          await this.assistantService.getAssistantResponseRatingAndFeedback(
+            submitMcqAttemptDto.response,
+            mcq,
+          );
+        rating = response.rating;
+        feedback = response.feedback;
+        const assistantAffirms = (response.rating ?? 0) >= 0.9;
+        isCorrect = expected.length > 0 && received === expected
+          ? true
+          : assistantAffirms;
       }
-      // Otherwise, get the rating and feedback from the assistant service
-      const response =
-        await this.assistantService.getAssistantResponseRatingAndFeedback(
-          submitMcqAttemptDto.response,
-          mcq,
-        );
-      rating = response.rating;
-      feedback = response.feedback;
     } else if (mcq.type === McqType.qcs || mcq.type === McqType.qcm) {
       // For qcs and qcm, always calculate success ratio based on selected options
       const correctOptions = new Set(
@@ -1701,7 +1738,9 @@ export class McqService {
           .map((option) => option.id),
       );
       const selectedOptions = new Set(
-        submitMcqAttemptDto.response_options.map((option) => option.option),
+        (submitMcqAttemptDto.response_options ?? []).map(
+          (option) => option.option,
+        ),
       );
 
       const correctSelections = new Set(
@@ -1716,13 +1755,27 @@ export class McqService {
         incorrectSelections.size / mcq.options.length;
       rating = Math.max(0, Math.min(1, rating));
       feedback = this.generateFeedbackForRating(rating);
+      isCorrect =
+        correctSelections.size === correctOptions.size &&
+        incorrectSelections.size === 0;
     } else {
       throw new BadRequestException(`Unsupported MCQ type: ${mcq.type}`);
     }
     return {
       rating,
       feedback,
+      isCorrect,
     };
+  }
+
+  private normalizeFreeResponse(value?: string | null): string {
+    if (!value) return "";
+    return value
+      .toString()
+      .trim()
+      .toLocaleLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
   }
   /**
    * Generates appropriate feedback text based on the performance rating.
@@ -1805,6 +1858,7 @@ export class McqService {
       selected_options: selected_options || undefined,
       response: submitMcqAttemptDto.response,
       success_ratio: attempt_accuracy.rating,
+      is_correct: attempt_accuracy.isCorrect,
       feedback: attempt_accuracy.feedback,
       gained_xp,
     };
@@ -1822,13 +1876,15 @@ export class McqService {
     subscription: UserSubscription,
     usageType: UserSubscriptionUsageEnum,
   ) {
+    const { is_correct, ...attemptResultForProgress } = attemptResult;
+
     await this.mcqRepository.manager.transaction(async (transactionManager) => {
       // Record user progress for this MCQ attempt
       await this.progressService.createUserProgress(
         user.id,
         {
           ...submitMcqAttemptDto,
-          ...attemptResult,
+          ...attemptResultForProgress,
           gained_xp,
           mcq: mcq.id,
           unit: mcq.unit.id,
@@ -1847,6 +1903,7 @@ export class McqService {
           user.id,
           mcq,
           attemptResult.success_ratio,
+          Boolean(is_correct),
           submitMcqAttemptDto.time_spent,
           transactionManager,
         );
@@ -1870,6 +1927,7 @@ export class McqService {
     userId: string,
     mcq: any,
     accuracyRate: number,
+    wasCorrect: boolean,
     timeSpent: number,
     transactionManager: EntityManager,
   ) {
@@ -1879,7 +1937,8 @@ export class McqService {
         courseId: mcq.course.id,
       },
       {
-        accuracy_rate: accuracyRate,
+        is_correct: wasCorrect,
+        success_ratio: accuracyRate,
         type: mcq.type,
         difficulty: mcq.difficulty,
         estimated_time: mcq.estimated_time,

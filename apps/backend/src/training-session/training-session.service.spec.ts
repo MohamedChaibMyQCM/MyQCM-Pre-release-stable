@@ -1,5 +1,6 @@
 import { ModeDefiner } from '../mode/types/enums/mode-definier.enum';
 import { TrainingSessionStatus } from './types/enums/training-session.enum';
+import { McqDifficulty } from 'src/mcq/dto/mcq.type';
 import { TrainingSessionService } from './training-session.service';
 
 jest.mock('src/user/entities/user.entity', () => ({}), { virtual: true });
@@ -151,5 +152,86 @@ describe('TrainingSessionService', () => {
     const result = await service.getSessionMcqs('user1', 'session1');
     expect(result.assistantNext).toBeUndefined();
     expect(mcqService.findFallbackMcq).not.toHaveBeenCalled();
+  });
+
+  it('uses ability-derived difficulty and flags fallback when inventory empty', async () => {
+    const trainingSessionRepository = {
+      findOne: jest.fn().mockResolvedValue({
+        id: 'session1',
+        status: TrainingSessionStatus.IN_PROGRESS,
+        course: { id: 'course1' },
+        number_of_questions: 10,
+      }),
+    } as any;
+    const progressService = {
+      findProgress: jest.fn().mockResolvedValue([]),
+    } as any;
+    const adaptiveEngineService = {
+      getAdaptiveLearner: jest.fn().mockResolvedValue({
+        ability: 0.1,
+        mastery: 0.2,
+      }),
+    } as any;
+    const mcq = { id: 'mcq42', options: [] };
+    const mcqService = {
+      findMcqsPaginated: jest
+        .fn()
+        .mockResolvedValueOnce({ data: [], total: 0, page: 1, offset: 1 })
+        .mockResolvedValueOnce({ data: [mcq], total: 1, page: 1, offset: 1 }),
+      findFallbackMcq: jest.fn(),
+    } as any;
+    const userProfileService = {
+      getAuthenticatedUserProfileById: jest.fn().mockResolvedValue({
+        mode: {
+          include_qcm_definer: ModeDefiner.ASSISTANT,
+          include_qcs_definer: ModeDefiner.USER,
+          include_qroc_definer: ModeDefiner.USER,
+          time_limit_definer: ModeDefiner.USER,
+          number_of_questions_definer: ModeDefiner.USER,
+          randomize_questions_order_definer: ModeDefiner.USER,
+          randomize_options_order_definer: ModeDefiner.USER,
+          difficulty_definer: ModeDefiner.USER,
+        },
+      }),
+    } as any;
+
+    const service = new TrainingSessionService(
+      trainingSessionRepository,
+      {} as any,
+      {} as any,
+      {} as any,
+      userProfileService,
+      progressService,
+      mcqService,
+      {} as any,
+      adaptiveEngineService,
+    );
+
+    (service as any).defineTrainingSessionParams = jest
+      .fn()
+      .mockResolvedValue({});
+    const warnSpy = jest
+      .spyOn((service as any).logger, 'warn')
+      .mockImplementation(() => undefined);
+    jest
+      .spyOn((service as any).logger, 'log')
+      .mockImplementation(() => undefined);
+
+    const result = await service.getSessionMcqs('user1', 'session1');
+
+    expect(mcqService.findMcqsPaginated).toHaveBeenCalledTimes(2);
+    expect(mcqService.findMcqsPaginated.mock.calls[0][0].difficulty).toEqual(
+      McqDifficulty.easy,
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      'ADAPTIVE_DIFFICULTY_FALLBACK',
+      expect.objectContaining({
+        userId: 'user1',
+        sessionId: 'session1',
+        requestedDifficulty: McqDifficulty.easy,
+      }),
+    );
+    expect(result.difficultyFallback).toBe(true);
+    expect(result.assistantNext).toEqual(mcq);
   });
 });

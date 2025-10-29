@@ -1,23 +1,19 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityManager, Repository } from "typeorm";
-import { RedisService } from "src/redis/redis.service";
-import { RedisKeys } from "common/utils/redis-keys.util";
-import { AccuracyThresholdConfigInterface } from "shared/interfaces/accuracy-threshold-config.interface";
 import { BktParamsInterface } from "src/adaptive-engine/types/interfaces/bkt.params.interface";
 import { IrtParamsInterface } from "./types/interfaces/irt-params.interface";
 import { IrtMapInterface } from "./types/interfaces/irt-map.interface";
 import { McqDifficulty, McqType } from "src/mcq/dto/mcq.type";
 import { AdaptiveLearner } from "./entities/adaptive-learner.entity";
 import { CreateNewAdaptiveLearnerInterface } from "./types/interfaces/create-new-adaptive-learner.interface";
-import { DefaultBktParamsConfig } from "config/default-bkt-params.config";
+import { DefaultBktParamsConfig } from "../../config/default-bkt-params.config";
 
 @Injectable()
 export class AdaptiveEngineService {
   constructor(
     @InjectRepository(AdaptiveLearner)
     private readonly adaptiveLearnerRepository: Repository<AdaptiveLearner>,
-    private readonly redisService: RedisService,
   ) {}
   private readonly logger = new Logger(AdaptiveEngineService.name);
   private readonly USE_CORRECTED_BKT = process.env.FF_BKT_CORRECTED === "true";
@@ -102,7 +98,8 @@ export class AdaptiveEngineService {
   async updateAdaptiveLearner(
     params: { userId: string; courseId: string },
     options: {
-      accuracy_rate: number;
+      is_correct: boolean;
+      success_ratio: number | null;
       type: McqType;
       difficulty: McqDifficulty;
       estimated_time: number;
@@ -122,14 +119,19 @@ export class AdaptiveEngineService {
     const new_bkt_mastery = await this.calculateBkt(
       adaptive_learner,
       { guessing_probability, slipping_probability, learning_rate },
-      options.accuracy_rate,
+      {
+        isCorrect: options.is_correct,
+        accuracy: options.success_ratio,
+      },
     );
+    adaptive_learner.mastery = Math.min(1, Math.max(0, new_bkt_mastery));
 
     // Calculate IRT parameters and new ability score
     const irtParams = await this.mapIrtValues(options);
     const new_irt_ability = await this.calculateIrt(
       adaptive_learner,
       irtParams,
+      options.is_correct,
     );
     adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
 
@@ -144,20 +146,24 @@ export class AdaptiveEngineService {
    * Calculates updated mastery using Bayesian Knowledge Tracing model
    * @param learner Current adaptive learner state
    * @param bktParams BKT model parameters
-   * @param accuracy_rate Student's accuracy rate on the question
+   * @param observation Observation metadata (isCorrect flag + optional accuracy signal)
    * @returns Updated mastery value
    */
   async calculateBkt(
     learner: AdaptiveLearner,
     bktParams: BktParamsInterface,
-    accuracy_rate: number | null,
+    observation: { isCorrect: boolean; accuracy?: number | null },
   ): Promise<number> {
+    const { isCorrect } = observation;
+    const accuracy_rate =
+      observation.accuracy != null && !Number.isNaN(observation.accuracy)
+        ? observation.accuracy
+        : isCorrect
+        ? 1
+        : 0;
+
     // Legacy path (FF off): preserve behavior, but avoid overriding legitimate zeros
     if (!this.USE_CORRECTED_BKT) {
-      if (accuracy_rate === null || isNaN(accuracy_rate as any)) {
-        accuracy_rate = 0;
-      }
-
       let { slipping_probability, guessing_probability, learning_rate } = bktParams;
       const { mastery } = learner;
 
@@ -171,13 +177,6 @@ export class AdaptiveEngineService {
         learning_rate = DefaultBktParamsConfig.learning_rate;
       }
       const p_learn_temp = mastery + (1 - mastery) * learning_rate;
-
-      const { correct_threshold } = (await this.redisService.get(
-        RedisKeys.getRedisAccuracyThresholdConfig(),
-        true,
-      )) as AccuracyThresholdConfigInterface;
-
-      const isCorrect = accuracy_rate > correct_threshold;
 
       const updatedMastery = ((): number => {
         if (isCorrect) {
@@ -210,17 +209,12 @@ export class AdaptiveEngineService {
     );
     const t = clamp01(learning_rate ?? DefaultBktParamsConfig.learning_rate);
 
-    const { correct_threshold } = (await this.redisService.get(
-      RedisKeys.getRedisAccuracyThresholdConfig(),
-      true,
-    )) as AccuracyThresholdConfigInterface;
-
     if (accuracy_rate == null || Number.isNaN(accuracy_rate)) {
       this.logger.debug("BKT skip: null/NaN accuracy_rate");
       return pL0;
     }
 
-    const correct = accuracy_rate >= correct_threshold;
+    const correct = isCorrect;
     const pC = pL0 * (1 - s) + (1 - pL0) * g;
     const pI = pL0 * s + (1 - pL0) * (1 - g);
     const post = correct
@@ -273,11 +267,13 @@ export class AdaptiveEngineService {
    * Calculates updated ability using Item Response Theory model
    * @param learner Current adaptive learner state
    * @param irtParams IRT model parameters
+   * @param isCorrect Whether the last attempt was correct
    * @returns Updated ability value
    */
   async calculateIrt(
     learner: AdaptiveLearner,
     irtParams: IrtParamsInterface,
+    isCorrect: boolean,
   ): Promise<number> {
     const { ability } = learner;
     const { difficulty, discrimination, guessing } = irtParams;
@@ -287,7 +283,11 @@ export class AdaptiveEngineService {
 
     // For a 3PL model including the guessing parameter:
     const probability = guessing + (1 - guessing) / (1 + Math.exp(exponent));
-    // Clamp to valid probability range
-    return Math.min(1, Math.max(0, probability));
+    const response = isCorrect ? 1 : 0;
+    const learningRate = 0.1;
+    const delta = discrimination * (response - probability) * learningRate;
+    const updatedAbility = ability + delta;
+    // Clamp to valid range
+    return Math.min(1, Math.max(0, updatedAbility));
   }
 }

@@ -258,6 +258,7 @@ export class TrainingSessionService {
       difficultyFilter = McqDifficulty.hard;
     }
 
+    let difficultyFallback = false;
     let unattempted_mcqs = await this.mcqService.findMcqsPaginated(
       {
         course: session.course.id,
@@ -269,6 +270,12 @@ export class TrainingSessionService {
       { randomize, populate: ["options"] },
     );
     if (unattempted_mcqs.data.length === 0) {
+      difficultyFallback = true;
+      this.logger.warn("ADAPTIVE_DIFFICULTY_FALLBACK", {
+        userId,
+        sessionId,
+        requestedDifficulty: difficultyFilter,
+      });
       unattempted_mcqs = await this.mcqService.findMcqsPaginated(
         {
           course: session.course.id,
@@ -370,6 +377,10 @@ export class TrainingSessionService {
       ...unattempted_mcqs,
       is_final,
     } as any;
+
+    if (difficultyFallback) {
+      result.difficultyFallback = true;
+    }
 
     if (isAssistantMode) {
       result.assistantNext = assistantNext;

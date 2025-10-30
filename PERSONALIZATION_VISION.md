@@ -208,4 +208,4 @@ The maturity ladder now spans multiple tracks. Levels 0-6 cover the engine core;
 
 Each track level includes documented architecture decisions, automated tests, evaluation metrics, and a rollout plan with feature flags and rollback procedures.
 
-_Prepared October 2025_
+_Prepared October 2025_ by chaib mohamed 

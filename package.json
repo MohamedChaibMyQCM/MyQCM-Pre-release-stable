@@ -7,12 +7,52 @@
     "dev": "concurrently \"npm:dev-frontend\" \"npm:dev-backend\"",
     "dev-frontend": "npm run dev --prefix apps/frontend",
     "dev-backend": "npm run start:dev --prefix apps/backend",
-    "install-deps": "npm install && npm install --prefix apps/backend && npm install --prefix apps/frontend"
+    "install-deps": "npm install && npm install --prefix apps/backend && npm install --prefix apps/frontend",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "npm run lint --prefix apps/backend",
+    "lint:frontend": "npm run lint --prefix apps/frontend",
+    "format": "npm run format:backend && npm run format:frontend",
+    "format:backend": "npm run format --prefix apps/backend",
+    "format:frontend": "prettier --write \"apps/frontend/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "npm run format:check:backend && prettier --check \"apps/frontend/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check:backend": "npm run format --prefix apps/backend",
+    "type-check": "npm run type-check:backend && npm run type-check:frontend",
+    "type-check:backend": "cd apps/backend && npx tsc --noEmit",
+    "type-check:frontend": "cd apps/frontend && npx tsc --noEmit",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "npm run build --prefix apps/backend",
+    "build:frontend": "npm run build --prefix apps/frontend",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "npm run test --prefix apps/backend",
+    "test:frontend": "npm run test --if-present --prefix apps/frontend",
+    "prepare": "husky",
+    "pre-commit": "lint-staged"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0"
+  },
+  "lint-staged": {
+    "apps/backend/**/*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "apps/frontend/**/*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

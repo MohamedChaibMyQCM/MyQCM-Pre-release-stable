@@ -1,29 +1,52 @@
-Effective Date: ##
-Licenso: Ahmed Yassine Zeraibi ("Developer")
-Licensee: Rayane Boucheraine ("Client")
-Company: MYQCM Aljazayr ("Company")
+MYQCM PROPRIETARY LICENSE AGREEMENT
+Version 2025.10
 
-1. Grant of License
-    The Developer grants the Client a non-exclusive, non-transferable license to use, modify, and deploy the provided NestJS backend source code for MYQCM Aljazayr's business operations only.
+Effective Date: October 1, 2025
 
-2. Ownership & Intellectual Property
-    The Developer retains full ownership of the source code and all intellectual property rights. The Client may not resell, sublicense, or distribute the source code without the Developer’s written consent.
+Owner: CHAIB MOHAMED SAYF ELISLAM, Founder & Chief Executive Officer of MyQCM
+
+1. Ownership and Intellectual Property
+   1.1 All platforms, source code, models, data assets, documentation, and derivative works shipped under the MyQCM brand (collectively, the “MyQCM Technology”) are the exclusive property of CHAIB MOHAMED SAYF ELISLAM.
+   1.2 No transfer of ownership or intellectual property rights is granted by this agreement. Any rights not expressly granted are reserved.
+
+2. License Grant
+   2.1 Subject to compliance with this agreement, selected personnel and contractors may access and use the MyQCM Technology solely for internal development, testing, and operations required to deliver MyQCM products and services.
+   2.2 This license is non-transferable, non-sublicensable, and revocable at will by the Owner.
 
 3. Restrictions
-    The Client must not:
+   3.1 Licensees must not distribute, publish, disclose, sell, lease, or otherwise make the MyQCM Technology available to unauthorized parties.
+   3.2 Reverse engineering, decompiling, or attempting to derive source code from compiled binaries is prohibited unless expressly authorized in writing by the Owner.
+   3.3 All use of the MyQCM Technology must comply with applicable law, ethical standards for health-education products, and internal security policies issued by the Owner.
 
-        Use the source code for any other projects outside MYQCM Aljazayr.
-        Distribute or make the source code publicly available.
-        Claim ownership of the code or remove any author credits.
+4. Contributions and Credit
+   4.1 The following collaborators contributed to this repository in the roles indicated:
+       - Rayane Bouchrain - Frontend Developer
+       - Ahmed Yassine Zeraibi - Backend Developer (Beta Phase)
+   4.2 All contributions, whether authored by the individuals listed above or by subsequent collaborators, are “work made for hire” for the benefit of the Owner. If any contribution does not qualify as work made for hire, the contributor hereby assigns all rights, title, and interest in such contribution to the Owner without additional consideration.
+   4.3 Contributors shall execute any additional documents reasonably requested by the Owner to confirm ownership and intellectual property assignments.
 
-4. Support & Maintenance
+5. Confidentiality
+   5.1 The MyQCM Technology and any related roadmap, business, or customer information constitute confidential information.
+   5.2 Licensees must implement commercially reasonable safeguards to prevent unauthorized access and promptly notify the Owner of any suspected breach.
 
-    Bug Fixes: Free for 6 months.
-    Feature Updates: Negotiated separately.
-    Additional Support:Negotiated separately.
+6. Support and Maintenance
+   6.1 The Owner may provide guidance, bug fixes, or enhancements at their sole discretion. No service-level commitments are implied unless executed in a separate written agreement.
 
-5. Liability & Warranty Disclaimer
-    The software is provided "as is" without any warranties. The Developer is not responsible for any issues, damages, or financial losses resulting from its use.
+7. Warranty Disclaimer and Liability
+   7.1 The MyQCM Technology is provided “AS IS” without warranties of any kind, whether express, implied, statutory, or otherwise.
+   7.2 To the maximum extent permitted by law, the Owner disclaims all implied warranties, including merchantability, fitness for a particular purpose, and non-infringement.
+   7.3 The Owner shall not be liable for any indirect, incidental, consequential, special, or exemplary damages arising out of or in connection with this agreement, even if advised of the possibility of such damages.
 
-6. Termination
-    This license remains valid indefinitely unless the Client violates the terms. If breached, the Developer has the right to terminate this license immediately.
+8. Termination
+   8.1 The license automatically terminates upon breach of any term of this agreement or upon written notice from the Owner.
+   8.2 Upon termination, licensees must cease all use of the MyQCM Technology and return or destroy all copies, notes, and derivatives in their possession within five (5) business days.
+
+9. Governing Law and Venue
+   9.1 This agreement is governed by the laws of the People’s Democratic Republic of Algeria without regard to conflict-of-law provisions.
+   9.2 Any dispute shall be resolved exclusively in the competent courts of Algiers, and licensees consent to personal jurisdiction therein.
+
+10. Entire Agreement
+    10.1 This document constitutes the entire agreement concerning the MyQCM Technology and supersedes all prior communications relating to its subject matter.
+    10.2 Any amendment or waiver must be executed in writing and signed by CHAIB MOHAMED SAYF ELISLAM.
+
+BY ACCESSING OR USING THE MYQCM TECHNOLOGY, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS AGREEMENT, UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS.

@@ -4,6 +4,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import * as nodemailer from "nodemailer";
 import { BasicEmailInterface } from "./types/basic-email.interface";
 import * as path from "path";
+import * as fs from "fs";
 import * as ejs from "ejs";
 import { WelcomeEmail } from "./types/welcome-email.interface";
 import { NewLoginEmail } from "./types/new-login-email.interface";
@@ -139,6 +140,24 @@ export class MailService {
       throw new Error(`Error sending consume activation card email: ${error}`);
     }
   }
+  private resolveTemplatePath(template_name: string): string {
+    const candidateDirs = [
+      path.resolve(__dirname, "..", "..", "templates"),
+      path.resolve(__dirname, "..", "..", "..", "templates"),
+    ];
+
+    for (const dir of candidateDirs) {
+      const filePath = path.join(dir, `${template_name}.template.ejs`);
+      if (fs.existsSync(filePath)) {
+        return filePath;
+      }
+    }
+
+    throw new Error(
+      `Template ${template_name} not found. Looked in: ${candidateDirs.join(", ")}`,
+    );
+  }
+
   private async renderTemplate(
     template_name: string,
     data:
@@ -149,12 +168,7 @@ export class MailService {
       | TrainingSessionReminderEmail
       | IConsumeActivationCardEmail,
   ): Promise<string> {
-    const template_path = path.join(
-      __dirname,
-      "../..",
-      "templates",
-      `${template_name}.template.ejs`,
-    );
+    const template_path = this.resolveTemplatePath(template_name);
     return ejs.renderFile(template_path, data);
   }
 }

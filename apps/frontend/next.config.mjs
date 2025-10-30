@@ -1,10 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["server.myqcmdz.com", "localhost", "res.cloudinary.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "server.myqcmdz.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
   },
   // Add this to ensure font optimization
-  optimizeFonts: true, // ← This is key for next/font
+  optimizeFonts: true,
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.(mp4|webm|mov)$/,

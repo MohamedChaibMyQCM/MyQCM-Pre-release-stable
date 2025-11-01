@@ -25,6 +25,7 @@ import { GetUser } from "common/decorators/auth/get-user.decorator";
 import { UpdateMcqDto } from "src/mcq/dto/update-mcq.dto";
 import { JwtPayload } from "src/auth/types/interfaces/payload.interface";
 import { UserSubscriptionService } from "src/user/services/user-subscription.service";
+import { UserProfileService } from "src/user/services/user-profile.service";
 
 @ApiTags("Clinical Case")
 @Controller("clinical-case")
@@ -32,6 +33,7 @@ export class ClinicalCaseController {
   constructor(
     private readonly clinicalCaseService: ClinicalCaseService,
     private readonly userSubscriptionService: UserSubscriptionService,
+    private readonly userProfileService: UserProfileService,
   ) {}
 
   @Post()
@@ -116,7 +118,14 @@ export class ClinicalCaseController {
       );
     }
 
-    const data = await this.clinicalCaseService.findAll(parsedPage, parsedLimit);
+    const userProfile =
+      await this.userProfileService.getAuthenticatedUserProfileById(user.id);
+
+    const data = await this.clinicalCaseService.findAll(
+      parsedPage,
+      parsedLimit,
+      { year_of_study: userProfile.year_of_study },
+    );
     return {
       message: "Catalogue clinique récupéré avec succès",
       status: HttpStatus.OK,

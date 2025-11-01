@@ -13,6 +13,7 @@ import { endOfDay, startOfDay } from "date-fns";
 import { Freelancer } from "src/freelancer/entities/freelancer.entity";
 import { CreateMcqInClinicalCase } from "src/mcq/dto/create-mcq.dto";
 import { UpdateMcqDto } from "src/mcq/dto/update-mcq.dto";
+import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
 
 @Injectable()
 export class ClinicalCaseService {
@@ -94,9 +95,16 @@ export class ClinicalCaseService {
     );
   }
 
-  async findAll(page: number = 1, limit: number = 20) {
+  async findAll(
+    page: number = 1,
+    limit: number = 20,
+    filters?: { year_of_study?: YearOfStudy },
+  ) {
     const [clincal_cases, total] =
       await this.clinicalCaseRepository.findAndCount({
+        where: filters?.year_of_study
+          ? { year_of_study: filters.year_of_study }
+          : undefined,
         take: limit,
         skip: (page - 1) * limit,
       });

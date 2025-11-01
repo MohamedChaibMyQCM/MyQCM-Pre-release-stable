@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import BaseUrl from "../BaseUrl";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Notification = ({ onClose, notifications = [] }) => {
   const [loading, setLoading] = useState(false);
@@ -78,32 +79,22 @@ const Notification = ({ onClose, notifications = [] }) => {
   };
 
   const getNotificationIcon = (type) => {
-    switch (type) {
-      case "welcome":
-        return "🎉";
-      case "learning_reminder":
-      case "reminder":
-        return "⏰";
-      case "streak_reminder":
-        return "🔥";
-      case "daily_revision":
-        return "📚";
-      case "new_content":
-        return "📢";
-      case "subscription_renewal_reminder":
-      case "subscription_expired":
-        return "💳";
-      case "subscription_payment_success":
-        return "✅";
-      case "subscription_payment_failure":
-        return "❌";
-      case "system_alert":
-        return "⚠️";
-      case "password_changed":
-        return "🔒";
-      default:
-        return "📬";
-    }
+    const iconMap = {
+      welcome: { emoji: "🎉", bg: "bg-purple-50" },
+      learning_reminder: { emoji: "⏰", bg: "bg-blue-50" },
+      reminder: { emoji: "⏰", bg: "bg-blue-50" },
+      streak_reminder: { emoji: "🔥", bg: "bg-orange-50" },
+      daily_revision: { emoji: "📚", bg: "bg-green-50" },
+      new_content: { emoji: "📢", bg: "bg-yellow-50" },
+      subscription_renewal_reminder: { emoji: "💳", bg: "bg-purple-50" },
+      subscription_expired: { emoji: "💳", bg: "bg-red-50" },
+      subscription_payment_success: { emoji: "✅", bg: "bg-green-50" },
+      subscription_payment_failure: { emoji: "❌", bg: "bg-red-50" },
+      system_alert: { emoji: "⚠️", bg: "bg-yellow-50" },
+      password_changed: { emoji: "🔒", bg: "bg-gray-50" },
+      default: { emoji: "📬", bg: "bg-gray-50" },
+    };
+    return iconMap[type] || iconMap.default;
   };
 
   const formatDate = (dateString) => {
@@ -143,133 +134,150 @@ const Notification = ({ onClose, notifications = [] }) => {
   };
 
   return (
-    <div
+    <motion.div
       ref={notificationRef}
-      className="absolute top-[60px] right-[20%] w-[340px] bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] max-h-96 overflow-hidden max-xl:top-9 max-xl:right-[-30px] max-xl:w-[calc(100vw-2rem)] max-xl:max-w-[340px] max-md:right-[-1px]"
-      style={{
-        boxShadow:
-          "0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05) inset",
-      }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.2 }}
+      className="absolute top-[60px] right-[20%] w-[360px] bg-white rounded-[16px] shadow-lg border border-gray-200 z-[9999] max-h-[500px] overflow-hidden max-xl:top-9 max-xl:right-[-30px] max-xl:w-[calc(100vw-2rem)] max-xl:max-w-[360px] max-md:right-[-1px]"
     >
-      <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-        <h3 className="font-semibold text-gray-900 text-lg">Notifications</h3>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-2.5">
+          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+          </svg>
+          <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
+          {notifications.filter(n => n.status === "pending").length > 0 && (
+            <span className="px-1.5 py-0.5 bg-[#F8589F] text-white text-[10px] font-medium rounded-full min-w-[18px] text-center">
+              {notifications.filter(n => n.status === "pending").length}
+            </span>
+          )}
+        </div>
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-full hover:bg-gray-100"
+          className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-md hover:bg-gray-50"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <div className="overflow-y-auto max-h-80">
+      {/* Notifications List */}
+      <div className="overflow-y-auto max-h-[400px]">
         {notifications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <div className="mb-4 text-5xl opacity-50">📭</div>
-            <p className="text-sm font-medium text-gray-600">
-              Aucune notification
-            </p>
+          <div className="p-12 text-center">
+            <div className="mb-3 text-4xl opacity-30">📭</div>
+            <p className="text-sm font-medium text-gray-600">Aucune notification</p>
             <p className="text-xs text-gray-400 mt-1">Vous êtes à jour !</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                onClick={() =>
-                  notification.status === "pending" &&
-                  markAsRead(notification.id)
-                }
-                className={`p-4 transition-all duration-200 hover:bg-gray-50 ${
-                  notification.status === "pending"
-                    ? "bg-blue-50/50 border-l-2 border-l-blue-400 cursor-pointer"
-                    : "hover:bg-gray-25"
-                } ${loadingItems[notification.id] ? "opacity-70" : ""}`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 text-xl mt-0.5">
-                    {getNotificationIcon(notification.notification_type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2 gap-2">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {getNotificationTypeLabel(
-                          notification.notification_type
-                        )}
-                      </p>
-                      <div className="flex items-center space-x-2">
-                        {notification.status === "pending" && (
-                          <div
-                            className={`w-2 h-2 bg-blue-500 rounded-full ${
-                              loadingItems[notification.id]
-                                ? ""
-                                : "animate-pulse"
-                            }`}
-                          ></div>
-                        )}
-                        <p className="text-xs text-gray-500 font-medium">
-                          {formatDate(notification.createdAt)}
-                        </p>
-                      </div>
+          <AnimatePresence>
+            {notifications.map((notification) => {
+              const iconData = getNotificationIcon(notification.notification_type);
+              const isPending = notification.status === "pending";
+
+              return (
+                <motion.div
+                  key={notification.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() =>
+                    isPending &&
+                    !loadingItems[notification.id] &&
+                    markAsRead(notification.id)
+                  }
+                  className={`p-3.5 border-b border-gray-50 last:border-b-0 transition-colors ${
+                    isPending
+                      ? "bg-[#F8589F]/[0.03] hover:bg-[#F8589F]/[0.06] cursor-pointer"
+                      : "hover:bg-gray-50/50"
+                  } ${loadingItems[notification.id] ? "opacity-50" : ""}`}
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Icon */}
+                    <div className={`flex-shrink-0 w-9 h-9 rounded-lg ${iconData.bg} flex items-center justify-center text-base`}>
+                      {iconData.emoji}
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed mb-2">
-                      {notification.content}
-                    </p>
-                    {notification.link && (
-                      <a
-                        href={notification.link}
-                        className="inline-flex items-center mt-2 text-xs text-blue-600 hover:text-blue-800 transition-colors font-medium"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Voir plus
-                        <svg
-                          className="w-3 h-3 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+
+                    <div className="flex-1 min-w-0">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-1 gap-2">
+                        <p className="text-[13px] font-semibold text-gray-900">
+                          {getNotificationTypeLabel(notification.notification_type)}
+                        </p>
+                        <div className="flex items-center gap-1.5">
+                          {isPending && !loadingItems[notification.id] && (
+                            <div className="w-1.5 h-1.5 bg-[#F8589F] rounded-full"></div>
+                          )}
+                          <p className="text-[11px] text-gray-500 whitespace-nowrap">
+                            {formatDate(notification.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <p className="text-[13px] text-gray-600 leading-relaxed">
+                        {notification.content}
+                      </p>
+
+                      {/* Link */}
+                      {notification.link && (
+                        <a
+                          href={notification.link}
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] text-[#F8589F] hover:text-[#d94a87] transition-colors font-medium"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </a>
-                    )}
+                          Voir plus
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      )}
+
+                      {/* Loading indicator */}
+                      {loadingItems[notification.id] && (
+                        <div className="mt-2 flex items-center gap-2 text-[11px] text-gray-500">
+                          <div className="w-3 h-3 border-2 border-[#F8589F] border-t-transparent rounded-full animate-spin"></div>
+                          <span>Marquage...</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         )}
       </div>
 
+      {/* Footer */}
       {notifications.length > 0 && (
-        <div className="p-3 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+        <div className="px-3 py-2.5 border-t border-gray-100 bg-gray-50/50">
           <button
-            className={`w-full text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium py-1 px-2 rounded hover:bg-gray-100 ${
-              loading ? "opacity-70 cursor-not-allowed" : ""
+            className={`w-full text-xs font-medium py-2 px-3 rounded-[10px] transition-all ${
+              loading
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-[#F8589F] text-white hover:bg-[#d94a87]"
             }`}
             onClick={markAllAsRead}
             disabled={loading}
           >
-            {loading ? "Traitement..." : "Marquer tout comme lu"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                Traitement...
+              </span>
+            ) : (
+              "Marquer tout comme lu"
+            )}
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

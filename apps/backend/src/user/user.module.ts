@@ -25,6 +25,9 @@ import { UserNotificationSettingsController } from "./controllers/user-notificat
 import { UserNotificationSettingsService } from "./services/user-notification-settings.service";
 import { UserNotificationSettings } from "./entities/user-notification-settings.entity";
 import { NotificationModule } from "src/notification/notification.module";
+import { UserAlphaActivity } from "./entities/user-alpha-activity.entity";
+import { UserAlphaActivityService } from "./services/user-alpha-activity.service";
+import { UserAlphaActivityController } from "./controllers/user-alpha-activity.controller";
 
 @Module({
   imports: [
@@ -36,6 +39,7 @@ import { NotificationModule } from "src/notification/notification.module";
       UserXp,
       UserSubscription,
       UserNotificationSettings,
+      UserAlphaActivity,
     ]),
     RedisModule,
     QueueModule,
@@ -49,6 +53,7 @@ import { NotificationModule } from "src/notification/notification.module";
     UserXpController,
     UserSubscriptionController,
     UserNotificationSettingsController,
+    UserAlphaActivityController,
   ],
   providers: [
     UserService,
@@ -58,6 +63,7 @@ import { NotificationModule } from "src/notification/notification.module";
     UserXpService,
     UserSubscriptionService,
     UserNotificationSettingsService,
+    UserAlphaActivityService,
   ],
   exports: [
     UserService,
@@ -67,6 +73,7 @@ import { NotificationModule } from "src/notification/notification.module";
     UserXpService,
     UserSubscriptionService,
     UserNotificationSettingsService,
+    UserAlphaActivityService,
   ],
 })
 export class UserModule {}

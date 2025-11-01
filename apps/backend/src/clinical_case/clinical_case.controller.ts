@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpStatus,
   Query,
+  ForbiddenException,
 } from "@nestjs/common";
 import { ClinicalCaseService } from "./clinical_case.service";
 import { CreateClinicalCaseDto } from "./dto/create-clinical_case.dto";
@@ -22,11 +23,16 @@ import { Freelancer } from "src/freelancer/entities/freelancer.entity";
 import { CreateMcqInClinicalCase } from "src/mcq/dto/create-mcq.dto";
 import { GetUser } from "common/decorators/auth/get-user.decorator";
 import { UpdateMcqDto } from "src/mcq/dto/update-mcq.dto";
+import { JwtPayload } from "src/auth/types/interfaces/payload.interface";
+import { UserSubscriptionService } from "src/user/services/user-subscription.service";
 
 @ApiTags("Clinical Case")
 @Controller("clinical-case")
 export class ClinicalCaseController {
-  constructor(private readonly clinicalCaseService: ClinicalCaseService) {}
+  constructor(
+    private readonly clinicalCaseService: ClinicalCaseService,
+    private readonly userSubscriptionService: UserSubscriptionService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "create new clinical case" })
@@ -77,9 +83,42 @@ export class ClinicalCaseController {
   @ApiQuery({ name: "page", required: false })
   @UseGuards(AccessTokenGuard, RolesGuard)
   async findAll(@Query("limit") limit: number, @Query("page") page: number) {
-    const data = await this.clinicalCaseService.findAll(page, limit);
+    const parsedLimit = Number.isFinite(Number(limit)) ? Number(limit) : 20;
+    const parsedPage = Number.isFinite(Number(page)) ? Number(page) : 1;
+    const data = await this.clinicalCaseService.findAll(parsedPage, parsedLimit);
     return {
       meessage: "Clinical cases fetched succesfully",
+      status: HttpStatus.OK,
+      data,
+    };
+  }
+
+  @Get("catalog")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @ApiQuery({ name: "limit", required: false })
+  @ApiQuery({ name: "page", required: false })
+  @ApiOperation({
+    summary: "Get catalog of clinical cases available for alpha users",
+  })
+  async getCatalog(
+    @GetUser() user: JwtPayload,
+    @Query("limit") limit: number,
+    @Query("page") page: number,
+  ) {
+    const parsedLimit = Number.isFinite(Number(limit)) ? Number(limit) : 20;
+    const parsedPage = Number.isFinite(Number(page)) ? Number(page) : 1;
+    const subscription =
+      await this.userSubscriptionService.findUserCurrentSubscription(user.id);
+
+    if (!subscription?.plan?.is_alpha) {
+      throw new ForbiddenException(
+        "Votre abonnement ne donne pas accès aux fonctionnalités Labs.",
+      );
+    }
+
+    const data = await this.clinicalCaseService.findAll(parsedPage, parsedLimit);
+    return {
+      message: "Catalogue clinique récupéré avec succès",
       status: HttpStatus.OK,
       data,
     };

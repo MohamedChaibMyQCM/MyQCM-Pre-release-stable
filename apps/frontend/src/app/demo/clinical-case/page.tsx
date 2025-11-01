@@ -14,10 +14,16 @@ import { QuizImage } from "@/data/data";
 import { CaseIntroCard } from "./components/CaseIntroCard";
 import { CaseSidebar } from "./components/CaseSidebar";
 import { CaseCompletionCard } from "./components/CaseCompletionCard";
+import { CaseFeedbackModal } from "./components/CaseFeedbackModal";
+import { AlphaXpExplanationModal } from "./components/AlphaXpExplanationModal";
+import { AlphaXpRewardsModal } from "./components/AlphaXpRewardsModal";
 import Quiz from "@/components/dashboard/QuestionsBank/Quiz";
+import EndSeasonPopup from "@/components/dashboard/QuestionsBank/EndSeasonPopup";
 import { Button } from "./ui/Button";
 import { COLORS } from "./ui/colors";
-import { UnauthorizedError, apiFetch } from "@/app/lib/api";
+import BaseUrl from "@/components/BaseUrl";
+import { isAxiosError } from "axios";
+import { useUserSubscription } from "@/hooks/useUserSubscription";
 
 type PrototypeOption = {
   id: string;
@@ -56,8 +62,23 @@ type CasePickerOption = {
   subtitle?: string | null;
 };
 
+type AlphaXpRewardSummary = {
+  total_xp_earned: number;
+  testing_xp: number;
+  time_spent_xp: number;
+  feedback_quality_xp: number;
+  time_spent_minutes: number;
+  breakdown: {
+    testing: string;
+    timeSpent: string;
+    feedbackQuality: string;
+  };
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const DEMO_ID = "demo";
+const ALPHA_FEATURE_ID = "clinical-case-demo";
+const ALPHA_FEATURE_NAME = "Cas clinique interactif";
 
 const emitTelemetry = (event: string, detail: Record<string, unknown>) => {
   if (typeof window !== "undefined") {
@@ -94,6 +115,11 @@ export default function ClinicalCaseDemoPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const {
+    data: subscription,
+    isLoading: isSubscriptionLoading,
+  } = useUserSubscription();
+  const isAlphaSubscriber = Boolean(subscription?.plan?.is_alpha);
 
   const [caseIdentifier, setCaseIdentifier] = useState<string>(() => {
     const param = searchParams.get("caseId");
@@ -117,6 +143,118 @@ export default function ClinicalCaseDemoPage() {
     },
   ]);
   const [loadingCaseOptions, setLoadingCaseOptions] = useState(false);
+  const [showEndSessionModal, setShowEndSessionModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [alphaActivityId, setAlphaActivityId] = useState<string | null>(null);
+  const [alphaSessionLoading, setAlphaSessionLoading] = useState(false);
+  const [alphaAcknowledged, setAlphaAcknowledged] = useState(false);
+  const [showXpExplanation, setShowXpExplanation] = useState(false);
+  const [showXpRewards, setShowXpRewards] = useState(false);
+  const [xpRewards, setXpRewards] = useState<AlphaXpRewardSummary | null>(null);
+  const [hasCheckedAlphaCompletion, setHasCheckedAlphaCompletion] = useState(false);
+  const navigateToDashboard = useCallback(() => {
+    router.push("/dashboard");
+  }, [router]);
+  const startAlphaSession = useCallback(async () => {
+    if (
+      !isAlphaSubscriber ||
+      alphaActivityId ||
+      alphaSessionLoading ||
+      caseIdentifier !== DEMO_ID
+    ) {
+      return;
+    }
+    setAlphaSessionLoading(true);
+    try {
+      const response = await BaseUrl.post("/user/alpha-activity/start", {
+        feature_id: ALPHA_FEATURE_ID,
+        feature_name: ALPHA_FEATURE_NAME,
+      });
+      const activityId = response.data?.data?.activity_id;
+      if (activityId) {
+        setAlphaActivityId(activityId);
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Failed to start alpha session:", err);
+      }
+    } finally {
+      setAlphaSessionLoading(false);
+    }
+  }, [alphaActivityId, alphaSessionLoading, caseIdentifier, isAlphaSubscriber]);
+  const proceedToStartCase = useCallback(() => {
+    setShowIntro(false);
+    setSidebarVisible(true);
+    setAnswer(null);
+    void startAlphaSession();
+    const total = caseData?.mcqs.length ?? 0;
+    emitTelemetry("case_started", {
+      caseId: caseIdentifier,
+      totalQuestions: total,
+    });
+  }, [caseData, caseIdentifier, startAlphaSession]);
+  const handleAlphaModalStart = useCallback(() => {
+    setAlphaAcknowledged(true);
+    setShowXpExplanation(false);
+    proceedToStartCase();
+  }, [proceedToStartCase]);
+  const handleAlphaModalClose = useCallback(() => {
+    setAlphaAcknowledged(true);
+    setShowXpExplanation(false);
+  }, []);
+  const handleRewardsModalClose = useCallback(() => {
+    setShowXpRewards(false);
+    setXpRewards(null);
+    navigateToDashboard();
+  }, [navigateToDashboard]);
+  const handleFeedbackClose = useCallback(() => {
+    setShowFeedbackModal(false);
+    setAlphaActivityId(null);
+    navigateToDashboard();
+  }, [navigateToDashboard]);
+  const handleFeedbackSkip = useCallback(() => {
+    setShowFeedbackModal(false);
+    setAlphaActivityId(null);
+    navigateToDashboard();
+  }, [navigateToDashboard]);
+  const handleFeedbackSubmitted = useCallback(
+    async ({ rating, review }: { rating: number; review: string }) => {
+      setShowFeedbackModal(false);
+      if (!alphaActivityId) {
+        navigateToDashboard();
+        return;
+      }
+      try {
+        const response = await BaseUrl.post(
+          "/user/alpha-activity/complete",
+          {
+            activity_id: alphaActivityId,
+            rating,
+            feedback_text: review ? review : undefined,
+          },
+        );
+        const rewardsPayload =
+          (response.data?.data as AlphaXpRewardSummary | null) ?? null;
+        if (rewardsPayload) {
+          setXpRewards(rewardsPayload);
+          setShowXpRewards(true);
+        } else {
+          navigateToDashboard();
+        }
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.error("Failed to complete alpha session:", err);
+        }
+        navigateToDashboard();
+      } finally {
+        setAlphaActivityId(null);
+      }
+    },
+    [alphaActivityId, navigateToDashboard],
+  );
+  const handleExitToDashboard = useCallback(() => {
+    setShowFeedbackModal(true);
+  }, []);
 
   const updateStats = useCallback(
     (updater: any) => {
@@ -148,6 +286,15 @@ export default function ClinicalCaseDemoPage() {
       current === resolvedId ? current : resolvedId,
     );
   }, [searchParams]);
+
+  useEffect(() => {
+    if (isSubscriptionLoading) {
+      return;
+    }
+    if (!isAlphaSubscriber) {
+      router.replace("/dashboard");
+    }
+  }, [isSubscriptionLoading, isAlphaSubscriber, router]);
 
   const fetchCase = useCallback(async (targetCaseId: string) => {
     if (!API_BASE_URL) {
@@ -198,8 +345,61 @@ export default function ClinicalCaseDemoPage() {
   }, [API_BASE_URL]);
 
   useEffect(() => {
+    if (!isAlphaSubscriber) {
+      return;
+    }
     fetchCase(caseIdentifier);
-  }, [caseIdentifier, fetchCase]);
+  }, [caseIdentifier, fetchCase, isAlphaSubscriber]);
+
+  useEffect(() => {
+    if (
+      !isAlphaSubscriber ||
+      caseIdentifier !== DEMO_ID ||
+      hasCheckedAlphaCompletion
+    ) {
+      return;
+    }
+    let cancelled = false;
+
+    const verifyCompletion = async () => {
+      try {
+        const response = await BaseUrl.get(
+          "/user/alpha-activity/check-completion",
+          {
+            params: { feature_id: ALPHA_FEATURE_ID },
+          },
+        );
+        if (cancelled) {
+          return;
+        }
+        const hasCompleted = Boolean(response.data?.data?.has_completed);
+        if (hasCompleted) {
+          setAlphaAcknowledged(true);
+        } else if (!alphaAcknowledged) {
+          setShowXpExplanation(true);
+        }
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.error("Failed to check alpha session completion:", err);
+        }
+      } finally {
+        if (!cancelled) {
+          setHasCheckedAlphaCompletion(true);
+        }
+      }
+    };
+
+    verifyCompletion();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    alphaAcknowledged,
+    caseIdentifier,
+    hasCheckedAlphaCompletion,
+    isAlphaSubscriber,
+  ]);
 
   const handleCaseSelection = useCallback(
     (nextCaseId: string) => {
@@ -228,11 +428,18 @@ export default function ClinicalCaseDemoPage() {
     const loadAvailableCases = async () => {
       setLoadingCaseOptions(true);
       try {
-        const response = await apiFetch<any>(
-          "/clinical-case/freelancer?limit=100&page=1",
+        const response = await BaseUrl.get(
+          "/clinical-case/catalog",
+          {
+            params: { limit: 100, page: 1 },
+          },
         );
         if (cancelled) return;
-        const container = (response as any)?.data ?? response;
+        const payload = response.data ?? {};
+        const container =
+          typeof payload?.data === "object" && payload.data !== null
+            ? payload.data
+            : payload;
         const rawCases = Array.isArray(container?.clincal_cases)
           ? container.clincal_cases
           : Array.isArray(container)
@@ -265,13 +472,19 @@ export default function ClinicalCaseDemoPage() {
           });
           return merged;
         });
-      } catch (err) {
-        if (err instanceof UnauthorizedError) {
+      } catch (err: unknown) {
+        if (isAxiosError(err) && err.response?.status === 403) {
+          // User lacks Labs access; keep demo case only.
           return;
         }
         if (!cancelled) {
           emitTelemetry("case_catalog_fetch_failed", {
-            error: err instanceof Error ? err.message : String(err),
+            error:
+              err instanceof Error
+                ? err.message
+                : typeof err === "string"
+                ? err
+                : "Unexpected error",
           });
         }
       } finally {
@@ -281,12 +494,15 @@ export default function ClinicalCaseDemoPage() {
       }
     };
 
+    if (!isAlphaSubscriber) {
+      return;
+    }
     loadAvailableCases();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isAlphaSubscriber]);
 
   useEffect(() => {
     if (!caseData || caseIdentifier === DEMO_ID) {
@@ -469,22 +685,54 @@ export default function ClinicalCaseDemoPage() {
   const sidebarMeta = caseTags.length > 0 ? caseTags : fallbackMeta;
 
   const handleCompleteSession = () => {
-    handleSessionCompletion();
+    setShowEndSessionModal(true);
   };
 
+  const confirmEndSession = useCallback(() => {
+    setShowEndSessionModal(false);
+    handleSessionCompletion();
+  }, [handleSessionCompletion]);
+
+  const cancelEndSession = useCallback(() => {
+    setShowEndSessionModal(false);
+  }, []);
+
   const handleStartCase = useCallback(() => {
-    setShowIntro(false);
-    setSidebarVisible(true);
-    setAnswer(null);
-    emitTelemetry("case_started", {
-      caseId: caseIdentifier,
-      totalQuestions,
-    });
-  }, [caseIdentifier, totalQuestions]);
+    if (
+      isAlphaSubscriber &&
+      caseIdentifier === DEMO_ID &&
+      !alphaAcknowledged
+    ) {
+      setShowXpExplanation(true);
+      return;
+    }
+    proceedToStartCase();
+  }, [
+    alphaAcknowledged,
+    caseIdentifier,
+    isAlphaSubscriber,
+    proceedToStartCase,
+  ]);
 
   const gridTemplate = sidebarVisible
-    ? "minmax(0,1fr) clamp(320px, 26vw, 380px)"
+    ? "minmax(0,1fr) minmax(320px, 380px)"
     : "minmax(0,1fr)";
+
+  if (isSubscriptionLoading || !isAlphaSubscriber) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{
+          background:
+            "linear-gradient(180deg, #FF6FAF 0%, #FF88C1 50%, rgba(255,222,238,1) 100%)",
+        }}
+      >
+        <span className="rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-[#F8589F] shadow">
+          Vérification de votre accès Labs…
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -507,67 +755,94 @@ export default function ClinicalCaseDemoPage() {
         ))}
       </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-screen-2xl flex-col gap-6 px-5 sm:px-7 lg:px-9 xl:px-12 2xl:px-16 py-8 md:py-10 lg:gap-8">
-        <header className="flex items-center justify-between">
-          <Image src={logo} alt="MyQCM" className="w-[148px] max-md:w-[120px]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-screen-2xl flex-col gap-6 px-4 sm:px-6 md:px-7 lg:px-9 xl:px-12 2xl:px-16 py-6 md:py-8 lg:py-10 lg:gap-8">
+        <header className="flex items-center justify-between gap-3">
+          <Image src={logo} alt="MyQCM" className="w-[148px] max-md:w-[110px] max-sm:w-[100px]" />
           <Button
             size="sm"
             variant="ghost"
             onClick={handleCompleteSession}
-            className="border border-[#F0E4EC] !text-[#7A1D4A]"
+            className="border border-[#F0E4EC] !text-[#7A1D4A] max-md:text-[12px] max-md:px-3 max-md:py-1.5"
           >
-            Terminer la session
+            <span className="max-sm:hidden">Terminer la session</span>
+            <span className="sm:hidden">Terminer</span>
           </Button>
         </header>
 
-        <section className="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/80 px-6 py-5 shadow-[0_18px_50px_-35px_rgba(248,88,159,0.45)] backdrop-blur-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#FD2E8A]">
+        <section className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-60px_rgba(17,14,31,0.45)] md:px-10 md:py-9 max-md:px-4 max-md:py-6 max-md:rounded-[20px]">
+          <div className="space-y-6 max-md:space-y-5">
+            <div className="space-y-3 max-md:space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#FFE4F1] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#F8589F] max-md:text-[10px] max-md:px-2.5 max-md:py-0.5">
                 Catalogue clinique
-              </span>
-              <h2 className="text-lg font-semibold text-[#2C3E50]">
-                Sélectionner un cas à explorer
-              </h2>
-              <p className="text-sm text-[#6C7A89]">
-                Retrouvez ici le cas de démonstration officiel ainsi que vos cas publiés depuis l’espace freelancer.
-              </p>
+              </div>
+              <div>
+                <h2 className="text-[26px] font-semibold text-[#221427] max-md:text-[20px] max-sm:text-[18px]">
+                  Sélectionnez un cas à explorer
+                </h2>
+                <p className="mt-3 text-[15px] leading-relaxed text-[#625371] max-md:text-[14px] max-md:mt-2">
+                  Choisissez le scénario que vous souhaitez tester. Chaque carte correspond
+                  au cas de démonstration ou à l'un de vos prototypes publiés dans l'espace freelancer.
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col gap-2 sm:w-72">
-              <label
-                htmlFor="case-picker"
-                className="text-xs font-medium uppercase tracking-[0.16em] text-[#7A1D4A]"
-              >
-                Cas disponible
-              </label>
-              <select
-                id="case-picker"
-                value={caseIdentifier}
-                onChange={(event) => handleCaseSelection(event.target.value)}
-                className="w-full rounded-2xl border border-[#F6CDE1] bg-white px-4 py-2.5 text-sm font-medium text-[#2C3E50] shadow-sm transition focus:border-[#FD2E8A] focus:outline-none focus:ring-2 focus:ring-[#FD2E8A33]"
-              >
-                {caseOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.title}
-                    {option.subtitle ? ` · ${option.subtitle}` : ""}
-                  </option>
-                ))}
-              </select>
+
+            <div className="relative">
+              {loadingCaseOptions ? (
+                <div className="absolute inset-0 z-10 rounded-[28px] border border-[#F2D0E5] bg-white/70 backdrop-blur-[2px]" />
+              ) : null}
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 max-md:gap-3">
+                {caseOptions.map((option) => {
+                  const isActive = option.id === caseIdentifier;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => handleCaseSelection(option.id)}
+                      className={`group relative flex h-full flex-col justify-between rounded-[26px] border border-transparent bg-white px-6 py-5 text-left shadow-[0_18px_60px_-45px_rgba(24,14,41,0.45)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#FD2E8A] max-md:rounded-[20px] max-md:px-4 max-md:py-4 ${
+                        isActive
+                          ? "ring-2 ring-[#FD2E8A]"
+                          : "hover:border-[#FD2E8A33] hover:shadow-[0_26px_70px_-50px_rgba(24,14,41,0.55)]"
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      <div>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-[#FFE8F3] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#FD2E8A] max-md:text-[9px] max-md:px-2.5 max-md:py-0.5">
+                          {option.id === DEMO_ID ? "Cas démo" : "Prototype"}
+                        </span>
+                        <h3 className="mt-3 text-[15px] font-semibold text-[#241B30] leading-snug line-clamp-2 max-md:text-[14px] max-md:mt-2">
+                          {option.title}
+                        </h3>
+                        {option.subtitle ? (
+                          <p className="mt-2 text-[12px] text-[#7D6A90] line-clamp-2 max-md:text-[11px]">
+                            {option.subtitle}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="mt-6 flex items-center justify-between text-xs text-[#9680AD] max-md:mt-4 max-md:text-[11px]">
+                        <span>
+                          {isActive ? "Cas sélectionné" : "Cliquer pour charger"}
+                        </span>
+                        <span
+                          className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition max-md:h-8 max-md:w-8 ${
+                            isActive
+                              ? "border-[#FD2E8A] bg-[#FD2E8A] text-white"
+                              : "border-[#E4CCE8] bg-white text-[#C58DB2] group-hover:border-[#FD2E8A]"
+                          }`}
+                        >
+                          {isActive ? "✓" : "→"}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col gap-1 text-xs text-[#6C7A89] sm:flex-row sm:items-center sm:justify-between">
-            {loadingCaseOptions ? (
-              <span>Chargement des cas clinques…</span>
-            ) : (
-              <span>
-                {caseOptions.length > 1
-                  ? `${caseOptions.length - 1} cas créés disponibles.`
-                  : "Créez un cas dans l’espace freelancer pour qu’il apparaisse dans cette liste."}
-              </span>
-            )}
-            <span>
-              Sélectionnez un cas puis lancez la session pour enchaîner les questions correspondantes.
-            </span>
+
+            <p className="text-xs text-[#7A698C] max-md:text-[11px]">
+              {caseOptions.length > 1
+                ? `${caseOptions.length - 1} prototype${caseOptions.length - 1 > 1 ? "s" : ""} prêt${caseOptions.length - 1 > 1 ? "s" : ""} à être test${caseOptions.length - 1 > 1 ? "és" : "é"}.`
+                : "Publiez votre premier cas clinique dans l'espace freelancer pour enrichir ce catalogue."}
+            </p>
           </div>
         </section>
 
@@ -598,8 +873,8 @@ export default function ClinicalCaseDemoPage() {
                     skipped: caseStats.mcqs_skipped,
                     accuracy: caseStats.accuracy,
                   }}
-                  onRestart={handleRestart}
-                  onReset={fetchCase}
+                  onReplay={handleRestart}
+                  onExit={handleExitToDashboard}
                 />
               ) : showIntro ? (
                 caseData ? (
@@ -627,7 +902,7 @@ export default function ClinicalCaseDemoPage() {
                     <button
                       type="button"
                       onClick={() => setSidebarVisible((prev) => !prev)}
-                      className="inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A]"
+                      className="inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A] max-md:text-[10px] max-md:px-3 max-md:py-1.5"
                       aria-pressed={sidebarVisible}
                       aria-label={sidebarVisible ? "Masquer le rappel" : "Afficher le rappel"}
                       style={{
@@ -638,16 +913,21 @@ export default function ClinicalCaseDemoPage() {
                       }}
                     >
                       {sidebarVisible ? (
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 max-md:h-3.5 max-md:w-3.5" />
                       ) : (
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-4 w-4 max-md:h-3.5 max-md:w-3.5" />
                       )}
-                      {sidebarVisible ? "Masquer le rappel" : "Afficher le rappel"}
+                      <span className="max-sm:hidden">{sidebarVisible ? "Masquer le rappel" : "Afficher le rappel"}</span>
+                      <span className="sm:hidden">{sidebarVisible ? "Masquer" : "Afficher"}</span>
                     </button>
                   </div>
                   <div
-                    className="grid items-start gap-5 transition-all duration-300 md:gap-6 lg:gap-7 xl:gap-8 max-lg:flex max-lg:flex-col"
-                    style={{ gridTemplateColumns: gridTemplate }}
+                    className={`transition-all duration-300 ${
+                      sidebarVisible
+                        ? "flex flex-col gap-5 lg:grid lg:items-start lg:gap-6 xl:gap-8"
+                        : "flex flex-col gap-5"
+                    }`}
+                    style={sidebarVisible ? { gridTemplateColumns: gridTemplate } : undefined}
                   >
                     <div className="min-w-0">
                       <Quiz
@@ -685,6 +965,35 @@ export default function ClinicalCaseDemoPage() {
           )}
         </main>
       </div>
+      {showEndSessionModal ? (
+        <EndSeasonPopup
+          onConfirm={confirmEndSession}
+          onCancel={cancelEndSession}
+        />
+      ) : null}
+
+      <CaseFeedbackModal
+        caseIdentifier={caseIdentifier}
+        open={showFeedbackModal}
+        onClose={handleFeedbackClose}
+        onSkip={handleFeedbackSkip}
+        onSubmitted={handleFeedbackSubmitted}
+      />
+      {isAlphaSubscriber ? (
+        <>
+          <AlphaXpExplanationModal
+            open={showXpExplanation}
+            onClose={handleAlphaModalClose}
+            onStart={handleAlphaModalStart}
+            featureName={ALPHA_FEATURE_NAME}
+          />
+          <AlphaXpRewardsModal
+            open={showXpRewards}
+            onClose={handleRewardsModalClose}
+            rewards={xpRewards}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

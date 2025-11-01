@@ -33,6 +33,7 @@ const AsideOnboarding = () => {
 
   const afterDashboard = path.split("/dashboard/")[1] || "";
   const isSettingsActive = afterDashboard.startsWith("settings");
+  const navigationLinks = aside_links.filter((item) => !item.requiresAlpha);
 
   // --- Static Data (as requested) ---
   const userNotification = [
@@ -241,7 +242,7 @@ const AsideOnboarding = () => {
               : "max-xl:-translate-x-full max-xl:opacity-0 max-xl:invisible"
           }`}
         >
-          {aside_links.map((item, index) => {
+          {navigationLinks.map((item, index) => {
             const isHome = item.href === "";
             const currentPathSegment = afterDashboard
               .split("?")[0]

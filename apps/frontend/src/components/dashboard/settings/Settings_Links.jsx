@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 const Settings_Links = () => {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ const Settings_Links = () => {
       label: "Mettre à niveau le compte",
     },
     { href: "/dashboard/settings/question-bank", label: "Banque de questions" },
+    { href: "/dashboard/settings/rewards-center", label: "Centre de Récompenses" },
     { href: "/dashboard/settings/notification", label: "Notifications" },
   ];
 
@@ -25,11 +27,14 @@ const Settings_Links = () => {
   const upgradeAccountBasePath = "/dashboard/settings/upgrade-account";
 
   return (
-    // --- Keeping EXACT original outer div classes ---
-    <div className="px-5 mt-6 max-xl:overflow-x-auto scrollbar-hide max-xl:py-4 max-md:pt-6">
-      {/* --- Keeping EXACT original ul classes --- */}
+    <motion.div
+      className="px-5 mt-6 max-xl:overflow-x-auto scrollbar-hide max-xl:py-4 max-md:pt-6"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <ul className="flex items-center gap-4 w-max">
-        {links.map((link) => {
+        {links.map((link, index) => {
           // --- START: MODIFIED ACTIVE STATE LOGIC ---
           let isActive;
           // Check if the current link's href is the one requiring sub-route matching
@@ -43,23 +48,33 @@ const Settings_Links = () => {
           // --- END: MODIFIED ACTIVE STATE LOGIC ---
 
           return (
-            <li key={link.href}>
+            <motion.li
+              key={link.href}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.4,
+                delay: index * 0.1,
+                ease: "easeOut",
+              }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.97 }}
+            >
               <Link
                 href={link.href}
-                // --- Keeping EXACT original className logic and classes ---
                 className={`${
                   isActive
-                    ? "bg-[#F8589F] text-[#FFFFFF]" // Original active style
-                    : "bg-[#FFFFFF] text-[#191919]" // Original inactive style
-                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box whitespace-nowrap`} // Original common styles
+                    ? "bg-[#F8589F] text-[#FFFFFF] shadow-md" // Original active style + shadow
+                    : "bg-[#FFFFFF] text-[#191919] hover:shadow-sm" // Original inactive style + hover shadow
+                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box whitespace-nowrap transition-all duration-300`}
               >
                 {link.label}
               </Link>
-            </li>
+            </motion.li>
           );
         })}
       </ul>
-    </div>
+    </motion.div>
   );
 };
 

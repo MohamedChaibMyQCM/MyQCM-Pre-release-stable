@@ -16,6 +16,8 @@ import progress from "../../public/Aside/progress.svg";
 import Pprogress from "../../public/Aside/Pprogress.svg";
 import community from "../../public/Aside/community.svg";
 import Pcommunity from "../../public/Aside/Pcommunity.svg";
+import labs from "../../public/Aside/labs.svg";
+import Plabs from "../../public/Aside/Plabs.svg";
 
 export const aside_links = [
   {
@@ -59,6 +61,13 @@ export const aside_links = [
     icon: community,
     hoverIcon: Pcommunity,
     href: "community",
+  },
+  {
+    name: "Labs (Alpha)",
+    icon: labs,
+    hoverIcon: Plabs,
+    href: "labs",
+    requiresAlpha: true,
   },
 ];
 

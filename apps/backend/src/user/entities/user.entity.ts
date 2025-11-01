@@ -56,7 +56,9 @@ export class User extends ChronoEntity {
   })
   completed_introduction: boolean;
   @Column({
+    type: "enum",
+    enum: BaseRoles,
     default: BaseRoles.USER,
   })
-  role: BaseRoles.USER;
+  role: BaseRoles;
 }

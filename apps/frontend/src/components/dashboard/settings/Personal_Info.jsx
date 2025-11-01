@@ -7,6 +7,7 @@ import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
 import PersonalSettings from "./PersonalSettings";
 import UniversitySettings from "./UniversitySettings";
+import { motion } from "framer-motion";
 
 const Personal_Info = () => {
   const queryClient = useQueryClient();
@@ -72,11 +73,24 @@ const Personal_Info = () => {
 
   return (
     <div className="mx-5">
-      <PersonalSettings 
-        userData={userPro} 
-        onNameUpdate={handleNameUpdate} 
-      />
-      <UniversitySettings userData={userData} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <PersonalSettings
+          userData={userPro}
+          onNameUpdate={handleNameUpdate}
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <UniversitySettings userData={userData} />
+      </motion.div>
     </div>
   );
 };

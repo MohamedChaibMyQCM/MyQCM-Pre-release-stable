@@ -109,6 +109,16 @@ export class CreatePlanDto {
   is_default: boolean = false;
 
   @ApiProperty({
+    description: "Whether this plan grants access to alpha/labs features",
+    example: false,
+    required: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_alpha: boolean = false;
+
+  @ApiProperty({
     description: "The billing period for the plan",
     enum: PlanPeriod,
     example: "MONTHLY",

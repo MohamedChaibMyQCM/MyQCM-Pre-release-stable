@@ -78,7 +78,9 @@ export class Freelancer extends ChronoEntity {
   generationRequests: GenerationRequest[];
 
   @Column({
+    type: "enum",
+    enum: BaseRoles,
     default: BaseRoles.FREELANCER,
   })
-  role: BaseRoles.FREELANCER;
+  role: BaseRoles;
 }

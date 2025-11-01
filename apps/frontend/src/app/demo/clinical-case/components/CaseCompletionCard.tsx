@@ -25,8 +25,10 @@ type CompletionStats = {
 };
 
 type CaseCompletionCardProps = {
-  onRestart: () => void;
-  onReset: () => void;
+  onReplay: () => void;
+  onAnalyse?: () => void;
+  onNextCase?: () => void;
+  onExit: () => void;
   stats: CompletionStats;
 };
 
@@ -52,8 +54,10 @@ const resolveHeadline = (accuracy: number) => {
 };
 
 export const CaseCompletionCard = ({
-  onRestart,
-  onReset,
+  onReplay,
+  onAnalyse,
+  onNextCase,
+  onExit,
   stats,
 }: CaseCompletionCardProps) => {
   const { title, sub } = resolveHeadline(stats.accuracy);
@@ -171,18 +175,35 @@ export const CaseCompletionCard = ({
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button size="sm" variant="primary" icon={RotateCcw} onClick={onRestart}>
+        <Button size="sm" variant="primary" icon={RotateCcw} onClick={onReplay}>
           Rejouer le cas
         </Button>
-        <Button size="sm" variant="secondary" icon={BarChart3}>
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={BarChart3}
+          onClick={onAnalyse}
+          disabled={!onAnalyse}
+        >
           Analyser mes reponses
         </Button>
-        <Button size="sm" variant="ghost" rightIcon={ArrowRight}>
+        <Button
+          size="sm"
+          variant="ghost"
+          rightIcon={ArrowRight}
+          onClick={onNextCase}
+          disabled={!onNextCase}
+        >
           Prochain cas
         </Button>
         <div className="ml-auto">
-          <Button size="sm" variant="ghost" icon={RefreshCw} onClick={onReset}>
-            Reinitialiser
+          <Button
+            size="sm"
+            variant="primary"
+            icon={RefreshCw}
+            onClick={onExit}
+          >
+            Aller au tableau de bord
           </Button>
         </div>
       </div>

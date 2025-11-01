@@ -61,6 +61,11 @@ export class Plan extends ChronoEntity {
   is_default: boolean;
 
   @Column({
+    default: false,
+  })
+  is_alpha: boolean;
+
+  @Column({
     type: "enum",
     enum: PlanPeriod,
     default: PlanPeriod.MONTHLY,

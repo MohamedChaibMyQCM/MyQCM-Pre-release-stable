@@ -1,4 +1,8 @@
-export function sanitizeRequestBody(body: Record<string, any>) {
+export function sanitizeRequestBody(body?: Record<string, any>) {
+  if (!body || typeof body !== "object") {
+    return {};
+  }
+
   const hiddenFields = ["password", "token", "authorization"];
   return Object.fromEntries(
     Object.entries(body).map(([key, value]) =>

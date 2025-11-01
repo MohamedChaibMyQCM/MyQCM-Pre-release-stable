@@ -236,4 +236,50 @@ export class UserSubscriptionService {
     // Save the updated subscription usage
     return transactionManager.save(subscription);
   }
+
+  async addUsageCredits(
+    userId: string,
+    credits: { mcqs?: number; qrocs?: number },
+    transactionManager: EntityManager,
+  ): Promise<void> {
+    const mcqs = Math.max(0, Math.floor(credits.mcqs ?? 0));
+    const qrocs = Math.max(0, Math.floor(credits.qrocs ?? 0));
+
+    if (mcqs === 0 && qrocs === 0) {
+      return;
+    }
+
+    const currentDate = new Date();
+    const subscription = await transactionManager.findOne(UserSubscription, {
+      where: [
+        {
+          user: { id: userId },
+          start_date: LessThanOrEqual(currentDate),
+          end_date: IsNull(),
+        },
+        {
+          user: { id: userId },
+          start_date: LessThanOrEqual(currentDate),
+          end_date: MoreThan(currentDate),
+        },
+      ],
+      order: { start_date: "DESC" },
+    });
+
+    if (!subscription) {
+      throw new BadRequestException(
+        "User does not have an active subscription.",
+      );
+    }
+
+    if (mcqs !== 0) {
+      subscription.used_mcqs -= mcqs;
+    }
+
+    if (qrocs !== 0) {
+      subscription.used_qrocs -= qrocs;
+    }
+
+    await transactionManager.save(subscription);
+  }
 }

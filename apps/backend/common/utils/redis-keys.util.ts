@@ -18,6 +18,9 @@ export class RedisKeys {
   static getRedisXpLevelsConfig() {
     return "config:xp:levels";
   }
+  static getRedisAlphaXpConfig() {
+    return "config:alpha:xp";
+  }
   static getRedisTransactionConfig() {
     return `config:transaction`;
   }

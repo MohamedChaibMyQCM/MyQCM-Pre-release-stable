@@ -10,6 +10,9 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "moduleResolution": "node",
+    "lib": ["ES2021"],
+    "types": ["node", "reflect-metadata"],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,5 +20,14 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "common/**/*.ts",
+    "shared/**/*.ts",
+    "abstract/**/*.ts",
+    "scripts/**/*.ts",
+    "cmd/**/*.ts"
+  ],
+  "exclude": ["dist", "node_modules", "draft_diffs", "eval_out", "**/*.spec.ts"]
 }

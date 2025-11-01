@@ -244,7 +244,7 @@ export class PlanService {
     }
 
     // Handle boolean feature filters
-    const boolean_filters = ["explanations", "notifications", "analysis"];
+    const boolean_filters = ["explanations", "notifications", "analysis", "is_alpha"];
 
     for (const field of boolean_filters) {
       if (filters[field] !== undefined) {

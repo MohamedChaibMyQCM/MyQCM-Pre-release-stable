@@ -390,18 +390,18 @@ const Quiz = ({
       : !formik.values.response?.trim());
 
   return (
-    <div className="relative bg-[#FFFFFF] w-full max-w-[820px] rounded-[20px] mx-auto p-[24px] flex flex-col gap-6 max-md:max-w-none max-md:p-[16px] z-[50] overflow-y-auto shadow-lg">
+    <div className="relative bg-[#FFFFFF] w-full rounded-[20px] p-[24px] flex flex-col gap-6 max-md:p-[16px] max-sm:p-[14px] z-[50] overflow-y-auto shadow-lg">
       {/* Header with badges and timer */}
-      <div className="flex items-center justify-between flex-wrap gap-y-3 max-md:gap-y-2">
-        <div className="flex items-center gap-3 flex-wrap max-md:gap-2">
+      <div className="flex items-start justify-between gap-3 max-md:gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap max-md:gap-2 flex-1 min-w-0">
           {/* Question type badge */}
-          <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] flex items-center gap-2 rounded-[10px] px-[16px] py-[8px] shadow-sm max-md:px-[12px] max-md:py-[6px]">
+          <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] flex items-center gap-2 rounded-[10px] px-[14px] py-[7px] shadow-sm max-md:px-[10px] max-md:py-[5px] shrink-0">
             <Image
               src={solver}
               alt="solver"
-              className="w-[16px] max-md:w-[14px]"
+              className="w-[15px] max-md:w-[13px]"
             />
-            <span className="text-[12px] text-[#FFFFFF] font-medium tracking-wide max-md:text-[10px]">
+            <span className="text-[11px] text-[#FFFFFF] font-medium tracking-wide max-md:text-[10px] whitespace-nowrap">
               TYPE:{" "}
               <span className="uppercase font-semibold">
                 {questionData?.type}
@@ -409,23 +409,9 @@ const Quiz = ({
             </span>
           </div>
 
-          {/* Progress bar - hidden on mobile */}
-          <div className="relative w-[180px] h-[8px] bg-[#F0F0F0] rounded-[20px] overflow-hidden max-md:hidden shadow-inner">
-            <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px] transition-all duration-500 ease-out"
-              style={{
-                width: `${
-                  totalQuestions > 0
-                    ? (currentQuestionNumber / totalQuestions) * 100
-                    : 0
-                }%`,
-              }}
-            ></div>
-          </div>
-
-          {/* Difficulty badge - hidden on mobile */}
+          {/* Difficulty badge */}
           <span
-            className={`px-[18px] py-[7px] rounded-[10px] text-[#FFFFFF] text-[12px] font-medium max-md:hidden shadow-sm ${
+            className={`px-[14px] py-[6px] rounded-[10px] text-[#FFFFFF] text-[11px] font-medium shadow-sm max-md:px-[10px] max-md:py-[5px] max-md:text-[10px] shrink-0 ${
               questionData?.difficulty === "easy"
                 ? "bg-gradient-to-r from-[#47B881] to-[#5AC99A]"
                 : questionData?.difficulty === "medium"
@@ -437,36 +423,42 @@ const Quiz = ({
               questionData?.difficulty?.slice(1)}
           </span>
 
-          {/* Thinking animation */}
-          <div className="flex items-center max-md:ml-1">
-            <Image
-              src={think1}
-              alt="think"
-              className={`w-[32px] h-[32px] max-md:w-[28px] max-md:h-[28px] ${
-                thinkAnimating ? "animate-pulse-scale" : ""
-              }`}
-            />
+          {/* Progress bar - hidden on mobile */}
+          <div className="relative w-[140px] h-[8px] bg-[#F0F0F0] rounded-[20px] overflow-hidden max-md:hidden shadow-inner shrink-0">
+            <div
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px] transition-all duration-500 ease-out"
+              style={{
+                width: `${
+                  totalQuestions > 0
+                    ? (currentQuestionNumber / totalQuestions) * 100
+                    : 0
+                }%`,
+              }}
+            ></div>
           </div>
         </div>
 
+        {/* Timer */}
         {initialTime > 0 && (
-          <SegmentedTimerMyQCM
-            total={initialTime}
-            remaining={timeRemaining}
-            running={checkAnswer && timeRemaining > 0}
-            segments={4}
-            warnFrom={0.25}
-            barWidth={120}
-            barHeight={8}
-          />
+          <div className="shrink-0">
+            <SegmentedTimerMyQCM
+              total={initialTime}
+              remaining={timeRemaining}
+              running={checkAnswer && timeRemaining > 0}
+              segments={4}
+              warnFrom={0.25}
+              barWidth={120}
+              barHeight={8}
+            />
+          </div>
         )}
       </div>
 
       {/* Question content */}
-      <div className="flex gap-8 justify-between flex-col lg:flex-row">
-        <div className="flex-1">
-          <div className="mb-4 max-md:hidden">
-            <span className="inline-block bg-[#F8F9FA] px-[12px] py-[6px] rounded-[8px] font-Poppins text-[#666666] text-[11px] font-semibold mb-3 tracking-wide">
+      <div className="flex gap-6 justify-between flex-col lg:flex-row max-md:gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="mb-4 max-lg:mb-3">
+            <span className="inline-block bg-[#F8F9FA] px-[12px] py-[6px] rounded-[8px] font-Poppins text-[#666666] text-[11px] font-semibold tracking-wide max-md:text-[10px] max-md:px-[10px] max-md:py-[5px]">
               QUESTION{" "}
               <span className="text-[#F8589F]">
                 {currentQuestionNumber}/{totalQuestions || "?"}
@@ -474,19 +466,19 @@ const Quiz = ({
             </span>
           </div>
           <div
-            className="font-Poppins text-[#2C3E50] font-medium prose max-w-none text-[15px] leading-relaxed"
+            className="font-Poppins text-[#2C3E50] font-medium prose max-w-none text-[15px] leading-relaxed max-md:text-[14px]"
             dangerouslySetInnerHTML={{ __html: questionData?.question || "" }}
           />
         </div>
 
         {/* Attachment image */}
         {questionData?.attachment && (
-          <div className="lg:w-[240px] flex-shrink-0 max-md:flex max-md:items-center max-md:justify-center max-md:mt-4">
-            <div className="relative overflow-hidden rounded-[16px]">
+          <div className="lg:w-[220px] flex-shrink-0 flex items-start justify-center max-lg:mt-2">
+            <div className="relative overflow-hidden rounded-[16px] max-lg:max-w-[300px]">
               <Image
                 src={questionData.attachment}
                 alt="Quiz attachment"
-                className="w-[280px] h-auto object-contain> max-md:w-[240px]"
+                className="w-full h-auto object-contain"
                 width={360}
                 height={240}
                 priority={currentQuestionNumber < 3}
@@ -514,13 +506,13 @@ const Quiz = ({
                   key={item.id}
                   className={`text-[14px] flex items-center justify-between gap-3 font-Poppins font-medium border-2 rounded-[18px] px-[24px] py-[14px] transition-all duration-200 hover:shadow-md ${styling} ${
                     !checkAnswer ? "cursor-default" : "cursor-pointer"
-                  }`}
+                  } max-md:text-[13px] max-md:px-[18px] max-md:py-[12px] max-md:rounded-[14px]`}
                   onClick={
                     checkAnswer ? () => handleOptionClick(item) : undefined
                   }
                 >
                   <span
-                    className="flex-1 leading-relaxed"
+                    className="flex-1 leading-relaxed max-md:leading-snug"
                     dangerouslySetInnerHTML={{ __html: item.content || "" }}
                   />
                   {icon}
@@ -558,12 +550,12 @@ const Quiz = ({
         )}
 
         {/* Action buttons */}
-        <div className="flex items-center gap-4 mt-0 max-md:flex-col max-md:gap-3 justify-end">
+        <div className="flex items-center gap-4 mt-0 max-md:flex-col max-md:gap-3 justify-end max-sm:mt-2">
           {/* Skip button */}
           <button
             type="button"
             onClick={triggerSkipPopup}
-            className="text-[#F8589F] font-medium text-[13px] hover:text-[#E74C8C] transition-colors disabled:text-gray-400 disabled:cursor-not-allowed max-md:order-2"
+            className="text-[#F8589F] font-medium text-[13px] hover:text-[#E74C8C] transition-colors disabled:text-gray-400 disabled:cursor-not-allowed max-md:order-2 max-md:text-[12px]"
             disabled={
               !checkAnswer || isSubmitting || isLoadingNextMcq || isSkipping
             }
@@ -575,7 +567,7 @@ const Quiz = ({
           {checkAnswer ? (
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isSubmitDisabled}
             >
               {isSubmitting ? "Vérification..." : "Vérifier la réponse"}
@@ -584,7 +576,7 @@ const Quiz = ({
             <button
               type="button"
               onClick={handleSeeExplanationOrNext}
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isLoadingNextMcq}
             >
               {isLoadingNextMcq

@@ -11,6 +11,7 @@ import Notification from "./Notification";
 import streakIcon from "../../../public/Icons/streak.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import infiniteIcon from "../../../public/Icons/infinite.svg";
+import { motion, AnimatePresence } from "framer-motion";
 
 const isUuidV4 = (str) => {
   if (typeof str !== "string") return false;
@@ -22,6 +23,7 @@ const isUuidV4 = (str) => {
 const Dash_Header = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [hoveredCounter, setHoveredCounter] = useState(null);
   const pathname = usePathname();
   const token = isClient ? secureLocalStorage.getItem("token") || null : null;
 
@@ -120,6 +122,38 @@ const Dash_Header = () => {
   });
 
   const toggleNotification = () => setIsNotificationOpen(!isNotificationOpen);
+
+  const CounterTooltip = ({ title, description, isVisible, alignRight = false }) => (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.9 }}
+          transition={{ duration: 0.2 }}
+          className={`absolute top-full mt-2 z-50 pointer-events-none ${
+            alignRight ? 'right-0' : 'left-1/2 transform -translate-x-1/2'
+          }`}
+        >
+          <div className="bg-white rounded-[12px] shadow-lg border-2 border-white px-4 py-3 min-w-[200px] max-w-[240px]"
+            style={{
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 3px rgba(248, 88, 159, 0.1)"
+            }}
+          >
+            <p className="text-[13px] font-bold text-gray-900 mb-1">{title}</p>
+            <p className="text-[11px] text-gray-600 leading-relaxed">{description}</p>
+            <div className={`absolute -top-2 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-white ${
+              alignRight ? 'right-4' : 'left-1/2 transform -translate-x-1/2'
+            }`}
+              style={{
+                filter: "drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.06))"
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   const notificationsArray = userNotification?.data || [];
   const unreadCount = notificationsArray.filter(
@@ -254,9 +288,14 @@ const Dash_Header = () => {
           )}
         </div>
 
-        <div id="tour-qcm-display">
+        <div
+          id="tour-qcm-display"
+          className="relative"
+          onMouseEnter={() => setHoveredCounter('qcm')}
+          onMouseLeave={() => setHoveredCounter(null)}
+        >
           {userSubscription && isQcmInfinite ? (
-            <div className="flex gap-1">
+            <div className="flex gap-1 cursor-pointer transition-transform hover:scale-105">
               <Image
                 src={infiniteIcon}
                 alt="Infini"
@@ -270,37 +309,73 @@ const Dash_Header = () => {
               </span>
             </div>
           ) : (
-            <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+            <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
               {remainingMcqs} <span className="text-[#F8589F]">QCM</span>
             </span>
           )}
+          <CounterTooltip
+            title="Questions à Choix Multiples"
+            description={isQcmInfinite ? "Profitez de QCM illimités ! Pratiquez autant que vous le souhaitez pour maîtriser vos examens." : `Il vous reste ${remainingMcqs} QCM. Pratiquez intelligemment et réussissez vos examens !`}
+            isVisible={hoveredCounter === 'qcm'}
+          />
         </div>
 
-        <div id="tour-qroc-display">
-          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+        <div
+          id="tour-qroc-display"
+          className="relative"
+          onMouseEnter={() => setHoveredCounter('qroc')}
+          onMouseLeave={() => setHoveredCounter(null)}
+        >
+          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
             {remainingQrocs} <span className="text-[#F8589F]">QROC</span>
           </span>
+          <CounterTooltip
+            title="Questions Rédactionnelles"
+            description={`${remainingQrocs} QROC disponibles. Maîtrisez le raisonnement clinique avec nos questions ouvertes !`}
+            isVisible={hoveredCounter === 'qroc'}
+          />
         </div>
 
-        <div id="tour-streak-display" className="flex items-center gap-1">
-          <span className="text-[#191919] font-[500] text-[17px]">
-            {" "}
-            {currentStreak}{" "}
+        <div
+          id="tour-streak-display"
+          className="relative flex items-center gap-1"
+          onMouseEnter={() => setHoveredCounter('streak')}
+          onMouseLeave={() => setHoveredCounter(null)}
+        >
+          <span className="text-[#191919] font-[500] text-[17px] cursor-pointer transition-transform hover:scale-105">
+            {currentStreak}
           </span>
           <Image
             src={streakIcon}
             alt="série"
-            className="w-[13px]"
+            className="w-[13px] cursor-pointer"
             width={13}
             height={13}
             style={{ height: "auto" }}
           />
+          <CounterTooltip
+            title="Série Quotidienne"
+            description={currentStreak > 0 ? `${currentStreak} jour${currentStreak > 1 ? 's' : ''} consécutif${currentStreak > 1 ? 's' : ''} ! Continuez sur votre lancée pour développer une habitude d'apprentissage solide.` : "Commencez votre série aujourd'hui ! Pratiquez chaque jour pour développer une routine gagnante."}
+            isVisible={hoveredCounter === 'streak'}
+            alignRight={true}
+          />
         </div>
 
-        <div id="tour-xp-display">
-          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+        <div
+          id="tour-xp-display"
+          className="relative"
+          onMouseEnter={() => setHoveredCounter('xp')}
+          onMouseLeave={() => setHoveredCounter(null)}
+        >
+          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
             {currentXp} <span className="text-[#F8589F]">XP</span>
           </span>
+          <CounterTooltip
+            title="Points d'Expérience"
+            description={`${currentXp} XP accumulés. Montez en niveau et débloquez de nouvelles récompenses en continuant votre apprentissage !`}
+            isVisible={hoveredCounter === 'xp'}
+            alignRight={true}
+          />
         </div>
       </div>
 

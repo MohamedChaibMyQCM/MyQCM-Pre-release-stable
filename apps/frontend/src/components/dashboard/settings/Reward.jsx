@@ -10,8 +10,11 @@ import secureLocalStorage from "react-secure-storage";
 import { useQuery } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const Reward = () => {
+  const router = useRouter();
   const {
     data: xpData,
     isLoading,
@@ -30,7 +33,6 @@ const Reward = () => {
   });
 
   const [isVisible, setIsVisible] = useState(true);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -41,55 +43,107 @@ const Reward = () => {
   if (isError) return null;
 
   return (
-    <div className="relative mx-5 mt-10 bg-[#FFFFFF] p-6 text-center rounded-[16px] overflow-hidden box max-md:mt-4">
-      <h2 className="text-[#191919] text-[20px] font-[500]">
-        Vous avez <span className="text-[#F8589F]">{xpData?.xp}</span> XP
-      </h2>
-      <p className="my-4 text-[#191919] text-[14px] px-20 max-md:px-0">
+    <motion.div
+      className="relative mx-5 mt-10 bg-[#FFFFFF] p-6 text-center rounded-[16px] overflow-hidden box max-md:mt-4"
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      <motion.h2
+        className="text-[#191919] text-[20px] font-[500]"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+      >
+        Vous avez <motion.span
+          className="text-[#F8589F]"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{
+            delay: 0.4,
+            type: "spring",
+            stiffness: 200,
+            damping: 10,
+          }}
+        >
+          {xpData?.xp}
+        </motion.span> XP
+      </motion.h2>
+
+      <motion.p
+        className="my-4 text-[#191919] text-[14px] px-20 max-md:px-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+      >
         Découvrez toutes les récompenses passionnantes que vous pouvez obtenir
         avec vos points ! Des réductions exclusives, des offres spéciales, des
         produits premium et bien plus encore. Vos points ouvrent les portes à un
         monde de possibilités. Explorez dès maintenant et profitez au maximum de
         vos récompenses !
-      </p>
+      </motion.p>
 
-      <div className="relative inline-block">
-        <button
-          className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] hover:bg-[#e04d8a] transition-colors"
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
+      <motion.div
+        className="relative inline-block"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7, duration: 0.4 }}
+      >
+        <motion.button
+          className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] hover:bg-[#e04d8a] transition-colors shadow-md"
+          onClick={() => router.push('/dashboard/settings/rewards-center')}
+          whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(248, 88, 159, 0.3)" }}
+          whileTap={{ scale: 0.95 }}
         >
           Voir toutes les récompenses
-        </button>
+        </motion.button>
+      </motion.div>
 
-        {showTooltip && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[#333] text-white text-xs rounded-md whitespace-nowrap shadow-lg z-10">
-            <div className="relative">
-              <span>
-                Fonctionnalité à venir dans une prochaine mise à jour !
-              </span>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#333]"></div>
-            </div>
-          </div>
-        )}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, x: -20, rotate: -10 }}
+        animate={{ opacity: 1, x: 0, rotate: 0 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.8,
+          type: "spring",
+          stiffness: 100,
+        }}
+      >
+        <Image
+          src={gift}
+          alt="cadeau"
+          className="absolute md:top-0 md:left-[24%] w-[90px] max-md:right-[-30px] max-md:top-[26%]"
+        />
+      </motion.div>
 
-      <Image
-        src={gift}
-        alt="cadeau"
-        className="absolute md:top-0 md:left-[24%] w-[90px] max-md:right-[-30px] max-md:top-[26%]"
-      />
-      <Image
-        src={profile_arrow}
-        alt="flèche profil"
-        className="absolute bottom-0 right-0 max-md:hidden"
-      />
-      <Image
-        src={vector}
-        alt="vector"
-        className="absolute left-0 md:top-[50%] translate-y-[-50%] max-md:bottom-[10px] max-md:translate-y-0"
-      />
-    </div>
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+      >
+        <Image
+          src={profile_arrow}
+          alt="flèche profil"
+          className="absolute bottom-0 right-0 max-md:hidden"
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <Image
+          src={vector}
+          alt="vector"
+          className="absolute left-0 md:top-[50%] translate-y-[-50%] max-md:bottom-[10px] max-md:translate-y-0"
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserXp } from "../entities/user-xp.entity";
 import { EntityManager, Repository } from "typeorm";
@@ -158,6 +162,22 @@ export class UserXpService {
     if (xp == 0) return;
     const user_xp = await this.getUserXP(userId, transactionManager);
     user_xp.xp += xp;
+    return transactionManager
+      ? await transactionManager.save(user_xp)
+      : await this.userXpRepository.save(user_xp);
+  }
+
+  async decrementUserXP(
+    userId: string,
+    xp: number,
+    transactionManager?: EntityManager,
+  ): Promise<UserXp> {
+    if (xp <= 0) return this.getUserXP(userId, transactionManager);
+    const user_xp = await this.getUserXP(userId, transactionManager);
+    if (user_xp.xp < xp) {
+      throw new BadRequestException("Insufficient XP balance");
+    }
+    user_xp.xp -= xp;
     return transactionManager
       ? await transactionManager.save(user_xp)
       : await this.userXpRepository.save(user_xp);

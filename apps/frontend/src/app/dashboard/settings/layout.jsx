@@ -1,14 +1,38 @@
+"use client";
+
 import Dash_Header from "@/components/dashboard/Dash_Header";
 import Settings_Links from "@/components/dashboard/settings/Settings_Links";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 const layout = ({ children }) => {
+  const pathname = usePathname();
+
   return (
     <div className="bg-[#F7F8FA] pb-8">
-      <div className="max-md:hidden">
+      <motion.div
+        className="max-md:hidden"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <Dash_Header path={"/Settings"} sub_path={"/Profile Info"} />
-      </div>
+      </motion.div>
       <Settings_Links />
-      {children}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

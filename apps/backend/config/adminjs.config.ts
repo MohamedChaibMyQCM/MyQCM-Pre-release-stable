@@ -11,6 +11,11 @@ import { UserProfile } from "src/user/entities/user-profile.entity";
 import { ActivationCard } from "src/activation-cards/entities/activation-card.entity";
 import { Course } from "src/course/entities/course.entity";
 import { Mode } from "src/mode/entities/mode.entity";
+import { RewardCategory } from "src/reward/entities/reward-category.entity";
+import { RewardPerk } from "src/reward/entities/reward-perk.entity";
+import { RewardAuction } from "src/reward/entities/reward-auction.entity";
+import { RewardAuctionBid } from "src/reward/entities/reward-auction-bid.entity";
+import { RewardTransaction } from "src/reward/entities/reward-transaction.entity";
 import { hashString, verifyHash } from "common/utils/hashing";
 
 export const AdminJsConfig = {
@@ -156,6 +161,58 @@ export const AdminJsConfig = {
         resource: Course,
         options: {
           navigation: "Education",
+        },
+      },
+      {
+        resource: RewardCategory,
+        options: {
+          navigation: "Rewards",
+        },
+      },
+      {
+        resource: RewardPerk,
+        options: {
+          navigation: "Rewards",
+          properties: {
+            metadata: {
+              type: "textarea",
+              isVisible: { list: false, filter: false, show: true, edit: true },
+              description:
+                "JSON libre. Pour les crédits, utilisez plutôt les champs dédiés ci-dessous.",
+            },
+            creditMcqs: {
+              type: "number",
+              label: "Crédits MCQ",
+            },
+            creditQrocs: {
+              type: "number",
+              label: "Crédits QROC",
+            },
+          },
+        },
+      },
+      {
+        resource: RewardAuction,
+        options: {
+          navigation: "Rewards",
+        },
+      },
+      {
+        resource: RewardAuctionBid,
+        options: {
+          navigation: "Rewards",
+          actions: {
+            new: { isAccessible: false },
+            delete: { isAccessible: false },
+            edit: { isAccessible: false },
+          },
+          listProperties: ["id", "amount", "status", "isWinning"],
+        },
+      },
+      {
+        resource: RewardTransaction,
+        options: {
+          navigation: "Rewards",
         },
       },
     ],

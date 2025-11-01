@@ -16,6 +16,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/admin/:path*",
+        destination: "http://localhost:3001/admin/:path*",
+      },
+    ];
+  },
   // Add this to ensure font optimization
   optimizeFonts: true,
   webpack: (config, { isServer }) => {

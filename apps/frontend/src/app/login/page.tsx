@@ -8,14 +8,15 @@ import { useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import toast from "react-hot-toast";
 import { Eye, EyeSlash } from "phosphor-react";
+import { motion } from "framer-motion";
 
 import GoogleAuthButton from "../comp/google-auth.button";
 import BaseUrl from "@/components/BaseUrl";
 import { checkAuthAndRedirect } from "@/utils/auth";
+import AuthContainer from "@/components/auth/AuthContainer";
 
 import emailIcon from "../../../public/auth/email.svg";
 import passIcon from "../../../public/auth/password.svg";
-import logo from "../../../public/logoMyqcm.png";
 
 type LoginPayload = {
   email: string;
@@ -40,7 +41,7 @@ const Page = () => {
     void checkAuth();
   }, [router]);
 
-  const { mutate: login } = useMutation({
+  const { mutate: login, isPending } = useMutation({
     mutationFn: (data: LoginPayload) =>
       BaseUrl.post("/auth/user/signin", data, {
         headers: {
@@ -126,25 +127,7 @@ const Page = () => {
   }
 
   return (
-    <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
-      <Image src={logo} alt="logo" className="w-[140px] mb-4" />
-      <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
-        <Link
-          href="/login"
-          className="py-[8px] bg-[#FFFFFF] text-[#191919] font-semibold text-[14px] flex items-center justify-center basis-1/2 rounded-[10px]"
-        >
-          Se connecter
-        </Link>
-        <Link
-          href="/signup"
-          className="py-[8px] text-[#666666] font-semibold text-[14px] basis-1/2 flex items-center justify-center"
-        >
-          Créer un compte
-        </Link>
-      </div>
-      {/* <div className="w-[567.09px] flex items-center justify-center bg-transparent max-md:w-[90%]">
-        <GoogleAuthButton />
-      </div> */}
+    <AuthContainer>
       <span className="relative w-[567.09px] my-2 flex items-center justify-center text-[#6C727580] text-[13px] after:bg-[#6C727580] after:absolute after:w-[260px]  after:left-0 after:h-[1px] after:top-[50%] after:translate-y-[-50%] before:bg-[#6C727580] before:absolute before:w-[260px]  before:right-0 before:h-[1px] before:top-[50%] before:translate-y-[-50%] max-md:w-[90%] after:max-md:w-[42%] before:max-md:w-[42%]">
         OU
       </span>
@@ -205,12 +188,28 @@ const Page = () => {
         </Link>
         <button
           type="submit"
-          className="mb-10 bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium"
+          disabled={isPending}
+          className="mb-10 bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
         >
-          Se connecter
+          {isPending ? (
+            <>
+              <motion.div
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+              <span>Connexion en cours...</span>
+            </>
+          ) : (
+            "Se connecter"
+          )}
         </button>
       </form>
-    </div>
+    </AuthContainer>
   );
 };
 

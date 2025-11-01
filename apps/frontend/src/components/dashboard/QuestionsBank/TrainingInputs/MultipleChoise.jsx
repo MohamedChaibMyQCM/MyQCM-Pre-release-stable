@@ -11,7 +11,11 @@ const MultipleChoice = ({ name, value, setFieldValue }) => {
 
       <Switch
         checked={value}
-        onCheckedChange={(checked) => setFieldValue(name, checked)}
+        onCheckedChange={(checked) => {
+          setFieldValue(name, checked);
+          // Mirror QCM toggle state to QCS to avoid sending MCQs when disabled.
+          setFieldValue("qcs", checked);
+        }}
         className={`switch ${value == false ? "!bg-[grey]" : "!bg-[#FD2E8A]"}`}
       />
     </div>

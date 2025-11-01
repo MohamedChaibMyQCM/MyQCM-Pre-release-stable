@@ -61,7 +61,7 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
     initialValues: {
       title: quiz.title || "",
       qcm: quiz.qcm || false,
-      qcs: true, // Default based on previous examples
+      qcs: quiz.qcm ?? quiz.qcs ?? false,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "",
       number_of_questions: quiz.number_of_questions || "",
@@ -130,7 +130,7 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
       const finalData = {
         title: values.title,
         qcm: values.qcm,
-        qcs: values.qcs,
+        qcs: values.qcm,
         qroc: values.qroc,
         time_limit: values.time_limit ? Number(values.time_limit) : null,
         number_of_questions: values.number_of_questions

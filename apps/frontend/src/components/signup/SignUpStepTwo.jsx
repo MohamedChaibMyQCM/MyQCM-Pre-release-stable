@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "framer-motion";
 import email from "../../../public/auth/email.svg";
 import pass from "../../../public/auth/password.svg";
 import { CaretLeft, Eye, EyeSlash } from "phosphor-react";
@@ -164,9 +165,24 @@ const SignUpStepTwo = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:opacity-95 transition-opacity duration-150 disabled:opacity-60"
+          className="bg-gradient-to-t from-[#FD2E8A] to-[#F8589F] text-[#FEFEFE] text-[15px] w-full py-[12px] rounded-[12px] font-medium mt-4 hover:shadow-lg active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isLoading ? "Inscription..." : "S'inscrire"}
+          {isLoading ? (
+            <>
+              <motion.div
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+              <span>Inscription en cours...</span>
+            </>
+          ) : (
+            "S'inscrire"
+          )}
         </button>
       </form>
     </div>

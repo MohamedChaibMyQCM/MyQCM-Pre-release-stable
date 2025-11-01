@@ -59,7 +59,7 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
     // Keep relevant initial values needed for the form UI
     initialValues: {
       qcm: quiz.qcm || false,
-      qcs: true, // Hardcoded to true based on desired payload
+      qcs: quiz.qcm ?? quiz.qcs ?? false,
       qroc: quiz.qroc || false,
       number_of_questions: quiz.number_of_questions || "",
       allow_repeat: quiz.allow_repeat || false, // <-- added
@@ -77,7 +77,7 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
       // Construct the finalData object exactly as specified
       const finalData = {
         qcm: values.qcm,
-        qcs: values.qcs, // Always true based on payload requirement
+        qcs: values.qcm,
         qroc: values.qroc,
         // Ensure number_of_questions is converted to a Number. Default to null if conversion fails or empty.
         number_of_questions: values.number_of_questions

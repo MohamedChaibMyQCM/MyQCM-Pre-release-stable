@@ -61,7 +61,7 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
       // Keep all fields needed by the UI components, even if not submitted
       title: quiz.title || "",
       qcm: quiz.qcm || false,
-      qcs: true, // Hardcoded based on required payload
+      qcs: quiz.qcm ?? quiz.qcs ?? false,
       qroc: quiz.qroc || false,
       time_limit: quiz.time_limit || "", // Keep for UI component if present
       number_of_questions: quiz.number_of_questions || "",
@@ -139,7 +139,7 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
       const finalData = {
         title: values.title,
         qcm: values.qcm,
-        qcs: values.qcs, // Always true
+        qcs: values.qcm,
         qroc: values.qroc,
         number_of_questions: values.number_of_questions
           ? Number(values.number_of_questions) // Ensure it's a number

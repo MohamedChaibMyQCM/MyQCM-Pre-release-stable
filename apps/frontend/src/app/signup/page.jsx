@@ -1,10 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import logo from "../../../public/logoMyqcm.png";
-import doctors from "../../../public/ShapeDocters.svg";
-import beta from "../../../public/auth/beta.svg";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import SignUpStepOne from "@/components/signup/SignUpStepOne";
 import SignUpStepTwo from "@/components/signup/SignUpStepTwo";
@@ -15,6 +10,7 @@ import toast from "react-hot-toast";
 import secureLocalStorage from "react-secure-storage";
 import { motion, AnimatePresence } from "framer-motion";
 import { checkAuthAndRedirect } from "@/utils/auth";
+import AuthContainer from "@/components/auth/AuthContainer";
 
 const Page = () => {
   const [step, setStep] = useState(1);
@@ -141,56 +137,17 @@ const Page = () => {
 
   if (isCheckingAuth) {
     return (
-      <section className="h-[100vh] w-[100vw] flex bg-[#FB63A6] items-center justify-center">
-        <div className="bg-[#FFFFFF] rounded-[16px] p-8 text-center">
-          <div className="text-[#F8589F]">
-            Vérification de l&apos;authentification...
-          </div>
+      <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex items-center justify-center">
+        <div className="text-[#F8589F]">
+          Vérification de l&apos;authentification...
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="h-[100vh] w-[100vw] flex bg-[#FB63A6] p-[26px] px-[40px] max-md:px-[20px] max-xl:flex-col max-xl:items-center overflow-y-auto overflow-x-hidden scrollbar-hide">
-      <div className="flex flex-col gap-4 self-end max-xl:mx-auto shrink-0">
-        <Image
-          src={beta}
-          alt="version bêta"
-          className="w-[150px] ml-[74px] max-xl:mx-auto"
-        />
-        <h1 className="text-[#FFFFFF] text-[30px] font-semibold text-center w-[300px] leading-[36px] max-xl:w-[600px] max-md:w-[340px]">
-          Commencez votre parcours médical
-        </h1>
-        <p className="w-[280px] mb-[14px] text-center text-[#FFFFFFD6] font-light text-[14px] max-xl:w-[560px] max-md:w-[340px]">
-          Inscrivez-vous aujourd&apos;hui pour un apprentissage personnalisé
-          dans votre domaine passion !
-        </p>
-        <Image
-          src={doctors}
-          alt="médecins"
-          className="w-[454px] ml-[-40px] max-xl:hidden"
-        />
-      </div>
-
-      <div className="bg-[#FFF] w-full h-full pt-10 pb-12 rounded-[16px] flex flex-col items-center gap-6 max-xl:py-8 flex-1 min-w-0 overflow-y-auto scrollbar-hide">
-        <Image src={logo} alt="logo" className="w-[140px] mb-4" />
-        <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
-          <Link
-            href={`/login`}
-            className="py-[8px] text-[#666666] font-semibold text-[14px] basis-1/2 flex items-center justify-center"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href={`/signup`}
-            className="py-[8px] bg-[#FFFFFF] box text-[#191919] font-semibold text-[14px] flex items-center justify-center basis-1/2 rounded-[10px]"
-          >
-            Créer un compte
-          </Link>
-        </div>
-
-        <div className="w-[567.09px] relative flex-1 flex flex-col max-md:w-[90%]">
+    <AuthContainer>
+      <div className="w-[567.09px] relative flex-1 flex flex-col max-md:w-[90%] pt-4">
           <AnimatePresence initial={false} mode="wait" custom={direction}>
             {step === 1 ? (
               <motion.div
@@ -241,8 +198,7 @@ const Page = () => {
             )}
           </AnimatePresence>
         </div>
-      </div>
-    </section>
+    </AuthContainer>
   );
 };
 

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../public/logoMyqcm.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import signup from "../../../public/Landing/signup.svg";
@@ -22,10 +21,12 @@ const Header = () => {
     >
       <Link href="/">
         <Image
-          src={logo}
+          src="/logoMyqcm.png"
           alt="Logo MYQCM"
-          className="w-[90px] md:w-[120px] hover:scale-105 transition-transform duration-300"
-          priority 
+          width={120}
+          height={40}
+          className="w-[90px] md:w-[120px] h-auto hover:scale-105 transition-transform duration-300"
+          priority
         />
       </Link>
 

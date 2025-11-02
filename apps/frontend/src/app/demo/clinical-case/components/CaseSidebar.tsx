@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { BookOpenText, Bookmark, Tag } from "lucide-react";
-import { ComponentType, ReactNode } from "react";
+import { ComponentType, SVGProps, ReactNode } from "react";
 import { COLORS } from "../ui/colors";
 
 type CaseSidebarProps = {
@@ -31,7 +31,7 @@ const SidebarSection = ({
   children,
 }: {
   title: string;
-  icon?: ComponentType<{ className?: string }>;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   children: ReactNode;
 }) => (
   <section

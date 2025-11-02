@@ -10,18 +10,18 @@ import { JsonWebTokenError } from "jsonwebtoken";
 @Injectable()
 export class AccessTokenGuard extends AuthGuard("jwt") {
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
-    if (err || !user) {
-      if (info instanceof TokenExpiredError) {
-        throw new UnauthorizedException("Token has expired");
-      } else if (info instanceof JsonWebTokenError) {
-        throw new UnauthorizedException("Invalid token");
-      } else {
-        if (err && err.constructor) {
-          throw new err.constructor(err.message);
-        } else {
-          throw new UnauthorizedException("Unauthorized");
-        }
-      }
+    const error = err ?? info;
+    if (error instanceof TokenExpiredError) {
+      throw new UnauthorizedException("Token has expired");
+    }
+    if (error instanceof JsonWebTokenError) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    if (err) {
+      throw err;
+    }
+    if (!user) {
+      throw new UnauthorizedException("Unauthorized");
     }
     return user;
   }

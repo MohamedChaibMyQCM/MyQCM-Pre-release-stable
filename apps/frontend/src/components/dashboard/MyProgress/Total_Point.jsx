@@ -1,15 +1,74 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 
 const Total_Point = ({ userXp }) => {
   // Calculer le pourcentage de progression (en supposant que chaque niveau nécessite 100 XP)
   const progressPercentage = userXp ? ((userXp.xp % 100) / 100) * 100 : 0;
 
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, x: 30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
   return (
-    <div id="tour-total-point" className="w-[190px] max-xl:w-full">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <motion.div
+      id="tour-total-point"
+      className="w-[190px] max-xl:w-full"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.h3
+        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        variants={headerVariants}
+      >
         Points totaux
-      </h3>
-      <div className="bg-[#FFFFFF] flex flex-col box p-5 rounded-[16px]">
+      </motion.h3>
+      <motion.div
+        className="bg-[#FFFFFF] flex flex-col box p-5 rounded-[16px]"
+        variants={cardVariants}
+        whileHover={{
+          y: -5,
+          boxShadow: "0 15px 35px rgba(248, 88, 159, 0.15)",
+          transition: { type: "spring", stiffness: 300, damping: 20 },
+        }}
+      >
         <span className="text-[14px] text-[#B5BEC6] font-[500]">
           Points accumulés
         </span>
@@ -28,8 +87,8 @@ const Total_Point = ({ userXp }) => {
             style={{ width: `${progressPercentage}%` }}
           ></div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

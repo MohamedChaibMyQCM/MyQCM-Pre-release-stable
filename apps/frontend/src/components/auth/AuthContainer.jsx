@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../../../public/logoMyqcm.png";
 
 const AuthContainer = ({ children }) => {
   const pathname = usePathname();
@@ -12,7 +11,14 @@ const AuthContainer = ({ children }) => {
 
   return (
     <div className="bg-[#FFFFFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
-      <Image src={logo} alt="logo" className="w-[140px] mb-4" />
+      <Image
+        src="/logoMyqcm.png"
+        alt="logo"
+        width={140}
+        height={140}
+        className="w-[140px] h-auto mb-4"
+        priority
+      />
       <div className="flex items-center justify-between bg-[#F7F3F6] w-[567.09px] p-[5px] rounded-[10px] max-md:w-[90%]">
         <Link
           href="/login"

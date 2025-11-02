@@ -5,7 +5,7 @@ import profile_arrow from "../../../../public/settings/profile_arrow.svg";
 import gift from "../../../../public/settings/gift.svg";
 import vector from "../../../../public/settings/Vector.svg";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import secureLocalStorage from "react-secure-storage";
 import { useQuery } from "@tanstack/react-query";
 import BaseUrl from "@/components/BaseUrl";
@@ -15,6 +15,17 @@ import { useRouter } from "next/navigation";
 
 const Reward = () => {
   const router = useRouter();
+  const [authToken, setAuthToken] = useState(null);
+  const [tokenReady, setTokenReady] = useState(false);
+
+  useEffect(() => {
+    const storedToken = secureLocalStorage.getItem("token");
+    if (typeof storedToken === "string" && storedToken.length > 0) {
+      setAuthToken(storedToken);
+    }
+    setTokenReady(true);
+  }, []);
+
   const {
     data: xpData,
     isLoading,
@@ -22,14 +33,16 @@ const Reward = () => {
   } = useQuery({
     queryKey: ["userXp"],
     queryFn: async () => {
-      const token = secureLocalStorage.getItem("token");
       const response = await BaseUrl.get("/user/xp/me", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
       return response.data.data;
     },
+    enabled: !!authToken,
+    retry: false,
+    refetchOnMount: true,
   });
 
   const [isVisible, setIsVisible] = useState(true);
@@ -39,6 +52,8 @@ const Reward = () => {
   };
 
   if (!isVisible) return null;
+  if (!tokenReady) return <Loading />;
+  if (!authToken) return null;
   if (isLoading) return <Loading />;
   if (isError) return null;
 

@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import Image from "next/image";
-import logo from "../../../../public/logoMyqcm.png";
 import lock from "../../../../public/auth/password.svg";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -84,7 +83,14 @@ function PasswordResetContent() {
 
   return (
     <div className="bg-[#FFF] w-full h-full rounded-[16px] flex flex-col items-center justify-center gap-6 max-xl:py-6">
-      <Image src={logo} alt="logo" className="w-[140px] mb-6" />
+      <Image
+        src="/logoMyqcm.png"
+        alt="logo"
+        width={140}
+        height={140}
+        className="w-[140px] h-auto mb-6"
+        priority
+      />
 
       <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto max-md:pl-3">
         <Link href="/login" className="flex items-center gap-1">

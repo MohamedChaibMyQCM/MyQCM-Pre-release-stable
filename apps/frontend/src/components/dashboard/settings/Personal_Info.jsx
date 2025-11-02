@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
@@ -11,53 +12,79 @@ import { motion } from "framer-motion";
 
 const Personal_Info = () => {
   const queryClient = useQueryClient();
+  const [authToken, setAuthToken] = useState(null);
+  const [tokenReady, setTokenReady] = useState(false);
+
+  useEffect(() => {
+    const storedToken = secureLocalStorage.getItem("token");
+    if (typeof storedToken === "string" && storedToken.length > 0) {
+      setAuthToken(storedToken);
+    }
+    setTokenReady(true);
+  }, []);
 
   const { data: userData, isLoading, error } = useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
       try {
-        const token = secureLocalStorage.getItem("token");
         const response = await BaseUrl.get("/user/profile", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
         return response.data?.data || {};
       } catch (err) {
         toast.error("Failed to fetch user data. Please try again later.");
+        throw err;
       }
     },
+    enabled: !!authToken,
+    retry: false,
   });
 
   const { data: userPro, refetch: refetchUserPro } = useQuery({
     queryKey: ["userPro"],
     queryFn: async () => {
       try {
-        const token = secureLocalStorage.getItem("token");
         const response = await BaseUrl.get("/user/me", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
         return response.data?.data || {};
       } catch (err) {
         toast.error("Failed to fetch user data. Please try again later.");
+        throw err;
       }
     },
+    enabled: !!authToken,
+    retry: false,
   });
 
   const handleNameUpdate = async (newName) => {
-    queryClient.setQueryData(['userPro'], (oldData) => ({
-      ...oldData,
-      name: newName
+    queryClient.setQueryData(["userPro"], (oldData) => ({
+      ...(oldData || {}),
+      name: newName,
     }));
-    queryClient.setQueryData(['userProfile'], (oldData) => ({
-      ...oldData,
-      name: newName
+    queryClient.setQueryData(["userProfile"], (oldData) => ({
+      ...(oldData || {}),
+      name: newName,
     }));
-    
+
     await refetchUserPro();
   };
+
+  if (!tokenReady) {
+    return (
+      <div className="mx-5">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!authToken) {
+    return <div className="mx-5">Veuillez vous reconnecter pour voir vos paramètres.</div>;
+  }
 
   if (isLoading) {
     return (

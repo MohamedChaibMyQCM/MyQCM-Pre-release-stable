@@ -12,7 +12,6 @@ import LogoutConfirmationModal from "../Home/LogoutConfirmationModal";
 import { useOnboarding } from "../../context/OnboardingContext";
 import infinite from "../../../public/Icons/infinite.svg";
 import Notification from "../dashboard/Notification";
-import logo from "../../../public/logoMyqcm.png";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
 import logoutIcon from "../../../public/Aside/logout.svg";
@@ -176,9 +175,11 @@ const AsideOnboarding = () => {
           // Desktop view or Mobile menu closed: show logo
           <div className="cursor-pointer">
             <Image
-              src={logo}
+              src="/logoMyqcm.png"
               alt="logo"
-              className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px]"
+              width={120}
+              height={40}
+              className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px] h-auto"
               priority
             />
           </div>

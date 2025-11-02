@@ -13,11 +13,49 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { motion } from "framer-motion";
 
 // Define constants for clarity
 const ACTIVITY_DURATION_MINUTES = 2;
 
 const Study_time = () => {
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const chartVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   const [unit, setUnit] = useState("hours"); // State for selected unit: 'hours' or 'minutes'
 
   const {
@@ -108,8 +146,17 @@ const Study_time = () => {
   }
 
   return (
-    <div id="tour-myprogress-studytime" className="xl:flex-1 study_time">
-      <div className="flex items-center justify-between mb-4 px-1 flex-wrap gap-2">
+    <motion.div
+      id="tour-myprogress-studytime"
+      className="xl:flex-1 study_time"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div
+        className="flex items-center justify-between mb-4 px-1 flex-wrap gap-2"
+        variants={headerVariants}
+      >
         <h3 className="font-[500] text-[17px] text-[#191919]">
           Temps d&apos;étude
         </h3>
@@ -137,11 +184,18 @@ const Study_time = () => {
             Minutes
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Chart Container */}
       {/* Use the same height as before */}
-      <div className="bg-[#FFFFFF] rounded-[16px] box p-2 sm:p-4 h-[327px] w-full">
+      <motion.div
+        className="bg-[#FFFFFF] rounded-[16px] box p-2 sm:p-4 h-[327px] w-full"
+        variants={chartVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
@@ -224,8 +278,8 @@ const Study_time = () => {
             </defs>
           </ComposedChart>
         </ResponsiveContainer>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

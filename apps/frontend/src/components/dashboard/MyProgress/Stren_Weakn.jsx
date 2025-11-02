@@ -6,8 +6,46 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { motion } from "framer-motion";
 
 const Stren_Weakn = ({ subject_strengths }) => {
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   // Vérifier si les données sont vides ou non disponibles
   if (!subject_strengths || subject_strengths.length === 0) {
     return (
@@ -33,11 +71,27 @@ const Stren_Weakn = ({ subject_strengths }) => {
   }));
 
   return (
-    <div id="tour-stren-weakn" className="flex-1 weak max-xl:w-full">
-      <h3 className="font-medium text-lg mb-4 text-gray-900">
+    <motion.div
+      id="tour-stren-weakn"
+      className="flex-1 weak max-xl:w-full"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.h3
+        className="font-medium text-lg mb-4 text-gray-900"
+        variants={headerVariants}
+      >
         Forces et Faiblesses
-      </h3>
-      <div className="bg-white rounded-2xl px-6 py-6 box h-[327px]">
+      </motion.h3>
+      <motion.div
+        className="bg-white rounded-2xl px-6 py-6 box h-[327px]"
+        variants={contentVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <Card className="border-none shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="flex items-center gap-8 relative">
@@ -96,8 +150,8 @@ const Stren_Weakn = ({ subject_strengths }) => {
             </ChartContainer>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

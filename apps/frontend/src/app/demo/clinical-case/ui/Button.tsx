@@ -1,17 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ComponentType,
-  CSSProperties,
-  MouseEvent,
-  ReactNode,
-} from "react";
+import { ComponentType, CSSProperties, MouseEvent, ReactNode, SVGProps } from "react";
 import { ALPHA, COLORS } from "./colors";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
-type IconComponent = ComponentType<{ className?: string }>;
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 type ButtonProps = {
   children: ReactNode;
@@ -22,6 +17,7 @@ type ButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
+  disabled?: boolean;
 };
 
 type VariantStyles = {
@@ -65,9 +61,12 @@ export const Button = ({
   onClick,
   type = "button",
   className = "",
+  disabled = false,
 }: ButtonProps) => {
   const styles = variantMap[variant];
-  const defaultBackground = styles.style.background;
+  const backgroundValue = styles.style.background;
+  const defaultBackground =
+    typeof backgroundValue === "string" ? backgroundValue : undefined;
   const sizeClasses: Record<"sm" | "md" | "lg", string> = {
     sm: "px-4 py-2 text-xs",
     md: "px-5 py-[10px] text-sm",
@@ -75,12 +74,14 @@ export const Button = ({
   };
 
   const handleMouseEnter = (event: MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return;
     if (styles.hover) {
       event.currentTarget.style.background = styles.hover;
     }
   };
 
   const handleMouseLeave = (event: MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return;
     if (defaultBackground) {
       event.currentTarget.style.background = defaultBackground;
     }
@@ -89,12 +90,14 @@ export const Button = ({
   return (
     <motion.button
       type={type}
-      whileTap={{ scale: 0.99 }}
-      className={`inline-flex items-center gap-2 rounded-xl font-semibold transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A] ${sizeClasses[size]} ${className}`}
+      whileTap={!disabled ? { scale: 0.99 } : undefined}
+      className={`inline-flex items-center gap-2 rounded-xl font-semibold transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A] ${sizeClasses[size]} ${disabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
       style={styles.style}
+      disabled={disabled}
+      aria-disabled={disabled || undefined}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
     >
       {Icon ? <Icon className="h-4 w-4" /> : null}
       {children}

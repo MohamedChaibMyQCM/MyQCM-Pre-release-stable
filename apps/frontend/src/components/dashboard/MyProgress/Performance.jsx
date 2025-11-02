@@ -7,8 +7,50 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { motion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionH3 = motion.h3;
 
 const Performance = ({ performance }) => {
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        delay: 0.1,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
   if (!performance) {
     return (
       <div id="tour-performance-summary" className="flex-1 performance">
@@ -54,11 +96,27 @@ const Performance = ({ performance }) => {
   const performanceColor = getPerformanceColor(performance.performance_band);
 
   return (
-    <div id="tour-performance-summary" className="flex-1 performance">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <MotionDiv
+      id="tour-performance-summary"
+      className="flex-1 performance"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <MotionH3
+        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        variants={headerVariants}
+      >
         Performance
-      </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px]">
+      </MotionH3>
+      <MotionDiv
+        className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px]"
+        variants={cardVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <Card className="border-none shadow-none">
           <CardContent className="max-md:!p-2">
             <div className="relative flex items-center justify-center">
@@ -148,8 +206,8 @@ const Performance = ({ performance }) => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
 };
 

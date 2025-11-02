@@ -31,16 +31,15 @@ export const AlphaXpRewardsModal = ({
 }: AlphaXpRewardsModalProps) => {
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
+  const randomInRange = (min: number, max: number) =>
+    Math.random() * (max - min) + min;
+
   useEffect(() => {
     if (open && rewards && !hasTriggeredConfetti) {
       // Trigger confetti celebration
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
-
-      function randomInRange(min: number, max: number) {
-        return Math.random() * (max - min) + min;
-      }
 
       const interval: any = setInterval(function () {
         const timeLeft = animationEnd - Date.now();

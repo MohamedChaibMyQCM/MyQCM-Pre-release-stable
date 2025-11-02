@@ -1,14 +1,7 @@
-import Personal_Info from "@/components/dashboard/settings/Personal_Info";
-import Reward from "@/components/dashboard/settings/Reward";
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return (
-    <div className="">
-      <Reward />
-      <Personal_Info />
-    </div>
-  );
+const SettingsIndexPage = () => {
+  redirect("/dashboard/settings/personal-info");
 };
 
-export default page;
+export default SettingsIndexPage;

@@ -224,9 +224,57 @@ const Categories = () => {
     return moduleIcon;
   };
 
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.95
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        mass: 0.8,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
     <div className="px-[24px] mb-[24px] max-md:px-[20px]">
-      <div className="relative flex items-center justify-between mb-5">
+      <motion.div
+        className="relative flex items-center justify-between mb-5"
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
           Modules
         </h3>
@@ -267,15 +315,18 @@ const Categories = () => {
             </AnimatePresence>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      <ul
+      <motion.ul
         className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
           (isSubjectsFetching && !isInitialLoading) ||
           (isUserFourthYear && isProfileLoading)
             ? "opacity-75 pointer-events-none"
             : "opacity-100"
         }`}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
         {!isInitialLoading && displaySubjects?.length === 0 ? (
           <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
@@ -299,9 +350,21 @@ const Categories = () => {
           </div>
         ) : (
           displaySubjects?.map((item) => (
-            <li
+            <motion.li
               key={item.id}
-              className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] transition-all duration-300 ease-in-out hover:scale-[1.03] hover:shadow-lg"
+              className="rounded-[16px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]"
+              variants={cardVariants}
+              whileHover={{
+                scale: 1.05,
+                y: -5,
+                boxShadow: "0 20px 40px rgba(248, 88, 159, 0.25)",
+                transition: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                },
+              }}
+              whileTap={{ scale: 0.98 }}
             >
               <Link
                 href={`/dashboard/question-bank/${item.id}`}
@@ -329,10 +392,10 @@ const Categories = () => {
                   </span>
                 </div>
               </Link>
-            </li>
+            </motion.li>
           ))
         )}
-      </ul>
+      </motion.ul>
     </div>
   );
 };

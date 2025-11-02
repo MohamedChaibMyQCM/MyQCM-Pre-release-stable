@@ -4,10 +4,6 @@ import Image from "next/image";
 import right_arrow from "../../../../public/Home/rigth_arrow.svg";
 import left_arrow from "../../../../public/Home/left_arrow.svg";
 import play from "../../../../public/Home/pink_play.svg";
-import module1 from "../../../../public/Home/module1.avif";
-import module2 from "../../../../public/Home/module2.avif";
-import module3 from "../../../../public/Home/module3.avif";
-import module4 from "../../../../public/Home/module4.avif";
 import { useState, useRef, useEffect, useCallback } from "react";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
@@ -92,9 +88,16 @@ const Modules = () => {
 
   const isUserFourthYear = profileData?.year_of_study === "Fourth Year";
 
+  const moduleImages = [
+    "/Home/module1.avif",
+    "/Home/module2.avif",
+    "/Home/module3.avif",
+    "/Home/module4.avif",
+  ];
+
   const pneumologieModule = {
     id: "b7eeafcf-9922-4d58-8896-0c97e0efbe3f",
-    image: module3,
+    image: moduleImages[2],
     title: "Pneumologie",
     unit: "Module Pneumologie",
     fullUnitForTitle: "Module Pneumologie",
@@ -111,7 +114,7 @@ const Modules = () => {
         const displayUnitName = extractAndTruncateUnitName(fullUnitName);
         return {
           id: subject.id || `fallback-${index}`,
-          image: [module1, module2, module3, module4][index % 4],
+          image: moduleImages[index % moduleImages.length],
           title: subject.name || "Matière inconnue",
           unit: displayUnitName,
           fullUnitForTitle: fullUnitName,

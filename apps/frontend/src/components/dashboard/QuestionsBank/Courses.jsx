@@ -16,6 +16,7 @@ import CustomSchedule from "./TrainingPopups/CustomShedule";
 import GuidedSeason from "./TrainingPopups/GuidedSeason";
 import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ITEM_PLUS_GAP_HEIGHT_APPROX = 80;
 const MAX_VISIBLE_ITEMS = 6;
@@ -122,6 +123,48 @@ const Courses = ({ courses, subjectId, subjectData }) => {
       ? `${MAX_VISIBLE_ITEMS * ITEM_PLUS_GAP_HEIGHT_APPROX}px`
       : "none";
 
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.06,
+        delayChildren: 0.15,
+      },
+    },
+  };
+
+  const courseItemVariants = {
+    hidden: {
+      opacity: 0,
+      x: -20,
+      scale: 0.95,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 120,
+        damping: 15,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   const renderPopup = () => {
     if (
       !activePopup ||
@@ -182,7 +225,12 @@ const Courses = ({ courses, subjectId, subjectData }) => {
           : "relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col max-lg:w-full"
       }
     >
-      <div className="flex items-center justify-between mb-5 shrink-0">
+      <motion.div
+        className="flex items-center justify-between mb-5 shrink-0"
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
           Q/C par cours
         </h3>
@@ -197,9 +245,9 @@ const Courses = ({ courses, subjectId, subjectData }) => {
             </Link>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      <ul
+      <motion.ul
         className={`flex flex-col gap-4 flex-grow ${
           validCourses.length > MAX_VISIBLE_ITEMS
             ? "overflow-y-auto scrollbar-hide"
@@ -212,6 +260,9 @@ const Courses = ({ courses, subjectId, subjectData }) => {
               ? `${GRADIENT_OVERLAY_HEIGHT}px`
               : "0.5rem",
         }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
         {isLoadingProfile ? (
           <li className="text-center text-gray-500 py-10">
@@ -231,11 +282,28 @@ const Courses = ({ courses, subjectId, subjectData }) => {
               isLoadingProfile || isStartingSynergy || !!profileError;
 
             return (
-              <li
-                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] duration-200 transition-all ${
-                  buttonsDisabled ? "opacity-50" : "hover:shadow-md"
+              <motion.li
+                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
+                  buttonsDisabled ? "opacity-50" : ""
                 }`}
                 key={item.id}
+                variants={courseItemVariants}
+                whileHover={
+                  !buttonsDisabled
+                    ? {
+                        scale: 1.02,
+                        y: -3,
+                        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+                        borderColor: "#F8589F",
+                        transition: {
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 25,
+                        },
+                      }
+                    : {}
+                }
+                whileTap={!buttonsDisabled ? { scale: 0.98 } : {}}
               >
                 <div className="flex items-center gap-4 max-md:w-[70%]">
                   <Image
@@ -266,13 +334,21 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button
+                  <motion.button
                     onClick={() => handleScheduleClick(item.id)}
                     disabled={buttonsDisabled}
                     title="Planifier"
-                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
-                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
-                    }`}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={
+                      !buttonsDisabled
+                        ? {
+                            scale: 1.15,
+                            rotate: 5,
+                            transition: { duration: 0.2 },
+                          }
+                        : {}
+                    }
+                    whileTap={!buttonsDisabled ? { scale: 0.9 } : {}}
                   >
                     <Image
                       src={planification}
@@ -281,14 +357,22 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                       width={24}
                       height={24}
                     />
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={() => handlePlayClick(item.id)}
                     disabled={buttonsDisabled}
                     title="Lancer"
-                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
-                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
-                    }`}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={
+                      !buttonsDisabled
+                        ? {
+                            scale: 1.2,
+                            rotate: -5,
+                            transition: { duration: 0.2 },
+                          }
+                        : {}
+                    }
+                    whileTap={!buttonsDisabled ? { scale: 0.9 } : {}}
                   >
                     <Image
                       src={play}
@@ -297,13 +381,13 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                       width={24}
                       height={24}
                     />
-                  </button>
+                  </motion.button>
                 </div>
-              </li>
+              </motion.li>
             );
           })
         )}
-      </ul>
+      </motion.ul>
 
       {renderPopup()}
     </div>

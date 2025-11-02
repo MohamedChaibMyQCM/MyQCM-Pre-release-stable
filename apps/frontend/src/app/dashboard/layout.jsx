@@ -10,7 +10,6 @@ import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
-import mind from "../../../public/Home/mind.avif";
 
 const fetchApiData = async (url) => {
   try {
@@ -152,9 +151,12 @@ export default function DashboardLayout({ children }) {
             </div>
             <div className="flex flex-col gap-5">
               <Image
-                src={mind}
+                src="/Home/mind.avif"
                 alt="esprit"
-                className="w-[130px] max-md:w-[150px]"
+                width={150}
+                height={150}
+                className="w-[130px] max-md:w-[150px] h-auto"
+                priority
               />
               <Link
                 href="/onboarding"

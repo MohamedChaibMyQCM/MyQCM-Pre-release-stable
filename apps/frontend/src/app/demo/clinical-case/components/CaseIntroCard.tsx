@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Clock3, Gauge, ListChecks, Tag as TagIcon } from "lucide-react";
-import { ComponentType, memo, useMemo } from "react";
+import { ComponentType, SVGProps, memo, useMemo } from "react";
 import { Button } from "../ui/Button";
 import { COLORS } from "../ui/colors";
 
@@ -54,7 +54,7 @@ const MetaChip = ({
   tone = "default",
   title,
 }: {
-  icon?: ComponentType<{ className?: string }>;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   label: string;
   tone?: "default" | "brand" | "support";
   title?: string;

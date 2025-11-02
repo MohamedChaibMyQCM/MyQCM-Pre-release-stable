@@ -1088,9 +1088,10 @@ export default function NewGenerationRequestPage() {
     setBatchResultErrors([]);
 
     if (selected && selected.size > 5 * 1024 * 1024) {
-      setBatchError("Spreadsheet must be 5 MB or smaller.");
-      setBatchStatus(statusMessage);
-      toast.success(statusMessage);
+      const message = "Spreadsheet must be 5 MB or smaller.";
+      setBatchError(message);
+      setBatchStatus(message);
+      toast.error(message);
 
       setBatchFile(null);
       if (batchFileInputRef.current) {

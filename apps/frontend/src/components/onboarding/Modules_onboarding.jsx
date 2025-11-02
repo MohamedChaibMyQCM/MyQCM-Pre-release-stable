@@ -4,10 +4,6 @@ import Image from "next/image";
 import right_arrow from "../../../public/Home/rigth_arrow.svg";
 import left_arrow from "../../../public/Home/left_arrow.svg";
 import play from "../../../public/Home/pink_play.svg";
-import module1 from "../../../public/Home/module1.avif";
-import module2 from "../../../public/Home/module2.avif";
-import module3 from "../../../public/Home/module3.avif";
-import module4 from "../../../public/Home/module4.avif";
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 
@@ -88,9 +84,16 @@ const Modules_onboarding = ({ highlightedElementInfo, isTourActive }) => {
     },
   ];
 
+  const moduleImages = [
+    "/Home/module1.avif",
+    "/Home/module2.avif",
+    "/Home/module3.avif",
+    "/Home/module4.avif",
+  ];
+
   const modulesData = staticSubjectsData.map((subject, index) => ({
     id: subject.id || `fallback-${index}`,
-    image: [module1, module2, module3, module4][index % 4], // Cycle through 4 images
+    image: moduleImages[index % moduleImages.length], // Cycle through 4 images
     title: subject.name || "Matière inconnue",
     unit: extractAndTruncateUnitName(staticProfileData.unit.name),
     fullUnitForTitle: staticProfileData.unit.name,
@@ -225,10 +228,10 @@ const Modules_onboarding = ({ highlightedElementInfo, isTourActive }) => {
                 <Image
                   src={module.image}
                   alt={`Illustration pour ${module.title}`}
-                  layout="fill" // Use layout="fill" with a sized parent
-                  objectFit="cover" // Ensures image covers the area
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes, adjust as needed
-                  priority={false} // Set true for above-the-fold images only
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover"
+                  priority={false}
                 />
               </div>
               <div className="flex flex-col flex-grow">

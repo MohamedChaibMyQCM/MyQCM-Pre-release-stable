@@ -8,7 +8,7 @@ const Settings_Links = () => {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard/settings", label: "Informations du profil" },
+    { href: "/dashboard/settings/personal-info", label: "Informations du profil" },
     {
       href: "/dashboard/settings/change-password",
       label: "Changer le mot de passe",

@@ -1,12 +1,9 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import Image from "next/image";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import logo from "../../../../public/whiteLogo.svg";
@@ -111,7 +108,7 @@ const initialStats = {
   accuracy: 0,
 };
 
-export default function ClinicalCaseDemoPage() {
+function ClinicalCaseDemoContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -781,7 +778,7 @@ export default function ClinicalCaseDemoPage() {
                 </h2>
                 <p className="mt-3 text-[15px] leading-relaxed text-[#625371] max-md:text-[14px] max-md:mt-2">
                   Choisissez le scénario que vous souhaitez tester. Chaque carte correspond
-                  au cas de démonstration ou à l'un de vos prototypes publiés dans l'espace freelancer.
+                  au cas de démonstration ou à l&apos;un de vos prototypes publiés dans l&apos;espace freelancer.
                 </p>
               </div>
             </div>
@@ -851,7 +848,14 @@ export default function ClinicalCaseDemoPage() {
             <div className="flex flex-1 items-center justify-center">
               <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#F64C4C33] bg-[#FFE9EC] px-10 py-12 text-center shadow-md">
                 <p className="text-sm font-medium text-[#B91C1C]">{error}</p>
-                <Button variant="secondary" onClick={fetchCase}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (caseIdentifier) {
+                      void fetchCase(caseIdentifier);
+                    }
+                  }}
+                >
                   Reessayer
                 </Button>
               </div>
@@ -995,5 +999,19 @@ export default function ClinicalCaseDemoPage() {
         </>
       ) : null}
     </div>
+  );
+}
+
+export default function ClinicalCaseDemoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center text-sm text-[#6C7A89]">
+          Chargement du cas clinique...
+        </div>
+      }
+    >
+      <ClinicalCaseDemoContent />
+    </Suspense>
   );
 }

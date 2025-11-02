@@ -16,6 +16,7 @@ import GuidedSeason from "./TrainingPopups/GuidedSeason";
 import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { motion } from "framer-motion";
 
 const normalizeModeName = (modeName) => {
   if (typeof modeName !== "string") {
@@ -140,6 +141,44 @@ const Questions = ({
     setSelectedCourseId(null);
   };
 
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.07,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   if (isLoadingCourses || isLoadingProfile) {
     return <Loading />;
   }
@@ -211,18 +250,28 @@ const Questions = ({
 
   return (
     <div className="relative rounded-[20px]">
-      <div className="flex items-center justify-between mb-5">
+      <motion.div
+        className="flex items-center justify-between mb-5"
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <h1 className="font-Poppins font-[500] text-[22px] text-[#191919]">
           Questions par cours
         </h1>
-      </div>
+      </motion.div>
 
       {displayData.length === 0 ? (
         <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded box">
           Aucun cours (avec questions) trouvé.
         </div>
       ) : (
-        <ul className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box">
+        <motion.ul
+          className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {displayData.map((item) => {
             const MAX_NAME_LENGTH = 26;
             const progress = item.progress_percentage || 0;
@@ -233,13 +282,28 @@ const Questions = ({
             const questionLabel = `Question${item.total !== 1 ? "s" : ""}`;
 
             return (
-              <li
-                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] duration-200 transition-all ${
-                  buttonsDisabled
-                    ? "opacity-60 cursor-not-allowed"
-                    : "hover:shadow-md"
+              <motion.li
+                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
+                  buttonsDisabled ? "opacity-60 cursor-not-allowed" : ""
                 }`}
                 key={item.id}
+                variants={itemVariants}
+                whileHover={
+                  !buttonsDisabled
+                    ? {
+                        scale: 1.02,
+                        y: -3,
+                        boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+                        borderColor: "#F8589F",
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20,
+                        },
+                      }
+                    : {}
+                }
+                whileTap={!buttonsDisabled ? { scale: 0.98 } : {}}
               >
                 <div className="basis-[34%] flex items-center gap-4 max-md:gap-3 max-md:basis-[82%]">
                   <Image
@@ -290,7 +354,7 @@ const Questions = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
-                  <button
+                  <motion.button
                     onClick={() => handleScheduleClick(item.id)}
                     disabled={buttonsDisabled}
                     aria-label={`Planifier session ${item.name}`}
@@ -301,9 +365,17 @@ const Questions = ({
                           : "Session en cours..."
                         : "Planifier"
                     }
-                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
-                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
-                    }`}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={
+                      !buttonsDisabled
+                        ? {
+                            scale: 1.2,
+                            rotate: 8,
+                            transition: { duration: 0.2 },
+                          }
+                        : {}
+                    }
+                    whileTap={!buttonsDisabled ? { scale: 0.85 } : {}}
                   >
                     <Image
                       src={planification}
@@ -312,8 +384,8 @@ const Questions = ({
                       width={24}
                       height={24}
                     />
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={() => handlePlayClick(item.id)}
                     disabled={buttonsDisabled}
                     aria-label={`Lancer session ${item.name}`}
@@ -324,9 +396,17 @@ const Questions = ({
                           : "Session en cours..."
                         : "Lancer"
                     }
-                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${
-                      !buttonsDisabled ? "hover:scale-110 duration-200" : ""
-                    }`}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={
+                      !buttonsDisabled
+                        ? {
+                            scale: 1.25,
+                            rotate: -8,
+                            transition: { duration: 0.2 },
+                          }
+                        : {}
+                    }
+                    whileTap={!buttonsDisabled ? { scale: 0.85 } : {}}
                   >
                     <Image
                       src={playSeasonIcon}
@@ -335,12 +415,12 @@ const Questions = ({
                       width={24}
                       height={24}
                     />
-                  </button>
+                  </motion.button>
                 </div>
-              </li>
+              </motion.li>
             );
           })}
-        </ul>
+        </motion.ul>
       )}
 
       {renderPopup()}

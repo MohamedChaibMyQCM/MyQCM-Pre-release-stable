@@ -5,7 +5,7 @@ import Settings_Links from "@/components/dashboard/settings/Settings_Links";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
-const layout = ({ children }) => {
+const Layout = ({ children }) => {
   const pathname = usePathname();
 
   return (
@@ -37,4 +37,4 @@ const layout = ({ children }) => {
   );
 };
 
-export default layout;
+export default Layout;

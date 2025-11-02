@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../../public/logoMyqcm.png";
 import Link from "next/link";
 import { CaretLeft, Spinner } from "phosphor-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -187,7 +186,14 @@ const VerificationPage = () => {
   if (isVerificationComplete) {
     return (
       <div className="bg-[#FFF] w-full min-h-full rounded-[16px] flex flex-col items-center justify-center gap-6 p-4">
-        <Image src={logo} alt="MyQCM Logo" className="w-[140px] mb-6" />
+        <Image
+          src="/logoMyqcm.png"
+          alt="MyQCM Logo"
+          width={140}
+          height={140}
+          className="w-[140px] h-auto mb-6"
+          priority
+        />
         <div className="w-[567.09px] mx-auto max-md:w-[90%] text-center">
           <h2 className="text-[#191919] font-[500] text-[20px] mb-4">
             Vérification réussie !
@@ -205,7 +211,14 @@ const VerificationPage = () => {
 
   return (
     <div className="bg-[#FFF] w-full min-h-full rounded-[16px] flex flex-col items-center justify-center gap-6 p-4 overflow-y-auto">
-      <Image src={logo} alt="MyQCM Logo" className="w-[140px] mb-6" />
+      <Image
+        src="/logoMyqcm.png"
+        alt="MyQCM Logo"
+        width={140}
+        height={140}
+        className="w-[140px] h-auto mb-6"
+        priority
+      />
 
       <div className="flex items-center gap-1 self-start w-[567.09px] mx-auto max-md:w-[90%] max-md:pl-3">
         <Link href={`/login`} className="flex items-center gap-1 group">

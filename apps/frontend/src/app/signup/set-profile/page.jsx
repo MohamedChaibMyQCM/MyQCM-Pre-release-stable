@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../../../../public/logoMyqcm.png";
 import { useState, useEffect } from "react";
 import University from "../../../components/signup/ProfileOne/University";
 import Field from "../../../components/signup/ProfileOne/Field";
@@ -121,7 +120,14 @@ const Page = () => {
       }`}
     >
       <div className="flex items-center gap-5 mb-[10px] max-md:mt-[200px] mt-8 max-md:mt-[180px]">
-        <Image src={logo} alt="logo" className="w-[140px] mb-6" />
+        <Image
+          src="/logoMyqcm.png"
+          alt="logo"
+          width={140}
+          height={140}
+          className="w-[140px] h-auto mb-6"
+          priority
+        />
       </div>
 
       <div className="w-full relative flex items-center justify-between mb-[24px] px-[40px] max-md:px-[20px] max-md:gap-4">

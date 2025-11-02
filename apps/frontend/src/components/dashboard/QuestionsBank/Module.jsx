@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Avatar from "../../../../public/Icons/Avatar.svg";
 import { ListBullets, Stack } from "phosphor-react";
+import { motion } from "framer-motion";
 
 const Module = ({ data = {} }) => {
   const bannerSrc =
@@ -14,24 +17,78 @@ const Module = ({ data = {} }) => {
       ? data.description
       : "Ce module n'a pas encore de description detaillee.";
 
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
-    <div className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box">
-      <Image
-        src={bannerSrc}
-        width={400}
-        height={200}
-        alt="Illustration du module"
-        className="w-full rounded-[16px] object-cover"
-        onError={(event) => {
-          event.currentTarget.src = "/default-icon.svg";
-          event.currentTarget.srcset = "/default-icon.svg";
-        }}
-      />
-      <span className="text-[15px] text-[#F8589F] font-medium">Module</span>
-      <span className="text-[20px] text-[#191919] font-semibold">
+    <motion.div
+      className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover={{
+        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
+        transition: { duration: 0.3 },
+      }}
+    >
+      <motion.div variants={itemVariants}>
+        <Image
+          src={bannerSrc}
+          width={400}
+          height={200}
+          alt="Illustration du module"
+          className="w-full rounded-[16px] object-cover"
+          onError={(event) => {
+            event.currentTarget.src = "/default-icon.svg";
+            event.currentTarget.srcset = "/default-icon.svg";
+          }}
+        />
+      </motion.div>
+      <motion.span
+        className="text-[15px] text-[#F8589F] font-medium"
+        variants={itemVariants}
+      >
+        Module
+      </motion.span>
+      <motion.span
+        className="text-[20px] text-[#191919] font-semibold"
+        variants={itemVariants}
+      >
         {data.name ?? "Module inconnu"}
-      </span>
-      <div className="w-full bg-[#FFF5FA] flex items-center justify-center px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]">
+      </motion.span>
+      <motion.div
+        className="w-full bg-[#FFF5FA] flex items-center justify-center px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]"
+        variants={itemVariants}
+        whileHover={{
+          scale: 1.02,
+          backgroundColor: "#FFE5F3",
+          transition: { duration: 0.2 },
+        }}
+      >
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#F8589F] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
             <ListBullets size={18} className="text-[#FFFFFF]" />
@@ -52,14 +109,21 @@ const Module = ({ data = {} }) => {
             <span className="text-[#7996FD] pr-1">{mcqCount.qroc}</span> QROC
           </span>
         </div>
-      </div>
-      <div className="flex flex-col gap-2 my-2">
+      </motion.div>
+      <motion.div className="flex flex-col gap-2 my-2" variants={itemVariants}>
         <span className="font-Poppins font-medium text-[14px] text-[#F8589F]">
           DESCRIPTION
         </span>
         <p className="text-[13px] text-[#666666]">{description}</p>
-      </div>
-      <div className="flex items-center gap-3 ">
+      </motion.div>
+      <motion.div
+        className="flex items-center gap-3"
+        variants={itemVariants}
+        whileHover={{
+          x: 5,
+          transition: { duration: 0.2 },
+        }}
+      >
         <Image src={Avatar} alt="avatar" />
         <div className="flex flex-col gap-1">
           <span className="text-[#191919] font-semibold text-[14px]">
@@ -69,8 +133,8 @@ const Module = ({ data = {} }) => {
             Createur du contenu medical de 3eme annee, top 6 en 3eme annee.
           </span>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

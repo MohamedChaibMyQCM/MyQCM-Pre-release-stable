@@ -1,12 +1,12 @@
 "use client";
 
-import { ComponentType, CSSProperties } from "react";
+import { ComponentType, CSSProperties, SVGProps } from "react";
 import { COLORS } from "./colors";
 
 type KPITone = "neutral" | "success" | "warning" | "danger";
 
 type KPIProps = {
-  icon?: ComponentType<{ className?: string; style?: CSSProperties }>;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   label: string;
   value: string | number;
   tone?: KPITone;

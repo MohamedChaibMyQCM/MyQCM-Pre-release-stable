@@ -485,7 +485,7 @@ const Aside = () => {
             whileTap={{ scale: 0.95 }}
           >
             <Link
-              href={`/dashboard/settings`}
+              href={`/dashboard/settings/personal-info`}
               className="text-[#324054] flex items-center gap-4 max-xl:justify-center"
               onClick={() => isMenuOpen && setIsMenuOpen(false)}
             >
@@ -594,7 +594,7 @@ const Aside = () => {
             whileTap={{ scale: 0.95 }}
           >
             <Link
-              href={`/dashboard/settings`}
+              href={`/dashboard/settings/personal-info`}
               className="text-[#324054] flex items-center gap-4"
             >
               <motion.div

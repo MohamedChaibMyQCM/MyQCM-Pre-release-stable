@@ -2,8 +2,63 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionH3 = motion.h3;
 
 const Progress_per_module = ({ progress_by_module }) => {
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   // Vérifier si les données sont vides ou non disponibles
   if (!progress_by_module || progress_by_module.length === 0) {
     return (
@@ -47,11 +102,27 @@ const Progress_per_module = ({ progress_by_module }) => {
   const overallStatus = getEngagementStatus(overallPercentage);
 
   return (
-    <div id="tour-module-progress" className="flex-1">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <MotionDiv
+      id="tour-module-progress"
+      className="flex-1"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <MotionH3
+        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        variants={headerVariants}
+      >
         Engagement par module
-      </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] py-4 box h-[390px] overflow-y-auto scrollbar-hide">
+      </MotionH3>
+      <MotionDiv
+        className="bg-[#FFFFFF] rounded-[16px] py-4 box h-[390px] overflow-y-auto scrollbar-hide"
+        variants={cardVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <Card className="overflow-hidden border-none shadow-none mt-2">
           <CardContent>
             <div className="relative flex items-center justify-center mb-6">
@@ -92,7 +163,7 @@ const Progress_per_module = ({ progress_by_module }) => {
               </div>
             </div>
 
-            <div className="space-y-5">
+            <MotionDiv className="space-y-5" variants={containerVariants}>
               {progress_by_module.map((module, index) => {
                 const engagementPercentage = Math.min(
                   (module.uniqueMcqCount / maxCount) * 100,
@@ -100,7 +171,7 @@ const Progress_per_module = ({ progress_by_module }) => {
                 );
 
                 return (
-                  <div key={index}>
+                  <MotionDiv key={index} variants={itemVariants}>
                     <div className="flex justify-between mb-1">
                       <span className="text-[14px] text-[#191919] font-[500]">
                         {module.subject.split(":")[0].trim()}
@@ -115,14 +186,14 @@ const Progress_per_module = ({ progress_by_module }) => {
                         style={{ width: `${engagementPercentage}%` }}
                       ></div>
                     </div>
-                  </div>
+                  </MotionDiv>
                 );
               })}
-            </div>
+            </MotionDiv>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
 };
 

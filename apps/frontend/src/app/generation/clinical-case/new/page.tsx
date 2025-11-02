@@ -1,6 +1,9 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import {
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -182,7 +185,7 @@ const createEmptyMcq = (overrides: Partial<DraftMcq> = {}): DraftMcq => ({
   ...overrides,
 });
 
-export default function ClinicalCaseBuilderPage() {
+function ClinicalCaseBuilderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const caseIdParam = searchParams.get("caseId");
@@ -1714,5 +1717,19 @@ export default function ClinicalCaseBuilderPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ClinicalCaseBuilderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center text-sm text-[#6C7A89]">
+          Chargement du générateur de cas clinique...
+        </div>
+      }
+    >
+      <ClinicalCaseBuilderContent />
+    </Suspense>
   );
 }

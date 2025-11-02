@@ -2,8 +2,65 @@
 
 import React from "react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionH3 = motion.h3;
+const MotionUl = motion.ul;
+const MotionLi = motion.li;
 
 const Recent_Quiz = ({ recent_quizzes }) => {
+  // Premium animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, x: 30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        delay: 0.2,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   // Vérifier si les données sont vides ou non disponibles
   if (!recent_quizzes || recent_quizzes.length === 0) {
     return (
@@ -70,22 +127,48 @@ const Recent_Quiz = ({ recent_quizzes }) => {
   });
 
   return (
-    <div id="tour-recent-quizzes" className="flex-1">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+    <MotionDiv
+      id="tour-recent-quizzes"
+      className="flex-1"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <MotionH3
+        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        variants={headerVariants}
+      >
         Quiz récents
-      </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide">
+      </MotionH3>
+      <MotionDiv
+        className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide"
+        variants={cardVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <span className="text-[14px] text-[#B5BEC6]">Moyenne globale</span>
         <div className="flex items-center gap-3 mb-3 mt-1">
           <span className="text-[#242424] font-[500] text-[40px]">
             {overallBand.toFixed(0)}%
           </span>
         </div>
-        <ul className="flex flex-col gap-4">
+        <MotionUl
+          className="flex flex-col gap-4"
+          variants={containerVariants}
+        >
           {formattedQuizzes.map((quiz) => (
-            <li
+            <MotionLi
               key={quiz.id}
               className="border border-[#E4E4E4] p-4 rounded-[12px]"
+              variants={itemVariants}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
+                borderColor: "#F8589F",
+                transition: { duration: 0.2 },
+              }}
             >
               <span className="pl-[14px] relative text-[14px] text-[#191919] font-[500] block after:absolute after:w-[6px] after:h-[6px] after:bg-[#F8589F] after:rounded-full after:left-0 after:top-[50%] after:translate-y-[-50%]">
                 {quiz.title}
@@ -112,11 +195,11 @@ const Recent_Quiz = ({ recent_quizzes }) => {
                 </div>
                 <span className="text-[13px] text-[#B5BEC6]">{quiz.date}</span>
               </div>
-            </li>
+            </MotionLi>
           ))}
-        </ul>
-      </div>
-    </div>
+        </MotionUl>
+      </MotionDiv>
+    </MotionDiv>
   );
 };
 

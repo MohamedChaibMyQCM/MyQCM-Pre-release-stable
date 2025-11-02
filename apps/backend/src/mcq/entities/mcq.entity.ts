@@ -1,5 +1,13 @@
 import { ChronoEntity } from "abstract/base-chrono.entity";
-import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import {
   McqApprovalStatus,
   McqDifficulty,
@@ -16,6 +24,7 @@ import { Subject } from "src/subject/entities/subject.entity";
 import { Course } from "src/course/entities/course.entity";
 import { ClinicalCase } from "src/clinical_case/entities/clinical_case.entity";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
+import { KnowledgeComponent } from "src/knowledge-component/entities/knowledge-component.entity";
 
 @Entity()
 export class Mcq extends ChronoEntity {
@@ -160,4 +169,21 @@ export class Mcq extends ChronoEntity {
     nullable: true,
   })
   clinical_case: ClinicalCase;
+
+  @ManyToMany(
+    () => KnowledgeComponent,
+    (knowledgeComponent) => knowledgeComponent.mcqs,
+  )
+  @JoinTable({
+    name: "mcq_knowledge_component",
+    joinColumn: {
+      name: "mcq_id",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "knowledge_component_id",
+      referencedColumnName: "id",
+    },
+  })
+  knowledgeComponents: KnowledgeComponent[];
 }

@@ -1,0 +1,4 @@
+domain_slug,domain_name,domain_description,domain_sort_order,kc_slug,kc_name,kc_code,kc_description,parent_slug,level,is_active
+general-clinical,General Clinical Skills,"Foundational clinical knowledge",0,general-master,General Mastery,GEN-0001,"Default mastery component used when no detailed taxonomy is available",,1,true
+cardiology-foundations,Cardiology Foundations,"Core cardiology competencies",1,cardio-ecg-basics,ECG Interpretation Basics,CARD-101,"Recognise normal ECG traces and baseline findings",,1,true
+cardiology-foundations,Cardiology Foundations,"Core cardiology competencies",1,cardio-ecg-arrhythmias,Arrhythmia Recognition,CARD-102,"Identify common arrhythmias on ECG",cardio-ecg-basics,2,true

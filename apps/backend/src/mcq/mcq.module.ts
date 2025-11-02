@@ -11,6 +11,7 @@ import { AssistantModule } from "src/assistant/assistant.module";
 import { ProgressModule } from "src/progress/progress.module";
 import { UserModule } from "src/user/user.module";
 import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module";
+import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module
     ProgressModule,
     forwardRef(() => UserModule),
     AdaptiveEngineModule,
+    KnowledgeComponentModule,
   ],
   controllers: [McqController],
   providers: [McqService],

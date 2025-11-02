@@ -12,4 +12,5 @@ export class CreateProgressInterface {
   selected_options?: SelectedOptionInterface[];
   success_ratio?: number;
   feedback?: string;
+  knowledge_components?: string[];
 }

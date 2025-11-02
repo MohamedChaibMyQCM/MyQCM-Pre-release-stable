@@ -1,6 +1,7 @@
 import { ChronoEntity } from "abstract/base-chrono.entity";
 import { Subject } from "src/subject/entities/subject.entity";
-import { Column, Entity, Index, ManyToOne } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
+import { KnowledgeComponent } from "src/knowledge-component/entities/knowledge-component.entity";
 
 @Entity()
 export class Course extends ChronoEntity {
@@ -39,4 +40,10 @@ export class Course extends ChronoEntity {
     nullable: true,
   })
   attachment: string;
+
+  @OneToMany(
+    () => KnowledgeComponent,
+    (knowledgeComponent) => knowledgeComponent.course,
+  )
+  knowledgeComponents: KnowledgeComponent[];
 }

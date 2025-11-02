@@ -15,6 +15,7 @@ import { useFeedbackSurvey } from "@/hooks/useFeedbackSurvey";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
 import SegmentedTimerMyQCM from "./SegmentedTimerMyQCM";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuizSounds } from "@/hooks/useQuizSounds";
 
 const Quiz = ({
   questionData,
@@ -142,6 +143,9 @@ const Quiz = ({
   const { activeSurvey, closeSurvey, resetSurveys } =
     useFeedbackSurvey(remainingQrocs);
 
+  // Sound effects hook
+  const sounds = useQuizSounds();
+
   // Debug effect
   useEffect(() => {
     console.log("Quiz component - activeSurvey changed:", activeSurvey);
@@ -163,6 +167,9 @@ const Quiz = ({
     setShowSkipPopup(false);
     setSkipInitiatedByTimeout(false);
 
+    // Play transition sound for new question
+    sounds.playTransition();
+
     formik.resetForm({
       values: {
         mcq: questionData?.id,
@@ -181,14 +188,38 @@ const Quiz = ({
     };
   }, [questionData, setAnswer]);
 
+  // Track if warning sound has been played for each threshold
+  const warningPlayedRef = useRef({ threshold25: false, threshold15: false });
+
   useEffect(() => {
     clearInterval(timerRef.current);
     timerRef.current = null;
+
+    // Reset warning flags when question changes
+    warningPlayedRef.current = { threshold25: false, threshold15: false };
 
     if (isMounted.current && checkAnswer && timeRemaining > 0) {
       timerRef.current = setInterval(() => {
         if (isMounted.current) {
           setTimeRemaining((prevTime) => {
+            // Play warning sound at 25% and 15% time remaining
+            const warningThreshold1 = Math.floor(initialTime * 0.25);
+            const warningThreshold2 = Math.floor(initialTime * 0.15);
+
+            // Play warning at 25% if not already played
+            if (prevTime === warningThreshold1 && !warningPlayedRef.current.threshold25) {
+              sounds.playTimerWarning();
+              warningPlayedRef.current.threshold25 = true;
+              console.log("Playing 25% warning at", prevTime, "seconds");
+            }
+
+            // Play warning at 15% if not already played
+            if (prevTime === warningThreshold2 && !warningPlayedRef.current.threshold15) {
+              sounds.playTimerWarning();
+              warningPlayedRef.current.threshold15 = true;
+              console.log("Playing 15% warning at", prevTime, "seconds");
+            }
+
             if (prevTime <= 1) {
               clearInterval(timerRef.current);
               timerRef.current = null;
@@ -214,10 +245,14 @@ const Quiz = ({
       clearInterval(timerRef.current);
       timerRef.current = null;
     };
-  }, [checkAnswer, timeRemaining]);
+  }, [checkAnswer, timeRemaining, initialTime, sounds, questionData]);
 
   const handleOptionClick = (option) => {
     if (!checkAnswer) return;
+
+    // Play select sound
+    console.log("Playing select sound");
+    sounds.playSelect();
 
     setSelectedOptions((prevSelected) => {
       if (questionData?.type === "qcs") {
@@ -316,6 +351,10 @@ const Quiz = ({
     timerRef.current = null;
     setShowSkipPopup(false);
 
+    // Play skip sound
+    console.log("Playing skip sound");
+    sounds.playSkip();
+
     if (isFinalQuestion) {
       handleSessionCompletion();
       return;
@@ -378,6 +417,10 @@ const Quiz = ({
 
   const handleNextFromExplanation = () => {
     setSeeExplanation(false);
+
+    // Play transition sound
+    sounds.playTransition();
+
     if (!isFinalQuestion) {
       fetchNextMcq();
     } else {
@@ -477,6 +520,68 @@ const Quiz = ({
 
   // Letter badges for options
   const optionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+  // Keyboard shortcuts handler
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      // Ignore if typing in an input
+      if (
+        event.target.tagName === "INPUT" ||
+        event.target.tagName === "TEXTAREA" ||
+        showSkipPopup ||
+        seeExplanation
+      ) {
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+
+      // Handle option selection (A-E for MCQ/QCS)
+      if (
+        checkAnswer &&
+        (questionData?.type === "qcm" || questionData?.type === "qcs")
+      ) {
+        const optionIndex = optionLetters.indexOf(key.toUpperCase());
+        if (optionIndex !== -1 && questionData?.options?.[optionIndex]) {
+          event.preventDefault();
+          const option = questionData.options[optionIndex];
+          if (option.content && option.content.trim() !== ".") {
+            handleOptionClick(option);
+          }
+        }
+      }
+
+      // Handle Enter key
+      if (key === "enter") {
+        event.preventDefault();
+        if (checkAnswer && !isSubmitDisabled) {
+          formik.handleSubmit();
+        } else if (!checkAnswer) {
+          handleSeeExplanationOrNext();
+        }
+      }
+
+      // Handle S key for skip
+      if (key === "s" && checkAnswer && !isSubmitting && !isLoadingNextMcq) {
+        event.preventDefault();
+        triggerSkipPopup();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [
+    checkAnswer,
+    questionData,
+    selectedOptions,
+    isSubmitDisabled,
+    isSubmitting,
+    isLoadingNextMcq,
+    showSkipPopup,
+    seeExplanation,
+  ]);
 
   return (
     <motion.div

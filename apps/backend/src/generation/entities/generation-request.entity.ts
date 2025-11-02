@@ -109,6 +109,9 @@ export class GenerationRequest extends ChronoEntity {
   })
   uploaded_at: Date | null;
 
+  @Column("uuid", { array: true, default: () => "ARRAY[]::uuid[]" })
+  knowledge_components: string[];
+
   @OneToMany(() => GenerationItem, (item) => item.request, {
     cascade: true,
   })

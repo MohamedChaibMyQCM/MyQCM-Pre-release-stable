@@ -12,7 +12,7 @@
     "baseUrl": "./",
     "moduleResolution": "node",
     "lib": ["ES2021"],
-    "types": ["node", "reflect-metadata"],
+    "types": ["node", "reflect-metadata", "jest"],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

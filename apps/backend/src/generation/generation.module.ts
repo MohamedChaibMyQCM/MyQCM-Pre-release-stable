@@ -10,6 +10,7 @@ import { Course } from "src/course/entities/course.entity";
 import { McqModule } from "src/mcq/mcq.module";
 import { HttpModule } from "@nestjs/axios";
 import { GenerationAiService } from "./generation-ai.service";
+import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GenerationAiService } from "./generation-ai.service";
       Course,
     ]),
     McqModule,
+    KnowledgeComponentModule,
   ],
   providers: [GenerationService, GenerationAiService],
   controllers: [GenerationController],

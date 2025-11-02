@@ -105,6 +105,7 @@ export class AdaptiveEngineService {
       estimated_time: number;
       time_spent: number;
       baseline: number;
+      knowledgeComponentIds?: string[];
     },
     transactionManager?: EntityManager,
   ) {
@@ -114,6 +115,8 @@ export class AdaptiveEngineService {
     );
     const { guessing_probability, slipping_probability, learning_rate } =
       adaptive_learner.course;
+    const knowledgeComponentIds =
+      options.knowledgeComponentIds ?? [];
 
     // Calculate new mastery using BKT model
     const new_bkt_mastery = await this.calculateBkt(
@@ -134,6 +137,7 @@ export class AdaptiveEngineService {
       options.is_correct,
     );
     adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
+    (adaptive_learner as any).knowledgeComponentIds = knowledgeComponentIds;
 
     return transactionManager
       ? transactionManager.save(adaptive_learner)
@@ -259,8 +263,9 @@ export class AdaptiveEngineService {
     };
 
     const discrimination = discriminationMap[irtMap.type] ?? 0.5;
+    const knowledgeComponentIds = irtMap.knowledgeComponentIds ?? [];
 
-    return { difficulty, guessing, discrimination };
+    return { difficulty, guessing, discrimination, knowledgeComponentIds };
   }
 
   /**

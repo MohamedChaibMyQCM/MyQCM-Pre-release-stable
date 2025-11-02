@@ -1,0 +1,18 @@
+[
+  {
+    "slug": "kc-domain-general",
+    "name": "General Knowledge",
+    "description": "Baseline knowledge component domain used as a fallback when no richer taxonomy is available.",
+    "sortOrder": 0,
+    "isActive": true,
+    "components": [
+      {
+        "slug": "kc-general",
+        "name": "General Mastery",
+        "description": "Default mastery concept automatically assigned to existing MCQs.",
+        "level": 1,
+        "isActive": true
+      }
+    ]
+  }
+]

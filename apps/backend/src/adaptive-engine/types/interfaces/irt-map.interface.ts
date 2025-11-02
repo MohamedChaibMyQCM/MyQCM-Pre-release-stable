@@ -6,4 +6,5 @@ export interface IrtMapInterface {
   estimated_time: number;
   time_spent: number;
   baseline: number;
+  knowledgeComponentIds?: string[];
 }

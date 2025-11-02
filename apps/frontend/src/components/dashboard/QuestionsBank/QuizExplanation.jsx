@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
 import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
@@ -61,6 +62,22 @@ const QuizExplanation = ({
     handleNextQuestion();
     // Don't trigger survey here - let the Quiz component handle it after navigation
   };
+
+  // Keyboard shortcut for next question
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      const key = event.key.toLowerCase();
+      if (key === "enter") {
+        event.preventDefault();
+        handleNextQuestionClick();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleNextQuestion]);
 
   return (
     <div className="fixed z-[60] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#00000080] p-4">
@@ -233,7 +250,7 @@ const QuizExplanation = ({
           )}
 
           {/* Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4">
+          <div className={`flex flex-col sm:flex-row items-center ${isMCQ ? 'justify-end' : 'justify-between'} gap-4 bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4`}>
             {!isMCQ && (
               <p className="text-center sm:text-left text-[11px] text-[#6C757D] flex-1 leading-relaxed">
                 Cette réponse a été analysée par nos experts et notre IA. Bien

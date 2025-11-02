@@ -19,6 +19,7 @@ import { McqService } from "src/mcq/mcq.service";
 import { McqDifficulty, McqTag, McqType, QuizType } from "src/mcq/dto/mcq.type";
 import { CreateMcqDto } from "src/mcq/dto/create-mcq.dto";
 import { GenerationAiService } from "./generation-ai.service";
+import { KnowledgeComponentService } from "src/knowledge-component/knowledge-component.service";
 
 @Injectable()
 export class GenerationService {
@@ -29,6 +30,7 @@ export class GenerationService {
     private readonly generationItemRepository: Repository<GenerationItem>,
     private readonly mcqService: McqService,
     private readonly generationAiService: GenerationAiService,
+    private readonly knowledgeComponentService: KnowledgeComponentService,
   ) {}
 
   async createRequest(
@@ -61,6 +63,26 @@ export class GenerationService {
       throw new BadRequestException("Unit is required");
     }
 
+    if (!dto.knowledge_component_ids || dto.knowledge_component_ids.length === 0) {
+      throw new BadRequestException(
+        "Select at least one knowledge component for this generation request",
+      );
+    }
+
+    try {
+      await this.knowledgeComponentService.getComponentsByIds(
+        dto.knowledge_component_ids,
+        {
+          ensureAll: true,
+        },
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
     const request = this.generationRequestRepository.create({
       freelancer: { id: freelancer.id } as any,
       university: { id: dto.university } as any,
@@ -77,6 +99,7 @@ export class GenerationService {
       source_file_name: dto.sourceFileName ?? null,
       source_file_mime: dto.sourceFileMime ?? null,
       source_file_size: dto.sourceFileSize ?? null,
+      knowledge_components: dto.knowledge_component_ids,
     });
 
     return this.generationRequestRepository.save(request);
@@ -393,6 +416,7 @@ export class GenerationService {
         unit: unitId,
         subject: request.subject.id,
         course: request.course.id,
+        knowledge_component_ids: request.knowledge_components ?? [],
       } as CreateMcqDto;
 
       const mcq = await this.mcqService.create(dto, null, freelancer);

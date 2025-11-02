@@ -67,4 +67,8 @@ export class Progress extends ChronoEntity {
     comment: "if the user has skipped this mcq",
   })
   is_skipped: boolean;
+
+  @Column({ type: "uuid", array: true, nullable: true })
+  knowledge_components?: string[];
+
 }

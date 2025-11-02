@@ -18,4 +18,9 @@ export interface IrtParamsInterface {
    * This parameter indicates the probability that a user with very low ability will answer the Question correctly by guessing.
    */
   guessing: number;
+
+  /**
+   * Knowledge components associated with the item.
+   */
+  knowledgeComponentIds?: string[];
 }

@@ -13,10 +13,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@types/jest": "^30.0.0",
+    "concurrently": "^9.2.1",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5"
   },
   "dependencies": {
     "eslint-config-next": "^16.0.1",
+    "howler": "^2.2.4",
     "next": "^16.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

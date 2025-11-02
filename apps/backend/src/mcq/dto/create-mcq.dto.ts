@@ -178,6 +178,15 @@ export class CreateMcqDto {
   @IsNotEmpty()
   course: string;
 
+  @ApiProperty({
+    description: "Knowledge component identifiers associated with the MCQ.",
+    type: [String],
+  })
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID("4", { each: true })
+  knowledge_component_ids: string[];
+
   @ApiPropertyOptional({
     description: "Approval status of the MCQ.",
     enum: McqApprovalStatus,
@@ -271,4 +280,14 @@ export class CreateMcqInClinicalCase {
   @IsUUID("4")
   @IsNotEmpty()
   course: string;
+
+  @ApiPropertyOptional({
+    description: "Knowledge component identifiers associated with the MCQ.",
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsUUID("4", { each: true })
+  knowledge_component_ids?: string[];
 }

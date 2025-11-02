@@ -39,6 +39,7 @@ import { ReportModule } from "./report/report.module";
 import { FileModule } from "./file/file.module";
 import { GenerationModule } from "./generation/generation.module";
 import { RewardModule } from "./reward/reward.module";
+import { KnowledgeComponentModule } from "./knowledge-component/knowledge-component.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(PostgresConfig),
@@ -81,6 +82,7 @@ import { RewardModule } from "./reward/reward.module";
     FileModule,
     GenerationModule,
     RewardModule,
+    KnowledgeComponentModule,
   ],
   providers: [
     {

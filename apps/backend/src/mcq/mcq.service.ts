@@ -58,6 +58,7 @@ import { UserSubscription } from "src/user/entities/user-subscription.entity";
 import { Progress } from "src/progress/entities/progress.entity";
 import { McqBatchUploadMetadataDto } from "./dto/mcq-batch-upload.dto";
 import * as XLSX from "xlsx";
+import { KnowledgeComponentService } from "src/knowledge-component/knowledge-component.service";
 
 @Injectable()
 export class McqService {
@@ -74,7 +75,49 @@ export class McqService {
     private readonly userActivityService: UserActivityService,
     private readonly userSubscriptionService: UserSubscriptionService,
     private readonly adapativeEngineService: AdaptiveEngineService,
+    private readonly knowledgeComponentService: KnowledgeComponentService,
   ) {}
+
+  private async resolveKnowledgeComponents(
+    componentIds: string[] | undefined,
+    manager?: EntityManager,
+  ) {
+    if (!componentIds || componentIds.length === 0) {
+      const defaultComponent =
+        await this.knowledgeComponentService.getDefaultComponent(manager);
+      return [defaultComponent];
+    }
+
+    return this.knowledgeComponentService.getComponentsByIds(componentIds, {
+      manager,
+      ensureAll: true,
+    });
+  }
+
+  private async resolveKnowledgeComponentIdentifiers(
+    slugCandidates: string[],
+    fallbackIds: string[] | undefined,
+    manager?: EntityManager,
+  ): Promise<string[]> {
+    if (slugCandidates.length > 0) {
+      const components = await this.knowledgeComponentService.getComponentsBySlugs(
+        slugCandidates,
+        {
+          manager,
+          ensureAll: true,
+        },
+      );
+      return components.map((component) => component.id);
+    }
+
+    if (fallbackIds && fallbackIds.length > 0) {
+      return fallbackIds;
+    }
+
+    const defaultComponent =
+      await this.knowledgeComponentService.getDefaultComponent(manager);
+    return [defaultComponent.id];
+  }
 
   /**
    * Retrieves MCQs with pagination based on filters.
@@ -371,6 +414,7 @@ export class McqService {
           "university",
           "freelancer",
           "clinical_case",
+          "knowledgeComponents",
         ]
       : [];
     const mcq = await this.mcqRepository.findOne({
@@ -422,6 +466,7 @@ export class McqService {
     const queryBuilder = this.mcqRepository
       .createQueryBuilder("mcq")
       .leftJoinAndSelect("mcq.options", "option")
+      .leftJoinAndSelect("mcq.knowledgeComponents", "knowledgeComponent")
       .addSelect("mcq.answer")
       .addSelect("option.is_correct")
       .where("mcq.id = :mcqId", { mcqId });
@@ -432,7 +477,8 @@ export class McqService {
       queryBuilder
         .leftJoinAndSelect("mcq.unit", "unit")
         .leftJoinAndSelect("mcq.subject", "subject")
-        .leftJoinAndSelect("mcq.course", "course");
+        .leftJoinAndSelect("mcq.course", "course")
+        .leftJoinAndSelect("knowledgeComponent.domain", "knowledgeComponentDomain");
     } else if (options?.includeRelations === "ids") {
       // Load just the IDs
       queryBuilder
@@ -476,18 +522,25 @@ export class McqService {
     this.validateMcqDto(createMcqDto);
     return await this.mcqRepository.manager.transaction(
       async (transactionalManager) => {
+        const { knowledge_component_ids, ...mcqPayload } = createMcqDto;
+        const knowledgeComponents = await this.resolveKnowledgeComponents(
+          knowledge_component_ids,
+          transactionalManager,
+        );
+
         const mcq = this.mcqRepository.create({
-          ...createMcqDto,
+          ...mcqPayload,
           freelancer: { id: freelancer.id },
-          university: { id: createMcqDto.university },
-          faculty: { id: createMcqDto.faculty },
-          unit: { id: createMcqDto.unit },
-          subject: { id: createMcqDto.subject },
-          course: { id: createMcqDto.course },
+          university: { id: mcqPayload.university },
+          faculty: { id: mcqPayload.faculty },
+          unit: { id: mcqPayload.unit },
+          subject: { id: mcqPayload.subject },
+          course: { id: mcqPayload.course },
           attachment: attachment ? attachment.path : null,
+          knowledgeComponents,
         });
         mcq.approval_status =
-          createMcqDto.approval_status ?? McqApprovalStatus.APPROVED;
+          mcqPayload.approval_status ?? McqApprovalStatus.APPROVED;
         await transactionalManager.save(mcq);
 
         if (
@@ -538,6 +591,7 @@ export class McqService {
       options?: { content: string; is_correct: boolean }[];
       answer?: string;
       explanation?: string;
+      knowledge_components?: string[];
     }[];
   }> {
     if (!file) {
@@ -569,6 +623,18 @@ export class McqService {
 
     const errors: { row: number; message: string }[] = [];
     let created = 0;
+
+    const metadataFallbackComponents =
+      metadata.knowledge_component_ids?.length
+        ? await this.knowledgeComponentService.getComponentsByIds(
+            metadata.knowledge_component_ids,
+            { ensureAll: true },
+          )
+        : undefined;
+    const metadataFallbackIds = metadataFallbackComponents?.map(
+      (component) => component.id,
+    );
+
     const preview: {
       id: string;
       question: string;
@@ -580,6 +646,7 @@ export class McqService {
       options?: { content: string; is_correct: boolean }[];
       answer?: string;
       explanation?: string;
+      knowledge_components?: string[];
     }[] = [];
 
     for (let index = 0; index < rawRows.length; index++) {
@@ -621,6 +688,16 @@ export class McqService {
           normalizedRow,
           "explanation",
         );
+
+        const knowledgeComponentSlugs = this.parseKnowledgeComponentSlugs(
+          normalizedRow.get("knowledgecomponents"),
+        );
+
+        const knowledgeComponentIds =
+          await this.resolveKnowledgeComponentIdentifiers(
+            knowledgeComponentSlugs,
+            metadataFallbackIds,
+          );
 
         const correctIndexes = this.parseCorrectIndexes(
           normalizedRow.get("correctoptions"),
@@ -698,6 +775,7 @@ export class McqService {
           subject: metadata.subject,
           course: metadata.course,
           approval_status: McqApprovalStatus.PENDING,
+          knowledge_component_ids: knowledgeComponentIds,
         };
 
         const mcq = await this.create(dto, null, freelancer);
@@ -719,6 +797,7 @@ export class McqService {
                 })),
           answer,
           explanation: finalExplanation,
+          knowledge_components: knowledgeComponentIds,
         });
       } catch (error) {
         errors.push({
@@ -767,12 +846,19 @@ export class McqService {
 
     this.validateMcqDto(createMcqInClinicalCaseDto);
 
+    const { knowledge_component_ids, ...mcqPayload } = createMcqInClinicalCaseDto;
+    const knowledgeComponents = await this.resolveKnowledgeComponents(
+      knowledge_component_ids,
+      transactionalManager,
+    );
+
     const mcq = this.mcqRepository.create({
-      ...createMcqInClinicalCaseDto,
+      ...mcqPayload,
       clinical_case: clinicalCase,
       in_clinical_case: true,
       course: { id: course },
       freelancer: { id: freelancer.id },
+      knowledgeComponents,
     });
 
     const savedMcq = await transactionalManager.save(mcq);
@@ -844,6 +930,9 @@ export class McqService {
           unit: mcq.unit.id,
           course: mcq.course.id,
           subject: mcq.subject.id,
+          knowledge_components: (mcq.knowledgeComponents || []).map(
+            (component) => component.id,
+          ),
         },
       );
       return 'MCQ attempt skipped successfully'
@@ -1069,6 +1158,13 @@ export class McqService {
     if (attachment) {
       mcq.attachment = attachment.path;
     }
+
+    if (updateMcqDto.knowledge_component_ids !== undefined) {
+      const knowledgeComponents = await this.resolveKnowledgeComponents(
+        updateMcqDto.knowledge_component_ids,
+      );
+      mcq.knowledgeComponents = knowledgeComponents;
+    }
     if (updateMcqDto.options_to_delete?.length) {
       await Promise.all(
         updateMcqDto.options_to_delete.map((optionId) =>
@@ -1090,6 +1186,7 @@ export class McqService {
       options,
       options_to_delete: _optionsToDelete,
       approval_status: _approvalStatus,
+      knowledge_component_ids: _knowledgeComponentIds,
       ...restUpdateMcqDto
     } = updateMcqDto;
     Object.assign(mcq, restUpdateMcqDto);
@@ -1481,6 +1578,28 @@ export class McqService {
       }
     }
     return fallback;
+  }
+
+  private parseKnowledgeComponentSlugs(value: any): string[] {
+    if (value === undefined || value === null) {
+      return [];
+    }
+
+    const tokens = (Array.isArray(value) ? value : [value]) as any[];
+
+    const normalizedTokens = tokens
+      .flatMap((token) => String(token).split(/[;,|]/))
+      .map((token) => token.trim())
+      .filter((token) => token.length > 0);
+
+    return normalizedTokens
+      .map((token) =>
+        token
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+      )
+      .filter((token) => token.length > 0);
   }
 
   private parseSpreadsheetTag(
@@ -1890,6 +2009,9 @@ export class McqService {
           unit: mcq.unit.id,
           course: mcq.course.id,
           subject: mcq.subject.id,
+          knowledge_components: (mcq.knowledgeComponents || []).map(
+            (component) => component.id,
+          ),
         },
         transactionManager,
       );
@@ -1944,6 +2066,8 @@ export class McqService {
         estimated_time: mcq.estimated_time,
         time_spent: timeSpent,
         baseline: mcq.baseline,
+        knowledgeComponentIds:
+          (mcq.knowledgeComponents || []).map((component) => component.id),
       },
       transactionManager,
     );

@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -76,6 +77,14 @@ type SelectOption = {
   name: string;
 };
 
+type KnowledgeComponentOption = SelectOption & {
+  slug: string;
+  domainName?: string | null;
+  code?: string | null;
+  isActive?: boolean;
+  parentId?: string | null;
+};
+
 type ImportedPreview = {
   id: string;
   question: string;
@@ -115,6 +124,7 @@ type PersistedCourseContext = {
   unit?: string;
   subject?: string;
   course?: string;
+  knowledge_components?: string[];
 };
 
 const extractItems = (payload: any): any[] => {
@@ -238,10 +248,23 @@ export default function NewGenerationRequestPage() {
     DEFAULT_PENDING_VIEW_LIMIT,
   );
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [availableKnowledgeComponents, setAvailableKnowledgeComponents] =
+    useState<KnowledgeComponentOption[]>([]);
+  const [selectedKnowledgeComponents, setSelectedKnowledgeComponents] =
+    useState<string[]>([]);
+  const [loadingKnowledgeComponents, setLoadingKnowledgeComponents] =
+    useState(false);
+  const [knowledgeComponentError, setKnowledgeComponentError] = useState<
+    string | null
+  >(null);
+  const [importingKnowledgeComponents, setImportingKnowledgeComponents] =
+    useState(false);
   const previewSectionRef = useRef<HTMLDivElement | null>(null);
   const pendingSectionRef = useRef<HTMLDivElement | null>(null);
   const editingSectionRef = useRef<HTMLDivElement | null>(null);
   const editingQuestionInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const knowledgeComponentFileInputRef =
+    useRef<HTMLInputElement | null>(null);
   const persistedContextRef = useRef<PersistedCourseContext | null>(null);
   const hydrationStateRef = useRef({
     university: false,
@@ -250,6 +273,7 @@ export default function NewGenerationRequestPage() {
     unit: false,
     subject: false,
     course: false,
+    knowledgeComponents: false,
   });
 
   const toggleContentType = (value: "mcq" | "qroc") => {
@@ -259,6 +283,171 @@ export default function NewGenerationRequestPage() {
         : [...prev, value],
     );
   };
+
+  const fetchKnowledgeComponents = useCallback(
+    async (courseId: string) => {
+      if (!courseId) {
+        setAvailableKnowledgeComponents([]);
+        setSelectedKnowledgeComponents([]);
+        return;
+      }
+
+      setLoadingKnowledgeComponents(true);
+      setKnowledgeComponentError(null);
+
+      try {
+        const params = new URLSearchParams();
+        params.set("courseId", courseId);
+        params.set("includeRelations", "true");
+        params.set("includeInactive", "true");
+
+        const response = await apiFetch<any>(
+          `/knowledge-components?${params.toString()}`,
+        );
+        const payload = unwrapResponse<any>(response);
+
+        const rawList = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.results)
+          ? payload.results
+          : Array.isArray(payload)
+          ? payload
+          : [];
+
+        const options: KnowledgeComponentOption[] = rawList
+          .map((item: any) => ({
+            id: item?.id ?? "",
+            name:
+              item?.name ??
+              item?.slug ??
+              "Unnamed knowledge component",
+            slug: item?.slug ?? "",
+            domainName: item?.domain?.name ?? item?.domain_name ?? null,
+            code: item?.code ?? item?.kc_code ?? null,
+            isActive: item?.isActive ?? item?.is_active ?? true,
+            parentId: item?.parent?.id ?? item?.parent_id ?? null,
+          }))
+          .filter((option) => option.id && option.slug);
+
+        setAvailableKnowledgeComponents(options);
+
+        setSelectedKnowledgeComponents((previous) => {
+          const intersection = previous.filter((id) =>
+            options.some((option) => option.id === id),
+          );
+
+          const persistedKnowledgeComponents =
+            persistedContextRef.current?.knowledge_components;
+
+          if (
+            intersection.length === 0 &&
+            persistedContextRef.current?.course === courseId &&
+            Array.isArray(persistedKnowledgeComponents) &&
+            persistedKnowledgeComponents.length > 0 &&
+            !hydrationStateRef.current.knowledgeComponents
+          ) {
+            const restored = persistedKnowledgeComponents.filter(
+              (id) => options.some((option) => option.id === id),
+            );
+            hydrationStateRef.current.knowledgeComponents = true;
+            return restored;
+          }
+
+          if (!hydrationStateRef.current.knowledgeComponents) {
+            hydrationStateRef.current.knowledgeComponents = true;
+          }
+
+          return intersection;
+        });
+      } catch (err) {
+        if (err instanceof UnauthorizedError) {
+          redirectToLogin();
+          return;
+        }
+
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Unable to load knowledge components for this course.";
+        setKnowledgeComponentError(message);
+        toast.error(message);
+        setAvailableKnowledgeComponents([]);
+        setSelectedKnowledgeComponents([]);
+      } finally {
+        setLoadingKnowledgeComponents(false);
+      }
+    },
+    [redirectToLogin],
+  );
+
+  const toggleKnowledgeComponent = useCallback(
+    (id: string) => {
+      setSelectedKnowledgeComponents((previous) =>
+        previous.includes(id)
+          ? previous.filter((value) => value !== id)
+          : [...previous, id],
+      );
+    },
+    [],
+  );
+
+  const selectAllKnowledgeComponents = useCallback(() => {
+    setSelectedKnowledgeComponents(
+      availableKnowledgeComponents.map((option) => option.id),
+    );
+  }, [availableKnowledgeComponents]);
+
+  const clearKnowledgeComponents = useCallback(() => {
+    setSelectedKnowledgeComponents([]);
+  }, []);
+
+  const handleKnowledgeComponentFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (!selectedCourse) {
+        toast.error("Select a course before importing knowledge components.");
+        event.target.value = "";
+        return;
+      }
+
+      setImportingKnowledgeComponents(true);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        await apiFetch(`/knowledge-components/courses/${selectedCourse}/import`, {
+          method: "POST",
+          body: formData,
+        });
+
+        toast.success("Knowledge components imported successfully.");
+        await fetchKnowledgeComponents(selectedCourse);
+      } catch (err) {
+        if (err instanceof UnauthorizedError) {
+          redirectToLogin();
+          return;
+        }
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Unable to import knowledge components.";
+        setKnowledgeComponentError(message);
+        toast.error(message);
+      } finally {
+        setImportingKnowledgeComponents(false);
+        if (knowledgeComponentFileInputRef.current) {
+          knowledgeComponentFileInputRef.current.value = "";
+        }
+      }
+    },
+    [fetchKnowledgeComponents, redirectToLogin, selectedCourse],
+  );
 
   const scrollToPreview = useCallback(
     (force: boolean = false) => {
@@ -756,6 +945,19 @@ export default function NewGenerationRequestPage() {
   }, [selectedSubject]);
 
   useEffect(() => {
+    if (!selectedCourse) {
+      setAvailableKnowledgeComponents([]);
+      setSelectedKnowledgeComponents([]);
+      setKnowledgeComponentError(null);
+      hydrationStateRef.current.knowledgeComponents = false;
+      return;
+    }
+
+    hydrationStateRef.current.knowledgeComponents = false;
+    fetchKnowledgeComponents(selectedCourse);
+  }, [fetchKnowledgeComponents, selectedCourse]);
+
+  useEffect(() => {
     if (
       !rememberContext ||
       !hasLoadedPersistedContext ||
@@ -951,6 +1153,10 @@ export default function NewGenerationRequestPage() {
       unit: selectedUnit || undefined,
       subject: selectedSubject || undefined,
       course: selectedCourse || undefined,
+      knowledge_components:
+        selectedKnowledgeComponents.length > 0
+          ? selectedKnowledgeComponents
+          : undefined,
     };
     persistedContextRef.current = payload;
     try {
@@ -966,6 +1172,7 @@ export default function NewGenerationRequestPage() {
     rememberContext,
     selectedCourse,
     selectedFaculty,
+    selectedKnowledgeComponents,
     selectedSubject,
     selectedUnit,
     selectedUniversity,
@@ -1056,6 +1263,7 @@ export default function NewGenerationRequestPage() {
     if (!rememberContext) {
       window.localStorage.removeItem(COURSE_CONTEXT_STORAGE_KEY);
       persistedContextRef.current = null;
+      hydrationStateRef.current.knowledgeComponents = true;
     }
   }, [hasLoadedPersistedContext, rememberContext]);
 
@@ -1135,6 +1343,13 @@ export default function NewGenerationRequestPage() {
       return;
     }
 
+    if (selectedKnowledgeComponents.length === 0) {
+      const message = "Select at least one knowledge component.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     if (!file) {
       const message = "Please select a source document to upload.";
       setError(message);
@@ -1182,15 +1397,16 @@ export default function NewGenerationRequestPage() {
         course: selectedCourse,
         year_of_study: selectedYear,
         difficulty: selectedDifficulty,
-        requestedCounts: {
-          mcq: selectedContentTypes.includes("mcq") ? mcqCount : 0,
-          qroc: selectedContentTypes.includes("qroc") ? qrocCount : 0,
-        },
-        contentTypes: selectedContentTypes,
-        sourceFileName: file.name,
-        sourceFileMime: file.type,
-        sourceFileSize: file.size,
-      };
+      requestedCounts: {
+        mcq: selectedContentTypes.includes("mcq") ? mcqCount : 0,
+        qroc: selectedContentTypes.includes("qroc") ? qrocCount : 0,
+      },
+      contentTypes: selectedContentTypes,
+      sourceFileName: file.name,
+      sourceFileMime: file.type,
+      sourceFileSize: file.size,
+      knowledge_component_ids: selectedKnowledgeComponents,
+    };
 
       const creationResponse = await apiFetch<any>(
         "/generation/requests",
@@ -1278,6 +1494,13 @@ export default function NewGenerationRequestPage() {
       return;
     }
 
+    if (selectedKnowledgeComponents.length === 0) {
+      const message = "Select at least one knowledge component before uploading.";
+      setBatchError(message);
+      toast.error(message);
+      return;
+    }
+
     setBatchSubmitting(true);
 
     try {
@@ -1289,6 +1512,10 @@ export default function NewGenerationRequestPage() {
       formData.append("unit", selectedUnit);
       formData.append("subject", selectedSubject);
       formData.append("course", selectedCourse);
+      formData.append(
+        "knowledge_component_ids",
+        JSON.stringify(selectedKnowledgeComponents),
+      );
 
       const response = await apiFetch<{
         data?: {
@@ -1371,8 +1598,25 @@ export default function NewGenerationRequestPage() {
       selectedYear &&
       selectedUnit &&
       selectedSubject &&
-      selectedCourse,
+      selectedCourse &&
+      selectedKnowledgeComponents.length > 0,
   );
+
+  const groupedKnowledgeComponents = useMemo(() => {
+    const groups = new Map<string, KnowledgeComponentOption[]>();
+
+    availableKnowledgeComponents.forEach((component) => {
+      const key = component.domainName ?? "Uncategorised";
+      const bucket = groups.get(key) ?? [];
+      bucket.push(component);
+      groups.set(key, bucket);
+    });
+
+    return Array.from(groups.entries()).map(([domain, items]) => ({
+      domain,
+      items: items.sort((a, b) => a.name.localeCompare(b.name)),
+    }));
+  }, [availableKnowledgeComponents]);
 
   const normalizedSearch = pendingSearch.trim().toLowerCase();
   const pendingFiltered = normalizedSearch
@@ -1694,6 +1938,145 @@ export default function NewGenerationRequestPage() {
                   ))}
                 </select>
               </label>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900">
+                    Knowledge components
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Tag every generated or imported question with the concepts it reinforces.
+                    Upload a CSV/Excel taxonomy or select existing entries below.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <button
+                    type="button"
+                    onClick={selectAllKnowledgeComponents}
+                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-medium text-slate-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-600 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
+                    disabled={
+                      !selectedCourse ||
+                      loadingKnowledgeComponents ||
+                      availableKnowledgeComponents.length === 0
+                    }
+                  >
+                    Select all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearKnowledgeComponents}
+                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-medium text-slate-600 transition-colors duration-200 hover:border-rose-300 hover:text-rose-600 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300"
+                    disabled={selectedKnowledgeComponents.length === 0}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!selectedCourse) {
+                        toast.error("Select a course before importing components.");
+                        return;
+                      }
+                      knowledgeComponentFileInputRef.current?.click();
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 font-medium text-indigo-700 transition-colors duration-200 hover:border-indigo-300 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-100 disabled:text-slate-400"
+                    disabled={importingKnowledgeComponents || !selectedCourse}
+                  >
+                    {importingKnowledgeComponents ? (
+                      <>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" />
+                        Uploading…
+                      </>
+                    ) : (
+                      "Upload CSV/XLSX"
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <input
+                ref={knowledgeComponentFileInputRef}
+                type="file"
+                accept=".csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="hidden"
+                onChange={handleKnowledgeComponentFileChange}
+              />
+
+              {!selectedCourse ? (
+                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                  Select a course to view and manage its knowledge components.
+                </p>
+              ) : loadingKnowledgeComponents ? (
+                <p className="flex items-center gap-2 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" />
+                  Loading knowledge components…
+                </p>
+              ) : knowledgeComponentError ? (
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                  {knowledgeComponentError}
+                </p>
+              ) : availableKnowledgeComponents.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+                  <p>
+                    No knowledge components have been defined for this course yet.
+                    Upload a taxonomy file to seed them. A template is available at{" "}
+                    <code className="rounded bg-white px-1 py-0.5 text-xs text-slate-600">
+                      apps/backend/seed/knowledge-components.template.csv
+                    </code>.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {groupedKnowledgeComponents.map(({ domain, items }) => (
+                    <div
+                      key={domain}
+                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-slate-700">
+                          {domain}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {items.length} item{items.length === 1 ? "" : "s"}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {items.map((item) => {
+                          const isSelected = selectedKnowledgeComponents.includes(
+                            item.id,
+                          );
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors duration-200 ${
+                                isSelected
+                                  ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                                  : "border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                              }`}
+                              onClick={() => toggleKnowledgeComponent(item.id)}
+                            >
+                              <span>{item.name}</span>
+                              {item.code ? (
+                                <span className="text-[10px] font-normal text-slate-400">
+                                  {item.code}
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  {selectedKnowledgeComponents.length === 0 ? (
+                    <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                      Select at least one knowledge component to continue.
+                    </p>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
 

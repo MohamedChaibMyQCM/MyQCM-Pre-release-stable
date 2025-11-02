@@ -13,6 +13,10 @@ import { useParams, useRouter } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import Loading from "@/components/Loading";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
+import KeyboardShortcutsHelp from "@/components/dashboard/QuestionsBank/KeyboardShortcutsHelp";
+import SoundToggle from "@/components/dashboard/QuestionsBank/SoundToggle";
+import { motion } from "framer-motion";
+import { useQuizSounds } from "@/hooks/useQuizSounds";
 
 const Page = () => {
   const { trainingSessionId } = useParams();
@@ -52,6 +56,10 @@ const Page = () => {
   const [result, setResult] = useState(false);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
   const [isCompletingSession, setIsCompletingSession] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+
+  // Sound effects hook
+  const sounds = useQuizSounds();
 
   const [data, setData] = useState({
     mcqs_success: 0,
@@ -61,6 +69,24 @@ const Page = () => {
     accuracy: 0,
     xp_earned: 0,
   });
+
+  // Keyboard shortcut for help popup - must be before any conditional returns
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (result) return; // Don't show help on result screen
+
+      const key = event.key.toLowerCase();
+      if (key === "?" || (event.shiftKey && key === "/")) {
+        event.preventDefault();
+        setShowKeyboardHelp((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [result]);
 
   const {
     data: SeasonDetails,
@@ -175,13 +201,23 @@ const Page = () => {
         return;
       }
 
+      // Play sound based on result
+      const successRatio =
+        typeof responseData?.success_ratio === "number"
+          ? responseData.success_ratio
+          : -1;
+
+      if (successRatio === 1) {
+        sounds.playCorrect();
+      } else if (successRatio >= 0.7 && successRatio < 1) {
+        sounds.playPartialCorrect();
+      } else if (successRatio >= 0) {
+        sounds.playIncorrect();
+      }
+
       setAnswer(responseData);
       setData((prevData) => {
         let { mcqs_success, mcqs_failed } = prevData;
-        const successRatio =
-          typeof responseData?.success_ratio === "number"
-            ? responseData.success_ratio
-            : -1;
 
         if (successRatio === 1) {
           mcqs_success += 1;
@@ -215,6 +251,9 @@ const Page = () => {
     try {
       const response = await completeTrainingSessionInternal(trainingSessionId);
       const completionData = response.data || response;
+
+      // Play completion sound
+      sounds.playComplete();
 
       setData((prev) => {
         const total =
@@ -254,6 +293,7 @@ const Page = () => {
     queryClient,
     SeasonDetails,
     result,
+    sounds,
   ]);
 
   const processQuizData = useCallback((quizApiResponse) => {
@@ -459,6 +499,39 @@ const Page = () => {
       )}
 
       {result && <QuizResult length={totalQuestions} data={data} />}
+
+      {/* Keyboard shortcuts help popup and controls */}
+      {!result && (
+        <>
+          <KeyboardShortcutsHelp
+            isOpen={showKeyboardHelp}
+            onClose={() => setShowKeyboardHelp(false)}
+            questionType={currentQuestion?.type}
+          />
+
+          {/* Help button - fixed at bottom left */}
+          <motion.button
+            onClick={() => setShowKeyboardHelp(true)}
+            className="fixed bottom-[30px] left-[30px] w-[44px] h-[44px] bg-white border-2 border-[#E9ECEF] rounded-full flex items-center justify-center hover:bg-[#F8F9FA] hover:border-[#F8589F] transition-all duration-200 shadow-lg z-[60] group max-md:bottom-[20px] max-md:left-[20px] max-md:w-[40px] max-md:h-[40px]"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            title="Raccourcis clavier (Shift + ?)"
+          >
+            <span className="text-[#F8589F] text-[18px] font-bold group-hover:scale-110 transition-transform max-md:text-[16px]">
+              ?
+            </span>
+          </motion.button>
+
+          {/* Sound toggle button */}
+          <SoundToggle
+            onToggle={sounds.toggleMute}
+            onTest={() => {
+              console.log("Test sound button clicked");
+              sounds.playCorrect();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

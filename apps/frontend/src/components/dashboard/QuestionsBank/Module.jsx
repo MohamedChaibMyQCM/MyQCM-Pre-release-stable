@@ -46,7 +46,7 @@ const Module = ({ data = {} }) => {
 
   return (
     <motion.div
-      className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-[#FFFFFF] basis-[56%] box"
+      className="flex flex-col gap-4 px-[22px] py-[26px] rounded-[16px] bg-card border border-border basis-[56%] box"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -69,52 +69,51 @@ const Module = ({ data = {} }) => {
         />
       </motion.div>
       <motion.span
-        className="text-[15px] text-[#F8589F] font-medium"
+        className="text-[15px] text-primary font-medium"
         variants={itemVariants}
       >
         Module
       </motion.span>
       <motion.span
-        className="text-[20px] text-[#191919] font-semibold"
+        className="text-[20px] text-foreground font-semibold"
         variants={itemVariants}
       >
         {data.name ?? "Module inconnu"}
       </motion.span>
       <motion.div
-        className="w-full bg-[#FFF5FA] flex items-center justify-center px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]"
+        className="w-full bg-accent flex items-center justify-center px-[22px] py-[14px] rounded-[16px] max-md:px-[12px]"
         variants={itemVariants}
         whileHover={{
           scale: 1.02,
-          backgroundColor: "#FFE5F3",
           transition: { duration: 0.2 },
         }}
       >
         <div className="flex items-center gap-3 max-md:flex-col">
-          <div className="bg-[#F8589F] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
-            <ListBullets size={18} className="text-[#FFFFFF]" />
+          <div className="bg-primary w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
+            <ListBullets size={18} className="text-white" />
           </div>
-          <span className="text-[14px] font-[500] text-[#0C092A] max-md:text-[12px]">
-            <span className="text-[#F8589F] pr-1">
+          <span className="text-[14px] font-[500] text-card-foreground max-md:text-[12px]">
+            <span className="text-primary pr-1">
               {mcqCount.qcm + mcqCount.qcs}
             </span>
             QCM + QCS
           </span>
         </div>
-        <span className="w-[1.6px] mx-28 h-[34px] bg-[#CCCCCC80] rounded-full max-md:h-[60px] max-md:mx-12"></span>
+        <span className="w-[1.6px] mx-28 h-[34px] bg-border rounded-full max-md:h-[60px] max-md:mx-12"></span>
         <div className="flex items-center gap-3 max-md:flex-col">
           <div className="bg-[#7996FD] w-[30px] h-[30px] flex items-center justify-center rounded-[16px]">
-            <Stack size={18} className="text-[#FFFFFF]" />
+            <Stack size={18} className="text-white" />
           </div>
-          <span className="font-[500] text-[14px] text-[#191919] max-md:text-[12px]">
+          <span className="font-[500] text-[14px] text-foreground max-md:text-[12px]">
             <span className="text-[#7996FD] pr-1">{mcqCount.qroc}</span> QROC
           </span>
         </div>
       </motion.div>
       <motion.div className="flex flex-col gap-2 my-2" variants={itemVariants}>
-        <span className="font-Poppins font-medium text-[14px] text-[#F8589F]">
+        <span className="font-Poppins font-medium text-[14px] text-primary">
           DESCRIPTION
         </span>
-        <p className="text-[13px] text-[#666666]">{description}</p>
+        <p className="text-[13px] text-muted-foreground">{description}</p>
       </motion.div>
       <motion.div
         className="flex items-center gap-3"
@@ -126,10 +125,10 @@ const Module = ({ data = {} }) => {
       >
         <Image src={Avatar} alt="avatar" />
         <div className="flex flex-col gap-1">
-          <span className="text-[#191919] font-semibold text-[14px]">
+          <span className="text-foreground font-semibold text-[14px]">
             Nait Si Mohand Mohammed Saadi
           </span>
-          <span className="text-[#666666] text-[12px]">
+          <span className="text-muted-foreground text-[12px]">
             Createur du contenu medical de 3eme annee, top 6 en 3eme annee.
           </span>
         </div>

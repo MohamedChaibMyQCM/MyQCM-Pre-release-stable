@@ -1,9 +1,10 @@
 import React from "react";
-import Script from "next/script"; 
+import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { MotionConfig } from "framer-motion";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
+import { ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -22,14 +23,16 @@ export default function RootLayout({ children }) {
   const clarityProjectId = "r69pxfi7m6"; 
 
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${poppins.variable} font-Poppins`}>
-        <ReactQueryProvider>
-          <MotionConfig>
-            <Toaster />
-            {children}
-          </MotionConfig>
-        </ReactQueryProvider>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            <MotionConfig>
+              <Toaster />
+              {children}
+            </MotionConfig>
+          </ReactQueryProvider>
+        </ThemeProvider>
 
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`

@@ -45,7 +45,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="bg-[#F7F8FA] pb-10 min-h-screen">
+    <div className="bg-background pb-10 min-h-screen">
       <Dash_Header />
       <div className="px-5 mt-4 max-md:mt-0 max-xl:mt-8">
         <Units />

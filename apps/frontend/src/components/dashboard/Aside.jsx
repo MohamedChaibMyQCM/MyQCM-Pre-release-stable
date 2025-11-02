@@ -9,12 +9,14 @@ import { X } from "lucide-react";
 import secureLocalStorage from "react-secure-storage";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useAnimationControls, useInView } from "motion/react";
+import { useTheme } from "next-themes";
 import { aside_links } from "@/data/data";
 import LogoutConfirmationModal from "../Home/LogoutConfirmationModal";
 import BaseUrl from "../BaseUrl";
 import infinite from "../../../public/Icons/infinite.svg";
 import Notification from "./Notification";
-import logo from "../../../public/logoMyqcm.png";
+import logo from "../../../public/logoMyqcm.svg";
+import logoDark from "../../../public/logoMyqcm-dark.svg";
 import settings from "../../../public/Aside/settings.svg";
 import Psettings from "../../../public/Aside/Psettings.svg";
 import logout from "../../../public/Aside/logout.svg";
@@ -61,6 +63,7 @@ const Aside = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { theme } = useTheme();
 
   const path = usePathname();
   const router = useRouter();
@@ -193,7 +196,7 @@ const Aside = () => {
           damping: 20,
           duration: 0.6
         }}
-        className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] gap-3 top-0 left-0 border-r border-r-[#E4E4E4] bg-white shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0 max-xl:gap-0">
+        className="fixed w-[248px] h-screen justify-between flex flex-col pt-[30px] pb-[18px] gap-3 top-0 left-0 border-r border-r-border bg-card shadow-md z-[50] max-xl:w-full max-xl:flex-row max-xl:items-center max-xl:h-[70px] max-xl:px-[24px] max-xl:py-0 max-xl:gap-0">
         {isMenuOpen ? (
           <>
             <motion.div
@@ -202,7 +205,7 @@ const Aside = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
             >
-              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+              <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px]">
                 {isQcmInfinite ? (
                   <Link href="/dashboard">
                     <motion.div
@@ -214,14 +217,14 @@ const Aside = () => {
                         alt="Infini"
                         width={20}
                         height={12}
-                        className="w-[22px]"
+                        className="w-[22px] dark:invert"
                       />
                     </motion.div>
                   </Link>
                 ) : (
                   <AnimatedCounter value={remainingMcqs ?? 0} />
                 )}
-                <span className="text-[#F8589F]">QCM</span>
+                <span className="text-primary">QCM</span>
               </span>
             </motion.div>
             <motion.div
@@ -230,9 +233,9 @@ const Aside = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+              <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px]">
                 <AnimatedCounter value={remainingQrocs ?? 0} />
-                <span className="text-[#F8589F]">QROC</span>
+                <span className="text-primary">QROC</span>
               </span>
             </motion.div>
             <motion.div
@@ -241,7 +244,7 @@ const Aside = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <span className="text-[#191919] font-[500] text-[17px]">
+              <span className="text-foreground font-[500] text-[17px]">
                 <AnimatedCounter value={currentStreak} />
               </span>
               <motion.div
@@ -269,9 +272,9 @@ const Aside = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px]">
+              <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px]">
                 <AnimatedCounter value={currentXp} />
-                <span className="text-[#F8589F]">XP</span>
+                <span className="text-primary">XP</span>
               </span>
             </motion.div>
           </>
@@ -290,7 +293,7 @@ const Aside = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Image
-                src={logo}
+                src={theme === 'dark' ? logoDark : logo}
                 alt="logo"
                 className="w-[120px] mx-auto max-xl:mx-0 max-xl:w-[80px]"
               />
@@ -315,12 +318,12 @@ const Aside = () => {
                 <Image
                   src={notificationIcon}
                   alt="notification"
-                  className="w-[16px]"
+                  className="w-[16px] dark:invert"
                 />
               </motion.div>
               {unreadCount > 0 && (
                 <motion.div
-                  className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-[#F8589F] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"
+                  className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"
                   initial={{ scale: 0 }}
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{
@@ -356,15 +359,15 @@ const Aside = () => {
                 animate={{ rotate: 90 }}
                 transition={{ type: "spring", stiffness: 200 }}
               >
-                <X size={26} className="text-[#F8589F]" />
+                <X size={26} className="text-primary" />
               </motion.div>
             ) : (
-              <Image src={menu} alt="menu" className="w-[16px]" />
+              <Image src={menu} alt="menu" className="w-[16px] dark:brightness-0 dark:invert" />
             )}
           </motion.div>
         </div>
         <motion.ul
-          className={`flex flex-col mb-8 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[calc(100vh-70px)] max-xl:pt-[60px] max-xl:pb-[90px] max-xl:bg-[#FFFFFF] max-xl:items-center max-xl:shadow-lg max-xl:transition-transform max-xl:duration-300 max-xl:ease-in-out max-xl:overflow-y-auto max-xl:justify-between ${
+          className={`flex flex-col mb-8 gap-4 max-xl:absolute max-xl:top-[70px] max-xl:gap-6 max-xl:left-0 max-xl:w-full max-xl:h-[calc(100vh-70px)] max-xl:pt-[60px] max-xl:pb-[90px] max-xl:bg-card max-xl:items-center max-xl:shadow-lg max-xl:transition-transform max-xl:duration-300 max-xl:ease-in-out max-xl:overflow-y-auto max-xl:justify-between ${
             isMenuOpen
               ? "max-xl:translate-x-0"
               : "max-xl:-translate-x-full max-xl:pointer-events-none"
@@ -396,7 +399,7 @@ const Aside = () => {
               <motion.li
                 key={index}
                 className={`relative rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] transition-colors duration-200 ${
-                  isActive ? "text-[#F8589F] bg-[#FFF5FA]" : "hover:bg-[#F9F9F9]"
+                  isActive ? "text-primary bg-accent" : "hover:bg-muted"
                 }`}
                 variants={{
                   hidden: { opacity: 0, x: -50 },
@@ -411,7 +414,7 @@ const Aside = () => {
               >
                 <Link
                   href={`/dashboard/${item.href}`}
-                  className="text-[#324054] flex items-center gap-4 max-xl:justify-center"
+                  className="text-muted-foreground flex items-center gap-4 max-xl:justify-center"
                   onClick={() => isMenuOpen && setIsMenuOpen(false)}
                 >
                   <motion.div
@@ -426,7 +429,7 @@ const Aside = () => {
                         item.requiresAlpha
                           ? "w-[20px] h-[20px]"
                           : "w-[17px]"
-                      }`}
+                      } ${!isActive ? "dark:invert" : ""}`}
                       style={
                         item.requiresAlpha && !isActive
                           ? {
@@ -437,7 +440,7 @@ const Aside = () => {
                     />
                     {item.requiresAlpha && (
                       <motion.div
-                        className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-[#F8589F] to-[#FF89C8] rounded-full"
+                        className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-primary to-[#FF89C8] rounded-full"
                         animate={{
                           scale: [1, 1.3, 1],
                           opacity: [1, 0.7, 1],
@@ -452,15 +455,15 @@ const Aside = () => {
                   </motion.div>
                   <span
                     className={`text-[13.8px] font-[500] max-md:text-[18px] ${
-                      isActive ? "text-[#F8589F]" : ""
-                    } ${item.requiresAlpha && !isActive ? "bg-gradient-to-r from-[#F8589F] to-[#FF89C8] bg-clip-text text-transparent font-semibold" : ""}`}
+                      isActive ? "text-primary" : ""
+                    } ${item.requiresAlpha && !isActive ? "bg-gradient-to-r from-primary to-[#FF89C8] bg-clip-text text-transparent font-semibold" : ""}`}
                   >
                     {item.name}
                   </span>
                 </Link>
                 {isActive && (
                   <motion.div
-                    className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#F8589F] to-[#FF89C8] rounded-l-full"
+                    className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-[#FF89C8] rounded-l-full"
                     layoutId="activeIndicator"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
@@ -471,7 +474,7 @@ const Aside = () => {
 
           <motion.li
             className={`relative rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] xl:hidden transition-colors duration-200 ${
-              isSettingsActive ? "text-[#F8589F] bg-[#FFF5FA]" : "hover:bg-[#F9F9F9]"
+              isSettingsActive ? "text-primary bg-accent" : "hover:bg-muted"
             }`}
             variants={{
               hidden: { opacity: 0, x: -50 },
@@ -486,7 +489,7 @@ const Aside = () => {
           >
             <Link
               href={`/dashboard/settings/personal-info`}
-              className="text-[#324054] flex items-center gap-4 max-xl:justify-center"
+              className="text-muted-foreground flex items-center gap-4 max-xl:justify-center"
               onClick={() => isMenuOpen && setIsMenuOpen(false)}
             >
               <motion.div
@@ -496,12 +499,12 @@ const Aside = () => {
                 <Image
                   src={isSettingsActive ? Psettings : settings}
                   alt="paramètres"
-                  className="w-[16px] font-[500]"
+                  className={`w-[16px] font-[500] ${!isSettingsActive ? "dark:invert" : ""}`}
                 />
               </motion.div>
               <span
                 className={`text-[13.8px] font-[500] max-md:text-[18px] ${
-                  isSettingsActive ? "text-[#F8589F]" : ""
+                  isSettingsActive ? "text-primary" : ""
                 }`}
               >
                 Paramètres
@@ -510,7 +513,7 @@ const Aside = () => {
           </motion.li>
 
           <motion.li
-            className="relative rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] xl:hidden transition-colors duration-200 hover:bg-[#FFF1F1]"
+            className="relative rounded-r-[12px] py-[14px] pl-[20px] w-[88%] max-xl:rounded-[12px] max-xl:pl-0 max-xl:w-[90%] xl:hidden transition-colors duration-200 hover:bg-destructive/10"
             variants={{
               hidden: { opacity: 0, x: -50 },
               visible: { opacity: 1, x: 0 }
@@ -523,7 +526,7 @@ const Aside = () => {
             whileTap={{ scale: 0.95 }}
           >
             <button
-              className="text-[#324054] flex items-center gap-4 w-full max-xl:justify-center"
+              className="text-muted-foreground flex items-center gap-4 w-full max-xl:justify-center"
               onClick={handleLogoutClick}
             >
               <motion.div
@@ -534,9 +537,12 @@ const Aside = () => {
                   src={logout}
                   alt="déconnexion"
                   className="w-[16px] font-[500]"
+                  style={{
+                    filter: 'invert(44%) sepia(96%) saturate(4943%) hue-rotate(343deg) brightness(95%) contrast(94%)'
+                  }}
                 />
               </motion.div>
-              <span className="text-[13.8px] font-[500] text-[#F64C4C] max-md:text-[18px]">
+              <span className="text-[13.8px] font-[500] text-destructive max-md:text-[18px]">
                 Déconnexion
               </span>
             </button>
@@ -550,7 +556,7 @@ const Aside = () => {
         >
           <motion.div
             className={`py-[14px] w-[88%] pl-[8px] rounded-r-[12px] transition-colors duration-200 ${
-              isReportActive ? "bg-[#FFF5FA]" : "hover:bg-[#F9F9F9]"
+              isReportActive ? "bg-accent" : "hover:bg-muted"
             }`}
             whileHover={{
               scale: 1.05,
@@ -561,7 +567,7 @@ const Aside = () => {
           >
             <Link
               href={`/dashboard/report`}
-              className="text-[#324054] flex items-center gap-4"
+              className="text-muted-foreground flex items-center gap-4"
             >
               <motion.div
                 whileHover={{ rotate: [0, -15, 15, -15, 0], scale: 1.2 }}
@@ -569,13 +575,13 @@ const Aside = () => {
               >
                 <MdReportGmailerrorred
                   className={`w-[20px] h-[20px] ${
-                    isReportActive ? "text-[#F8589F]" : "text-[#324054]"
+                    isReportActive ? "text-primary" : "text-foreground dark:text-white"
                   }`}
                 />
               </motion.div>
               <span
                 className={`text-[14.5px] font-[500] ${
-                  isReportActive ? "text-[#F8589F]" : ""
+                  isReportActive ? "text-primary" : ""
                 }`}
               >
                 Signaler des bugs
@@ -584,7 +590,7 @@ const Aside = () => {
           </motion.div>
           <motion.div
             className={`rounded-r-[12px] py-[14px] w-[88%] pl-[10px] transition-colors duration-200 ${
-              isSettingsActive ? "bg-[#FFF5FA]" : "hover:bg-[#F9F9F9]"
+              isSettingsActive ? "bg-accent" : "hover:bg-muted"
             }`}
             whileHover={{
               scale: 1.05,
@@ -595,7 +601,7 @@ const Aside = () => {
           >
             <Link
               href={`/dashboard/settings/personal-info`}
-              className="text-[#324054] flex items-center gap-4"
+              className="text-muted-foreground flex items-center gap-4"
             >
               <motion.div
                 whileHover={{ rotate: 180, scale: 1.2 }}
@@ -604,12 +610,12 @@ const Aside = () => {
                 <Image
                   src={isSettingsActive ? Psettings : settings}
                   alt="paramètres"
-                  className="w-[16px] font-[500]"
+                  className={`w-[16px] font-[500] ${!isSettingsActive ? "dark:invert" : ""}`}
                 />
               </motion.div>
               <span
                 className={`text-[14.5px] font-[500] ${
-                  isSettingsActive ? "text-[#F8589F]" : ""
+                  isSettingsActive ? "text-primary" : ""
                 }`}
               >
                 Paramètres
@@ -617,7 +623,7 @@ const Aside = () => {
             </Link>
           </motion.div>
           <motion.div
-            className="w-[88%] rounded-r-[12px] transition-colors duration-200 hover:bg-[#FFF1F1]"
+            className="w-[88%] rounded-r-[12px] transition-colors duration-200 hover:bg-destructive/10"
             whileHover={{
               scale: 1.05,
               x: 5,
@@ -626,7 +632,7 @@ const Aside = () => {
             whileTap={{ scale: 0.95 }}
           >
             <button
-              className="py-[14px] pl-[10px] w-full text-[#324054] flex items-center gap-4 text-left"
+              className="py-[14px] pl-[10px] w-full text-muted-foreground flex items-center gap-4 text-left"
               onClick={handleLogoutClick}
             >
               <motion.div
@@ -637,9 +643,12 @@ const Aside = () => {
                   src={logout}
                   alt="déconnexion"
                   className="w-[16px] font-[500]"
+                  style={{
+                    filter: 'invert(44%) sepia(96%) saturate(4943%) hue-rotate(343deg) brightness(95%) contrast(94%)'
+                  }}
                 />
               </motion.div>
-              <span className="text-[14.5px] font-[500] text-[#F64C4C]">
+              <span className="text-[14.5px] font-[500] text-destructive">
                 Déconnexion
               </span>
             </button>

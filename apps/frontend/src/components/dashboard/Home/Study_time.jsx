@@ -80,11 +80,11 @@ const Study_time = () => {
 
   return (
     <div className="w-full" id="tour-studytime-section">
-      <h3 className="font-[500] text-[17px] mb-6 text-[#191919] max-md:mb-4">
+      <h3 className="font-[500] text-[17px] mb-6 text-foreground max-md:mb-4">
         Temps d&apos;étude
       </h3>
-      <div className="bg-[#FFFFFF] flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full max-md:h-[320px] max-md:px-0">
-        <Card className="border-none p-0 w-full shadow-none">
+      <div className="bg-card flex items-center gap-4 px-4 rounded-[16px] box max-md:w-full max-md:h-[320px] max-md:px-0 border border-border">
+        <Card className="border-none p-0 w-full shadow-none bg-transparent">
           <CardContent className="border-none p-0">
             <ChartContainer config={{}}>
               <BarChart
@@ -99,7 +99,7 @@ const Study_time = () => {
                 height={220}
                 barCategoryGap="20%"
               >
-                <CartesianGrid vertical={false} />
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
                 <XAxis
                   dataKey="day"
                   tickLine={false}
@@ -109,15 +109,16 @@ const Study_time = () => {
                     fontSize: 12,
                     fontWeight: 500,
                     fontFamily: "inherit",
+                    fill: "hsl(var(--muted-foreground))",
                   }}
                 />
                 <YAxis domain={[0, "dataMax + 20"]} hide />
-                <Bar dataKey="totalMinutes" fill="#F8589F" radius={8}>
+                <Bar dataKey="totalMinutes" fill="hsl(var(--primary))" radius={8}>
                   <LabelList
                     dataKey="hours"
                     position="top"
                     offset={24}
-                    fill="#F8589F"
+                    fill="hsl(var(--primary))"
                     fontSize={12}
                     fontWeight={500}
                     formatter={(value) => `${value}h`}
@@ -126,7 +127,7 @@ const Study_time = () => {
                     dataKey="minutes"
                     position="top"
                     offset={10}
-                    fill="#F8589F"
+                    fill="hsl(var(--primary))"
                     fontSize={12}
                     fontWeight={500}
                     formatter={(value) => `${value}min`}
@@ -136,12 +137,12 @@ const Study_time = () => {
             </ChartContainer>
           </CardContent>
         </Card>
-        <div className="h-[316px] w-[1px] bg-[#E4E4E4] max-md:hidden" />
+        <div className="h-[316px] w-[1px] bg-border max-md:hidden" />
         <div className="flex flex-col items-center text-center gap-2 w-[140px] max-md:hidden">
-          <span className="text-[18px] text-[#F8589F] font-[600]">
+          <span className="text-[18px] text-primary font-[600]">
             {streakData?.current_streak || 0} <br /> jours <br /> Streak
           </span>
-          <span className="text-[#191919] text-[13px]">Continuez ainsi</span>
+          <span className="text-foreground text-[13px]">Continuez ainsi</span>
           <div className="flex items-center gap-2">
             {streakData?.current_streak &&
               Array.from({ length: streakData.current_streak }).map(

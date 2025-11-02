@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "../BaseUrl";
 import Notification from "./Notification";
+import { ThemeToggle } from "../ui/ThemeToggle";
 import streakIcon from "../../../public/Icons/streak.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import infiniteIcon from "../../../public/Icons/infinite.svg";
@@ -135,19 +136,13 @@ const Dash_Header = () => {
             alignRight ? 'right-0' : 'left-1/2 transform -translate-x-1/2'
           }`}
         >
-          <div className="bg-white rounded-[12px] shadow-lg border-2 border-white px-4 py-3 min-w-[200px] max-w-[240px]"
-            style={{
-              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 3px rgba(248, 88, 159, 0.1)"
-            }}
+          <div className="bg-card rounded-[12px] shadow-lg border-2 border-border px-4 py-3 min-w-[200px] max-w-[240px]"
           >
-            <p className="text-[13px] font-bold text-gray-900 mb-1">{title}</p>
-            <p className="text-[11px] text-gray-600 leading-relaxed">{description}</p>
-            <div className={`absolute -top-2 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-white ${
+            <p className="text-[13px] font-bold text-card-foreground mb-1">{title}</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">{description}</p>
+            <div className={`absolute -top-2 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-card ${
               alignRight ? 'right-4' : 'left-1/2 transform -translate-x-1/2'
             }`}
-              style={{
-                filter: "drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.06))"
-              }}
             />
           </div>
         </motion.div>
@@ -188,15 +183,15 @@ const Dash_Header = () => {
         <span className="font-[500] text-[18px]">
           {!userData?.completed_introduction ? (
             <>
-              <span className="text-[#191919]">Bienvenue </span>
-              <span className="text-[#F8589F]">
+              <span className="text-foreground">Bienvenue </span>
+              <span className="text-primary">
                 {userName || "Utilisateur"}!
               </span>
             </>
           ) : (
             <>
-              <span className="text-[#191919]">Bon retour </span>
-              <span className="text-[#F8589F]">
+              <span className="text-foreground">Bon retour </span>
+              <span className="text-primary">
                 {userName || "Utilisateur"}!
               </span>
             </>
@@ -210,15 +205,15 @@ const Dash_Header = () => {
       if (pathParts.length === 0 && pathname === "/dashboard/") {
         return (
           <span className="font-[500] text-[16px] flex items-center">
-            <span className="text-[#B5BEC6]">/</span>
-            <span className="text-[#B5BEC6] ml-1">Dashboard</span>
+            <span className="text-muted-foreground">/</span>
+            <span className="text-muted-foreground ml-1">Dashboard</span>
           </span>
         );
       }
 
       return (
         <span className="font-[500] text-[16px] flex items-center max-md:hidden">
-          {pathParts.length > 0 && <span className="text-[#B5BEC6]">/</span>}
+          {pathParts.length > 0 && <span className="text-muted-foreground">/</span>}
           {pathParts.map((part, index) => {
             const isFirst = index === 0;
             const isLast = index === pathParts.length - 1;
@@ -227,8 +222,8 @@ const Dash_Header = () => {
               .join("/")}`;
             const decodedPart = decodeURIComponent(part);
             const textColorClass = isFirst
-              ? "text-[#B5BEC6]"
-              : "text-[#F8589F]";
+              ? "text-muted-foreground"
+              : "text-primary";
             const isSubjectIdSegment =
               index > 0 &&
               pathParts[index - 1] === "question-bank" &&
@@ -250,7 +245,7 @@ const Dash_Header = () => {
                 >
                   {displayPartContent}
                 </Link>{" "}
-                {!isLast && <span className="text-[#B5BEC6]">/</span>}{" "}
+                {!isLast && <span className="text-muted-foreground">/</span>}{" "}
               </React.Fragment>
             );
           })}
@@ -258,7 +253,7 @@ const Dash_Header = () => {
       );
     } else {
       return (
-        <span className="text-[#191919] font-[500] text-[18px]">
+        <span className="text-foreground font-[500] text-[18px]">
           {pathname}
         </span>
       );
@@ -270,19 +265,21 @@ const Dash_Header = () => {
       {renderHeaderText()}
 
       <div className="flex items-center gap-10 max-md:hidden">
+        <ThemeToggle />
+
         <div className="relative">
           <Image
             id="tour-notification-icon"
             src={notificationIcon}
             alt="notification"
-            className="w-[16px] cursor-pointer hover:opacity-70 transition-opacity"
+            className="w-[16px] cursor-pointer hover:opacity-70 transition-opacity dark:invert"
             onClick={toggleNotification}
             width={16}
             height={16}
             style={{ height: "auto" }}
           />
           {unreadCount > 0 && (
-            <div className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-[#F8589F] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+            <div className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
               {unreadCount > 99 ? "99+" : unreadCount}
             </div>
           )}
@@ -301,16 +298,16 @@ const Dash_Header = () => {
                 alt="Infini"
                 width={20}
                 height={12}
-                className="w-[22px]"
+                className="w-[22px] dark:invert"
                 style={{ height: "auto" }}
               />
-              <span className="text-[#F8589F] font-[500] text-[17px] flex items-center">
+              <span className="text-primary font-[500] text-[17px] flex items-center">
                 QCM
               </span>
             </div>
           ) : (
-            <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
-              {remainingMcqs} <span className="text-[#F8589F]">QCM</span>
+            <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
+              {remainingMcqs} <span className="text-primary">QCM</span>
             </span>
           )}
           <CounterTooltip
@@ -326,8 +323,8 @@ const Dash_Header = () => {
           onMouseEnter={() => setHoveredCounter('qroc')}
           onMouseLeave={() => setHoveredCounter(null)}
         >
-          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
-            {remainingQrocs} <span className="text-[#F8589F]">QROC</span>
+          <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
+            {remainingQrocs} <span className="text-primary">QROC</span>
           </span>
           <CounterTooltip
             title="Questions Rédactionnelles"
@@ -342,7 +339,7 @@ const Dash_Header = () => {
           onMouseEnter={() => setHoveredCounter('streak')}
           onMouseLeave={() => setHoveredCounter(null)}
         >
-          <span className="text-[#191919] font-[500] text-[17px] cursor-pointer transition-transform hover:scale-105">
+          <span className="text-foreground font-[500] text-[17px] cursor-pointer transition-transform hover:scale-105">
             {currentStreak}
           </span>
           <Image
@@ -367,8 +364,8 @@ const Dash_Header = () => {
           onMouseEnter={() => setHoveredCounter('xp')}
           onMouseLeave={() => setHoveredCounter(null)}
         >
-          <span className="text-[#191919] font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
-            {currentXp} <span className="text-[#F8589F]">XP</span>
+          <span className="text-foreground font-[500] text-[17px] flex items-center gap-[3px] cursor-pointer transition-transform hover:scale-105">
+            {currentXp} <span className="text-primary">XP</span>
           </span>
           <CounterTooltip
             title="Points d'Expérience"

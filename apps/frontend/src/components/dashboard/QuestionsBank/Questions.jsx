@@ -184,7 +184,7 @@ const Questions = ({
   }
   if (coursesError) {
     return (
-      <div className="p-4 text-red-600 bg-red-100 border border-red-400 rounded">
+      <div className="p-4 text-destructive bg-destructive/10 border border-destructive/30 rounded">
         Erreur: {coursesError.message}
       </div>
     );
@@ -256,18 +256,18 @@ const Questions = ({
         initial="hidden"
         animate="visible"
       >
-        <h1 className="font-Poppins font-[500] text-[22px] text-[#191919]">
+        <h1 className="font-Poppins font-[500] text-[22px] text-foreground">
           Questions par cours
         </h1>
       </motion.div>
 
       {displayData.length === 0 ? (
-        <div className="p-4 text-gray-600 bg-gray-100 border border-gray-300 rounded box">
+        <div className="p-4 text-muted-foreground bg-muted border border-border rounded box">
           Aucun cours (avec questions) trouvé.
         </div>
       ) : (
         <motion.ul
-          className="flex flex-col gap-4 bg-[#FFFFFF] p-5 rounded-[16px] box"
+          className="flex flex-col gap-4 bg-card border border-border p-5 rounded-[16px] box"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -283,7 +283,7 @@ const Questions = ({
 
             return (
               <motion.li
-                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
+                className={`flex items-center justify-between border border-border rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
                   buttonsDisabled ? "opacity-60 cursor-not-allowed" : ""
                 }`}
                 key={item.id}
@@ -294,7 +294,6 @@ const Questions = ({
                         scale: 1.02,
                         y: -3,
                         boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
-                        borderColor: "#F8589F",
                         transition: {
                           type: "spring",
                           stiffness: 300,
@@ -318,37 +317,37 @@ const Questions = ({
                   />
                   <div className="flex flex-col gap-[2px] overflow-hidden w-[300px] max-xl:w-[200px] max-md:w-[160px]">
                     <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate md:hidden"
+                      className="font-Poppins text-foreground font-[500] text-[14px] truncate md:hidden"
                       title={item.name}
                     >
                       {displayName}
                     </span>
-                    <span className="font-Poppin text-[#191919] font-[500] text-[14px] truncate max-md:hidden">
+                    <span className="font-Poppin text-foreground font-[500] text-[14px] truncate max-md:hidden">
                       {item.name}
                     </span>
-                    <span className="font-Poppins text-[#666666] text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">
+                    <span className="font-Poppins text-muted-foreground text-[12px] whitespace-nowrap max-md:flex max-md:flex-col">
                       {subjectData.name} •{" "}
-                      <span className="text-[#F8589F]">
+                      <span className="text-primary">
                         {item.total} {questionLabel}
                       </span>
                     </span>
                   </div>
                 </div>
                 <div className="hidden md:flex items-center gap-8 mr-5">
-                  <span className="text-[14px] text-[#F8589F] font-Inter font-medium">
+                  <span className="text-[14px] text-primary font-Inter font-medium">
                     Précision
                   </span>
                   <div className="flex items-center gap-3 mr-5">
                     <span
                       role="progressbar"
-                      className="relative block w-[200px] h-[12px] bg-[#F5F5F5] rounded-[16px] overflow-hidden"
+                      className="relative block w-[200px] h-[12px] bg-muted rounded-[16px] overflow-hidden"
                     >
                       <span
-                        className="absolute left-0 h-[12px] bg-gradient-to-r from-[#F8589F] to-[#FD2E8A]"
+                        className="absolute left-0 h-[12px] bg-gradient-to-r from-primary to-[#FD2E8A]"
                         style={{ width: `${progress}%` }}
                       ></span>
                     </span>
-                    <span className="text-[#191919] font-Inter font-medium text-[13px] w-[50px] text-right">
+                    <span className="text-foreground font-Inter font-medium text-[13px] w-[50px] text-right">
                       {progress.toFixed(1)}%
                     </span>
                   </div>

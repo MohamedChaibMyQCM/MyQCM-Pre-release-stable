@@ -221,8 +221,8 @@ const Courses = ({ courses, subjectId, subjectData }) => {
     <div
       className={
         validCourses.length <= MAX_VISIBLE_ITEMS
-          ? "relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box max-md:w-[100%] flex flex-col max-lg:w-full"
-          : "relative px-[22px] py-[28px] rounded-[16px] bg-[#FFFFFF] basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-white after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col max-lg:w-full"
+          ? "relative px-[22px] py-[28px] rounded-[16px] bg-card border border-border basis-[41%] box max-md:w-[100%] flex flex-col max-lg:w-full"
+          : "relative px-[22px] py-[28px] rounded-[16px] bg-card border border-border basis-[41%] box after:w-full after:h-[120px] after:bg-gradient-to-t after:from-card after:to-transparent after:absolute after:left-0 after:bottom-0 after:rounded-br-[16px] after:rounded-bl-[16px] max-md:w-[100%] flex flex-col max-lg:w-full"
       }
     >
       <motion.div
@@ -231,7 +231,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
         initial="hidden"
         animate="visible"
       >
-        <h3 className="#0C092A text-[#191919] font-medium text-[18px]">
+        <h3 className="text-foreground font-medium text-[18px]">
           Q/C par cours
         </h3>
 
@@ -239,7 +239,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
           {validCourses.length > 0 && (
             <Link
               href={`/dashboard/question-bank/${subjectId}/question-per-course`}
-              className="text-[13px] font-medium text-[#F8589F] cursor-pointer hover:underline"
+              className="text-[13px] font-medium text-primary cursor-pointer hover:underline"
             >
               Voir tout
             </Link>
@@ -265,15 +265,15 @@ const Courses = ({ courses, subjectId, subjectData }) => {
         animate="visible"
       >
         {isLoadingProfile ? (
-          <li className="text-center text-gray-500 py-10">
+          <li className="text-center text-muted-foreground py-10">
             <Loading simple={true} />
           </li>
         ) : profileError ? (
-          <li className="text-center text-red-500 py-10">
+          <li className="text-center text-destructive py-10">
             Erreur de chargement du profil.
           </li>
         ) : validCourses.length === 0 ? (
-          <li className="text-center text-gray-500 py-10">
+          <li className="text-center text-muted-foreground py-10">
             Aucun cours disponible.
           </li>
         ) : (
@@ -283,7 +283,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
 
             return (
               <motion.li
-                className={`flex items-center justify-between border border-[#E4E4E4] rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
+                className={`flex items-center justify-between border border-border rounded-[16px] px-[22px] py-[14px] max-md:px-[16px] ${
                   buttonsDisabled ? "opacity-50" : ""
                 }`}
                 key={item.id}
@@ -294,7 +294,6 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                         scale: 1.02,
                         y: -3,
                         boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-                        borderColor: "#F8589F",
                         transition: {
                           type: "spring",
                           stiffness: 400,
@@ -318,16 +317,16 @@ const Courses = ({ courses, subjectId, subjectData }) => {
                   />
                   <div className="flex flex-col gap-[2px]">
                     <span
-                      className="font-Poppins text-[#191919] font-[500] text-[14px] truncate"
+                      className="font-Poppins text-foreground font-[500] text-[14px] truncate"
                       title={item.name}
                     >
                       {item.name.length > 22
                         ? `${item.name.slice(0, 16)}...`
                         : item.name}
                     </span>
-                    <span className="flex items-center gap-1 text-[#666666] text-[12px] max-md:text-[11px] max-md:flex-col max-md:items-start">
+                    <span className="flex items-center gap-1 text-muted-foreground text-[12px] max-md:text-[11px] max-md:flex-col max-md:items-start">
                       {subjectData.name} •
-                      <span className="text-[#F8589F]">
+                      <span className="text-primary">
                         {item.total ?? 0} Question{item.total !== 1 ? "s" : ""}
                       </span>
                     </span>

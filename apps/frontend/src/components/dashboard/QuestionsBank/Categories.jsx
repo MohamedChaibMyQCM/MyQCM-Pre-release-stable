@@ -173,7 +173,7 @@ const Categories = () => {
       "Une erreur est survenue.";
     return (
       <div className="px-[24px] mb-[24px] max-md:px-[20px]">
-        <div className="bg-white p-4 rounded-lg text-center text-red-500 border border-red-200 shadow-sm">
+        <div className="bg-card p-4 rounded-lg text-center text-destructive border border-destructive/30 shadow-sm">
           Erreur : {errorMessage}. Veuillez réessayer.
         </div>
       </div>
@@ -275,22 +275,22 @@ const Categories = () => {
         initial="hidden"
         animate="visible"
       >
-        <h3 className="text-[#191919] font-[500] text-[18px] max-md:text-[16px]">
+        <h3 className="text-foreground font-[500] text-[18px] max-md:text-[16px]">
           Modules
         </h3>
         {!isUserFourthYear && (
           <div className="relative" ref={filterRef}>
             <div
-              className="flex items-center bg-[#FFFFFF] gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-gray-50"
+              className="flex items-center bg-card gap-2 px-4 py-[6px] rounded-[16px] box cursor-pointer transition-colors hover:bg-muted border border-border"
               onClick={() => setShowFilter(!showFilter)}
               role="button"
               aria-haspopup="true"
               aria-expanded={showFilter}
             >
-              <button className="text-[14px] font-[500]">
+              <button className="text-[14px] font-[500] text-foreground">
                 {filterButtonLabel}
               </button>
-              <Image src={filter} alt="filtre" className="w-[13px]" />
+              <Image src={filter} alt="filtre" className="w-[13px] dark:invert" />
             </div>
             <AnimatePresence>
               {showFilter && (
@@ -318,7 +318,7 @@ const Categories = () => {
       </motion.div>
 
       <motion.ul
-        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#FFF] p-5 rounded-[16px] box transition-opacity duration-300 ${
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-card p-5 rounded-[16px] box transition-opacity duration-300 border border-border ${
           (isSubjectsFetching && !isInitialLoading) ||
           (isUserFourthYear && isProfileLoading)
             ? "opacity-75 pointer-events-none"
@@ -329,7 +329,7 @@ const Categories = () => {
         animate="visible"
       >
         {!isInitialLoading && displaySubjects?.length === 0 ? (
-          <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-gray-500 py-10">
+          <div className="sm:col-span-2 lg:col-span-4 w-full text-center text-muted-foreground py-10">
             <span className="text-xl mb-2 block">🤔</span>
             {selectedUnitId
               ? "Aucun module trouvé pour l'unité sélectionnée."
@@ -337,13 +337,13 @@ const Categories = () => {
             {selectedUnitId && (
               <button
                 onClick={resetFilter}
-                className="ml-2 text-blue-500 underline text-sm"
+                className="ml-2 text-primary underline text-sm hover:opacity-80"
               >
                 (Voir tout)
               </button>
             )}
             {!selectedUnitId && !profileData?.unit?.id && (
-              <p className="text-xs mt-2 text-gray-400">
+              <p className="text-xs mt-2 text-muted-foreground opacity-70">
                 Sélectionnez une unité avec le filtre.
               </p>
             )}

@@ -441,7 +441,7 @@ const Quiz = ({
   }, [questionData]);
 
   const getOptionStyling = (optionId) => {
-    let classes = "border-[#EFEEFC] text-[#191919] bg-white";
+    let classes = "border-border text-foreground bg-card";
     const isSelectedByUser = selectedOptions.some(
       (selected) => selected.option == optionId
     );
@@ -454,15 +454,15 @@ const Quiz = ({
 
       if (selectedOptionData) {
         classes = selectedOptionData.is_correct
-          ? "border-[#47B881] text-[#47B881]"
-          : "border-[#F64C4C] text-[#F64C4C]";
+          ? "border-[#47B881] text-[#47B881] bg-[#47B881]/10"
+          : "border-[#F64C4C] text-[#F64C4C] bg-[#F64C4C]/10";
       } else {
         if (isCorrect) {
           if (multiChoiceQuestion) {
             classes =
-              "border-[#FEC84B] bg-[#FFF6DB] text-[#A45A00] shadow-sm";
+              "border-[#FEC84B] bg-[#FEC84B]/20 text-[#FEC84B] shadow-sm";
           } else {
-            classes = "border-[#47B881] text-[#47B881]";
+            classes = "border-[#47B881] text-[#47B881] bg-[#47B881]/10";
           }
         } else {
           classes += " pointer-events-none opacity-70";
@@ -471,9 +471,9 @@ const Quiz = ({
       classes += " pointer-events-none";
     } else {
       if (isSelectedByUser) {
-        classes = "bg-[#FFF5FA] text-[#F8589F] border-[#F8589F]";
+        classes = "bg-accent text-primary border-primary";
       } else {
-        classes += " hover:bg-gray-50";
+        classes += " hover:bg-muted";
       }
       classes += " cursor-pointer";
     }
@@ -585,7 +585,7 @@ const Quiz = ({
 
   return (
     <motion.div
-      className="relative bg-[#FFFFFF] w-full rounded-[20px] p-[24px] flex flex-col gap-6 max-md:p-[16px] max-sm:p-[14px] z-[50] overflow-y-auto shadow-lg"
+      className="relative bg-card border border-border w-full rounded-[20px] p-[24px] flex flex-col gap-6 max-md:p-[16px] max-sm:p-[14px] z-[50] overflow-y-auto shadow-lg"
       initial="hidden"
       animate="visible"
       variants={cardVariants}
@@ -627,9 +627,9 @@ const Quiz = ({
           </span>
 
           {/* Progress bar - hidden on mobile */}
-          <div className="relative w-[140px] h-[8px] bg-[#F0F0F0] rounded-[20px] overflow-hidden max-md:hidden shadow-inner shrink-0">
+          <div className="relative w-[140px] h-[8px] bg-muted rounded-[20px] overflow-hidden max-md:hidden shadow-inner shrink-0">
             <motion.div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px]"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary/80 rounded-[20px]"
               initial={{ width: 0 }}
               animate={{
                 width: `${
@@ -683,15 +683,15 @@ const Quiz = ({
       >
         <div className="flex-1 min-w-0">
           <motion.div className="mb-4 max-lg:mb-3" variants={questionVariants}>
-            <span className="inline-block bg-[#F8F9FA] px-[12px] py-[6px] rounded-[8px] font-Poppins text-[#666666] text-[11px] font-semibold tracking-wide max-md:text-[10px] max-md:px-[10px] max-md:py-[5px]">
+            <span className="inline-block bg-muted px-[12px] py-[6px] rounded-[8px] font-Poppins text-muted-foreground text-[11px] font-semibold tracking-wide max-md:text-[10px] max-md:px-[10px] max-md:py-[5px]">
               QUESTION{" "}
-              <span className="text-[#F8589F]">
+              <span className="text-primary">
                 {currentQuestionNumber}/{totalQuestions || "?"}
               </span>
             </span>
           </motion.div>
           <motion.div
-            className="font-Poppins text-[#2C3E50] font-medium prose max-w-none text-[15px] leading-relaxed max-md:text-[14px]"
+            className="font-Poppins text-foreground font-medium prose prose-invert max-w-none text-[15px] leading-relaxed max-md:text-[14px]"
             dangerouslySetInnerHTML={{ __html: questionData?.question || "" }}
             variants={questionVariants}
           />
@@ -795,10 +795,10 @@ const Quiz = ({
           >
             <Input
               name="response"
-              className={`font-Poppins font-medium placeholder:text-[13px] text-[14px] px-[20px] py-[20px] rounded-[16px] border-2 bg-white transition-all duration-200 focus:shadow-lg ${
+              className={`font-Poppins font-medium placeholder:text-[13px] text-[14px] px-[20px] py-[20px] rounded-[16px] border-2 bg-card transition-all duration-200 focus:shadow-lg ${
                 !checkAnswer
                   ? getBackgroundColor(answer?.success_ratio)
-                  : "border-[#E9ECEF] text-[#2C3E50] focus:border-[#FF6EAF] focus:ring-0"
+                  : "border-border text-foreground focus:border-primary focus:ring-0"
               }`}
               placeholder="Écrivez votre réponse ici..."
               value={formik.values.response}
@@ -846,7 +846,7 @@ const Quiz = ({
           <motion.button
             type="button"
             onClick={triggerSkipPopup}
-            className="text-[#F8589F] font-medium text-[13px] hover:text-[#E74C8C] transition-colors disabled:text-gray-400 disabled:cursor-not-allowed max-md:order-2 max-md:text-[12px]"
+            className="text-primary font-medium text-[13px] hover:opacity-80 transition-opacity disabled:text-muted-foreground disabled:cursor-not-allowed max-md:order-2 max-md:text-[12px]"
             disabled={
               !checkAnswer || isSubmitting || isLoadingNextMcq || isSkipping
             }
@@ -861,7 +861,7 @@ const Quiz = ({
           {checkAnswer ? (
             <motion.button
               type="submit"
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
+              className="bg-gradient-to-r from-primary to-primary/80 text-white font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isSubmitDisabled}
               variants={buttonVariants}
               whileHover={
@@ -885,7 +885,7 @@ const Quiz = ({
             <motion.button
               type="button"
               onClick={handleSeeExplanationOrNext}
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
+              className="bg-gradient-to-r from-primary to-primary/80 text-white font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isLoadingNextMcq}
               variants={buttonVariants}
               whileHover={

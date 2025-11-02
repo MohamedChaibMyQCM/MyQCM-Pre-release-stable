@@ -146,10 +146,10 @@ const Calendar = () => {
       days.push(
         <td
           key={`day-${day}`}
-          className={`text-[14px] font-Poppins font-medium w-[30px] h-[30px] flex items-center justify-center cursor-pointer rounded-full ${
+          className={`text-[14px] font-Poppins font-medium w-[30px] h-[30px] flex items-center justify-center cursor-pointer rounded-full transition-colors ${
             isScheduled
-              ? "bg-[#FD2E8A] text-white"
-              : "text-[#4A5660] hover:bg-[#F8589F] hover:text-white"
+              ? "bg-primary text-primary-foreground"
+              : "text-card-foreground hover:bg-primary hover:text-primary-foreground"
           }`}
           onClick={() => handleDateClick(day)}
         >
@@ -177,22 +177,22 @@ const Calendar = () => {
 
   return (
     <div id="tour-calendar-section" className="w-[100%]">
-      <h2 className="text-[#191919] font-[500] text-[17px] mb-6 max-md:mb-4">
+      <h2 className="text-foreground font-[500] text-[17px] mb-6 max-md:mb-4">
         Planifiez votre apprentissage
       </h2>
-      <div className="bg-[#FFFFFF] box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-[100%] h-[316px] max-md:px-[20px]">
+      <div className="bg-card box py-[18px] px-[40px] rounded-[16px] max-md:px-0 w-[100%] h-[316px] max-md:px-[20px] border border-border">
         <div className="flex items-center justify-between mb-4">
           <MdOutlineKeyboardArrowLeft
-            className="text-[#B5BEC6] text-[20px] cursor-pointer"
+            className="text-muted-foreground text-[20px] cursor-pointer hover:text-foreground transition-colors"
             onClick={() => changeMonth(-1)}
           />
-          <span className="font-Poppins text-[#4A5660] font-medium text-[15px]">
+          <span className="font-Poppins text-card-foreground font-medium text-[15px]">
             {`${
               monthNames[currentDate.getMonth()]
             } ${currentDate.getFullYear()}`}
           </span>
           <MdOutlineKeyboardArrowRight
-            className="text-[#B5BEC6] text-[20px] cursor-pointer"
+            className="text-muted-foreground text-[20px] cursor-pointer hover:text-foreground transition-colors"
             onClick={() => changeMonth(1)}
           />
         </div>
@@ -203,7 +203,7 @@ const Calendar = () => {
                 {daysOfWeek.map((day) => (
                   <th
                     key={day}
-                    className="text-[12px] text-[#B5BEC6] font-medium w-[30px]"
+                    className="text-[12px] text-muted-foreground font-medium w-[30px]"
                   >
                     {day}
                   </th>

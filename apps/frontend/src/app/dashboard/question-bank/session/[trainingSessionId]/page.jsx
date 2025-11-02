@@ -334,7 +334,7 @@ const Page = () => {
 
   if (isLoadingInitial) {
     return (
-      <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#FF6FAF]">
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a]">
         <Loading />
       </div>
     );
@@ -342,7 +342,7 @@ const Page = () => {
 
   if (combinedError && !result) {
     return (
-      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] text-white p-10">
         <h2 className="text-2xl font-bold mb-4">Erreur de chargement</h2>
         <p className="text-center mb-4">
           {combinedError.message ||
@@ -350,7 +350,7 @@ const Page = () => {
         </p>
         <button
           onClick={() => router.back()}
-          className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+          className="font-medium text-[13px] text-white rounded-[20px] px-[26px] py-[6px] border-[2px] border-white hover:bg-white hover:text-[#FF6FAF] dark:hover:text-primary transition-colors"
         >
           Retour
         </button>
@@ -360,7 +360,7 @@ const Page = () => {
 
   if (!isLoadingInitial && !combinedError && !currentQuestion && !result) {
     return (
-      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#FF6FAF] text-white p-10">
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] text-white p-10">
         <h2 className="text-2xl font-bold mb-4">Aucune question trouvée</h2>
         <p className="text-center mb-4">
           Il n&apos;y a pas de questions disponibles pour cette session
@@ -369,7 +369,7 @@ const Page = () => {
         <div className="flex flex-col items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+            className="font-medium text-[13px] text-white rounded-[20px] px-[26px] py-[6px] border-[2px] border-white hover:bg-white hover:text-[#FF6FAF] dark:hover:text-primary transition-colors"
           >
             Retour
           </button>
@@ -377,7 +377,7 @@ const Page = () => {
             <button
               onClick={handleSessionCompletion}
               disabled={isCompletingSession}
-              className="font-medium text-[13px] text-[#FFFFFF] rounded-[20px] px-[26px] py-[6px] border-[2px] border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors"
+              className="font-medium text-[13px] text-white rounded-[20px] px-[26px] py-[6px] border-[2px] border-white hover:bg-white hover:text-[#FF6FAF] dark:hover:text-primary transition-colors"
             >
               {isCompletingSession ? "Finalisation..." : "Terminer la session"}
             </button>
@@ -393,7 +393,7 @@ const Page = () => {
     data.mcqs_success + data.mcqs_failed + data.mcqs_skipped + 1;
 
   return (
-    <div className="absolute inset-0 z-50 bg-[#FF6FAF] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] max-md:py-[20px] overflow-hidden max-md:gap-8">
+    <div className="absolute inset-0 z-50 bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] max-md:py-[20px] overflow-y-auto max-md:gap-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -402,7 +402,7 @@ const Page = () => {
         {!result && (
           <button
             onClick={handleEndSessionClick}
-            className={`font-medium text-[13px] text-[#FFFFFF] rounded-[24px] px-[28px] py-[10px] border-2 border-[#FFFFFF] hover:bg-white hover:text-[#FF6FAF] transition-colors duration-300 ${
+            className={`font-medium text-[13px] text-white rounded-[24px] px-[28px] py-[10px] border-2 border-white hover:bg-white hover:text-[#FF6FAF] dark:hover:text-primary transition-colors duration-300 ${
               isCompletingSession || isLoadingQuestion
                 ? "opacity-50 cursor-not-allowed"
                 : ""
@@ -419,7 +419,7 @@ const Page = () => {
       </div>
 
       {/* Mobile-only progress bar and difficulty */}
-      <div className="flex items-center justify-between md:hidden bg-[#FFFFFF20] rounded-[10px] px-[12px] py-[8px] border border-[#FFFFFF15]">
+      <div className="flex items-center justify-between md:hidden bg-white/20 rounded-[10px] px-[12px] py-[8px] border border-white/15">
         <div className="flex items-center gap-2">
           <div
             className={`w-[4px] h-[4px] rounded-full ${
@@ -430,7 +430,7 @@ const Page = () => {
                 : "bg-[#EF4444]"
             }`}
           ></div>
-          <span className="text-[#FFFFFF] text-[12px] font-semibold capitalize">
+          <span className="text-white text-[12px] font-semibold capitalize">
             {currentQuestion?.difficulty === "easy"
               ? "Facile"
               : currentQuestion?.difficulty === "medium"
@@ -440,12 +440,12 @@ const Page = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[#FFFFFF] text-[12px] font-semibold">
+          <span className="text-white text-[12px] font-semibold">
             {currentQuestionNumber}/{totalQuestions}
           </span>
-          <div className="relative w-[60px] h-[3px] bg-[#FFFFFF20] rounded-[10px] overflow-hidden">
+          <div className="relative w-[60px] h-[3px] bg-white/20 rounded-[10px] overflow-hidden">
             <div
-              className="absolute top-0 left-0 h-full bg-[#FFFFFF] rounded-[10px] transition-all duration-500 ease-out"
+              className="absolute top-0 left-0 h-full bg-white rounded-[10px] transition-all duration-500 ease-out"
               style={{
                 width: `${
                   totalQuestions > 0
@@ -460,7 +460,7 @@ const Page = () => {
 
       {isLoadingQuestion && !result && (
         <div className="flex justify-center items-center flex-grow">
-          <Loading color="#FFFFFF" />
+          <Loading color="white" />
         </div>
       )}
 
@@ -512,12 +512,12 @@ const Page = () => {
           {/* Help button - fixed at bottom left */}
           <motion.button
             onClick={() => setShowKeyboardHelp(true)}
-            className="fixed bottom-[30px] left-[30px] w-[44px] h-[44px] bg-white border-2 border-[#E9ECEF] rounded-full flex items-center justify-center hover:bg-[#F8F9FA] hover:border-[#F8589F] transition-all duration-200 shadow-lg z-[60] group max-md:bottom-[20px] max-md:left-[20px] max-md:w-[40px] max-md:h-[40px]"
+            className="fixed bottom-[30px] left-[30px] w-[44px] h-[44px] bg-card border-2 border-border rounded-full flex items-center justify-center hover:bg-muted hover:border-primary transition-all duration-200 shadow-lg z-[60] group max-md:bottom-[20px] max-md:left-[20px] max-md:w-[40px] max-md:h-[40px]"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             title="Raccourcis clavier (Shift + ?)"
           >
-            <span className="text-[#F8589F] text-[18px] font-bold group-hover:scale-110 transition-transform max-md:text-[16px]">
+            <span className="text-primary text-[18px] font-bold group-hover:scale-110 transition-transform max-md:text-[16px]">
               ?
             </span>
           </motion.button>

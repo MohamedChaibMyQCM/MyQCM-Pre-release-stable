@@ -207,7 +207,7 @@ const Modules = () => {
   return (
     <div id="tour-modules-section" className="mt-8" ref={containerRef}>
       <div className="flex items-center justify-between mb-4 px-1">
-        <h3 className="font-[500] text-[17px] text-[#191919]">
+        <h3 className="font-[500] text-[17px] text-foreground">
           Continuer l&apos;apprentissage
         </h3>
         {showArrows && (
@@ -219,7 +219,7 @@ const Modules = () => {
               className={`p-1 transition-opacity duration-200 ${
                 !canScrollPrev
                   ? "opacity-30 cursor-not-allowed"
-                  : "opacity-100 hover:bg-gray-100 rounded-full"
+                  : "opacity-100 hover:bg-accent rounded-full"
               }`}
             >
               <Image src={left_arrow} alt="" width={28} height={28} />
@@ -231,7 +231,7 @@ const Modules = () => {
               className={`p-1 transition-opacity duration-200 ${
                 !canScrollNext
                   ? "opacity-30 cursor-not-allowed"
-                  : "opacity-100 hover:bg-gray-100 rounded-full"
+                  : "opacity-100 hover:bg-accent rounded-full"
               }`}
             >
               <Image src={right_arrow} alt="" width={28} height={28} />
@@ -253,7 +253,7 @@ const Modules = () => {
             {modulesData.map((module) => (
               <li
                 key={module.id}
-                className="p-4 bg-[#FFFFFF] rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] flex flex-col flex-shrink-0 transition-shadow duration-300 ease-in-out hover:shadow-lg"
+                className="p-4 bg-card rounded-[16px] w-[240px] min-h-[270px] shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out hover:shadow-lg border border-border"
                 style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative w-full h-[96px] rounded-md overflow-hidden mb-2">
@@ -267,31 +267,31 @@ const Modules = () => {
                   />
                 </div>
                 <div className="flex flex-col flex-grow">
-                  <span className="text-[#FD2E8A] text-[12px] my-2 font-semibold block bg-[#FFF5FA] rounded-[8px] px-2 py-1 w-fit">
+                  <span className="text-primary text-[12px] my-2 font-semibold block bg-accent rounded-[8px] px-2 py-1 w-fit">
                     {module.title}
                   </span>
                   <div className="mt-1 mb-3 flex-grow">
                     <span
-                      className="text-[13px] text-[#11142D] font-[500] block"
+                      className="text-[13px] text-card-foreground font-[500] block"
                       title={module.fullUnitForTitle}
                     >
                       {module.unit}
                     </span>
                     <div className="relative flex items-center w-full justify-between mt-[4px]">
-                      <div className="w-[76%] h-[6px] bg-gray-200 rounded-full relative overflow-hidden">
+                      <div className="w-[76%] h-[6px] bg-muted rounded-full relative overflow-hidden">
                         <div
-                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] rounded-full"
+                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary to-[#FD2E8A] rounded-full"
                           style={{ width: `${module.progress}%` }}
                         />
                       </div>
-                      <span className="text-[12px] font-medium text-[#FD2E8A]">
+                      <span className="text-[12px] font-medium text-primary">
                         {module.progress.toFixed(0)}%
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                  <span className="text-[12px] text-[#F8589F] font-[500]">
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
+                  <span className="text-[12px] text-primary font-[500]">
                     {module.views}
                   </span>
                   <Link
@@ -300,7 +300,7 @@ const Modules = () => {
                     legacyBehavior
                   >
                     <a
-                      className="p-1 rounded-full hover:bg-pink-100 transition-colors duration-200 ease-in-out"
+                      className="p-1 rounded-full hover:bg-accent transition-colors duration-200 ease-in-out"
                       title="Commencer le module"
                       aria-label={`Commencer le module ${module.title}`}
                     >
@@ -319,7 +319,7 @@ const Modules = () => {
           </ul>
         </div>
       ) : (
-        <div className="text-center py-10 px-4 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 mt-4 mx-1">
+        <div className="text-center py-10 px-4 text-muted-foreground border-2 border-dashed border-border rounded-lg bg-muted mt-4 mx-1">
           <p className="text-lg mb-2">📚</p>
           <p>
             Aucun module d&apos;apprentissage disponible pour l&apos;unité

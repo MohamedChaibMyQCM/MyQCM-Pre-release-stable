@@ -1,10 +1,20 @@
 "use client";
 
-import Image from "next/image";
-import result from "../../../../public/Quiz/result.svg";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { X } from "phosphor-react";
+import { motion } from "framer-motion";
+import {
+  CheckCircle2,
+  XCircle,
+  CircleHelp,
+  BarChart3,
+  Trophy,
+  RotateCcw,
+  Home,
+  Share2,
+} from "lucide-react";
+import RingProgress from "./RingProgress";
+import QuizKPI from "./QuizKPI";
 
 const QuizResult = ({ data, length }) => {
   const { category } = useParams();
@@ -16,73 +26,248 @@ const QuizResult = ({ data, length }) => {
   const accuracy = data.accuracy || 0;
 
   // Function to get dynamic message based on performance
-  const getPerformanceMessage = (accuracy) => {
-    if (accuracy >= 90) return "Excellent !";
-    if (accuracy >= 80) return "Très bien !";
-    if (accuracy >= 70) return "Bien joué !";
-    if (accuracy >= 60) return "Pas mal !";
-    if (accuracy >= 50) return "Peut mieux faire !";
-    return "Continuez vos efforts !";
+  const resolveHeadline = (accuracy) => {
+    if (accuracy >= 80) {
+      return {
+        title: "Excellent !",
+        sub: "Solide maîtrise. Continuez sur cette lancée ou passez au module suivant.",
+      };
+    }
+
+    if (accuracy >= 60) {
+      return {
+        title: "Continuez vos efforts !",
+        sub: "Bon travail ! Analysez vos réponses pour consolider vos connaissances.",
+      };
+    }
+
+    return {
+      title: "Ne lâchez pas !",
+      sub: "Révisez les points clés et retentez pour progresser davantage.",
+    };
   };
 
+  const { title, sub } = resolveHeadline(accuracy);
+
   return (
-    <div className="bg-[#0000004D] fixed top-0 left-0 h-full w-full flex items-center justify-center z-[100]">
-      <div className="bg-[#ffffff] w-[420px] p-[30px] rounded-[16px] flex flex-col gap-4 max-md:w-[96%]">
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-[#191919] text-[19px]">
-            {getPerformanceMessage(accuracy)}
-          </span>
-          <Link href={`/dashboard/QuestionsBank/${category}/QuestionPerCourse`}>
-            <X size={20} weight="bold" className="text-[#B5BEC6]" />
-          </Link>
-        </div>
-        {/* <Image src={result} alt="résultat" className="cursor-pointer w-full" /> */}
-        <div className="flex items-center justify-between flex-wrap gap-5 my-2">
-          <div className="basis-[40%] flex flex-col gap-1">
-            <span className="text-[#191919] font-medium text-[13px]">
-              ACHÈVEMENT
-            </span>
-            <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {accuracy}%
-            </span>
-          </div>
-          <div className="basis-[40%] flex flex-col gap-1">
-            <span className="text-[font-Poppins] font-medium text-[13px]">
-              RÉPONSE CORRECTE
-            </span>
-            <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {correctAnswers} questions
-            </span>
-          </div>
-          <div className="basis-[40%] flex flex-col gap-1">
-            <span className="text-[font-Poppins] font-[500] text-[13px]">
-              PASSÉ
-            </span>
-            <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {skippedQuestions} questions
-            </span>
-          </div>
-          <div className="basis-[40%] flex flex-col gap-1">
-            <span className="text-[font-Poppins] font-medium text-[13px]">
-              RÉPONSE INCORRECTE
-            </span>
-            <span className="text-[#FD2E8A] font-medium text-[12px]">
-              {incorrectAnswers} questions
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-6 mt-2">
-          <button className="font-medium text-[14px] basis-[48%] border border-[#FD2E8A] text-[#FD2E8A] px-[20px] py-[8px] rounded-[24px] hover:bg-pink-50 transition-colors">
-            Partager
-          </button>
-          <Link
-            href={`/dashboard/question-bank`}
-            className="font-medium text-[14px] basis-[48%] text-center bg-[#FD2E8A] text-[#FFF5FA] px-[20px] py-[8px] rounded-[24px] hover:opacity-90 transition-opacity"
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <motion.section
+        initial={{ opacity: 0, y: 18, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -18, scale: 0.96 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto w-full max-w-3xl rounded-[26px] border px-6 py-6 shadow-[0_24px_60px_-40px_rgba(248,88,159,0.55)] md:px-9 md:py-8 max-md:max-w-[96%]"
+        style={{
+          background: "rgba(255, 253, 250, 0.98)",
+          borderColor: "rgba(248, 88, 159, 0.16)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-start gap-4">
+          <motion.div
+            className="rounded-xl p-3"
+            style={{ background: "rgba(248, 88, 159, 0.12)" }}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 200,
+              damping: 15,
+              delay: 0.2,
+            }}
           >
-            Terminé
-          </Link>
+            <Trophy className="h-6 w-6" style={{ color: "#F8589F" }} />
+          </motion.div>
+          <div className="flex-1">
+            <motion.div
+              className="text-[10px] font-semibold uppercase tracking-[0.24em]"
+              style={{ color: "#FD2E8A" }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              Résultats de la session
+            </motion.div>
+            <motion.h2
+              className="mt-2 text-[24px] font-semibold leading-tight md:text-[26px]"
+              style={{ color: "#191919" }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              {title}
+            </motion.h2>
+            <motion.p
+              className="mt-2 text-[13px] leading-relaxed text-[#565D6D]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {sub}
+            </motion.p>
+          </div>
         </div>
-      </div>
+
+        {/* Stats Section */}
+        <motion.div
+          className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.6,
+              },
+            },
+          }}
+        >
+          {/* Ring Progress Card */}
+          <motion.div
+            className="flex items-center gap-5 rounded-2xl border px-5 py-5"
+            style={{
+              borderColor: "rgba(248, 88, 159, 0.12)",
+              background: "#FFFFFF",
+            }}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 12px 30px rgba(248, 88, 159, 0.15)",
+              transition: { duration: 0.2 },
+            }}
+          >
+            <RingProgress size={110} stroke={9} value={accuracy} />
+            <div>
+              <div
+                className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "#858494" }}
+              >
+                Taux de réussite
+              </div>
+              <div
+                className="mt-1 text-3xl font-semibold"
+                style={{ color: "#191919" }}
+              >
+                {Math.round(accuracy)} %
+              </div>
+              <div className="mt-1 text-[13px] text-[#5F6676]">
+                {correctAnswers} / {totalQuestions} réponses correctes
+              </div>
+            </div>
+          </motion.div>
+
+          {/* KPI Grid */}
+          <motion.div
+            className="grid grid-cols-2 gap-4"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.08 },
+              },
+            }}
+          >
+            <QuizKPI
+              icon={CheckCircle2}
+              label="Réponses correctes"
+              value={`${correctAnswers} / ${totalQuestions}`}
+              tone="success"
+            />
+            <QuizKPI
+              icon={XCircle}
+              label="Réponses incorrectes"
+              value={incorrectAnswers}
+              tone="danger"
+            />
+            <QuizKPI
+              icon={CircleHelp}
+              label="Questions passées"
+              value={skippedQuestions}
+              tone="warning"
+            />
+            <QuizKPI
+              icon={BarChart3}
+              label="Score global"
+              value={`${Math.round(accuracy)}%`}
+              tone="neutral"
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Session Info */}
+        <motion.div
+          className="mt-6 rounded-2xl p-4"
+          style={{
+            background: "rgba(248, 88, 159, 0.08)",
+            border: "1px solid rgba(248, 88, 159, 0.16)",
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <div
+            className="text-[11px] font-semibold uppercase tracking-[0.2em]"
+            style={{ color: "#858494" }}
+          >
+            Session d&apos;entraînement
+          </div>
+          <div className="mt-1 text-[13px] text-[#5F6676]">
+            {totalQuestions} question{totalQuestions > 1 ? "s" : ""} traitée
+            {totalQuestions > 1 ? "s" : ""}
+          </div>
+        </motion.div>
+
+        {/* Action Buttons */}
+        <motion.div
+          className="mt-6 flex flex-wrap gap-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <motion.button
+            className="flex items-center gap-2 rounded-[28px] bg-gradient-to-r from-[#F8589F] to-[#FF3D88] px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all disabled:opacity-50 max-md:flex-1"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 10px 25px rgba(248, 88, 159, 0.3)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.reload()}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Recommencer
+          </motion.button>
+
+          <motion.button
+            className="flex items-center gap-2 rounded-[28px] border-2 border-[#F8589F] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#F8589F] transition-all hover:bg-pink-50 max-md:flex-1"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Share2 className="h-4 w-4" />
+            Partager
+          </motion.button>
+
+          <div className="ml-auto max-md:ml-0 max-md:w-full">
+            <Link href="/dashboard/question-bank">
+              <motion.button
+                className="flex w-full items-center justify-center gap-2 rounded-[28px] bg-gradient-to-r from-[#F8589F] to-[#FF3D88] px-6 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(248, 88, 159, 0.3)",
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Home className="h-4 w-4" />
+                Tableau de bord
+              </motion.button>
+            </Link>
+          </div>
+        </motion.div>
+      </motion.section>
     </div>
   );
 };

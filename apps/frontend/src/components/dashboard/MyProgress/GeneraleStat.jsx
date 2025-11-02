@@ -7,6 +7,23 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 const GeneraleStat = ({ overall_summary }) => {
+  // Helper function to convert seconds to H:M:S format
+  const formatTimeSpent = (seconds) => {
+    if (!seconds || seconds === 0) return "0s";
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m`;
+    }
+    return `${secs}s`;
+  };
+
   // Premium animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -81,6 +98,11 @@ const GeneraleStat = ({ overall_summary }) => {
             <span className="text-[#F8589F] font-[500] text-[14px]">
               {overall_summary?.total_mcqs_attempted}
             </span>
+            {overall_summary?.unique_mcqs && (
+              <span className="text-[#B5BEC6] font-[400] text-[12px]">
+                {overall_summary.unique_mcqs} uniques
+              </span>
+            )}
           </div>
           <Image src={quiz_attemp} alt="Quiz tentés" />
         </motion.li>
@@ -117,8 +139,13 @@ const GeneraleStat = ({ overall_summary }) => {
           <div className="flex flex-col gap-1 max-md:text-center">
             <span className="font-[500] text-[15px]">Temps passé</span>
             <span className="text-[#F8589F] font-[500] text-[14px]">
-              {overall_summary?.total_time_spent}s
+              {formatTimeSpent(overall_summary?.total_time_spent)}
             </span>
+            {overall_summary?.average_time_spent && (
+              <span className="text-[#B5BEC6] font-[400] text-[12px]">
+                Moy: {formatTimeSpent(overall_summary.average_time_spent)}/Q
+              </span>
+            )}
           </div>
           <Image src={time_spent} alt="Temps passé" />
         </motion.li>

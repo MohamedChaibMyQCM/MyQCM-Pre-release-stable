@@ -102,7 +102,11 @@ const Learning_calendar = () => {
       if (!token) return [];
       try {
         const response = await BaseUrl.get("/progress", {
-          params: { date: formattedSelectedDate },
+          params: {
+            date: formattedSelectedDate,
+            offset: 100, // Request higher offset to capture all attempts for heavy study days
+            page: 1
+          },
           headers: { Authorization: `Bearer ${token}` },
         });
         return response.data.data?.progress || [];

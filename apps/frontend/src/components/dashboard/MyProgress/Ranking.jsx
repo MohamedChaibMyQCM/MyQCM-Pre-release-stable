@@ -5,11 +5,9 @@ import { motion } from "framer-motion";
 
 const Ranking = ({ userXp }) => {
   const ranking = userXp?.ranking;
-  const percentile = ranking.rank_percentile;
+  const percentile = ranking?.rank_percentile;
 
-  const percentileNumber = parseInt(percentile.replace("%", ""));
-
-  const invertedPercentile = 100 - percentileNumber;
+  const percentileNumber = parseInt(percentile?.replace("%", "") || "0");
 
   // Premium animation variants
   const containerVariants = {
@@ -76,7 +74,7 @@ const Ranking = ({ userXp }) => {
       >
         <span className="text-[14px] text-[#B5BEC6] font-[500]">Vous êtes</span>
         <span className="text-[#242424] text-[26px] font-[500] my-2">
-          Top <span className="text-[#F8589F]">{invertedPercentile}%</span>
+          Top <span className="text-[#F8589F]">{percentileNumber}%</span>
         </span>
         <span className="text-[#47B881] font-[500] text-[14px]">
           Continuez comme ça

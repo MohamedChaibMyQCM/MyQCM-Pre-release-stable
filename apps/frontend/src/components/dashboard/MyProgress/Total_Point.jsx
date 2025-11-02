@@ -4,8 +4,33 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const Total_Point = ({ userXp }) => {
-  // Calculer le pourcentage de progression (en supposant que chaque niveau nécessite 100 XP)
-  const progressPercentage = userXp ? ((userXp.xp % 100) / 100) * 100 : 0;
+  // Calculate progress percentage using API-provided level thresholds
+  const progressPercentage = (() => {
+    if (!userXp) return 0;
+
+    const currentXp = userXp?.xp || 0;
+
+    // Check if API provides level threshold data
+    if (
+      userXp?.current_level_threshold !== undefined &&
+      userXp?.next_level_threshold !== undefined
+    ) {
+      // Use API-provided thresholds
+      const currentLevelThreshold = userXp.current_level_threshold;
+      const nextLevelThreshold = userXp.next_level_threshold;
+
+      const xpInCurrentLevel = currentXp - currentLevelThreshold;
+      const xpRequiredForNextLevel =
+        nextLevelThreshold - currentLevelThreshold;
+
+      return xpRequiredForNextLevel > 0
+        ? Math.min((xpInCurrentLevel / xpRequiredForNextLevel) * 100, 100)
+        : 0;
+    } else {
+      // Fallback: assume 100 XP per level (legacy behavior)
+      return ((currentXp % 100) / 100) * 100;
+    }
+  })();
 
   // Premium animation variants
   const containerVariants = {

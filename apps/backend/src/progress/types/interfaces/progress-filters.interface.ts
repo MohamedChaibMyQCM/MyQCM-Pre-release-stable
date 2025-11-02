@@ -11,4 +11,8 @@ export interface ProgressFilters {
   success_ratio_max?: number;
   response?: string;
   feedback?: string;
+  createdAtRange?: {
+    start: Date;
+    end: Date;
+  };
 }

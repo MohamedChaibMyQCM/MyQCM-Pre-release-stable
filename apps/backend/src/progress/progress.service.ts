@@ -23,6 +23,7 @@ import { DateUtils } from "common/utils/date.util";
 import { RedisService } from "src/redis/redis.service";
 import { RedisKeys } from "common/utils/redis-keys.util";
 import { AccuracyThresholdConfigInterface } from "shared/interfaces/accuracy-threshold-config.interface";
+import { DefaultAccuracyThresholdConfig } from "config/default-accuracy-threshold.config";
 
 @Injectable()
 export class ProgressService {
@@ -163,10 +164,13 @@ export class ProgressService {
       relations: options.relations && options.relations,
       select: options.select,
     });
-    console.log(mcqs);
     if (options.distinct) {
       return Array.from(
-        new Map(mcqs.map((item) => [item.mcq.id, item])).values(),
+        new Map(
+          mcqs
+            .filter((item) => item.mcq?.id)
+            .map((item) => [item.mcq.id, item]),
+        ).values(),
       );
     }
     return mcqs;
@@ -214,8 +218,9 @@ export class ProgressService {
     // Create a single comprehensive query for most metrics
     const baseQuery = this.progressRepository
       .createQueryBuilder("progress")
-      .innerJoinAndSelect("progress.subject", "subject")
-      .innerJoinAndSelect("progress.mcq", "mcq")
+      .leftJoinAndSelect("progress.subject", "subject")
+      .leftJoinAndSelect("progress.mcq", "mcq")
+      .leftJoinAndSelect("progress.session", "session")
       .where("progress.userId = :userId", { userId });
 
     // Perform different queries based on time periods
@@ -271,11 +276,13 @@ export class ProgressService {
     ]);
 
     // Get accuracy threshold config from Redis
-    const { correct_threshold, performance_bands } =
-      (await this.redisService.get(
+    const accuracyConfig =
+      ((await this.redisService.get(
         RedisKeys.getRedisAccuracyThresholdConfig(),
         true,
-      )) as AccuracyThresholdConfigInterface;
+      )) as AccuracyThresholdConfigInterface) || DefaultAccuracyThresholdConfig;
+
+    const { correct_threshold, performance_bands } = accuracyConfig;
 
     // Calculate subject metrics from all-time records
     const subjectMetrics = this.calculateSubjectMetrics(allTimeRecords);
@@ -338,11 +345,12 @@ export class ProgressService {
     >();
 
     for (const record of progressRecords) {
-      const subjectId = record.subject.id;
+      const subjectId = record.subject?.id ?? "uncategorized";
+      const subjectName = record.subject?.name ?? "Non classé";
       if (!subjectRecordsMap.has(subjectId)) {
         subjectRecordsMap.set(subjectId, {
           id: subjectId,
-          name: record.subject.name,
+          name: subjectName,
           records: [],
         });
       }
@@ -365,7 +373,9 @@ export class ProgressService {
       for (const record of subjectRecords) {
         totalSuccessRatio += record.success_ratio || 0;
         totalTime += record.time_spent || 0;
-        uniqueMcqIds.add(record.mcq.id);
+        if (record.mcq?.id) {
+          uniqueMcqIds.add(record.mcq.id);
+        }
       }
 
       const avgSuccessRatio = totalSuccessRatio / recordCount;
@@ -422,8 +432,13 @@ export class ProgressService {
     }
 
     // Calculate unique MCQs
-    const uniqueMcqsCount = new Set(allRecords.map((record) => record.mcq.id))
-      .size;
+    const uniqueMcqIds = new Set<string>();
+    allRecords.forEach((record) => {
+      if (record.mcq?.id) {
+        uniqueMcqIds.add(record.mcq.id);
+      }
+    });
+    const uniqueMcqsCount = uniqueMcqIds.size;
 
     // Calculate time metrics
     const totalTimeSpent = allRecords.reduce(
@@ -435,7 +450,7 @@ export class ProgressService {
     // Calculate weighted accuracy (by subject attempts)
     const subjectAttemptsMap = allRecords.reduce(
       (map, record) => {
-        const subjectId = record.subject.id;
+        const subjectId = record.subject?.id ?? "uncategorized";
         if (!map[subjectId]) {
           map[subjectId] = {
             attempts: 0,
@@ -487,14 +502,56 @@ export class ProgressService {
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
 
-    // Recent quizzes
-    const recentQuizzes = sortedRecords
-      .slice(0, recent_quiz_limit)
-      .map((record) => ({
-        subject: record.subject.name,
-        accuracy: (record.success_ratio * 100).toFixed(2),
-        date: record.createdAt,
-      }));
+    const groupedQuizzes = new Map<
+      string,
+      {
+        records: Progress[];
+        latestDate: Date;
+        subjectTally: Map<string, number>;
+      }
+    >();
+
+    for (const record of sortedRecords) {
+      const key = record.session?.id ? `session-${record.session.id}` : record.id;
+      if (!groupedQuizzes.has(key)) {
+        groupedQuizzes.set(key, {
+          records: [],
+          latestDate: record.createdAt,
+          subjectTally: new Map<string, number>(),
+        });
+      }
+      const group = groupedQuizzes.get(key);
+      group.records.push(record);
+      if (record.createdAt > group.latestDate) {
+        group.latestDate = record.createdAt;
+      }
+      const subjectName = record.subject?.name ?? "Non classé";
+      group.subjectTally.set(
+        subjectName,
+        (group.subjectTally.get(subjectName) ?? 0) + 1,
+      );
+    }
+
+    const recentQuizzes = Array.from(groupedQuizzes.values())
+      .map((group) => {
+        const total = group.records.length;
+        const accuracyTotal = group.records.reduce(
+          (sum, record) => sum + (record.success_ratio || 0),
+          0,
+        );
+        const dominantSubject =
+          Array.from(group.subjectTally.entries()).sort(
+            (a, b) => b[1] - a[1],
+          )[0]?.[0] ?? "Non classé";
+
+        return {
+          subject: dominantSubject,
+          accuracy: total > 0 ? ((accuracyTotal / total) * 100).toFixed(2) : "0.00",
+          date: group.latestDate,
+        };
+      })
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, recent_quiz_limit);
 
     // Calculate performance metrics
     const totalAttempts = recentRecords.length;
@@ -884,6 +941,13 @@ export class ProgressService {
     // Filter by feedback
     if (filters.feedback) {
       where_clause.feedback = ILike(`%${filters.feedback}%`);
+    }
+
+    if (filters.createdAtRange) {
+      const { start, end } = filters.createdAtRange;
+      if (start && end) {
+        where_clause.createdAt = Between(start, end);
+      }
     }
 
     return where_clause;

@@ -40,6 +40,7 @@ import {
   default_comparison_period,
   default_recent_quiz_limit,
 } from "shared/constants/analytics";
+import { DateUtils } from "common/utils/date.util";
 
 @ApiTags("Progress")
 @ApiBearerAuth()
@@ -136,6 +137,14 @@ export class ProgressController {
     description: "Filter by feedback text",
     type: String,
   })
+  @ApiQuery({
+    name: "date",
+    required: false,
+    description:
+      "Filter attempts to a specific calendar day (format: YYYY-MM-DD)",
+    type: String,
+    example: "2025-02-01",
+  })
   @ApiResponse({
     status: 200,
     description: "Successfully retrieved progress records",
@@ -162,6 +171,7 @@ export class ProgressController {
     @Query("success_ratio_max") success_ratio_max: number,
     @Query("response") response: string,
     @Query("feedback") feedback: string,
+    @Query("date") date?: string,
     @Query("page", new DefaultValuePipe(default_page), ParseIntPipe)
     page?: number,
     @Query("offset", new DefaultValuePipe(default_offset), ParseIntPipe)
@@ -180,6 +190,16 @@ export class ProgressController {
       response,
       feedback,
     };
+    if (date) {
+      const validatedDate = DateUtils.validateDate(date);
+      const { startOfDay, endOfDay } = DateUtils.getDayBoundaries(
+        validatedDate,
+      );
+      filters.createdAtRange = {
+        start: startOfDay,
+        end: endOfDay,
+      };
+    }
     const pagination: PaginationInterface = {
       page,
       offset,

@@ -59,8 +59,14 @@ const Progress_per_module = ({ progress_by_module }) => {
       },
     },
   };
+  // Filter out "Non classé" modules early
+  const filteredModules = progress_by_module?.filter((module) => {
+    const subjectName = module.subject?.split(":")[0]?.trim() || "";
+    return subjectName && subjectName.toLowerCase() !== "non classé";
+  }) || [];
+
   // Vérifier si les données sont vides ou non disponibles
-  if (!progress_by_module || progress_by_module.length === 0) {
+  if (!progress_by_module || progress_by_module.length === 0 || filteredModules.length === 0) {
     return (
       <div id="tour-module-progress" className="flex-1">
         <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
@@ -78,17 +84,17 @@ const Progress_per_module = ({ progress_by_module }) => {
   }
 
   const maxCount = Math.max(
-    ...progress_by_module.map((module) => module.uniqueMcqCount || 0),
+    ...filteredModules.map((module) => module.uniqueMcqCount || 0),
     10
   );
 
-  const totalEngagement = progress_by_module.reduce(
+  const totalEngagement = filteredModules.reduce(
     (sum, module) => sum + (module.uniqueMcqCount || 0),
     0
   );
 
   const overallPercentage = Math.min(
-    (totalEngagement / (maxCount * progress_by_module.length)) * 100,
+    (totalEngagement / (maxCount * filteredModules.length)) * 100,
     100
   );
 
@@ -164,7 +170,7 @@ const Progress_per_module = ({ progress_by_module }) => {
             </div>
 
             <MotionDiv className="space-y-5" variants={containerVariants}>
-              {progress_by_module.map((module, index) => {
+              {filteredModules.map((module, index) => {
                 const engagementPercentage = Math.min(
                   (module.uniqueMcqCount / maxCount) * 100,
                   100

@@ -15,9 +15,6 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 
-// Define constants for clarity
-const ACTIVITY_DURATION_MINUTES = 2;
-
 const Study_time = () => {
   // Premium animation variants
   const containerVariants = {
@@ -59,51 +56,65 @@ const Study_time = () => {
   const [unit, setUnit] = useState("hours"); // State for selected unit: 'hours' or 'minutes'
 
   const {
-    data: userActivity,
+    data: analyticsData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["userActivity"],
+    queryKey: ["studyTimeAnalytics"],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) throw new Error("No token found");
       try {
-        const response = await BaseUrl.get("/user/activity/me", {
+        // Fetch progress records from the last 7 days to get time_spent data
+        const response = await BaseUrl.get("/progress", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            offset: 100,
+            page: 1,
+          },
         });
-        if (response.data && response.data.data) {
-          return response.data.data;
-        } else {
-          console.warn("Unexpected API response structure:", response.data);
-          return {};
-        }
+        return response.data.data?.progress || [];
       } catch (err) {
-        console.error("Failed to fetch user activity:", err);
+        console.error("Failed to fetch study time data:", err);
         throw err;
       }
     },
     retry: 1,
-    placeholderData: {},
+    placeholderData: [],
   });
 
   const chartData = useMemo(() => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
-    return days.map((dayKey, index) => {
-      const activityCount = userActivity?.[dayKey]?.length || 0;
-      const totalMinutes = activityCount * ACTIVITY_DURATION_MINUTES;
+    // Initialize time counts for each day of the week (0 = Sunday, 6 = Saturday)
+    const timeByDayOfWeek = Array(7).fill(0);
+
+    // Aggregate time_spent by day of week from progress records
+    if (analyticsData && Array.isArray(analyticsData)) {
+      analyticsData.forEach((record) => {
+        if (record.createdAt && record.time_spent) {
+          const date = new Date(record.createdAt);
+          const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+          timeByDayOfWeek[dayOfWeek] += record.time_spent; // time_spent is in seconds
+        }
+      });
+    }
+
+    // Map to chart data format
+    return dayNames.map((name, index) => {
+      const totalSeconds = timeByDayOfWeek[index];
+      const totalMinutes = Math.round(totalSeconds / 60);
       const displayValue = unit === "hours" ? totalMinutes / 60 : totalMinutes;
 
       return {
-        name: dayNames[index],
+        name,
         rawMinutes: totalMinutes,
         value: displayValue,
       };
     });
-  }, [userActivity, unit]);
+  }, [analyticsData, unit]);
 
   const formatYAxis = (value) => {
     const formattedValue =

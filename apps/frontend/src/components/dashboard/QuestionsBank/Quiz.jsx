@@ -14,6 +14,7 @@ import FeedbackPopup from "./feedback/FeedbackPopup";
 import { useFeedbackSurvey } from "@/hooks/useFeedbackSurvey";
 import { useUserSubscription } from "@/hooks/useUserSubscription";
 import SegmentedTimerMyQCM from "./SegmentedTimerMyQCM";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Quiz = ({
   questionData,
@@ -40,8 +41,93 @@ const Quiz = ({
   const [skipInitiatedByTimeout, setSkipInitiatedByTimeout] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const [thinkAnimating, setThinkAnimating] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const timerRef = useRef(null);
   const isMounted = useRef(true);
+
+  // Premium animation variants
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const questionVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const optionVariants = {
+    hidden: { opacity: 0, x: -20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const confettiVariants = {
+    hidden: { opacity: 0, scale: 0 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0,
+      transition: {
+        duration: 0.3,
+      },
+    },
+  };
 
   const { data: subscriptionData } = useUserSubscription();
 
@@ -389,10 +475,22 @@ const Quiz = ({
       ? selectedOptions.length === 0
       : !formik.values.response?.trim());
 
+  // Letter badges for options
+  const optionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
   return (
-    <div className="relative bg-[#FFFFFF] w-full rounded-[20px] p-[24px] flex flex-col gap-6 max-md:p-[16px] max-sm:p-[14px] z-[50] overflow-y-auto shadow-lg">
+    <motion.div
+      className="relative bg-[#FFFFFF] w-full rounded-[20px] p-[24px] flex flex-col gap-6 max-md:p-[16px] max-sm:p-[14px] z-[50] overflow-y-auto shadow-lg"
+      initial="hidden"
+      animate="visible"
+      variants={cardVariants}
+      key={questionData?.id}
+    >
       {/* Header with badges and timer */}
-      <div className="flex items-start justify-between gap-3 max-md:gap-2.5">
+      <motion.div
+        className="flex items-start justify-between gap-3 max-md:gap-2.5"
+        variants={headerVariants}
+      >
         <div className="flex items-center gap-2.5 flex-wrap max-md:gap-2 flex-1 min-w-0">
           {/* Question type badge */}
           <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] flex items-center gap-2 rounded-[10px] px-[14px] py-[7px] shadow-sm max-md:px-[10px] max-md:py-[5px] shrink-0">
@@ -425,22 +523,41 @@ const Quiz = ({
 
           {/* Progress bar - hidden on mobile */}
           <div className="relative w-[140px] h-[8px] bg-[#F0F0F0] rounded-[20px] overflow-hidden max-md:hidden shadow-inner shrink-0">
-            <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px] transition-all duration-500 ease-out"
-              style={{
+            <motion.div
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] rounded-[20px]"
+              initial={{ width: 0 }}
+              animate={{
                 width: `${
                   totalQuestions > 0
                     ? (currentQuestionNumber / totalQuestions) * 100
                     : 0
                 }%`,
               }}
-            ></div>
+              transition={{
+                duration: 0.8,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            ></motion.div>
           </div>
         </div>
 
         {/* Timer */}
         {initialTime > 0 && (
-          <div className="shrink-0">
+          <motion.div
+            className="shrink-0"
+            animate={
+              timeRemaining > 0 && timeRemaining <= initialTime * 0.25
+                ? {
+                    scale: [1, 1.05, 1],
+                  }
+                : {}
+            }
+            transition={{
+              duration: 0.8,
+              repeat: timeRemaining <= initialTime * 0.25 ? Infinity : 0,
+              repeatType: "reverse",
+            }}
+          >
             <SegmentedTimerMyQCM
               total={initialTime}
               remaining={timeRemaining}
@@ -450,30 +567,37 @@ const Quiz = ({
               barWidth={120}
               barHeight={8}
             />
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Question content */}
-      <div className="flex gap-6 justify-between flex-col lg:flex-row max-md:gap-4">
+      <motion.div
+        className="flex gap-6 justify-between flex-col lg:flex-row max-md:gap-4"
+        variants={questionVariants}
+      >
         <div className="flex-1 min-w-0">
-          <div className="mb-4 max-lg:mb-3">
+          <motion.div className="mb-4 max-lg:mb-3" variants={questionVariants}>
             <span className="inline-block bg-[#F8F9FA] px-[12px] py-[6px] rounded-[8px] font-Poppins text-[#666666] text-[11px] font-semibold tracking-wide max-md:text-[10px] max-md:px-[10px] max-md:py-[5px]">
               QUESTION{" "}
               <span className="text-[#F8589F]">
                 {currentQuestionNumber}/{totalQuestions || "?"}
               </span>
             </span>
-          </div>
-          <div
+          </motion.div>
+          <motion.div
             className="font-Poppins text-[#2C3E50] font-medium prose max-w-none text-[15px] leading-relaxed max-md:text-[14px]"
             dangerouslySetInnerHTML={{ __html: questionData?.question || "" }}
+            variants={questionVariants}
           />
         </div>
 
         {/* Attachment image */}
         {questionData?.attachment && (
-          <div className="lg:w-[220px] flex-shrink-0 flex items-start justify-center max-lg:mt-2">
+          <motion.div
+            className="lg:w-[220px] flex-shrink-0 flex items-start justify-center max-lg:mt-2"
+            variants={questionVariants}
+          >
             <div className="relative overflow-hidden rounded-[16px] max-lg:max-w-[300px]">
               <Image
                 src={questionData.attachment}
@@ -484,16 +608,30 @@ const Quiz = ({
                 priority={currentQuestionNumber < 3}
               />
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Answer form */}
       <form className="flex flex-col gap-5 mt-2" onSubmit={formik.handleSubmit}>
         {/* Multiple choice options */}
         {(questionData?.type === "qcm" || questionData?.type === "qcs") && (
-          <ul className="flex flex-col gap-4">
-            {questionData?.options?.map((item) => {
+          <motion.ul
+            className="flex flex-col gap-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.08,
+                  delayChildren: 0.3,
+                },
+              },
+            }}
+          >
+            {questionData?.options?.map((item, index) => {
               if (!item.content || item.content.trim() === ".") {
                 return null;
               }
@@ -502,29 +640,54 @@ const Quiz = ({
               const icon = getOptionIcon(item.id);
 
               return (
-                <li
+                <motion.li
                   key={item.id}
-                  className={`text-[14px] flex items-center justify-between gap-3 font-Poppins font-medium border-2 rounded-[18px] px-[24px] py-[14px] transition-all duration-200 hover:shadow-md ${styling} ${
+                  className={`text-[14px] flex items-center gap-3 font-Poppins font-medium border-2 rounded-[18px] px-[24px] py-[14px] transition-all duration-200 ${styling} ${
                     !checkAnswer ? "cursor-default" : "cursor-pointer"
                   } max-md:text-[13px] max-md:px-[18px] max-md:py-[12px] max-md:rounded-[14px]`}
+                  variants={optionVariants}
+                  whileHover={
+                    checkAnswer
+                      ? {
+                          y: -2,
+                          scale: 1.02,
+                          boxShadow: "0 8px 20px rgba(248, 88, 159, 0.15)",
+                          transition: {
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 20,
+                          },
+                        }
+                      : {}
+                  }
+                  whileTap={checkAnswer ? { scale: 0.98 } : {}}
                   onClick={
                     checkAnswer ? () => handleOptionClick(item) : undefined
                   }
                 >
+                  {/* Letter badge */}
+                  <div className="flex items-center justify-center w-[28px] h-[28px] rounded-full bg-gradient-to-br from-[#F8589F] to-[#E74C8C] text-white font-semibold text-[12px] shrink-0 max-md:w-[24px] max-md:h-[24px] max-md:text-[11px]">
+                    {optionLetters[index]}
+                  </div>
                   <span
                     className="flex-1 leading-relaxed max-md:leading-snug"
                     dangerouslySetInnerHTML={{ __html: item.content || "" }}
                   />
                   {icon}
-                </li>
+                </motion.li>
               );
             })}
-          </ul>
+          </motion.ul>
         )}
 
         {/* Text input for QROC */}
         {questionData?.type !== "qcm" && questionData?.type !== "qcs" && (
-          <div className="relative">
+          <motion.div
+            className="relative"
+            initial="hidden"
+            animate="visible"
+            variants={optionVariants}
+          >
             <Input
               name="response"
               className={`font-Poppins font-medium placeholder:text-[13px] text-[14px] px-[20px] py-[20px] rounded-[16px] border-2 bg-white transition-all duration-200 focus:shadow-lg ${
@@ -538,46 +701,102 @@ const Quiz = ({
               disabled={!checkAnswer || isSubmitting}
             />
             {!checkAnswer && answer && answer.success_ratio !== undefined && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+              <motion.div
+                className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 15,
+                }}
+              >
                 {answer.success_ratio === 1 ? (
                   <IoIosCheckmarkCircle className="w-[24px] h-[24px] text-green-600" />
                 ) : (
                   <IoCloseCircleOutline className="w-[24px] h-[24px] text-red-600" />
                 )}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* Action buttons */}
-        <div className="flex items-center gap-4 mt-0 max-md:flex-col max-md:gap-3 justify-end max-sm:mt-2">
+        <motion.div
+          className="flex items-center gap-4 mt-0 max-md:flex-col max-md:gap-3 justify-end max-sm:mt-2"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.4,
+              },
+            },
+          }}
+        >
           {/* Skip button */}
-          <button
+          <motion.button
             type="button"
             onClick={triggerSkipPopup}
             className="text-[#F8589F] font-medium text-[13px] hover:text-[#E74C8C] transition-colors disabled:text-gray-400 disabled:cursor-not-allowed max-md:order-2 max-md:text-[12px]"
             disabled={
               !checkAnswer || isSubmitting || isLoadingNextMcq || isSkipping
             }
+            variants={buttonVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {isSkipping ? "Passage en cours..." : "Passer la question"}
-          </button>
+          </motion.button>
 
           {/* Main action button */}
           {checkAnswer ? (
-            <button
+            <motion.button
               type="submit"
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[24px] py-[11px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isSubmitDisabled}
+              variants={buttonVariants}
+              whileHover={
+                !isSubmitDisabled
+                  ? {
+                      scale: 1.05,
+                      boxShadow: "0 10px 25px rgba(248, 88, 159, 0.3)",
+                      transition: {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                      },
+                    }
+                  : {}
+              }
+              whileTap={!isSubmitDisabled ? { scale: 0.95 } : {}}
             >
               {isSubmitting ? "Vérification..." : "Vérifier la réponse"}
-            </button>
+            </motion.button>
           ) : (
-            <button
+            <motion.button
               type="button"
               onClick={handleSeeExplanationOrNext}
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
+              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[28px] py-[12px] rounded-[28px] disabled:opacity-50 disabled:cursor-not-allowed max-md:order-1 max-md:w-full max-md:text-[12px] max-md:px-[20px] max-md:py-[10px]"
               disabled={isLoadingNextMcq}
+              variants={buttonVariants}
+              whileHover={
+                !isLoadingNextMcq
+                  ? {
+                      scale: 1.05,
+                      boxShadow: "0 10px 25px rgba(248, 88, 159, 0.3)",
+                      transition: {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                      },
+                    }
+                  : {}
+              }
+              whileTap={!isLoadingNextMcq ? { scale: 0.95 } : {}}
             >
               {isLoadingNextMcq
                 ? "Chargement..."
@@ -586,9 +805,9 @@ const Quiz = ({
                 : isFinalQuestion
                 ? "Terminer la session"
                 : "Question suivante"}
-            </button>
+            </motion.button>
           )}
-        </div>
+        </motion.div>
       </form>
       {showSkipPopup && (
         <SkipQuestionPopup
@@ -610,7 +829,26 @@ const Quiz = ({
       {activeSurvey && (
         <FeedbackPopup surveyType={activeSurvey} onClose={closeSurvey} />
       )}
-    </div>
+
+      {/* Success celebration effect */}
+      <AnimatePresence>
+        {!checkAnswer && answer && answer.success_ratio === 1 && (
+          <motion.div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 200,
+              damping: 15,
+            }}
+          >
+            <div className="text-[80px] animate-bounce">🎉</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

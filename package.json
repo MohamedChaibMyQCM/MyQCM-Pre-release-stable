@@ -1,6 +1,6 @@
 {
   "name": "myqcm-monorepo",
-  "version": "1.0.0",
+  "version": "1.0.0-unstable.1",
   "description": "Monorepo for MyQCM",
   "main": "index.js",
   "scripts": {

@@ -17,11 +17,11 @@ const ComingSoonPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-[#F7F8FA] dark:bg-[#0a0a0a]">
+    <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-[#F7F8FA]">
       {" "}
       {/* Softer gradient */}
       <motion.div
-        className="relative max-w-md w-full bg-white dark:bg-[#1a1a1a] rounded-2xl p-8 md:p-10 shadow-xl dark:shadow-[0px_4px_16px_rgba(0,0,0,0.4)] border border-gray-200/50 dark:border-gray-700/50 overflow-hidden max-md:w-[97%]" // Adjusted size, padding, shadow
+        className="relative max-w-md w-full bg-white rounded-2xl p-8 md:p-10 shadow-xl overflow-hidden max-md:w-[97%]" // Adjusted size, padding, shadow
         variants={cardVariants}
         initial="hidden"
         animate="visible"
@@ -32,7 +32,7 @@ const ComingSoonPage = () => {
         {/* Content */}
         <div className="relative z-10 text-center">
           {/* Icon */}
-          <div className="inline-block bg-[#FD2E8A]/10 dark:bg-[#F8589F]/20 text-[#F8589F] p-4 rounded-full mb-6">
+          <div className="inline-block bg-[#FD2E8A]/10 text-[#F8589F] p-4 rounded-full mb-6">
             {/* Using Phosphor React Icon */}
             <Clock size={48} weight="light" />
             {/* Or your original SVG: */}
@@ -42,18 +42,18 @@ const ComingSoonPage = () => {
           </div>
 
           {/* Text */}
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-white mb-3">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-3">
             {" "}
             {/* Adjusted font weight */}
             Bientôt Disponible !
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg mb-8">
+          <p className="text-gray-600 text-base md:text-lg mb-8">
             Nous préparons quelque chose de nouveau pour vous. Restez à
             l&apos;écoute !
           </p>
 
           {/* Simple Progress/Loading Indicator */}
-          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-[#FD2E8A] to-[#F8589F] rounded-full animate-pulse"></div>{" "}
             {/* Simple pulse animation */}
           </div>

@@ -80,10 +80,9 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
         course: courseId,
       };
       // console.log("Final Data:", finalData);
-      
+
       startTrainingSession(finalData);
     },
-    enableReinitialize: true,
   });
 
   return (

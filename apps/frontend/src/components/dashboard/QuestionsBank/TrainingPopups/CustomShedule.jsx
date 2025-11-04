@@ -147,7 +147,6 @@ const CustomShedule = ({ setPopup, courseId, quiz = {} }) => {
 
       scheduleTrainingSession(finalData);
     },
-    enableReinitialize: true,
   });
 
   return (

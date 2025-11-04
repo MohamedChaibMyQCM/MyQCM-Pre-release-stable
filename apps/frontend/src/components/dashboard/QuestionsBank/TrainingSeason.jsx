@@ -135,7 +135,6 @@ const TrainingSeason = ({ setPopup, courseId, quiz = {} }) => {
       }
       TrainingSettings(finalData);
     },
-    enableReinitialize: true,
   });
 
   return (

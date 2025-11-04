@@ -79,11 +79,11 @@ const SheduleDate = ({ value, onChange }) => {
         <button
           key={`day-${day}`}
           type="button"
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors
             ${
               isSelected
-                ? "bg-[#F8589F] text-white"
-                : "hover:bg-[#FFE7F2] text-[#191919]"
+                ? "bg-[#F8589F] text-white font-semibold"
+                : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#191919] dark:text-white"
             }`}
           onClick={() => handleDateSelect(day)}
         >
@@ -100,10 +100,10 @@ const SheduleDate = ({ value, onChange }) => {
       <button
         key={month}
         type="button"
-        className={`p-2 rounded-lg text-sm ${
+        className={`p-2 rounded-lg text-sm w-full text-center transition-colors ${
           currentDate.getMonth() === month
-            ? "bg-[#FFE7F2] text-[#F8589F]"
-            : "hover:bg-[#FFE7F2] text-[#191919]"
+            ? "bg-[#FFE7F2] dark:bg-primary/10 text-[#F8589F] font-semibold"
+            : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#191919] dark:text-white"
         }`}
         onClick={() => {
           setCurrentDate(new Date(currentDate.getFullYear(), month, 1));
@@ -123,10 +123,10 @@ const SheduleDate = ({ value, onChange }) => {
         <button
           key={year}
           type="button"
-          className={`p-2 rounded-lg text-sm ${
+          className={`p-2 rounded-lg text-sm w-full text-center transition-colors ${
             currentDate.getFullYear() === year
-              ? "bg-[#FFE7F2] text-[#F8589F]"
-              : "hover:bg-[#FFE7F2] text-[#191919]"
+              ? "bg-[#FFE7F2] dark:bg-primary/10 text-[#F8589F] font-semibold"
+              : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#191919] dark:text-white"
           }`}
           onClick={() => {
             setCurrentDate(new Date(year, currentDate.getMonth(), 1));
@@ -141,10 +141,10 @@ const SheduleDate = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-2 w-full relative">
-      <label className="text-[15px] font-[600] text-[#191919]">Date</label>
+      <label className="text-[15px] font-[600] text-[#191919] dark:text-white">Date</label>
       <div className="relative w-full" ref={dropdownRef}>
         <div
-          className="rounded-[20px] flex items-center bg-white border border-gray-300 text-[#191919] font-medium py-[10px] px-[20px] cursor-pointer hover:border-[#F8589F] transition-colors"
+          className="rounded-[20px] flex items-center bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white font-medium py-[10px] px-[20px] cursor-pointer hover:border-[#F8589F] transition-colors"
           onClick={() => setIsOpen(!isOpen)}
         >
           <span className="flex-grow text-[14px]">
@@ -152,24 +152,24 @@ const SheduleDate = ({ value, onChange }) => {
           </span>
           <CaretDown
             size={20}
-            className={`text-[#191919] ml-2 transition-transform ${
+            className={`text-[#191919] dark:text-white ml-2 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 bottom-full mb-2 w-full max-md:w-[300px] bg-white rounded-[10px] border border-[#E4E4E4] shadow-md p-4">
+          <div className="absolute z-10 bottom-full mb-2 w-full max-md:w-[300px] bg-white dark:bg-[#1a1a1a] rounded-[10px] border border-[#E4E4E4] dark:border-gray-700 shadow-md p-4">
             <div className="flex justify-between items-center mb-4">
               <button
                 type="button"
                 onClick={() => navigateMonth("prev")}
-                className="p-1 rounded-full hover:bg-[#FFE7F2] text-[#F8589F]"
+                className="p-1 rounded-full hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#F8589F]"
               >
                 <CaretLeft size={20} />
               </button>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 text-[#191919] dark:text-white">
                 <button
                   type="button"
                   className="font-medium hover:text-[#F8589F] text-sm"
@@ -189,7 +189,7 @@ const SheduleDate = ({ value, onChange }) => {
               <button
                 type="button"
                 onClick={() => navigateMonth("next")}
-                className="p-1 rounded-full hover:bg-[#FFE7F2] text-[#F8589F]"
+                className="p-1 rounded-full hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#F8589F]"
               >
                 <CaretRight size={20} />
               </button>
@@ -198,7 +198,7 @@ const SheduleDate = ({ value, onChange }) => {
             {view === "days" && (
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"].map((day) => (
-                  <div key={day} className="text-center text-sm text-[#666666]">
+                  <div key={day} className="text-center text-sm text-[#666666] dark:text-gray-400">
                     {day}
                   </div>
                 ))}

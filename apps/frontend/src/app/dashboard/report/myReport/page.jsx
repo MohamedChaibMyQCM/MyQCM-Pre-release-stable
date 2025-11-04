@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import {
   FaSearch,
@@ -53,10 +53,6 @@ const MyReportPage = () => {
     fetchReports();
   }, []);
 
-  useEffect(() => {
-    filterAndSortReports();
-  }, [reports, searchTerm, sortConfig, statusFilter]);
-
   const fetchReports = async () => {
     setIsLoading(true);
     try {
@@ -74,7 +70,7 @@ const MyReportPage = () => {
     }
   };
 
-  const filterAndSortReports = () => {
+  const filterAndSortReports = useCallback(() => {
     let filtered = [...reports];
 
     // Search filter
@@ -113,7 +109,11 @@ const MyReportPage = () => {
     }
 
     setFilteredReports(filtered);
-  };
+  }, [reports, searchTerm, sortConfig, statusFilter]);
+
+  useEffect(() => {
+    filterAndSortReports();
+  }, [filterAndSortReports]);
 
   const handleSort = (key) => {
     let direction = "asc";

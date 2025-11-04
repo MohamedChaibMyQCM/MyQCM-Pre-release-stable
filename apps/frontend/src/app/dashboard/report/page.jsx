@@ -14,6 +14,7 @@ import Dash_Header from "@/components/dashboard/Dash_Header";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
 import Link from "next/link";
+import Image from "next/image";
 
 const ReportPage = () => {
   const [formData, setFormData] = useState({
@@ -349,10 +350,13 @@ const ReportPage = () => {
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       {previewUrl ? (
                         <div className="flex flex-col items-center">
-                          <img
+                          <Image
                             src={previewUrl}
                             alt="Aperçu"
-                            className="h-24 object-contain mb-2"
+                            width={150}
+                            height={96}
+                            className="h-24 object-contain mb-2 w-auto"
+                            unoptimized
                           />
                           <p className="text-sm text-gray-500">
                             Image sélectionnée

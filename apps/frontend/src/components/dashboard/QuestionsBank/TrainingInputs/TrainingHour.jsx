@@ -28,19 +28,19 @@ const TrainingHour = ({ name, value, setFieldValue }) => {
     <div className="flex-1">
       <label
         htmlFor={name}
-        className="font-semibold text-gray-900 text-sm block mb-2"
+        className="font-semibold text-gray-900 dark:text-white text-sm block mb-2"
       >
         L&apos;heure de la séance.
       </label>
-      <div className="flex items-center gap-3 w-full rounded-xl bg-white border border-gray-300 py-2 px-3">
-        <Image src={heure} alt="Heure" />{" "}
+      <div className="flex items-center gap-3 w-full rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 py-2 px-3">
+        <Image src={heure} alt="Heure" className="opacity-60 dark:brightness-0 dark:invert" />
         <input
           type="time"
           id={name}
           name={name}
           value={formatValueForInput(value)}
           onChange={handleChange}
-          className="w-full outline-none text-[13px] text-[#191919] font-medium bg-transparent border-none p-0"
+          className="w-full outline-none text-[13px] text-[#191919] dark:text-white font-medium bg-transparent border-none p-0"
         />
       </div>
     </div>

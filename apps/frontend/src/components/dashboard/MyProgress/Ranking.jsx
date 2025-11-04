@@ -58,13 +58,13 @@ const Ranking = ({ userXp }) => {
       variants={containerVariants}
     >
       <motion.h3
-        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white"
         variants={headerVariants}
       >
         Classement
       </motion.h3>
       <motion.div
-        className="bg-[#FFFFFF] flex flex-col box p-4 rounded-[16px]"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex flex-col box p-4 rounded-[16px] border border-transparent dark:border-gray-700"
         variants={cardVariants}
         whileHover={{
           y: -5,
@@ -72,8 +72,8 @@ const Ranking = ({ userXp }) => {
           transition: { type: "spring", stiffness: 300, damping: 20 },
         }}
       >
-        <span className="text-[14px] text-[#B5BEC6] font-[500]">Vous êtes</span>
-        <span className="text-[#242424] text-[26px] font-[500] my-2">
+        <span className="text-[14px] text-[#B5BEC6] dark:text-gray-400 font-[500]">Vous êtes</span>
+        <span className="text-[#242424] dark:text-white text-[26px] font-[500] my-2">
           Top <span className="text-[#F8589F]">{percentileNumber}%</span>
         </span>
         <span className="text-[#47B881] font-[500] text-[14px]">

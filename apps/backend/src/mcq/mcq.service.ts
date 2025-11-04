@@ -13,7 +13,7 @@ import {
   QuizType,
 } from "./dto/mcq.type";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Mcq } from "./entities/mcq.entity";
+import { Mcq, SuggestedKnowledgeComponent } from "./entities/mcq.entity";
 import {
   EntityManager,
   Repository,
@@ -2103,5 +2103,24 @@ export class McqService {
       usageType,
       transactionManager,
     );
+  }
+
+  async updateSuggestionMetadata(
+    mcqId: string,
+    payload: {
+      suggestedComponents: SuggestedKnowledgeComponent[];
+      confidence: string;
+      confidenceScore: number;
+      rationale?: string | null;
+      suggestedAt?: Date;
+    },
+  ): Promise<void> {
+    await this.mcqRepository.update(mcqId, {
+      suggested_knowledge_components: payload.suggestedComponents,
+      suggestion_confidence: payload.confidence,
+      suggestion_confidence_score: payload.confidenceScore,
+      suggestion_rationale: payload.rationale ?? null,
+      suggestion_generated_at: payload.suggestedAt ?? new Date(),
+    });
   }
 }

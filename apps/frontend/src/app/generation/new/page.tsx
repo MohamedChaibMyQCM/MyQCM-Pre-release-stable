@@ -19,6 +19,7 @@ import {
   UnauthorizedError,
   redirectToLogin,
 } from "@/app/lib/api";
+import { emitAnalyticsEvent } from "@/utils/analytics";
 
 const YEAR_OF_STUDY_OPTIONS = [
   "First Year",
@@ -115,6 +116,52 @@ type EditableMcq = {
   options: EditableOption[];
   answer?: string;
   explanation?: string;
+};
+
+type SuggestionConfidenceLevel = "high" | "medium" | "low";
+
+type SuggestedKnowledgeComponentView = {
+  id: string;
+  slug: string;
+  name?: string;
+  score: number;
+  rationale?: string | null;
+};
+
+type EditingSuggestionState = {
+  mcqId?: string;
+  suggestions: SuggestedKnowledgeComponentView[];
+  rationale?: string | null;
+  confidence: SuggestionConfidenceLevel;
+  confidenceScore: number;
+  updatedAt: number;
+  selectedIds: string[];
+  source: "persisted" | "fetched";
+};
+
+const HIGH_CONFIDENCE_THRESHOLD = 0.75;
+const MEDIUM_CONFIDENCE_THRESHOLD = 0.5;
+
+const isKcSuggestionFeatureEnabled =
+  process.env.NEXT_PUBLIC_KC_SUGGESTION_ENABLED === "true";
+
+const scoreToConfidence = (score: number): SuggestionConfidenceLevel => {
+  if (!Number.isFinite(score)) {
+    return "low";
+  }
+  if (score >= HIGH_CONFIDENCE_THRESHOLD) {
+    return "high";
+  }
+  if (score >= MEDIUM_CONFIDENCE_THRESHOLD) {
+    return "medium";
+  }
+  return "low";
+};
+
+const confidenceClasses: Record<SuggestionConfidenceLevel, string> = {
+  high: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  medium: "bg-amber-100 text-amber-700 border border-amber-200",
+  low: "bg-slate-100 text-slate-500 border border-slate-200",
 };
 
 type PersistedCourseContext = {
@@ -259,6 +306,17 @@ export default function NewGenerationRequestPage() {
   >(null);
   const [importingKnowledgeComponents, setImportingKnowledgeComponents] =
     useState(false);
+  const [
+    editingKnowledgeComponentIds,
+    setEditingKnowledgeComponentIds,
+  ] = useState<string[]>([]);
+  const [editingKcSuggestion, setEditingKcSuggestion] =
+    useState<EditingSuggestionState | null>(null);
+  const [editingKcSuggestionLoading, setEditingKcSuggestionLoading] =
+    useState(false);
+  const [editingKcSuggestionError, setEditingKcSuggestionError] = useState<
+    string | null
+  >(null);
   const previewSectionRef = useRef<HTMLDivElement | null>(null);
   const pendingSectionRef = useRef<HTMLDivElement | null>(null);
   const editingSectionRef = useRef<HTMLDivElement | null>(null);
@@ -283,6 +341,45 @@ export default function NewGenerationRequestPage() {
         : [...prev, value],
     );
   };
+
+  const availableKnowledgeComponentIndex = useMemo(() => {
+    const map = new Map<string, KnowledgeComponentOption>();
+    availableKnowledgeComponents.forEach((component) => {
+      map.set(component.id, component);
+    });
+    return map;
+  }, [availableKnowledgeComponents]);
+
+  const editingKnowledgeComponentsDetailed = useMemo(() => {
+    return editingKnowledgeComponentIds
+      .map((identifier) => {
+        const item = availableKnowledgeComponentIndex.get(identifier);
+        if (item) {
+          return item;
+        }
+        return {
+          id: identifier,
+          slug: identifier,
+          name: identifier,
+        } as KnowledgeComponentOption;
+      })
+      .filter((item) => Boolean(item));
+  }, [availableKnowledgeComponentIndex, editingKnowledgeComponentIds]);
+
+  const activeSuggestionChips = editingKcSuggestion?.suggestions ?? [];
+
+  const selectedSuggestionIds = editingKcSuggestion?.selectedIds ?? [];
+
+  const editingMcqType =
+    typeof editingMcq?.type === "string"
+      ? editingMcq.type.toLowerCase()
+      : "";
+
+  const canRequestSuggestions =
+    Boolean(isKcSuggestionFeatureEnabled) &&
+    Boolean(editingMcq) &&
+    (editingMcqType === "qcm" || editingMcqType === "qcs") &&
+    (editingMcq?.options ?? []).length > 0;
 
   const fetchKnowledgeComponents = useCallback(
     async (courseId: string) => {
@@ -377,7 +474,7 @@ export default function NewGenerationRequestPage() {
         setLoadingKnowledgeComponents(false);
       }
     },
-    [redirectToLogin],
+    [],
   );
 
   const toggleKnowledgeComponent = useCallback(
@@ -446,7 +543,7 @@ export default function NewGenerationRequestPage() {
         }
       }
     },
-    [fetchKnowledgeComponents, redirectToLogin, selectedCourse],
+    [fetchKnowledgeComponents, selectedCourse],
   );
 
   const scrollToPreview = useCallback(
@@ -591,6 +688,10 @@ export default function NewGenerationRequestPage() {
 
   const closeEditing = useCallback(() => {
     setEditingMcq(null);
+    setEditingKnowledgeComponentIds([]);
+    setEditingKcSuggestion(null);
+    setEditingKcSuggestionError(null);
+    setEditingKcSuggestionLoading(false);
   }, []);
 
   const handleRemoveMcq = useCallback(
@@ -655,6 +756,66 @@ export default function NewGenerationRequestPage() {
             }))
           : [];
 
+        const currentKnowledgeIds = Array.isArray(
+          (data as any)?.knowledgeComponents,
+        )
+          ? (data as any).knowledgeComponents
+              .map((component: any) => component?.id ?? component)
+              .filter(
+                (value: unknown): value is string =>
+                  typeof value === "string" && value.length > 0,
+              )
+          : [];
+        setEditingKnowledgeComponentIds(currentKnowledgeIds);
+
+        if (
+          Array.isArray((data as any)?.suggested_knowledge_components) &&
+          (data as any).suggested_knowledge_components.length > 0
+        ) {
+          const suggestionList: SuggestedKnowledgeComponentView[] = (
+            data as any
+          ).suggested_knowledge_components
+            .slice(0, 3)
+            .map((item: any) => ({
+              id: item?.id ?? "",
+              slug: item?.slug ?? "",
+              name: item?.name ?? item?.slug ?? "",
+              score: Number(item?.score ?? 0),
+              rationale: item?.rationale ?? null,
+            }))
+            .filter(
+              (item: SuggestedKnowledgeComponentView) =>
+                item.id && item.slug && Number.isFinite(item.score),
+            );
+
+          if (suggestionList.length > 0) {
+            setEditingKcSuggestion({
+              mcqId: data?.id ?? mcqId,
+              suggestions: suggestionList,
+              rationale: (data as any)?.suggestion_rationale ?? null,
+              confidence:
+                ((data as any)?.suggestion_confidence ??
+                  "low") as SuggestionConfidenceLevel,
+              confidenceScore:
+                Number((data as any)?.suggestion_confidence_score ?? 0) || 0,
+              updatedAt: (data as any)?.suggestion_generated_at
+                ? new Date(
+                    (data as any).suggestion_generated_at,
+                  ).getTime()
+                : Date.now(),
+              selectedIds: suggestionList
+                .filter((item) => item.score >= HIGH_CONFIDENCE_THRESHOLD)
+                .map((item) => item.id),
+              source: "persisted",
+            });
+          } else {
+            setEditingKcSuggestion(null);
+          }
+        } else {
+          setEditingKcSuggestion(null);
+        }
+        setEditingKcSuggestionError(null);
+
         setEditingMcq({
           id: data?.id ?? mcqId,
           question: data?.question ?? "",
@@ -691,6 +852,9 @@ export default function NewGenerationRequestPage() {
 
   const updateEditingField = useCallback(
     (field: keyof EditableMcq, value: string | number) => {
+      if (field === "question" || field === "explanation" || field === "answer") {
+        setEditingKcSuggestion(null);
+      }
       setEditingMcq((prev) => {
         if (!prev) return prev;
         return {
@@ -699,10 +863,11 @@ export default function NewGenerationRequestPage() {
         } as EditableMcq;
       });
     },
-    [],
+  [],
   );
 
   const updateOptionContent = useCallback((index: number, value: string) => {
+    setEditingKcSuggestion(null);
     setEditingMcq((prev) => {
       if (!prev) return prev;
       const nextOptions = prev.options.map((option, optionIndex) =>
@@ -713,6 +878,7 @@ export default function NewGenerationRequestPage() {
   }, []);
 
   const toggleOptionCorrect = useCallback((index: number) => {
+    setEditingKcSuggestion(null);
     setEditingMcq((prev) => {
       if (!prev) return prev;
       const nextOptions = prev.options.map((option, optionIndex) =>
@@ -723,6 +889,303 @@ export default function NewGenerationRequestPage() {
       return { ...prev, options: nextOptions };
     });
   }, []);
+
+  const handleRemoveEditingKnowledgeComponent = useCallback(
+    (componentId: string) => {
+      setEditingKnowledgeComponentIds((previous) =>
+        previous.filter((id) => id !== componentId),
+      );
+    },
+    [],
+  );
+
+  const handleAddEditingKnowledgeComponent = useCallback(
+    (componentId: string) => {
+      if (!componentId) {
+        return;
+      }
+      setEditingKnowledgeComponentIds((previous) =>
+        previous.includes(componentId) ? previous : [...previous, componentId],
+      );
+    },
+    [],
+  );
+
+  const toggleSuggestedKnowledgeComponent = useCallback((componentId: string) => {
+    setEditingKcSuggestion((previous) => {
+      if (!previous) {
+        return previous;
+      }
+      const isSelected = previous.selectedIds.includes(componentId);
+      const nextSelected = isSelected
+        ? previous.selectedIds.filter((id) => id !== componentId)
+        : [...previous.selectedIds, componentId];
+      return { ...previous, selectedIds: nextSelected };
+    });
+  }, []);
+
+  const handleApplyKcSuggestions = useCallback(() => {
+    if (!editingKcSuggestion) {
+      toast.error("Request AI suggestions before applying them.");
+      return;
+    }
+
+    const candidateIds =
+      editingKcSuggestion.selectedIds.length > 0
+        ? editingKcSuggestion.selectedIds
+        : editingKcSuggestion.suggestions
+            .filter((item) => item.score >= HIGH_CONFIDENCE_THRESHOLD)
+            .map((item) => item.id);
+
+    if (candidateIds.length === 0) {
+      toast.error("Select at least one suggestion to apply.");
+      return;
+    }
+
+    const validIds = candidateIds.filter((id) =>
+      availableKnowledgeComponentIndex.has(id),
+    );
+    const missingIds = candidateIds.filter(
+      (id) => !availableKnowledgeComponentIndex.has(id),
+    );
+
+    if (validIds.length === 0) {
+      toast.error(
+        "Suggested components are not part of the current course taxonomy.",
+      );
+      return;
+    }
+
+    setEditingKnowledgeComponentIds(validIds);
+
+    if (missingIds.length > 0) {
+      toast(
+        `Skipped ${missingIds.length} suggestion${
+          missingIds.length === 1 ? "" : "s"
+        } not available for this course.`,
+      );
+    } else {
+      toast.success("Replaced knowledge components with AI selection.");
+    }
+
+    emitAnalyticsEvent("kc_suggestion_action", {
+      action: "apply",
+      courseId: selectedCourse,
+      mcqId: editingKcSuggestion.mcqId ?? editingMcq?.id,
+      entrypoint: "editor",
+      selectedCount: validIds.length,
+    });
+  }, [
+    availableKnowledgeComponentIndex,
+    editingKcSuggestion,
+    editingMcq?.id,
+    selectedCourse,
+  ]);
+
+  const handleAppendKcSuggestions = useCallback(() => {
+    if (!editingKcSuggestion) {
+      toast.error("Request AI suggestions before appending them.");
+      return;
+    }
+
+    const candidateIds =
+      editingKcSuggestion.selectedIds.length > 0
+        ? editingKcSuggestion.selectedIds
+        : editingKcSuggestion.suggestions
+            .filter((item) => item.score >= HIGH_CONFIDENCE_THRESHOLD)
+            .map((item) => item.id);
+
+    if (candidateIds.length === 0) {
+      toast.error("Select at least one suggestion to append.");
+      return;
+    }
+
+    const validIds = candidateIds.filter((id) =>
+      availableKnowledgeComponentIndex.has(id),
+    );
+    const missingIds = candidateIds.filter(
+      (id) => !availableKnowledgeComponentIndex.has(id),
+    );
+
+    if (validIds.length === 0) {
+      toast.error(
+        "Suggested components are not part of the current course taxonomy.",
+      );
+      return;
+    }
+
+    setEditingKnowledgeComponentIds((previous) => {
+      const merged = new Set(previous);
+      validIds.forEach((id) => merged.add(id));
+      return Array.from(merged);
+    });
+
+    if (missingIds.length > 0) {
+      toast(
+        `Skipped ${missingIds.length} suggestion${
+          missingIds.length === 1 ? "" : "s"
+        } not available for this course.`,
+      );
+    } else {
+      toast.success("Appended AI suggestions to knowledge components.");
+    }
+
+    emitAnalyticsEvent("kc_suggestion_action", {
+      action: "append",
+      courseId: selectedCourse,
+      mcqId: editingKcSuggestion.mcqId ?? editingMcq?.id,
+      entrypoint: "editor",
+      selectedCount: validIds.length,
+    });
+  }, [
+    availableKnowledgeComponentIndex,
+    editingKcSuggestion,
+    editingMcq?.id,
+    selectedCourse,
+  ]);
+
+  const handleDismissKcSuggestions = useCallback(() => {
+    if (!editingKcSuggestion) {
+      return;
+    }
+    emitAnalyticsEvent("kc_suggestion_action", {
+      action: "dismiss",
+      courseId: selectedCourse,
+      mcqId: editingKcSuggestion.mcqId ?? editingMcq?.id,
+      entrypoint: "editor",
+    });
+    setEditingKcSuggestion(null);
+    setEditingKcSuggestionError(null);
+  }, [editingKcSuggestion, editingMcq?.id, selectedCourse]);
+
+  const handleSuggestKnowledgeComponents = useCallback(async () => {
+    if (!isKcSuggestionFeatureEnabled) {
+      return;
+    }
+    if (!selectedCourse) {
+      toast.error("Select a course before requesting AI suggestions.");
+      return;
+    }
+    if (!editingMcq || editingMcq.options.length === 0) {
+      toast.error(
+        "Open an MCQ with answer options to request knowledge component suggestions.",
+      );
+      return;
+    }
+
+    emitAnalyticsEvent("kc_suggestion_requested", {
+      courseId: selectedCourse,
+      mcqId: editingMcq.id,
+      entrypoint: "editor",
+    });
+
+    setEditingKcSuggestionLoading(true);
+    setEditingKcSuggestionError(null);
+
+    try {
+      const payload = {
+        items: [
+          {
+            stem: editingMcq.question,
+            explanation: editingMcq.explanation ?? undefined,
+            options: editingMcq.options.map((option) => ({
+              content: option.content,
+              is_correct: option.is_correct,
+            })),
+            metadata: {
+              mcqId: editingMcq.id,
+            },
+            candidate_component_ids:
+              editingKnowledgeComponentIds.length > 0
+                ? editingKnowledgeComponentIds
+                : undefined,
+          },
+        ],
+      };
+
+      const response = await apiFetch<any>(
+        `/courses/${selectedCourse}/kc-suggestions`,
+        {
+          method: "POST",
+          body: payload,
+        },
+      );
+
+      const rawItems = Array.isArray(response?.items)
+        ? response.items
+        : Array.isArray((response as any)?.data?.items)
+        ? (response as any).data.items
+        : [];
+      const firstItem = rawItems[0] ?? null;
+      const rawSuggestions = Array.isArray(response?.suggested)
+        ? response.suggested
+        : firstItem?.suggestions ?? [];
+
+      const normalizedSuggestions: SuggestedKnowledgeComponentView[] =
+        rawSuggestions
+          .slice(0, 3)
+          .map((item: any) => ({
+            id: item?.id ?? item?.kc_id ?? "",
+            slug: item?.slug ?? item?.kc_slug ?? "",
+            name: item?.name ?? item?.kc_name ?? item?.slug ?? "",
+            score: Number(item?.score ?? item?.confidence ?? 0),
+            rationale: item?.rationale ?? null,
+          }))
+          .filter(
+            (item) =>
+              item.id &&
+              item.slug &&
+              Number.isFinite(item.score),
+          );
+
+      if (normalizedSuggestions.length === 0) {
+        throw new Error("No knowledge components were suggested.");
+      }
+
+      const selectedIds = normalizedSuggestions
+        .filter((item) => item.score >= HIGH_CONFIDENCE_THRESHOLD)
+        .map((item) => item.id);
+
+      const confidenceValue =
+        (firstItem?.confidence ?? response?.confidence) as
+          | SuggestionConfidenceLevel
+          | undefined;
+
+      const confidenceScore = Number(
+        firstItem?.confidenceScore ?? response?.confidence_score ?? 0,
+      );
+
+      setEditingKcSuggestion({
+        mcqId: editingMcq.id,
+        suggestions: normalizedSuggestions,
+        rationale: firstItem?.rationale ?? response?.rationale ?? null,
+        confidence:
+          confidenceValue ?? scoreToConfidence(normalizedSuggestions[0]?.score ?? 0),
+        confidenceScore: Number.isFinite(confidenceScore)
+          ? confidenceScore
+          : 0,
+        updatedAt: Date.now(),
+        selectedIds,
+        source: "fetched",
+      });
+
+      toast.success("Knowledge components suggested");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to fetch knowledge component suggestions.";
+      setEditingKcSuggestionError(message);
+      setEditingKcSuggestion(null);
+      toast.error(message);
+    } finally {
+      setEditingKcSuggestionLoading(false);
+    }
+  }, [
+    editingKnowledgeComponentIds,
+    editingMcq,
+    selectedCourse,
+  ]);
 
   const saveEditingMcq = useCallback(async () => {
     if (!editingMcq) return;
@@ -753,6 +1216,10 @@ export default function NewGenerationRequestPage() {
         ),
       );
     }
+    formData.append(
+      "knowledge_component_ids",
+      JSON.stringify(editingKnowledgeComponentIds),
+    );
 
     setEditingSaving(true);
     setPendingError(null);
@@ -779,7 +1246,7 @@ export default function NewGenerationRequestPage() {
     } finally {
       setEditingSaving(false);
     }
-  }, [editingMcq, loadPendingMcqs]);
+  }, [editingMcq, editingKnowledgeComponentIds, loadPendingMcqs]);
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -815,9 +1282,9 @@ export default function NewGenerationRequestPage() {
         );
         const items = mapOptions(extractItems(unwrapResponse(response)));
         setFaculties(items);
-        if (!items.find((item) => item.id === selectedFaculty)) {
-          setSelectedFaculty("");
-        }
+        setSelectedFaculty((current) =>
+          items.some((item) => item.id === current) ? current : "",
+        );
       } catch (err) {
         if (err instanceof UnauthorizedError) {
           redirectToLogin();
@@ -854,9 +1321,9 @@ export default function NewGenerationRequestPage() {
           : extractItems(payload);
         const items = mapOptions(data);
         setUnits(items);
-        if (!items.find((item) => item.id === selectedUnit)) {
-          setSelectedUnit("");
-        }
+        setSelectedUnit((current) =>
+          items.some((item) => item.id === current) ? current : "",
+        );
       } catch (err) {
         if (err instanceof UnauthorizedError) {
           redirectToLogin();
@@ -894,9 +1361,9 @@ export default function NewGenerationRequestPage() {
         const data = extractItems(payload);
         const items = mapOptions(data);
         setSubjects(items);
-        if (!items.find((item) => item.id === selectedSubject)) {
-          setSelectedSubject("");
-        }
+        setSelectedSubject((current) =>
+          items.some((item) => item.id === current) ? current : "",
+        );
       } catch (err) {
         if (err instanceof UnauthorizedError) {
           redirectToLogin();
@@ -929,9 +1396,9 @@ export default function NewGenerationRequestPage() {
         const data = extractItems(payload);
         const items = mapOptions(data);
         setCourses(items);
-        if (!items.find((item) => item.id === selectedCourse)) {
-          setSelectedCourse("");
-        }
+        setSelectedCourse((current) =>
+          items.some((item) => item.id === current) ? current : "",
+        );
       } catch (err) {
         if (err instanceof UnauthorizedError) {
           redirectToLogin();
@@ -2648,6 +3115,177 @@ export default function NewGenerationRequestPage() {
                               className={`${baseInputClasses} min-h-[5rem]`}
                             />
                           </label>
+                          <div className="rounded-2xl border border-indigo-200 bg-white/70 p-4 shadow-sm">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-medium text-slate-700">
+                                  Knowledge components
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  Tag this MCQ with the concepts it reinforces.
+                                </p>
+                              </div>
+                              {isKcSuggestionFeatureEnabled ? (
+                                <button
+                                  type="button"
+                                  onClick={handleSuggestKnowledgeComponents}
+                                  className="inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition-colors duration-200 hover:border-indigo-400 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                                  disabled={!canRequestSuggestions || editingKcSuggestionLoading}
+                                >
+                                  {editingKcSuggestionLoading ? (
+                                    <>
+                                      <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+                                      Fetching AI suggestions…
+                                    </>
+                                  ) : (
+                                    "Suggest KCs"
+                                  )}
+                                </button>
+                              ) : null}
+                            </div>
+                            <div className="mt-3 space-y-3">
+                              <div className="flex flex-wrap gap-2">
+                                {editingKnowledgeComponentsDetailed.length > 0 ? (
+                                  editingKnowledgeComponentsDetailed.map((component) => (
+                                    <span
+                                      key={component.id}
+                                      className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+                                    >
+                                      <span className="truncate max-w-[9rem]">
+                                        {component.name ?? component.slug}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRemoveEditingKnowledgeComponent(component.id)
+                                        }
+                                        className="text-indigo-500 transition-colors duration-200 hover:text-indigo-700"
+                                        aria-label="Remove knowledge component"
+                                      >
+                                        ×
+                                      </button>
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-xs text-slate-500">
+                                    No knowledge components selected.
+                                  </span>
+                                )}
+                              </div>
+                              <label className="flex flex-col gap-2 text-xs text-slate-600">
+                                <span>Add knowledge component</span>
+                                <select
+                                  className={`${baseInputClasses} text-sm`}
+                                  onChange={(event) => {
+                                    const value = event.target.value;
+                                    if (!value) {
+                                      return;
+                                    }
+                                    handleAddEditingKnowledgeComponent(value);
+                                    event.target.selectedIndex = 0;
+                                  }}
+                                  value=""
+                                  disabled={availableKnowledgeComponents.length === 0}
+                                >
+                                  <option value="">
+                                    {availableKnowledgeComponents.length === 0
+                                      ? "No components available"
+                                      : "Select knowledge component"}
+                                  </option>
+                                  {availableKnowledgeComponents
+                                    .filter(
+                                      (component) =>
+                                        !editingKnowledgeComponentIds.includes(component.id),
+                                    )
+                                    .map((component) => (
+                                      <option key={component.id} value={component.id}>
+                                        {component.name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </label>
+                            </div>
+                            {isKcSuggestionFeatureEnabled ? (
+                              editingKcSuggestion ? (
+                                <div className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-indigo-50/60 p-4">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="text-sm font-semibold text-indigo-900">
+                                      AI suggestions
+                                    </span>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${confidenceClasses[editingKcSuggestion.confidence]}`}
+                                    >
+                                      {editingKcSuggestion.confidence.charAt(0).toUpperCase() +
+                                        editingKcSuggestion.confidence.slice(1)}{" "}
+                                      confidence
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {activeSuggestionChips.map((suggestion) => {
+                                      const bucket = scoreToConfidence(suggestion.score);
+                                      const isSelected = selectedSuggestionIds.includes(
+                                        suggestion.id,
+                                      );
+                                      return (
+                                        <button
+                                          key={suggestion.id}
+                                          type="button"
+                                          onClick={() =>
+                                            toggleSuggestedKnowledgeComponent(suggestion.id)
+                                          }
+                                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors duration-200 ${
+                                            isSelected
+                                              ? "border-indigo-400 bg-white text-indigo-700 shadow-sm"
+                                              : "border-slate-200 bg-white/70 text-slate-600 hover:border-indigo-300 hover:text-indigo-700"
+                                          }`}
+                                          title={suggestion.rationale ?? "No rationale provided"}
+                                        >
+                                          <span className="truncate max-w-[10rem]">
+                                            {suggestion.name ?? suggestion.slug}
+                                          </span>
+                                          <span
+                                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${confidenceClasses[bucket]}`}
+                                          >
+                                            {bucket.charAt(0).toUpperCase() + bucket.slice(1)}
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                  <p className="text-xs text-slate-600">
+                                    {editingKcSuggestion.rationale ?? "No rationale provided"}
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center justify-center rounded-full border border-indigo-300 bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition-colors duration-200 hover:bg-indigo-700"
+                                      onClick={handleApplyKcSuggestions}
+                                    >
+                                      Apply
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center justify-center rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-semibold text-indigo-700 transition-colors duration-200 hover:border-indigo-300 hover:bg-indigo-50"
+                                      onClick={handleAppendKcSuggestions}
+                                    >
+                                      Append
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors duration-200 hover:border-slate-300 hover:bg-slate-50"
+                                      onClick={handleDismissKcSuggestions}
+                                    >
+                                      Dismiss
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : editingKcSuggestionError ? (
+                                <p className="mt-3 text-xs text-rose-600">
+                                  {editingKcSuggestionError}
+                                </p>
+                              ) : null
+                            ) : null}
+                          </div>
                           <div className="flex flex-wrap gap-3">
                             <button
                               type="button"

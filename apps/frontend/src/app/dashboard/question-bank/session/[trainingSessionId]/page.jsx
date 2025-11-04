@@ -334,7 +334,7 @@ const Page = () => {
 
   if (isLoadingInitial) {
     return (
-      <div className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a]">
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#4C2037] dark:via-[#3d1a2d] dark:to-[#2e1522]">
         <Loading />
       </div>
     );
@@ -342,7 +342,7 @@ const Page = () => {
 
   if (combinedError && !result) {
     return (
-      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] text-white p-10">
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#4C2037] dark:via-[#3d1a2d] dark:to-[#2e1522] text-white p-10">
         <h2 className="text-2xl font-bold mb-4">Erreur de chargement</h2>
         <p className="text-center mb-4">
           {combinedError.message ||
@@ -360,7 +360,7 @@ const Page = () => {
 
   if (!isLoadingInitial && !combinedError && !currentQuestion && !result) {
     return (
-      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] text-white p-10">
+      <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#4C2037] dark:via-[#3d1a2d] dark:to-[#2e1522] text-white p-10">
         <h2 className="text-2xl font-bold mb-4">Aucune question trouvée</h2>
         <p className="text-center mb-4">
           Il n&apos;y a pas de questions disponibles pour cette session
@@ -393,7 +393,7 @@ const Page = () => {
     data.mcqs_success + data.mcqs_failed + data.mcqs_skipped + 1;
 
   return (
-    <div className="absolute inset-0 z-50 bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#1a1a2e] dark:via-[#16213e] dark:to-[#0f172a] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] max-md:py-[20px] overflow-y-auto max-md:gap-8">
+    <div className="absolute inset-0 z-50 bg-gradient-to-br from-[#FF6FAF] via-[#FF6FAF]/90 to-[#FF6FAF]/80 dark:from-[#4C2037] dark:via-[#3d1a2d] dark:to-[#2e1522] px-[80px] py-[30px] pb-[96px] flex flex-col gap-10 max-md:px-[20px] max-md:py-[20px] overflow-y-auto max-md:gap-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

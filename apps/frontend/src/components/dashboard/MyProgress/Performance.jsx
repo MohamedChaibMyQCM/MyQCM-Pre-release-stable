@@ -54,11 +54,11 @@ const Performance = ({ performance }) => {
   if (!performance) {
     return (
       <div id="tour-performance-summary" className="flex-1 performance">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Performance
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px] flex items-center justify-center">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-2 py-4 box h-[390px] flex items-center justify-center border border-transparent dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1a1a1a] px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
               Aucune donnée pour le moment
             </span>
@@ -104,13 +104,13 @@ const Performance = ({ performance }) => {
       variants={containerVariants}
     >
       <MotionH3
-        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white"
         variants={headerVariants}
       >
         Performance
       </MotionH3>
       <MotionDiv
-        className="bg-[#FFFFFF] rounded-[16px] px-2 py-4 box h-[390px]"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-2 py-4 box h-[390px] border border-transparent dark:border-gray-700"
         variants={cardVariants}
         whileHover={{
           boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
@@ -151,10 +151,10 @@ const Performance = ({ performance }) => {
                               height={140}
                             >
                               <div className="flex flex-col items-center justify-center h-full text-center">
-                                <span className="text-[30px] text-[#191919] font-bold">
+                                <span className="text-[30px] text-[#191919] dark:text-white font-bold">
                                   {chartData[0].total.toLocaleString()}
                                 </span>
-                                <span className="text-[#B5BEC6] text-[18px] font-[500] my-2 leading-tight">
+                                <span className="text-[#B5BEC6] dark:text-gray-400 text-[18px] font-[500] my-2 leading-tight">
                                   Questions tentées
                                 </span>
                                 <span

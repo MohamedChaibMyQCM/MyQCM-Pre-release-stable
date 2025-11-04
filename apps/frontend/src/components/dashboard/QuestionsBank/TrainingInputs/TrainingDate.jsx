@@ -114,10 +114,10 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
         <button
           key={`day-${day}`}
           type="button"
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-[#191919] text-sm transition-colors ${
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-[#191919] dark:text-white text-sm transition-colors ${
             isSelected
               ? "bg-[#F8589F] text-white font-semibold"
-              : "hover:bg-[#FFE7F2] "
+              : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10"
           }`}
           onClick={() => handleDateSelect(day)}
         >
@@ -134,8 +134,8 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
         type="button"
         className={`p-2 rounded-lg text-sm w-full text-center transition-colors ${
           currentDate.getMonth() === month
-            ? "bg-[#FFE7F2] text-[#F8589F] font-semibold"
-            : "hover:bg-[#FFE7F2] text-[#191919]"
+            ? "bg-[#FFE7F2] dark:bg-primary/10 text-[#F8589F] font-semibold"
+            : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#191919] dark:text-white"
         }`}
         onClick={() => {
           setCurrentDate(new Date(currentDate.getFullYear(), month, 1));
@@ -160,8 +160,8 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
           type="button"
           className={`p-2 rounded-lg text-sm w-full text-center transition-colors ${
             currentYearVal === year
-              ? "bg-[#FFE7F2] text-[#F8589F] font-semibold"
-              : "hover:bg-[#FFE7F2] text-[#191919]"
+              ? "bg-[#FFE7F2] dark:bg-primary/10 text-[#F8589F] font-semibold"
+              : "hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#191919] dark:text-white"
           }`}
           onClick={() => {
             setCurrentDate(new Date(year, currentDate.getMonth(), 1));
@@ -180,42 +180,35 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
     <div className="flex-1">
       <label
         htmlFor={`${name}-datepicker-trigger`}
-        className="font-semibold text-gray-900 text-sm block mb-2" // Original label style
+        className="font-semibold text-gray-900 dark:text-white text-sm block mb-2"
       >
-        Date de la séance {/* Changed Label Text */}
+        Date de la séance
       </label>
-      {/* Add 'relative' positioning for the absolute child popup */}
       <div className="relative w-full" ref={dropdownRef}>
-        {/* Trigger Button - Original Styles */}
         <button
           type="button"
           id={`${name}-datepicker-trigger`}
-          className="relative w-full text-left cursor-pointer flex items-center gap-3 bg-white border border-gray-300 rounded-xl py-2 px-3" // Original styles kept
+          className="relative w-full text-left cursor-pointer flex items-center gap-3 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-xl py-2 px-3"
           onClick={() => setIsOpen(!isOpen)}
           aria-haspopup="true"
           aria-expanded={isOpen}
         >
-          <Image src={dateIcon} alt="date" className="w-5 h-5 shrink-0" />{" "}
-          {/* Size might differ based on original */}
-          <span
-            className={`flex-grow text-[13px] font-medium text-[#191919]`}
-          >
-            {" "}
-            {/* Original styles */}
+          <Image src={dateIcon} alt="date" className="w-5 h-5 shrink-0 opacity-60 dark:brightness-0 dark:invert" />
+          <span className="flex-grow text-[13px] font-medium text-[#191919] dark:text-white">
             {formatDateForDisplay(selectedDate)}
           </span>
           <CaretDown
-            size={16} // Original size?
-            className={`text-[#6b7280] transition-transform duration-200 ${
+            size={16}
+            className={`text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
-            }`} // Original styles
+            }`}
             aria-hidden="true"
           />
         </button>
 
         {isOpen && (
           <div
-            className="absolute z-20 top-[-160px] mb-2 left-1/2 transform -translate-x-1/2 w-[300px] bg-white rounded-[10px] border border-[#E4E4E4] shadow-lg p-3" // Kept original width, bg, border, shadow, padding
+            className="absolute z-20 top-[-160px] mb-2 left-1/2 transform -translate-x-1/2 w-[300px] bg-white dark:bg-[#1a1a1a] rounded-[10px] border border-gray-300 dark:border-gray-700 shadow-lg p-3"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-3">
@@ -233,16 +226,16 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
                       )
                     );
                 }}
-                className="p-1 rounded-full hover:bg-[#FFE7F2] text-[#F8589F] disabled:opacity-50"
+                className="p-1 rounded-full hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#F8589F] disabled:opacity-50"
                 disabled={view === "months"}
               >
                 <CaretLeft size={20} weight="bold" />
               </button>
-              <div className="flex gap-2 text-center">
+              <div className="flex gap-2 text-center text-[#191919] dark:text-white">
                 <button
                   type="button"
                   className={`font-semibold hover:text-[#F8589F] text-sm p-1 rounded ${
-                    view === "months" ? "bg-[#FFE7F2]" : ""
+                    view === "months" ? "bg-[#FFE7F2] dark:bg-primary/10" : ""
                   }`}
                   onClick={() => setView("months")}
                 >
@@ -251,7 +244,7 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
                 <button
                   type="button"
                   className={`font-semibold hover:text-[#F8589F] text-sm p-1 rounded ${
-                    view === "years" ? "bg-[#FFE7F2]" : ""
+                    view === "years" ? "bg-[#FFE7F2] dark:bg-primary/10" : ""
                   }`}
                   onClick={() => setView("years")}
                 >
@@ -272,18 +265,17 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
                       )
                     );
                 }}
-                className="p-1 rounded-full hover:bg-[#FFE7F2] text-[#F8589F] disabled:opacity-50"
+                className="p-1 rounded-full hover:bg-[#FFE7F2] dark:hover:bg-primary/10 text-[#F8589F] disabled:opacity-50"
                 disabled={view === "months"}
               >
                 <CaretRight size={20} weight="bold" />
               </button>
             </div>
 
-            {/* Day Headers - Original styles/structure */}
             {view === "days" && (
               <div className="grid grid-cols-7 gap-1 mb-2 text-center">
                 {["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"].map((day) => (
-                  <div key={day} className="text-xs font-medium text-[#666666]">
+                  <div key={day} className="text-xs font-medium text-gray-600 dark:text-gray-400">
                     {day}
                   </div>
                 ))}

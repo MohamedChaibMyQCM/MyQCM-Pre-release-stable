@@ -40,6 +40,7 @@ import { FileModule } from "./file/file.module";
 import { GenerationModule } from "./generation/generation.module";
 import { RewardModule } from "./reward/reward.module";
 import { KnowledgeComponentModule } from "./knowledge-component/knowledge-component.module";
+import { KcSuggestionModule } from "./kc-suggestion/kc-suggestion.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(PostgresConfig),
@@ -83,6 +84,7 @@ import { KnowledgeComponentModule } from "./knowledge-component/knowledge-compon
     GenerationModule,
     RewardModule,
     KnowledgeComponentModule,
+    KcSuggestionModule,
   ],
   providers: [
     {

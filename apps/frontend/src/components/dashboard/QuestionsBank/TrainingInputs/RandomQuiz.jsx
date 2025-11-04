@@ -3,8 +3,8 @@ import { Switch } from "@/components/ui/switch";
 const RandomQuiz = ({ name, value, setFieldValue }) => {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[14px] text-[#191919] font-[500]">
-        Mélanger l’ordre des questions
+      <span className="text-[14px] text-[#191919] dark:text-white font-[500]">
+        Mélanger l&apos;ordre des questions
       </span>
       <Switch
         checked={value}

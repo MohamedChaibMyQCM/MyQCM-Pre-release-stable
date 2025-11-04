@@ -29,20 +29,17 @@ export default function SegmentedTimerMyQCM({
     ? "bg-gradient-to-r from-[#FFA500] to-[#FFB84D]"
     : "bg-gradient-to-r from-[#F8589F] to-[#E74C8C]";
 
-  const containerBgStyle = critical
-    ? {
-        background: "linear-gradient(135deg, rgba(246, 76, 76, 0.12) 0%, rgba(255, 107, 107, 0.08) 100%)",
-        boxShadow: "0 8px 24px rgba(246, 76, 76, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.4)",
-      }
+  const containerBgClass = critical
+    ? "bg-gradient-to-br from-[#F64C4C]/12 to-[#FF6B6B]/8"
     : low
-    ? {
-        background: "linear-gradient(135deg, rgba(255, 165, 0, 0.1) 0%, rgba(255, 184, 77, 0.08) 100%)",
-        boxShadow: "0 6px 20px rgba(255, 165, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.4)",
-      }
-    : {
-        background: "linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)",
-        boxShadow: "0 4px 16px rgba(248, 88, 159, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.5)",
-      };
+    ? "bg-gradient-to-br from-[#FFA500]/10 to-[#FFB84D]/8"
+    : "bg-gradient-to-br from-white to-[#F8F9FA] dark:from-card dark:to-card/80";
+
+  const containerShadow = critical
+    ? "shadow-[0_8px_24px_rgba(246,76,76,0.25)] dark:shadow-[0_8px_24px_rgba(246,76,76,0.4)]"
+    : low
+    ? "shadow-[0_6px_20px_rgba(255,165,0,0.2)] dark:shadow-[0_6px_20px_rgba(255,165,0,0.35)]"
+    : "shadow-[0_4px_16px_rgba(248,88,159,0.12)] dark:shadow-[0_4px_16px_rgba(248,88,159,0.2)]";
 
   return (
     <div
@@ -51,9 +48,8 @@ export default function SegmentedTimerMyQCM({
           ? "border-[#F64C4C]/30 animate-pulse-glow"
           : low
           ? "border-[#FFA500]/30"
-          : "border-[#F8589F]/20"
-      } backdrop-blur-sm max-md:gap-1.5 max-md:px-[8px] max-md:py-[4px]`}
-      style={containerBgStyle}
+          : "border-[#F8589F]/20 dark:border-primary/30"
+      } ${containerBgClass} ${containerShadow} backdrop-blur-sm max-md:gap-1.5 max-md:px-[8px] max-md:py-[4px]`}
       role="group"
       aria-label="Timer"
     >
@@ -98,7 +94,7 @@ export default function SegmentedTimerMyQCM({
         {Array.from({ length: safeSegments }).map((_, i) => {
           const isFilled = i < filled;
           const isActive = i === filled && clampedRemaining > 0;
-          const base = isFilled ? filledClass : "bg-[#E9ECEF]";
+          const base = isFilled ? filledClass : "bg-[#E9ECEF] dark:bg-muted";
 
           return (
             <div
@@ -138,7 +134,7 @@ export default function SegmentedTimerMyQCM({
       </div>
 
       {/* Label - Hidden on mobile */}
-      <span className="text-[10px] font-medium text-[#6C757D] whitespace-nowrap max-md:hidden ml-0.5">
+      <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap max-md:hidden ml-0.5">
         Temps restant
       </span>
 

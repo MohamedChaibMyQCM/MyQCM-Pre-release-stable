@@ -77,7 +77,7 @@ const ProgressSummaryPage = () => {
   if (isAnalyticsError) {
     console.error("Analytics error:", analyticsError);
     return (
-      <div className="px-6 mt-8 text-red-600">
+      <div className="px-6 mt-8 text-red-600 dark:text-red-400">
         Erreur lors du chargement des statistiques de progression.
       </div>
     );
@@ -91,7 +91,7 @@ const ProgressSummaryPage = () => {
   ) {
     console.warn("Incomplete analytics data received:", activityData);
     return (
-      <div className="px-6 mt-8 text-orange-500">
+      <div className="px-6 mt-8 text-orange-500 dark:text-orange-400">
         Données de progression incomplètes ou non disponibles.
       </div>
     );

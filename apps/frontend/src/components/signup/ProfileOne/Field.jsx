@@ -5,6 +5,12 @@ import field from "../../../../public/auth/field.svg";
 import Image from "next/image";
 import { CaretDown } from "phosphor-react";
 
+const FIELDS = [
+  { id: "General Medicine", name: "Médecine Générale" },
+  { id: "Dentistry", name: "Dentisterie" },
+  { id: "Pharmacy", name: "Pharmacie" },
+];
+
 const Field = ({ name, value, setFieldValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || "");
@@ -13,15 +19,9 @@ const Field = ({ name, value, setFieldValue }) => {
   );
   const dropdownRef = useRef(null);
 
-  const fields = [
-    { id: "General Medicine", name: "Médecine Générale" },
-    { id: "Dentistry", name: "Dentisterie" },
-    { id: "Pharmacy", name: "Pharmacie" },
-  ];
-
   useEffect(() => {
     if (value) {
-      const selectedField = fields.find((field) => field.id === value);
+      const selectedField = FIELDS.find((field) => field.id === value);
       if (selectedField) setSelectedLabel(selectedField.name);
     }
   }, [value]);
@@ -73,7 +73,7 @@ const Field = ({ name, value, setFieldValue }) => {
       {isOpen && (
         <div className="absolute top-0 left-0 right-0 z-10 mt-1 bg-white rounded-[10px] border border-[#E4E4E4] shadow-md max-h-60 overflow-auto">
           <ul>
-            {fields.map((field) => (
+            {FIELDS.map((field) => (
               <li
                 key={field.id}
                 className={`px-4 py-3 text-[14px] cursor-pointer hover:bg-[#FFE7F2] ${

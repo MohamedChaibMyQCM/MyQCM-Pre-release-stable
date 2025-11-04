@@ -46,7 +46,7 @@ const FilterPopup = ({
       // If no number or same number, sort alphabetically
       return a.name.localeCompare(b.name);
     });
-  }, [units]);
+  }, [hiddenUnitIds, units]);
 
   return (
     <div className="absolute right-0 top-[calc(100%+5px)] w-[400px] bg-card border border-border p-5 rounded-[16px] shadow-lg z-[50] max-md:w-[360px]">

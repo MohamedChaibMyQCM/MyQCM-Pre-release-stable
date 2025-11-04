@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import Image from "next/image";
 import solver from "../../../../public/Quiz/solver.svg";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import { useUserSubscription } from "@/hooks/useUserSubscription";
 import SegmentedTimerMyQCM from "./SegmentedTimerMyQCM";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuizSounds } from "@/hooks/useQuizSounds";
+
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 const Quiz = ({
   questionData,
@@ -144,133 +146,8 @@ const Quiz = ({
     useFeedbackSurvey(remainingQrocs);
 
   // Sound effects hook
-  const sounds = useQuizSounds();
-
-  // Debug effect
-  useEffect(() => {
-    console.log("Quiz component - activeSurvey changed:", activeSurvey);
-  }, [activeSurvey]);
-
-  useEffect(() => {
-    console.log("Quiz component - remainingQrocs changed:", remainingQrocs);
-  }, [remainingQrocs]);
-
-  useEffect(() => {
-    isMounted.current = true;
-    setCheckAnswer(true);
-    setSeeExplanation(false);
-    setSelectedOptions([]);
-    setAnswer(null);
-    const newInitialTime = questionData?.estimated_time || 0;
-    setInitialTime(newInitialTime);
-    setTimeRemaining(newInitialTime);
-    setShowSkipPopup(false);
-    setSkipInitiatedByTimeout(false);
-
-    // Play transition sound for new question
-    sounds.playTransition();
-
-    formik.resetForm({
-      values: {
-        mcq: questionData?.id,
-        response_options: [],
-        response: "",
-        time_spent: 0,
-      },
-    });
-
-    clearInterval(timerRef.current);
-    timerRef.current = null;
-
-    return () => {
-      isMounted.current = false;
-      clearInterval(timerRef.current);
-    };
-  }, [questionData, setAnswer]);
-
-  // Track if warning sound has been played for each threshold
-  const warningPlayedRef = useRef({ threshold25: false, threshold15: false });
-
-  useEffect(() => {
-    clearInterval(timerRef.current);
-    timerRef.current = null;
-
-    // Reset warning flags when question changes
-    warningPlayedRef.current = { threshold25: false, threshold15: false };
-
-    if (isMounted.current && checkAnswer && timeRemaining > 0) {
-      timerRef.current = setInterval(() => {
-        if (isMounted.current) {
-          setTimeRemaining((prevTime) => {
-            // Play warning sound at 25% and 15% time remaining
-            const warningThreshold1 = Math.floor(initialTime * 0.25);
-            const warningThreshold2 = Math.floor(initialTime * 0.15);
-
-            // Play warning at 25% if not already played
-            if (prevTime === warningThreshold1 && !warningPlayedRef.current.threshold25) {
-              sounds.playTimerWarning();
-              warningPlayedRef.current.threshold25 = true;
-              console.log("Playing 25% warning at", prevTime, "seconds");
-            }
-
-            // Play warning at 15% if not already played
-            if (prevTime === warningThreshold2 && !warningPlayedRef.current.threshold15) {
-              sounds.playTimerWarning();
-              warningPlayedRef.current.threshold15 = true;
-              console.log("Playing 15% warning at", prevTime, "seconds");
-            }
-
-            if (prevTime <= 1) {
-              clearInterval(timerRef.current);
-              timerRef.current = null;
-              if (isMounted.current) {
-                setSkipInitiatedByTimeout(true);
-                setShowSkipPopup(true);
-              }
-              return 0;
-            }
-            return prevTime - 1;
-          });
-        } else {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-      }, 1000);
-    } else if (!checkAnswer) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
-    return () => {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    };
-  }, [checkAnswer, timeRemaining, initialTime, sounds, questionData]);
-
-  const handleOptionClick = (option) => {
-    if (!checkAnswer) return;
-
-    // Play select sound
-    console.log("Playing select sound");
-    sounds.playSelect();
-
-    setSelectedOptions((prevSelected) => {
-      if (questionData?.type === "qcs") {
-        return [{ option: option.id }];
-      } else {
-        const isAlreadySelected = prevSelected.some(
-          (selectedOption) => selectedOption.option === option.id
-        );
-        if (isAlreadySelected) {
-          return prevSelected.filter(
-            (selectedOption) => selectedOption.option !== option.id
-          );
-        } else {
-          return [...prevSelected, { option: option.id }];
-        }
-      }
-    });
-  };
+  const { playTransition, playTimerWarning, playSelect, playSkip } =
+    useQuizSounds();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -322,11 +199,154 @@ const Quiz = ({
     },
   });
 
+  const { setFieldValue } = formik;
+
+  // Debug effect
+  useEffect(() => {
+    console.log("Quiz component - activeSurvey changed:", activeSurvey);
+  }, [activeSurvey]);
+
+  useEffect(() => {
+    console.log("Quiz component - remainingQrocs changed:", remainingQrocs);
+  }, [remainingQrocs]);
+
+  const prevQuestionMetaRef = useRef({ id: null, estimatedTime: null });
+
+  useEffect(() => {
+    const currentQuestionId = questionData?.id;
+    if (!currentQuestionId) {
+      return;
+    }
+
+    const nextEstimatedTime = questionData?.estimated_time || 0;
+    const prevMeta = prevQuestionMetaRef.current;
+
+    if (
+      prevMeta.id === currentQuestionId &&
+      prevMeta.estimatedTime === nextEstimatedTime
+    ) {
+      return;
+    }
+
+    prevQuestionMetaRef.current = {
+      id: currentQuestionId,
+      estimatedTime: nextEstimatedTime,
+    };
+
+    isMounted.current = true;
+    setCheckAnswer(true);
+    setSeeExplanation(false);
+    setSelectedOptions([]);
+    setAnswer(null);
+    const newInitialTime = nextEstimatedTime;
+    setInitialTime(newInitialTime);
+    setTimeRemaining(newInitialTime);
+    setShowSkipPopup(false);
+    setSkipInitiatedByTimeout(false);
+
+    // Play transition sound for new question
+    playTransition();
+
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+
+    return () => {
+      isMounted.current = false;
+      clearInterval(timerRef.current);
+    };
+  }, [playTransition, questionData?.estimated_time, questionData?.id, setAnswer]);
+
+  // Track if warning sound has been played for each threshold
+  const warningPlayedRef = useRef({ threshold25: false, threshold15: false });
+
+  useEffect(() => {
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+
+    if (isMounted.current && checkAnswer && timeRemaining > 0) {
+      timerRef.current = setInterval(() => {
+        if (isMounted.current) {
+          setTimeRemaining((prevTime) => {
+            // Play warning sound at 25% and 15% time remaining
+            const warningThreshold1 = Math.floor(initialTime * 0.25);
+            const warningThreshold2 = Math.floor(initialTime * 0.15);
+
+            // Play warning at 25% if not already played
+            if (prevTime === warningThreshold1 && !warningPlayedRef.current.threshold25) {
+              playTimerWarning();
+              warningPlayedRef.current.threshold25 = true;
+              console.log("Playing 25% warning at", prevTime, "seconds");
+            }
+
+            // Play warning at 15% if not already played
+            if (prevTime === warningThreshold2 && !warningPlayedRef.current.threshold15) {
+              playTimerWarning();
+              warningPlayedRef.current.threshold15 = true;
+              console.log("Playing 15% warning at", prevTime, "seconds");
+            }
+
+            if (prevTime <= 1) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+              if (isMounted.current) {
+                setSkipInitiatedByTimeout(true);
+                setShowSkipPopup(true);
+              }
+              return 0;
+            }
+            return prevTime - 1;
+          });
+        } else {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }, 1000);
+    } else if (!checkAnswer) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    return () => {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+  }, [checkAnswer, initialTime, playTimerWarning, questionData?.id, timeRemaining]);
+
+  useEffect(() => {
+    warningPlayedRef.current = { threshold25: false, threshold15: false };
+  }, [questionData?.id, initialTime]);
+
+  const handleOptionClick = useCallback(
+    (option) => {
+      if (!checkAnswer) return;
+
+      // Play select sound
+      console.log("Playing select sound");
+      playSelect();
+
+      setSelectedOptions((prevSelected) => {
+        if (questionData?.type === "qcs") {
+          return [{ option: option.id }];
+        }
+        const isAlreadySelected = prevSelected.some(
+          (selectedOption) => selectedOption.option === option.id,
+        );
+        if (isAlreadySelected) {
+          return prevSelected.filter(
+            (selectedOption) => selectedOption.option !== option.id,
+          );
+        }
+        return [...prevSelected, { option: option.id }];
+      });
+    },
+    [checkAnswer, playSelect, questionData],
+  );
+
   useEffect(() => {
     if (questionData?.type === "qcm" || questionData?.type === "qcs") {
-      formik.setFieldValue("response_options", selectedOptions);
+      setFieldValue("response_options", selectedOptions);
     }
-  }, [selectedOptions, questionData?.type]);
+  }, [questionData?.type, selectedOptions, setFieldValue]);
 
   const getBackgroundColor = (ratio) => {
     if (answer != null && ratio !== undefined && ratio !== null) {
@@ -339,11 +359,11 @@ const Quiz = ({
     }
   };
 
-  const triggerSkipPopup = () => {
+  const triggerSkipPopup = useCallback(() => {
     if (!checkAnswer || isSubmitting || isLoadingNextMcq) return;
     setSkipInitiatedByTimeout(false);
     setShowSkipPopup(true);
-  };
+  }, [checkAnswer, isLoadingNextMcq, isSubmitting]);
 
   const handleConfirmSkip = async () => {
     if (!isMounted.current) return;
@@ -353,7 +373,7 @@ const Quiz = ({
 
     // Play skip sound
     console.log("Playing skip sound");
-    sounds.playSkip();
+    playSkip();
 
     if (isFinalQuestion) {
       handleSessionCompletion();
@@ -400,26 +420,26 @@ const Quiz = ({
     }
   };
 
-  const handleSeeExplanationOrNext = () => {
+  const handleSeeExplanationOrNext = useCallback(() => {
     const canSeeExplanation = ["qcm", "qcs", "qroc"].includes(
-      questionData?.type
+      questionData?.type,
     );
     if (canSeeExplanation) {
       setSeeExplanation(true);
-    } else {
-      if (!isFinalQuestion) {
-        fetchNextMcq();
-      } else {
-        handleSessionCompletion();
-      }
+      return;
     }
-  };
+    if (!isFinalQuestion) {
+      fetchNextMcq();
+      return;
+    }
+    handleSessionCompletion();
+  }, [fetchNextMcq, handleSessionCompletion, isFinalQuestion, questionData]);
 
   const handleNextFromExplanation = () => {
     setSeeExplanation(false);
 
     // Play transition sound
-    sounds.playTransition();
+    playTransition();
 
     if (!isFinalQuestion) {
       fetchNextMcq();
@@ -519,8 +539,6 @@ const Quiz = ({
       : !formik.values.response?.trim());
 
   // Letter badges for options
-  const optionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
   // Keyboard shortcuts handler
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -541,7 +559,7 @@ const Quiz = ({
         checkAnswer &&
         (questionData?.type === "qcm" || questionData?.type === "qcs")
       ) {
-        const optionIndex = optionLetters.indexOf(key.toUpperCase());
+        const optionIndex = OPTION_LETTERS.indexOf(key.toUpperCase());
         if (optionIndex !== -1 && questionData?.options?.[optionIndex]) {
           event.preventDefault();
           const option = questionData.options[optionIndex];
@@ -574,13 +592,16 @@ const Quiz = ({
     };
   }, [
     checkAnswer,
+    formik,
+    handleOptionClick,
+    handleSeeExplanationOrNext,
     questionData,
-    selectedOptions,
     isSubmitDisabled,
     isSubmitting,
     isLoadingNextMcq,
     showSkipPopup,
     seeExplanation,
+    triggerSkipPopup,
   ]);
 
   return (
@@ -598,13 +619,13 @@ const Quiz = ({
       >
         <div className="flex items-center gap-2.5 flex-wrap max-md:gap-2 flex-1 min-w-0">
           {/* Question type badge */}
-          <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] flex items-center gap-2 rounded-[10px] px-[14px] py-[7px] shadow-sm max-md:px-[10px] max-md:py-[5px] shrink-0">
+          <div className="bg-gradient-to-r from-[#FF6EAF] to-[#FF8EC7] dark:from-[#FF5BA0] dark:to-[#FF7DB8] flex items-center gap-2 rounded-[10px] px-[14px] py-[7px] shadow-sm dark:shadow-[0_2px_8px_rgba(255,107,175,0.3)] max-md:px-[10px] max-md:py-[5px] shrink-0">
             <Image
               src={solver}
               alt="solver"
               className="w-[15px] max-md:w-[13px]"
             />
-            <span className="text-[11px] text-[#FFFFFF] font-medium tracking-wide max-md:text-[10px] whitespace-nowrap">
+            <span className="text-[11px] text-white font-medium tracking-wide max-md:text-[10px] whitespace-nowrap">
               TYPE:{" "}
               <span className="uppercase font-semibold">
                 {questionData?.type}
@@ -614,12 +635,12 @@ const Quiz = ({
 
           {/* Difficulty badge */}
           <span
-            className={`px-[14px] py-[6px] rounded-[10px] text-[#FFFFFF] text-[11px] font-medium shadow-sm max-md:px-[10px] max-md:py-[5px] max-md:text-[10px] shrink-0 ${
+            className={`px-[14px] py-[6px] rounded-[10px] text-white text-[11px] font-medium shadow-sm max-md:px-[10px] max-md:py-[5px] max-md:text-[10px] shrink-0 ${
               questionData?.difficulty === "easy"
-                ? "bg-gradient-to-r from-[#47B881] to-[#5AC99A]"
+                ? "bg-gradient-to-r from-[#47B881] to-[#5AC99A] dark:from-[#3BA872] dark:to-[#4BC090] dark:shadow-[0_2px_8px_rgba(71,184,129,0.3)]"
                 : questionData?.difficulty === "medium"
-                ? "bg-gradient-to-r from-[#FFAA60] to-[#FFB87A]"
-                : "bg-gradient-to-r from-[#F64C4C] to-[#FF6B6B]"
+                ? "bg-gradient-to-r from-[#FFAA60] to-[#FFB87A] dark:from-[#FF9D4D] dark:to-[#FFAD67] dark:shadow-[0_2px_8px_rgba(255,170,96,0.3)]"
+                : "bg-gradient-to-r from-[#F64C4C] to-[#FF6B6B] dark:from-[#F73939] dark:to-[#FF5858] dark:shadow-[0_2px_8px_rgba(246,76,76,0.3)]"
             }`}
           >
             {questionData?.difficulty?.charAt(0).toUpperCase() +
@@ -772,7 +793,7 @@ const Quiz = ({
                 >
                   {/* Letter badge */}
                   <div className="flex items-center justify-center w-[28px] h-[28px] rounded-full bg-gradient-to-br from-[#F8589F] to-[#E74C8C] text-white font-semibold text-[12px] shrink-0 max-md:w-[24px] max-md:h-[24px] max-md:text-[11px]">
-                    {optionLetters[index]}
+                    {OPTION_LETTERS[index]}
                   </div>
                   <span
                     className="flex-1 leading-relaxed max-md:leading-snug"

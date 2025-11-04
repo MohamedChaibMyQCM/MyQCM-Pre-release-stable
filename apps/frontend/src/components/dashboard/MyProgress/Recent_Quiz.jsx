@@ -65,11 +65,11 @@ const Recent_Quiz = ({ recent_quizzes }) => {
   if (!recent_quizzes || recent_quizzes.length === 0) {
     return (
       <div id="tour-recent-quizzes" className="flex-1">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Quiz récents
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide flex items-center justify-center">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide flex items-center justify-center border border-transparent dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1a1a1a] px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
               Aucune donnée disponible pour l&apos;instant
             </span>
@@ -135,22 +135,22 @@ const Recent_Quiz = ({ recent_quizzes }) => {
       variants={containerVariants}
     >
       <MotionH3
-        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white"
         variants={headerVariants}
       >
         Quiz récents
       </MotionH3>
       <MotionDiv
-        className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[390px] overflow-y-auto scrollbar-hide border border-transparent dark:border-gray-700"
         variants={cardVariants}
         whileHover={{
           boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
           transition: { duration: 0.3 },
         }}
       >
-        <span className="text-[14px] text-[#B5BEC6]">Moyenne globale</span>
+        <span className="text-[14px] text-[#B5BEC6] dark:text-gray-400">Moyenne globale</span>
         <div className="flex items-center gap-3 mb-3 mt-1">
-          <span className="text-[#242424] font-[500] text-[40px]">
+          <span className="text-[#242424] dark:text-white font-[500] text-[40px]">
             {overallBand.toFixed(0)}%
           </span>
         </div>
@@ -161,7 +161,7 @@ const Recent_Quiz = ({ recent_quizzes }) => {
           {formattedQuizzes.map((quiz) => (
             <MotionLi
               key={quiz.id}
-              className="border border-[#E4E4E4] p-4 rounded-[12px]"
+              className="border border-[#E4E4E4] dark:border-gray-700 p-4 rounded-[12px]"
               variants={itemVariants}
               whileHover={{
                 scale: 1.02,
@@ -170,7 +170,7 @@ const Recent_Quiz = ({ recent_quizzes }) => {
                 transition: { duration: 0.2 },
               }}
             >
-              <span className="pl-[14px] relative text-[14px] text-[#191919] font-[500] block after:absolute after:w-[6px] after:h-[6px] after:bg-[#F8589F] after:rounded-full after:left-0 after:top-[50%] after:translate-y-[-50%]">
+              <span className="pl-[14px] relative text-[14px] text-[#191919] dark:text-white font-[500] block after:absolute after:w-[6px] after:h-[6px] after:bg-[#F8589F] after:rounded-full after:left-0 after:top-[50%] after:translate-y-[-50%]">
                 {quiz.title}
               </span>
               <div className="flex items-center justify-between mt-3">
@@ -193,7 +193,7 @@ const Recent_Quiz = ({ recent_quizzes }) => {
                     {quiz.status}
                   </span>
                 </div>
-                <span className="text-[13px] text-[#B5BEC6]">{quiz.date}</span>
+                <span className="text-[13px] text-[#B5BEC6] dark:text-gray-400">{quiz.date}</span>
               </div>
             </MotionLi>
           ))}

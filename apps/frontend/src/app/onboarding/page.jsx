@@ -417,12 +417,7 @@ export default function OnboardingPage() {
       });
       setIsTooltipPositioned(true);
     });
-  }, [
-    isTourActive,
-    currentTourStepIndex,
-    highlightedElementInfo.id,
-    isMobileView,
-  ]);
+  }, [isTourActive, currentTourStepIndex, highlightedElementInfo.id]);
 
   useEffect(() => {
     if (

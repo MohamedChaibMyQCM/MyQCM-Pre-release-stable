@@ -264,6 +264,11 @@ const Dash_Header = () => {
     <div className="relative flex items-center justify-between py-5 px-6 max-md:pt-4">
       {renderHeaderText()}
 
+      {/* Mobile/Tablet Theme Toggle - only visible on small screens */}
+      <div className="md:hidden">
+        <ThemeToggle />
+      </div>
+
       <div className="flex items-center gap-10 max-md:hidden">
         <ThemeToggle />
 

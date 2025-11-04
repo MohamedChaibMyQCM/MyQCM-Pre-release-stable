@@ -41,11 +41,11 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
         animate="visible"
         variants={containerVariants}
       >
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Précision au cours du temps
         </h3>
-        <div className="bg-[#FFFFFF] box rounded-[16px] h-[320px] flex items-center justify-center">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] box rounded-[16px] h-[320px] flex items-center justify-center border border-transparent dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1a1a1a] px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
               Aucune donnée pour l&apos;instant
             </span>
@@ -100,7 +100,7 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
         className="flex items-center justify-between mb-4"
         variants={headerVariants}
       >
-        <h3 className="font-[500] text-[17px] text-[#191919]">
+        <h3 className="font-[500] text-[17px] text-[#191919] dark:text-white">
           Précision au cours du temps
         </h3>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: `${getTrendColor()}15` }}>
@@ -114,14 +114,14 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
       </motion.div>
 
       <motion.div
-        className="bg-[#FFFFFF] box overflow-hidden rounded-[16px] h-[320px] relative"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] box overflow-hidden rounded-[16px] h-[320px] relative border border-transparent dark:border-gray-700"
         whileHover={{
           boxShadow: "0 12px 30px rgba(248, 88, 159, 0.1)",
           transition: { duration: 0.3 },
         }}
       >
         {/* Decorative gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-50/20 via-transparent to-purple-50/20 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-50/20 via-transparent to-purple-50/20 dark:from-pink-900/10 dark:via-transparent dark:to-purple-900/10 pointer-events-none"></div>
 
         <Card className="border-none shadow-none h-full relative z-10">
           <CardContent className="p-4 h-full">
@@ -150,6 +150,7 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="#E5E7EB"
+                  className="dark:stroke-gray-700"
                   vertical={false}
                 />
 
@@ -158,6 +159,7 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "#6B7280", fontSize: 11 }}
+                  className="dark:[&_text]:fill-gray-400"
                   dy={10}
                 />
 
@@ -182,20 +184,20 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
                       if (!accuracyPoint) return null;
 
                       return (
-                        <div className="bg-white px-4 py-3 rounded-xl shadow-lg border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">
+                        <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                             {accuracyPoint.payload.fullDate}
                           </p>
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-[#F8589F]"></div>
-                            <span className="text-sm font-semibold text-gray-900">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
                               Précision: {accuracyPoint.value}%
                             </span>
                           </div>
                           {targetPoint && (
                             <div className="flex items-center gap-2 mt-1">
                               <div className="w-2 h-2 rounded-full bg-[#47B881]"></div>
-                              <span className="text-xs text-gray-600">
+                              <span className="text-xs text-gray-600 dark:text-gray-400">
                                 Objectif: {targetPoint.value}%
                               </span>
                             </div>
@@ -239,14 +241,14 @@ const Précision_au_Cours_Du_Temps = ({ accuracy_trend }) => {
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#F8589F] shadow-sm"></div>
-                  <span className="text-xs font-medium text-gray-700">Votre précision</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Votre précision</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-0.5 bg-[#47B881]"></div>
-                  <span className="text-xs font-medium text-gray-700">Objectif (80%)</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Objectif (80%)</span>
                 </div>
               </div>
-              <div className="px-3 py-1 rounded-lg bg-pink-50">
+              <div className="px-3 py-1 rounded-lg bg-pink-50 dark:bg-pink-900/20">
                 <span className="text-xs font-semibold text-[#F8589F]">Moy: {avgAccuracy}%</span>
               </div>
             </div>

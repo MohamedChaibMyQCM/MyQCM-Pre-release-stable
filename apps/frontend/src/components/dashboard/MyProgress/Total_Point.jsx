@@ -80,13 +80,13 @@ const Total_Point = ({ userXp }) => {
       variants={containerVariants}
     >
       <motion.h3
-        className="font-[500] text-[17px] mb-4 text-[#191919]"
+        className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white"
         variants={headerVariants}
       >
         Points totaux
       </motion.h3>
       <motion.div
-        className="bg-[#FFFFFF] flex flex-col box p-5 rounded-[16px]"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex flex-col box p-5 rounded-[16px] border border-transparent dark:border-gray-700"
         variants={cardVariants}
         whileHover={{
           y: -5,
@@ -94,11 +94,11 @@ const Total_Point = ({ userXp }) => {
           transition: { type: "spring", stiffness: 300, damping: 20 },
         }}
       >
-        <span className="text-[14px] text-[#B5BEC6] font-[500]">
+        <span className="text-[14px] text-[#B5BEC6] dark:text-gray-400 font-[500]">
           Points accumulés
         </span>
         <div className="flex items-center gap-3 my-2 mb-4">
-          <span className="text-[#242424] text-[26px] font-[500]">
+          <span className="text-[#242424] dark:text-white text-[26px] font-[500]">
             {userXp?.xp || 0}
             <span className="text-[#F8589F]">XP</span>
           </span>
@@ -106,7 +106,7 @@ const Total_Point = ({ userXp }) => {
             Lvl {userXp?.level || 0}
           </span>
         </div>
-        <div className="relative h-[8px] w-[100%] bg-[#F5F5F5] rounded-[16px]">
+        <div className="relative h-[8px] w-[100%] bg-[#F5F5F5] dark:bg-gray-700 rounded-[16px]">
           <div
             className="absolute left-0 top-0 h-[8px] rounded-[16px] bg-[#F8589F]"
             style={{ width: `${progressPercentage}%` }}

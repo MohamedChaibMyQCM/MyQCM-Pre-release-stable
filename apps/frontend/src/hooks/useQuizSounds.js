@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import { Howl } from "howler";
 
 /**
@@ -149,17 +149,32 @@ export const useQuizSounds = () => {
     return isMutedRef.current;
   }, []);
 
-  return {
-    playCorrect,
-    playIncorrect,
-    playPartialCorrect,
-    playClick,
-    playSelect,
-    playSkip,
-    playTimerWarning,
-    playTransition,
-    playComplete,
-    toggleMute,
-    isMuted,
-  };
+  return useMemo(
+    () => ({
+      playCorrect,
+      playIncorrect,
+      playPartialCorrect,
+      playClick,
+      playSelect,
+      playSkip,
+      playTimerWarning,
+      playTransition,
+      playComplete,
+      toggleMute,
+      isMuted,
+    }),
+    [
+      playCorrect,
+      playIncorrect,
+      playPartialCorrect,
+      playClick,
+      playSelect,
+      playSkip,
+      playTimerWarning,
+      playTransition,
+      playComplete,
+      toggleMute,
+      isMuted,
+    ],
+  );
 };

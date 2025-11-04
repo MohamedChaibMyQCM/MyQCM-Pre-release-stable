@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const useFeedbackSurvey = (remainingQrocs = 0) => {
   const [activeSurvey, setActiveSurvey] = useState(null);
@@ -23,37 +23,43 @@ export const useFeedbackSurvey = (remainingQrocs = 0) => {
   }, []);
 
   // Save shown surveys to localStorage
-  const markSurveyAsShown = (surveyType) => {
+  const markSurveyAsShown = useCallback((surveyType) => {
     console.log(`Marking survey as shown: ${surveyType}`);
-    const newShownSurveys = new Set([...shownSurveys, surveyType]);
-    setShownSurveys(newShownSurveys);
-    localStorage.setItem(
-      "shownFeedbackSurveys",
-      JSON.stringify([...newShownSurveys])
-    );
-  };
-
-  const triggerSurvey = (surveyType) => {
-    console.log(`Attempting to trigger survey: ${surveyType}`);
-    console.log(`Active survey: ${activeSurvey}`);
-    console.log(`Shown surveys:`, Array.from(shownSurveys));
-
-    // Prevent triggering if a survey is already active
-    if (activeSurvey) {
-      console.log(
-        `Survey ${surveyType} not triggered - another survey is active`
+    setShownSurveys((previous) => {
+      const updated = new Set(previous);
+      updated.add(surveyType);
+      localStorage.setItem(
+        "shownFeedbackSurveys",
+        JSON.stringify([...updated])
       );
-      return;
-    }
+      return updated;
+    });
+  }, []);
 
-    if (!shownSurveys.has(surveyType)) {
-      console.log(`Setting active survey: ${surveyType}`);
-      setActiveSurvey(surveyType);
-      markSurveyAsShown(surveyType);
-    } else {
-      console.log(`Survey ${surveyType} already shown`);
-    }
-  };
+  const triggerSurvey = useCallback(
+    (surveyType) => {
+      console.log(`Attempting to trigger survey: ${surveyType}`);
+      console.log(`Active survey: ${activeSurvey}`);
+      console.log(`Shown surveys:`, Array.from(shownSurveys));
+
+      // Prevent triggering if a survey is already active
+      if (activeSurvey) {
+        console.log(
+          `Survey ${surveyType} not triggered - another survey is active`
+        );
+        return;
+      }
+
+      if (!shownSurveys.has(surveyType)) {
+        console.log(`Setting active survey: ${surveyType}`);
+        setActiveSurvey(surveyType);
+        markSurveyAsShown(surveyType);
+      } else {
+        console.log(`Survey ${surveyType} already shown`);
+      }
+    },
+    [activeSurvey, markSurveyAsShown, shownSurveys]
+  );
 
   // Auto-check surveys whenever remainingQrocs changes, but only after localStorage is loaded
   useEffect(() => {
@@ -82,7 +88,7 @@ export const useFeedbackSurvey = (remainingQrocs = 0) => {
       triggerSurvey("LEARN-USEFUL-FIN");
       return;
     }
-  }, [remainingQrocs, shownSurveys, activeSurvey, isLoaded]);
+  }, [activeSurvey, isLoaded, remainingQrocs, shownSurveys, triggerSurvey]);
 
   const checkAndTriggerSurvey = () => {
     // This is now just for manual triggering if needed

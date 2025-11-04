@@ -3,7 +3,7 @@
 import Image from "next/image";
 import playSeasonIcon from "../../../../public/Icons/play.svg";
 import planification from "../../../../public/Icons/planification.svg";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import BaseUrl from "@/components/BaseUrl";
@@ -17,6 +17,8 @@ import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { motion } from "framer-motion";
+import BulkKcSuggestionModal from "./BulkKcSuggestionModal";
+import BulkKcSuggestionProgressModal from "./BulkKcSuggestionProgressModal";
 
 const normalizeModeName = (modeName) => {
   if (typeof modeName !== "string") {
@@ -40,6 +42,8 @@ const Questions = ({
   subjectData = { icon: "/default-icon.svg", name: "Unknown Subject" },
 }) => {
   const router = useRouter();
+  const kcFeatureEnabled =
+    process.env.NEXT_PUBLIC_KC_SUGGESTION_ENABLED === "true";
 
   const {
     data: userProfile,
@@ -82,6 +86,10 @@ const Questions = ({
 
   const [activePopup, setActivePopup] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [bulkModalCourse, setBulkModalCourse] = useState(null);
+  const [progressJob, setProgressJob] = useState(null);
+  const [needsReviewByCourse, setNeedsReviewByCourse] = useState({});
+  const [showNeedsReviewOnly, setShowNeedsReviewOnly] = useState(false);
 
   const handleScheduleClick = (courseId) => {
     setSelectedCourseId(courseId);
@@ -179,17 +187,6 @@ const Questions = ({
     },
   };
 
-  if (isLoadingCourses || isLoadingProfile) {
-    return <Loading />;
-  }
-  if (coursesError) {
-    return (
-      <div className="p-4 text-destructive bg-destructive/10 border border-destructive/30 rounded">
-        Erreur: {coursesError.message}
-      </div>
-    );
-  }
-
   // Make sure buttons are properly disabled when needed
   const buttonsDisabled =
     isLoadingProfile ||
@@ -248,20 +245,118 @@ const Questions = ({
     return null;
   };
 
+  const filteredCourses = useMemo(() => {
+    if (!kcFeatureEnabled || !showNeedsReviewOnly) {
+      return displayData;
+    }
+    return displayData.filter((item) => {
+      const entry = needsReviewByCourse[item.id];
+      return entry && entry.count > 0;
+    });
+  }, [displayData, kcFeatureEnabled, needsReviewByCourse, showNeedsReviewOnly]);
+
+  if (isLoadingCourses || isLoadingProfile) {
+    return <Loading />;
+  }
+  if (coursesError) {
+    return (
+      <div className="rounded border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+        Erreur: {coursesError.message}
+      </div>
+    );
+  }
+
+  const handleOpenBulkModal = (course) => {
+    if (!kcFeatureEnabled) {
+      toast.error("La fonctionnalité de suggestion KC est désactivée.");
+      return;
+    }
+    setBulkModalCourse({
+      id: course.id,
+      name: course.name,
+    });
+  };
+
+  const handleJobStarted = (job) => {
+    setBulkModalCourse(null);
+    setProgressJob(job);
+  };
+
+  const handleProgressComplete = ({ job: jobSummary, results, needsReview }) => {
+    if (results && Array.isArray(results)) {
+      const reviewIds = results
+        .filter((item) => {
+          const confidence =
+            item?.confidence ?? item?.confidenceLevel ?? item?.level ?? "low";
+          return typeof confidence === "string" && confidence.toLowerCase() !== "high";
+        })
+        .map((item) => item?.mcqId ?? item?.id)
+        .filter(Boolean);
+
+      setNeedsReviewByCourse((prev) => ({
+        ...prev,
+        [jobSummary.courseId]: {
+          count: reviewIds.length,
+          ids: reviewIds,
+          timestamp: Date.now(),
+        },
+      }));
+    } else if (typeof needsReview === "number") {
+      setNeedsReviewByCourse((prev) => ({
+        ...prev,
+        [jobSummary.courseId]: {
+          count: needsReview,
+          ids: [],
+          timestamp: Date.now(),
+        },
+      }));
+    }
+    setProgressJob(null);
+  };
+
+  const handleJobAbort = (job) => {
+    toast.success("Tâche annulée.");
+    setProgressJob(null);
+  };
+
   return (
     <div className="relative rounded-[20px]">
       <motion.div
-        className="flex items-center justify-between mb-5"
+        className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         variants={headerVariants}
         initial="hidden"
         animate="visible"
       >
-        <h1 className="font-Poppins font-[500] text-[22px] text-foreground">
-          Questions par cours
-        </h1>
+        <div>
+          <h1 className="font-Poppins font-[500] text-[22px] text-foreground">
+            Questions par cours
+          </h1>
+          {kcFeatureEnabled ? (
+            <p className="text-sm text-muted-foreground">
+              Sélectionnez un cours pour lancer des suggestions KC en masse.
+            </p>
+          ) : null}
+        </div>
+        {kcFeatureEnabled ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowNeedsReviewOnly((prev) => !prev)}
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
+                showNeedsReviewOnly
+                  ? "border-amber-300 bg-amber-50 text-amber-700"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-800"
+              }`}
+            >
+              {showNeedsReviewOnly
+                ? "Afficher tous les cours"
+                : "Voir uniquement les cours à vérifier"}
+            </button>
+          </div>
+        ) : null}
       </motion.div>
 
-      {displayData.length === 0 ? (
+      {filteredCourses.length === 0 ? (
         <div className="p-4 text-muted-foreground bg-muted border border-border rounded box">
           Aucun cours (avec questions) trouvé.
         </div>
@@ -272,7 +367,7 @@ const Questions = ({
           initial="hidden"
           animate="visible"
         >
-          {displayData.map((item) => {
+          {filteredCourses.map((item) => {
             const MAX_NAME_LENGTH = 26;
             const progress = item.progress_percentage || 0;
             const displayName =
@@ -280,6 +375,7 @@ const Questions = ({
                 ? `${item.name.slice(0, MAX_NAME_LENGTH)}...`
                 : item.name;
             const questionLabel = `Question${item.total !== 1 ? "s" : ""}`;
+            const reviewEntry = needsReviewByCourse[item.id];
 
             return (
               <motion.li
@@ -331,6 +427,12 @@ const Questions = ({
                         {item.total} {questionLabel}
                       </span>
                     </span>
+                    {kcFeatureEnabled && reviewEntry && reviewEntry.count > 0 ? (
+                      <span className="mt-1 inline-flex w-max items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                        {reviewEntry.count} question
+                        {reviewEntry.count > 1 ? "s" : ""} à vérifier
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <div className="hidden md:flex items-center gap-8 mr-5">
@@ -353,6 +455,16 @@ const Questions = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
+                  {kcFeatureEnabled ? (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenBulkModal(item)}
+                      className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition-colors duration-200 hover:border-indigo-300 hover:bg-indigo-100"
+                      disabled={buttonsDisabled}
+                    >
+                      Suggestions KC (Beta)
+                    </button>
+                  ) : null}
                   <motion.button
                     onClick={() => handleScheduleClick(item.id)}
                     disabled={buttonsDisabled}
@@ -423,6 +535,26 @@ const Questions = ({
       )}
 
       {renderPopup()}
+
+      {kcFeatureEnabled && bulkModalCourse ? (
+        <BulkKcSuggestionModal
+          open
+          courseId={bulkModalCourse.id}
+          courseName={bulkModalCourse.name}
+          onClose={() => setBulkModalCourse(null)}
+          onJobStart={handleJobStarted}
+        />
+      ) : null}
+
+      {kcFeatureEnabled && progressJob ? (
+        <BulkKcSuggestionProgressModal
+          open
+          job={progressJob}
+          onClose={() => setProgressJob(null)}
+          onComplete={handleProgressComplete}
+          onAbort={handleJobAbort}
+        />
+      ) : null}
     </div>
   );
 };

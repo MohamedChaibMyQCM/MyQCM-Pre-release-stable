@@ -138,7 +138,7 @@ const Study_time = () => {
     return (
       <div
         id="tour-myprogress-studytime"
-        className="xl:flex-1 study_time p-4 text-center h-[327px]" // Maintain height during loading
+        className="xl:flex-1 study_time p-4 text-center h-[327px] text-[#666666] dark:text-gray-400" // Maintain height during loading
       >
         Chargement du temps d&apos;étude...
       </div>
@@ -149,7 +149,7 @@ const Study_time = () => {
     return (
       <div
         id="tour-myprogress-studytime"
-        className="xl:flex-1 study_time p-4 text-center text-red-600 h-[327px]" // Maintain height on error
+        className="xl:flex-1 study_time p-4 text-center text-red-600 dark:text-red-400 h-[327px]" // Maintain height on error
       >
         Erreur de chargement des données d&apos;activité. ({error.message})
       </div>
@@ -168,17 +168,17 @@ const Study_time = () => {
         className="flex items-center justify-between mb-4 px-1 flex-wrap gap-2"
         variants={headerVariants}
       >
-        <h3 className="font-[500] text-[17px] text-[#191919]">
+        <h3 className="font-[500] text-[17px] text-[#191919] dark:text-white">
           Temps d&apos;étude
         </h3>
-        <div className="flex items-center border border-gray-200 rounded-full p-0.5 bg-gray-50">
+        <div className="flex items-center border border-gray-200 dark:border-gray-600 rounded-full p-0.5 bg-gray-50 dark:bg-gray-700/30">
           <button
             onClick={() => setUnit("hours")}
             aria-pressed={unit === "hours"}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 ease-in-out ${
               unit === "hours"
                 ? "bg-[#F8589F] text-white shadow-sm"
-                : "text-gray-600 hover:bg-gray-200"
+                : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
             }`}
           >
             Heures
@@ -189,7 +189,7 @@ const Study_time = () => {
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 ease-in-out ${
               unit === "minutes"
                 ? "bg-[#F8589F] text-white shadow-sm"
-                : "text-gray-600 hover:bg-gray-200"
+                : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
             }`}
           >
             Minutes
@@ -200,7 +200,7 @@ const Study_time = () => {
       {/* Chart Container */}
       {/* Use the same height as before */}
       <motion.div
-        className="bg-[#FFFFFF] rounded-[16px] box p-2 sm:p-4 h-[327px] w-full"
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] box p-2 sm:p-4 h-[327px] w-full border border-transparent dark:border-gray-700"
         variants={chartVariants}
         whileHover={{
           boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
@@ -219,6 +219,7 @@ const Study_time = () => {
           >
             <CartesianGrid
               stroke="#f0f0f0"
+              className="dark:stroke-gray-700"
               vertical={false}
               horizontal={true}
               strokeDasharray="3 3"
@@ -229,6 +230,7 @@ const Study_time = () => {
               tickLine={false}
               // *** XAxis Ticks: Color #191919 and space below ***
               tick={{ fill: "#191919", fontSize: 12, fontWeight: 500 }}
+              className="dark:[&_text]:fill-white"
               dy={10} // Keep space below labels
             />
             <YAxis
@@ -250,12 +252,14 @@ const Study_time = () => {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 fontSize: "12px",
                 padding: "8px 12px",
+                backgroundColor: "white",
               }}
               labelStyle={{
                 fontWeight: "bold",
                 marginBottom: "4px",
                 color: "#333",
               }}
+              wrapperClassName="dark:[&_.recharts-tooltip-wrapper]:bg-gray-800"
             />
             <Bar
               dataKey="value"

@@ -28,8 +28,8 @@ const Progress_Links = () => {
                 className={`${
                   isActive
                     ? "bg-[#F8589F] text-[#FFFFFF]"
-                    : "bg-[#FFFFFF] text-[#191919]"
-                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box`}
+                    : "bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#191919] dark:text-white"
+                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box border border-transparent dark:border-gray-700`}
               >
                 {link.label}
               </Link>

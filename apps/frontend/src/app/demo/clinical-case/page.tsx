@@ -339,7 +339,7 @@ function ClinicalCaseDemoContent() {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL]);
+  }, []);
 
   useEffect(() => {
     if (!isAlphaSubscriber) {
@@ -598,7 +598,7 @@ function ClinicalCaseDemoContent() {
         setIsSubmitting(false);
       }
     },
-    [API_BASE_URL, caseIdentifier, updateStats],
+    [caseIdentifier, updateStats],
   );
 
   const handleSessionCompletion = useCallback(() => {

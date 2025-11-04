@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import Image from "next/image";
 import exit from "../../../../public/Icons/exit.svg";
 import accuracyPic from "../../../../public/Quiz/accuracyPic.svg";
@@ -58,10 +58,10 @@ const QuizExplanation = ({
   const bgColor = getBackgroundColor(successRatio);
   const isMCQ = type === "qcm" || type === "qcs";
 
-  const handleNextQuestionClick = () => {
+  const handleNextQuestionClick = useCallback(() => {
     handleNextQuestion();
     // Don't trigger survey here - let the Quiz component handle it after navigation
-  };
+  }, [handleNextQuestion]);
 
   // Keyboard shortcut for next question
   useEffect(() => {
@@ -77,27 +77,27 @@ const QuizExplanation = ({
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleNextQuestion]);
+  }, [handleNextQuestionClick]);
 
   return (
-    <div className="fixed z-[60] h-screen w-screen left-0 top-0 flex items-center justify-center bg-[#00000080] p-4">
-      <div className="bg-[#FFFFFF] flex flex-col gap-5 w-[75%] max-h-[92vh] p-[32px] rounded-[24px] overflow-y-auto scrollbar-hide max-md:w-[95%] max-md:p-[20px] shadow-xl border border-[#E9ECEF]">
+    <div className="fixed z-[60] h-screen w-screen left-0 top-0 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4">
+      <div className="bg-card flex flex-col gap-5 w-[75%] max-h-[92vh] p-[32px] rounded-[24px] overflow-y-auto scrollbar-hide max-md:w-[95%] max-md:p-[20px] shadow-xl border border-border">
         {/* Header */}
-        <div className="flex items-center justify-between top-0 bg-white pb-4 border-b border-[#F1F3F4]">
-          <h2 className="text-[20px] font-bold text-[#2C3E50] flex items-center gap-3">
-            <div className="w-[6px] h-[6px] bg-[#F8589F] rounded-full"></div>
+        <div className="flex items-center justify-between top-0 bg-card pb-4 border-b border-border">
+          <h2 className="text-[20px] font-bold text-foreground flex items-center gap-3">
+            <div className="w-[6px] h-[6px] bg-primary rounded-full"></div>
             {isMCQ ? "Explication détaillée" : "Analyse de votre réponse"}
           </h2>
           <button
             onClick={() => setSeeExplanation(false)}
-            className="w-[36px] h-[36px] flex items-center justify-center rounded-[12px] hover:bg-[#F8F9FA] transition-colors"
+            className="w-[36px] h-[36px] flex items-center justify-center rounded-[12px] hover:bg-muted transition-colors"
           >
             <Image
               src={exit}
               alt="fermer"
               width={20}
               height={20}
-              className="opacity-60"
+              className="opacity-60 dark:invert"
             />
           </button>
         </div>
@@ -109,7 +109,7 @@ const QuizExplanation = ({
               {userResponsesWithContent.filter((item) => !item.is_correct)
                 .length > 0 && (
                 <div className="flex flex-col gap-3">
-                  <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                  <h3 className="text-foreground text-[16px] font-semibold flex items-center gap-2">
                     <IoCloseCircleOutline className="w-[20px] h-[20px] text-[#F64C4C]" />
                     Vos réponses incorrectes
                   </h3>
@@ -119,7 +119,7 @@ const QuizExplanation = ({
                       .map((item) => (
                         <li
                           key={`user-false-${item.id}`}
-                          className="border-2 border-[#F64C4C] bg-[#FFF5F5] px-[20px] py-[14px] rounded-[16px] text-[#F64C4C] text-[14px] flex items-center justify-between shadow-sm"
+                          className="border-2 border-[#F64C4C] bg-[#FFF5F5] dark:bg-[#F64C4C]/10 px-[20px] py-[14px] rounded-[16px] text-[#F64C4C] text-[14px] flex items-center justify-between shadow-sm"
                         >
                           <span
                             className="flex-1 font-medium"
@@ -136,7 +136,7 @@ const QuizExplanation = ({
 
               {/* Correct answers */}
               <div className="flex flex-col gap-3">
-                <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+                <h3 className="text-foreground text-[16px] font-semibold flex items-center gap-2">
                   <IoIosCheckmarkCircle className="w-[20px] h-[20px] text-[#47B881]" />
                   Réponses correctes
                 </h3>
@@ -145,7 +145,7 @@ const QuizExplanation = ({
                     correctOptionsData.map((item) => (
                       <li
                         key={`correct-${item.id}`}
-                        className="border-2 border-[#47B881] bg-[#F0F9F5] px-[20px] py-[14px] rounded-[16px] text-[#47B881] text-[14px] flex items-center justify-between shadow-sm"
+                        className="border-2 border-[#47B881] bg-[#F0F9F5] dark:bg-[#47B881]/10 px-[20px] py-[14px] rounded-[16px] text-[#47B881] text-[14px] flex items-center justify-between shadow-sm"
                       >
                         <span
                           className="flex-1 font-medium"
@@ -157,7 +157,7 @@ const QuizExplanation = ({
                       </li>
                     ))
                   ) : (
-                    <li className="text-gray-500 text-[14px] bg-[#F8F9FA] px-[20px] py-[14px] rounded-[16px]">
+                    <li className="text-muted-foreground text-[14px] bg-muted px-[20px] py-[14px] rounded-[16px]">
                       Détails de la réponse correcte non disponibles.
                     </li>
                   )}
@@ -167,7 +167,7 @@ const QuizExplanation = ({
           ) : (
             // QROC accuracy display
             <div className="flex flex-col gap-4">
-              <h3 className="text-[#2C3E50] text-[16px] font-semibold">
+              <h3 className="text-foreground text-[16px] font-semibold">
                 Précision de votre réponse
               </h3>
               <div
@@ -202,14 +202,14 @@ const QuizExplanation = ({
           {/* Expert answer for QROC */}
           {expertAnswer && !isMCQ && (
             <div className="flex flex-col gap-3">
-              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+              <h3 className="text-foreground text-[16px] font-semibold flex items-center gap-2">
                 <div className="w-[20px] h-[20px] bg-[#47B881] rounded-full flex items-center justify-center">
                   <span className="text-white text-[10px] font-bold">✓</span>
                 </div>
                 Réponse des experts MyQCM
               </h3>
               <div
-                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#47B881] bg-[#F0F9F5] px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#47B881] bg-[#F0F9F5] dark:bg-[#47B881]/10 px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-foreground text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{ __html: formatText(expertAnswer) }}
               />
             </div>
@@ -218,14 +218,14 @@ const QuizExplanation = ({
           {/* Explanation */}
           {explanationText && (
             <div className="flex flex-col gap-3">
-              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
-                <div className="w-[20px] h-[20px] bg-[#F8589F] rounded-full flex items-center justify-center">
+              <h3 className="text-foreground text-[16px] font-semibold flex items-center gap-2">
+                <div className="w-[20px] h-[20px] bg-primary rounded-full flex items-center justify-center">
                   <span className="text-white text-[10px] font-bold">!</span>
                 </div>
                 {isMCQ ? "Explication détaillée" : "Explication des experts"}
               </h3>
               <div
-                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#F8589F] bg-[#FFF5FA] px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-primary bg-[#FFF5FA] dark:bg-primary/10 px-[20px] py-[16px] overflow-y-auto scrollbar-hide text-foreground text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{
                   __html: formatText(explanationText),
                 }}
@@ -236,30 +236,30 @@ const QuizExplanation = ({
           {/* AI Feedback for QROC */}
           {!isMCQ && qroFeedback && (
             <div className="flex flex-col gap-3">
-              <h3 className="text-[#2C3E50] text-[16px] font-semibold flex items-center gap-2">
+              <h3 className="text-foreground text-[16px] font-semibold flex items-center gap-2">
                 <div className="w-[20px] h-[20px] bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center">
                   <span className="text-white text-[10px] font-bold">AI</span>
                 </div>
                 Analyse de l&apos;assistant IA
               </h3>
               <div
-                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#667eea] bg-gradient-to-r from-[#f7fafc] to-[#edf2f7] px-[20px] py-[16px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-[#2C3E50] text-[14px] leading-relaxed shadow-sm"
+                className="min-h-[120px] max-h-[250px] rounded-[16px] border-2 border-[#667eea] bg-gradient-to-r from-[#f7fafc] to-[#edf2f7] dark:from-[#667eea]/10 dark:to-[#764ba2]/10 px-[20px] py-[16px] overflow-y-auto scrollbar-hide font-Poppins font-medium text-foreground text-[14px] leading-relaxed shadow-sm"
                 dangerouslySetInnerHTML={{ __html: formatText(qroFeedback) }}
               />
             </div>
           )}
 
           {/* Footer */}
-          <div className={`flex flex-col sm:flex-row items-center ${isMCQ ? 'justify-end' : 'justify-between'} gap-4 bottom-0 bg-white pt-6 border-t border-[#F1F3F4] mt-4`}>
+          <div className={`flex flex-col sm:flex-row items-center ${isMCQ ? 'justify-end' : 'justify-between'} gap-4 bottom-0 bg-card pt-6 border-t border-border mt-4`}>
             {!isMCQ && (
-              <p className="text-center sm:text-left text-[11px] text-[#6C757D] flex-1 leading-relaxed">
+              <p className="text-center sm:text-left text-[11px] text-muted-foreground flex-1 leading-relaxed">
                 Cette réponse a été analysée par nos experts et notre IA. Bien
                 que nous nous efforcions d&apos;être précis, les modèles
                 d&apos;IA peuvent parfois commettre des erreurs.
               </p>
             )}
             <button
-              className="bg-gradient-to-r from-[#F8589F] to-[#E74C8C] text-[#FFFFFF] font-semibold text-[13px] px-[32px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 max-md:w-full"
+              className="bg-gradient-to-r from-primary to-primary/90 text-white font-semibold text-[13px] px-[32px] py-[12px] rounded-[28px] hover:shadow-lg hover:scale-105 transition-all duration-200 max-md:w-full"
               onClick={handleNextQuestionClick}
             >
               Question suivante →

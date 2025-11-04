@@ -67,9 +67,9 @@ const Tooltip = ({ children, content }) => {
     >
       {children}
       {isVisible && (
-        <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-gray-800 text-white text-xs rounded py-1 px-2 min-w-max shadow-lg">
+        <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded py-1 px-2 min-w-max shadow-lg">
           {content}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-gray-800"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-gray-800 dark:border-t-gray-700"></div>
         </div>
       )}
     </div>
@@ -243,10 +243,10 @@ const Learning_calendar = () => {
   if (isLoading) {
     return (
       <div className="flex-1 mb-6 md:mb-0">
-        <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919] dark:text-white">
           Calendrier d&apos;apprentissage
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] p-4 sm:py-6 sm:px-6 box min-h-[400px] flex items-center justify-center text-center text-gray-500">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] p-4 sm:py-6 sm:px-6 box min-h-[400px] flex items-center justify-center text-center text-gray-500 dark:text-gray-400 border border-transparent dark:border-gray-700">
           <div>Chargement...</div>
         </div>
       </div>
@@ -256,10 +256,10 @@ const Learning_calendar = () => {
   // Keep the rest of the JSX exactly the same as your last provided version
   return (
     <div id="tour-learning-calendar" className="flex-1 mb-6 md:mb-0">
-      <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919]">
+      <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919] dark:text-white">
         Calendrier d&apos;apprentissage
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] p-4 sm:py-6 sm:px-6 box">
+      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] p-4 sm:py-6 sm:px-6 box border border-transparent dark:border-gray-700">
         <Card className="border-none shadow-none">
           <CardContent className="p-0">
             {/* Header: Legend and Navigation */}
@@ -267,28 +267,28 @@ const Learning_calendar = () => {
               <div className="flex items-center">
                 {/* Using a neutral color dot for the legend */}
                 <div className="w-3 h-3 bg-pink-500 rounded-full mr-2 flex-shrink-0"></div>
-                <span className="text-xs sm:text-sm text-gray-600">
+                <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   Interactions (clic/survol pour détails)
                 </span>
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
                 <button
                   onClick={handlePrevWeek}
-                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50"
                   aria-label="Semaine précédente"
                 >
-                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
                 </button>
-                <span className="font-medium text-xs sm:text-sm text-center w-[140px] sm:w-auto">
+                <span className="font-medium text-xs sm:text-sm text-center w-[140px] sm:w-auto text-gray-700 dark:text-white">
                   {format(weekStart, "d MMM")} -{" "}
                   {format(weekEnd, "d MMM, yyyy")}
                 </span>
                 <button
                   onClick={handleNextWeek}
-                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50"
                   aria-label="Semaine suivante"
                 >
-                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
                 </button>
               </div>
             </div>
@@ -302,7 +302,7 @@ const Learning_calendar = () => {
                   <div
                     key={day.toISOString()} // Use ISO string for key
                     className={`flex-1 text-center py-1 cursor-pointer rounded transition-colors duration-150 ${
-                      isSelected ? "bg-pink-100" : "hover:bg-gray-50"
+                      isSelected ? "bg-pink-100 dark:bg-pink-900/30" : "hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => handleDateSelect(day)}
                     role="button"
@@ -317,7 +317,7 @@ const Learning_calendar = () => {
                       className={`text-[11px] sm:text-xs uppercase tracking-wide ${
                         isSelected
                           ? "text-pink-600 font-semibold"
-                          : "text-gray-700"
+                          : "text-gray-700 dark:text-gray-300"
                       } ${isToday && !isSelected ? "text-pink-500" : ""}`}
                     >
                       {format(day, "EEE", { locale: fr })}
@@ -326,7 +326,7 @@ const Learning_calendar = () => {
                       className={`text-sm sm:text-base font-medium mt-0.5 ${
                         isSelected
                           ? "text-pink-600 font-semibold"
-                          : "text-gray-800"
+                          : "text-gray-800 dark:text-white"
                       } ${isToday && !isSelected ? "text-pink-500" : ""}`}
                     >
                       {format(day, "d")}
@@ -338,8 +338,8 @@ const Learning_calendar = () => {
 
             {/* Time Slots Display */}
             <div className="space-y-2 sm:space-y-3">
-              <div className="relative border-t border-gray-200 mt-2 mb-2">
-                <span className="absolute -top-2.5 left-2 text-xs text-gray-400 bg-white px-1">
+              <div className="relative border-t border-gray-200 dark:border-gray-700 mt-2 mb-2">
+                <span className="absolute -top-2.5 left-2 text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-[#1a1a1a] px-1">
                   Heures
                 </span>
               </div>
@@ -357,11 +357,11 @@ const Learning_calendar = () => {
                     className="flex items-center relative min-h-[32px] sm:min-h-[36px]"
                   >
                     {/* Time Label */}
-                    <div className="w-12 sm:w-14 text-right text-gray-400 text-[10px] sm:text-xs pr-2 sm:pr-3 flex-shrink-0 tabular-nums">
+                    <div className="w-12 sm:w-14 text-right text-gray-400 dark:text-gray-500 text-[10px] sm:text-xs pr-2 sm:pr-3 flex-shrink-0 tabular-nums">
                       {displayTime}
                     </div>
                     {/* Dashed Line */}
-                    <div className="flex-grow border-t border-dashed border-gray-200 relative top-[1px]"></div>
+                    <div className="flex-grow border-t border-dashed border-gray-200 dark:border-gray-700 relative top-[1px]"></div>
 
                     {/* Interaction Dots and Count (only if count > 0) */}
                     {interactionCount > 0 && (
@@ -431,12 +431,12 @@ const Learning_calendar = () => {
                   </div>
                 );
               })}
-              <div className="border-t border-gray-200 pt-2"></div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-2"></div>
             </div>
 
             {/* Summary Footer */}
             {!isLoading && totalDailyInteractions > 0 && (
-              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 border-t border-gray-100 pt-3">
+              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3">
                 <p>
                   Total le {format(selectedDate, "d MMMM yyyy", { locale: fr })}
                   :{" "}
@@ -448,7 +448,7 @@ const Learning_calendar = () => {
               </div>
             )}
             {!isLoading && totalDailyInteractions === 0 && (
-              <div className="mt-6 text-center text-gray-400 text-xs sm:text-sm py-4">
+              <div className="mt-6 text-center text-gray-400 dark:text-gray-500 text-xs sm:text-sm py-4">
                 Aucune interaction enregistrée pour le{" "}
                 {format(selectedDate, "d MMMM yyyy", { locale: fr })}.
               </div>

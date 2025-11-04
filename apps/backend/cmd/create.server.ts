@@ -13,6 +13,16 @@ import { dynamicImport } from "common/helper/dynamic-import.helper";
 
 // This function creates and configures a NestJS Express-based server
 export async function CreateServer(): Promise<NestExpressApplication> {
+  const adminJSModule = await dynamicImport("adminjs");
+  const AdminJS = adminJSModule.default;
+
+  const AdminJSTypeORM = await dynamicImport("@adminjs/typeorm");
+
+  AdminJS.registerAdapter({
+    Resource: AdminJSTypeORM.Resource,
+    Database: AdminJSTypeORM.Database,
+  });
+
   // Create a new NestJS application using the AppModule
   const server = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -47,14 +57,5 @@ export async function CreateServer(): Promise<NestExpressApplication> {
   // Register a global exception filter to handle errors consistently across the app
   server.useGlobalFilters(new GlobalExceptionFilter());
 
-  const adminJSModule = await dynamicImport("adminjs");
-  const AdminJS = adminJSModule.default;
-
-  const AdminJSTypeORM = await dynamicImport("@adminjs/typeorm");
-
-  AdminJS.registerAdapter({
-    Resource: AdminJSTypeORM.Resource,
-    Database: AdminJSTypeORM.Database,
-  });
   return server; // Return the configured server instance
 }

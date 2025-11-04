@@ -15,6 +15,7 @@ import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
 import toast from "react-hot-toast";
 import SheduleDate from "./SheduleDate";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   const [selectedUnit, setSelectedUnit] = React.useState("");
@@ -171,8 +172,20 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-[16px] p-6 w-[600px]  max-md:w-[92%]">
+    <motion.div
+      className="fixed inset-0 bg-black/40 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-[#1a1a1a] rounded-[16px] p-6 w-[600px] max-md:w-[92%] shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto scrollbar-hide"
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+      >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-[#FD2E8A] font-[500] text-[17px]">
             Schedule season
@@ -180,12 +193,12 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
           <X
             size={24}
             weight="bold"
-            className="text-[#B5BEC6] font-[600] cursor-pointer"
+            className="text-[#B5BEC6] dark:text-gray-400 font-[600] cursor-pointer hover:text-[#F8589F] transition-colors"
             onClick={onClose}
           />
         </div>
         <div className="mb-6">
-          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+          <span className="font-[600] text-[#191919] dark:text-white mb-3 block text-[15px]">
             Title
           </span>
           <input
@@ -193,27 +206,27 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter title"
-            className="w-full rounded-[24px] placeholder:text-[#191919] bg-white border border-gray-300 text-[#191919] text-[14px] py-[10px] px-4 focus:outline-none"
+            className="w-full rounded-[24px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white text-[14px] py-[10px] px-4 focus:outline-none focus:border-[#F8589F]"
           />
         </div>
         <div className="mb-6 sel">
-          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+          <span className="font-[600] text-[#191919] dark:text-white mb-3 block text-[15px]">
             Unit
           </span>
           <Select
             value={selectedUnit}
             onValueChange={(val) => setSelectedUnit(val)}
           >
-            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] !py-3 block px-4 flex items-center justify-between">
+            <SelectTrigger className="rounded-[24px] w-full bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white !py-3 block px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Unit" />
             </SelectTrigger>
-            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+            <SelectContent className="bg-white dark:bg-[#1a1a1a] rounded-[20px] border border-[#E0E0E0] dark:border-gray-700">
               <SelectGroup>
                 {units.map((unit) => (
                   <SelectItem
                     key={unit.id}
                     value={unit.id}
-                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                    className="text-[#191919] dark:text-white hover:bg-[#FFF5FA] dark:hover:bg-primary/10 hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] dark:data-[state=checked]:bg-primary/10 data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
                   >
                     {unit.name}
                   </SelectItem>
@@ -223,23 +236,23 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
           </Select>
         </div>
         <div className="mb-6 sel">
-          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+          <span className="font-[600] text-[#191919] dark:text-white mb-3 block text-[15px]">
             Module
           </span>
           <Select
             value={selectedModule}
             onValueChange={(val) => setSelectedModule(val)}
           >
-            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] py-3 px-4 flex items-center justify-between">
+            <SelectTrigger className="rounded-[24px] w-full bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white py-3 px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Module" />
             </SelectTrigger>
-            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+            <SelectContent className="bg-white dark:bg-[#1a1a1a] rounded-[20px] border border-[#E0E0E0] dark:border-gray-700">
               <SelectGroup>
                 {subjects.map((module) => (
                   <SelectItem
                     key={module.id}
                     value={module.id}
-                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                    className="text-[#191919] dark:text-white hover:bg-[#FFF5FA] dark:hover:bg-primary/10 hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] dark:data-[state=checked]:bg-primary/10 data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
                   >
                     {module.name}
                   </SelectItem>
@@ -249,23 +262,23 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
           </Select>
         </div>
         <div className="mb-6 sel">
-          <span className="font-[600] text-[#191919] mb-3 block text-[15px]">
+          <span className="font-[600] text-[#191919] dark:text-white mb-3 block text-[15px]">
             Course
           </span>
           <Select
             value={selectedCourse}
             onValueChange={(val) => setSelectedCourse(val)}
           >
-            <SelectTrigger className="rounded-[24px] w-full bg-white border border-gray-300 text-[#191919] py-3 px-4 flex items-center justify-between">
+            <SelectTrigger className="rounded-[24px] w-full bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white py-3 px-4 flex items-center justify-between">
               <SelectValue placeholder="Select a Course" />
             </SelectTrigger>
-            <SelectContent className="bg-white rounded-[20px] border border-[#E0E0E0]">
+            <SelectContent className="bg-white dark:bg-[#1a1a1a] rounded-[20px] border border-[#E0E0E0] dark:border-gray-700">
               <SelectGroup>
                 {courses.map((course) => (
                   <SelectItem
                     key={course.id}
                     value={course.id}
-                    className="text-[#191919] hover:bg-[#FFF5FA] hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
+                    className="text-[#191919] dark:text-white hover:bg-[#FFF5FA] dark:hover:bg-primary/10 hover:text-[#F8589F] data-[state=checked]:bg-[#FFF5FA] dark:data-[state=checked]:bg-primary/10 data-[state=checked]:text-[#F8589F] rounded-[20px] py-3 px-4 my-1"
                   >
                     {course.name}
                   </SelectItem>
@@ -279,31 +292,31 @@ const SchedulePopup = ({ selectedDate, onClose, onSessionCreated }) => {
             <SheduleDate value={trainingDate} onChange={setTrainingDate} />
           </div>
           <div className="flex-1">
-            <span className="font-[600] text-[#191919] text-[15px]">Time</span>
+            <span className="font-[600] text-[#191919] dark:text-white text-[15px]">Time</span>
             <input
               type="time"
               value={selectedTimeInput}
               onChange={(e) => setSelectedTimeInput(e.target.value)}
-              className="w-full rounded-[24px] bg-white border border-gray-300 text-[#191919] text-[14px] py-[10px] px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
+              className="w-full rounded-[24px] bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 text-[#191919] dark:text-white text-[14px] py-[10px] px-4 mt-2 focus:outline-none focus:border-[#F8589F]"
             />
           </div>
         </div>
         <div className="flex justify-center gap-6">
           <button
             onClick={onClose}
-            className="text-[#F8589F] px-6 py-2 rounded-lg text-[14px] font-[500]"
+            className="text-[#F8589F] dark:text-[#F8589F] px-6 py-2 rounded-lg text-[14px] font-[500] hover:bg-[#FFF5FA] dark:hover:bg-primary/10 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-2 rounded-[20px]"
+            className="bg-[#F8589F] text-[14px] font-[500] text-white px-6 py-2 rounded-[20px] hover:opacity-90 transition-opacity"
           >
             Add
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

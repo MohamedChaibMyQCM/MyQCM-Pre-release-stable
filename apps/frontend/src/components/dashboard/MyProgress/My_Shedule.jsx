@@ -47,11 +47,11 @@ const  Mon_Emploi_Du_Temps = () => {
   if (isLoading) {
     return (
       <div id="tour-my-schedule" className="flex-1">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Mon emploi du temps
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
-          <span className="text-[#666666]">Chargement...</span>
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center border border-transparent dark:border-gray-700">
+          <span className="text-[#666666] dark:text-gray-400">Chargement...</span>
         </div>
       </div>
     );
@@ -60,10 +60,10 @@ const  Mon_Emploi_Du_Temps = () => {
   if (error) {
     return (
       <div id="tour-my-schedule" className="flex-1">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Mon emploi du temps
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center border border-transparent dark:border-gray-700">
           <span className="text-[#F64C4C]">
             Erreur de chargement de l&apos;emploi du temps
           </span>
@@ -75,11 +75,11 @@ const  Mon_Emploi_Du_Temps = () => {
   if (!scheduleData || scheduleData.length === 0) {
     return (
       <div id="tour-my-schedule" className="flex-1">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
           Mon emploi du temps
         </h3>
-        <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
+        <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[320px] flex items-center justify-center border border-transparent dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1a1a1a] px-6 py-3 rounded-full shadow-md border-[2px] border-[#F8589F]">
             <span className="text-[#F8589F] font-medium text-[18px]">
               Aucun planning pour le moment
             </span>
@@ -91,10 +91,10 @@ const  Mon_Emploi_Du_Temps = () => {
 
   return (
     <div id="tour-my-schedule" className="flex-1">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+      <h3 className="font-[500] text-[17px] mb-4 text-[#191919] dark:text-white">
         Mon emploi du temps
       </h3>
-      <div className="bg-[#FFFFFF] rounded-[16px] px-6 py-4 box h-[320px] overflow-y-auto scrollbar-hide flex flex-col">
+      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] px-6 py-4 box h-[320px] overflow-y-auto scrollbar-hide flex flex-col border border-transparent dark:border-gray-700">
         <ul className="flex flex-col gap-4 flex-grow mt-3">
           {scheduleData.map((session) => {
             const status = getStatus(session);
@@ -108,7 +108,7 @@ const  Mon_Emploi_Du_Temps = () => {
             return (
               <li
                 key={session.id}
-                className="border border-[#E4E4E4] p-4 pl-3 rounded-[12px]"
+                className="border border-[#E4E4E4] dark:border-gray-700 p-4 pl-3 rounded-[12px]"
               >
                 <span className="relative bg-[#FFF5FA] w-fit py-1 px-[16px] rounded-[16px] text-[14px] text-[#F8589F] font-[500] block">
                   {session.title}
@@ -128,7 +128,7 @@ const  Mon_Emploi_Du_Temps = () => {
                       {status.text}
                     </span>
                   </div>
-                  <span className="text-[13px] text-[#B5BEC6]">{date}</span>
+                  <span className="text-[13px] text-[#B5BEC6] dark:text-gray-400">{date}</span>
                 </div>
               </li>
             );

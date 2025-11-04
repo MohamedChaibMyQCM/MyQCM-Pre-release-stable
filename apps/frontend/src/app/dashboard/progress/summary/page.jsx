@@ -80,7 +80,7 @@ const ProgressActivityPage = () => {
   if (isAnalyticsError) {
     console.error("Activity page analytics error:", analyticsError);
     return (
-      <div className="px-6 mt-8 text-red-600">
+      <div className="px-6 mt-8 text-red-600 dark:text-red-400">
         Erreur de chargement des détails d&apos;activité.
       </div>
     );
@@ -98,7 +98,7 @@ const ProgressActivityPage = () => {
       activityData
     );
     return (
-      <div className="px-6 mt-8 text-orange-500">
+      <div className="px-6 mt-8 text-orange-500 dark:text-orange-400">
         Données d&apos;activité incomplètes ou non disponibles.
       </div>
     );

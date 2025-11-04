@@ -26,6 +26,15 @@ import { ClinicalCase } from "src/clinical_case/entities/clinical_case.entity";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
 import { KnowledgeComponent } from "src/knowledge-component/entities/knowledge-component.entity";
 
+export type SuggestedKnowledgeComponent = {
+  id: string;
+  slug: string;
+  name?: string;
+  description?: string | null;
+  score: number;
+  rationale?: string | null;
+};
+
 @Entity()
 export class Mcq extends ChronoEntity {
   @Index(["type", "quiz_type", "difficulty"])
@@ -186,4 +195,35 @@ export class Mcq extends ChronoEntity {
     },
   })
   knowledgeComponents: KnowledgeComponent[];
+
+  @Column({
+    type: "jsonb",
+    nullable: true,
+  })
+  suggested_knowledge_components?: SuggestedKnowledgeComponent[] | null;
+
+  @Column({
+    type: "varchar",
+    length: 16,
+    nullable: true,
+  })
+  suggestion_confidence?: string | null;
+
+  @Column({
+    type: "float",
+    nullable: true,
+  })
+  suggestion_confidence_score?: number | null;
+
+  @Column({
+    type: "text",
+    nullable: true,
+  })
+  suggestion_rationale?: string | null;
+
+  @Column({
+    type: "timestamptz",
+    nullable: true,
+  })
+  suggestion_generated_at?: Date | null;
 }

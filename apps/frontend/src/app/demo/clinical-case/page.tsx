@@ -93,11 +93,11 @@ const emitTelemetry = (event: string, detail: Record<string, unknown>) => {
 };
 
 const IntroSkeleton = () => (
-  <div className="mx-auto w-full max-w-4xl rounded-[20px] border border-white/40 bg-white/50 px-6 py-10 shadow-[0_24px_55px_-38px_rgba(248,88,159,0.35)] md:max-w-5xl md:px-12 md:py-14 animate-pulse" />
+  <div className="mx-auto w-full max-w-4xl rounded-[20px] border border-white/40 dark:border-gray-700/50 bg-white/50 dark:bg-[#1a1a1a]/80 px-6 py-10 shadow-[0_24px_55px_-38px_rgba(248,88,159,0.35)] dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)] md:max-w-5xl md:px-12 md:py-14 animate-pulse" />
 );
 
 const SidebarSkeleton = () => (
-  <div className="w-full max-w-[360px] rounded-[20px] border border-white/40 bg-white/60 px-6 py-8 shadow-[0_14px_38px_-28px_rgba(248,88,159,0.45)] animate-pulse md:max-w-[380px]" />
+  <div className="w-full max-w-[360px] rounded-[20px] border border-white/40 dark:border-gray-700/50 bg-white/60 dark:bg-[#1a1a1a]/80 px-6 py-8 shadow-[0_14px_38px_-28px_rgba(248,88,159,0.45)] dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)] animate-pulse md:max-w-[380px]" />
 );
 
 const initialStats = {
@@ -766,17 +766,17 @@ function ClinicalCaseDemoContent() {
           </Button>
         </header>
 
-        <section className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-60px_rgba(17,14,31,0.45)] md:px-10 md:py-9 max-md:px-4 max-md:py-6 max-md:rounded-[20px]">
+        <section className="rounded-[28px] bg-white dark:bg-[#1a1a1a] px-6 py-8 shadow-[0_30px_90px_-60px_rgba(17,14,31,0.45)] dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)] md:px-10 md:py-9 max-md:px-4 max-md:py-6 max-md:rounded-[20px]">
           <div className="space-y-6 max-md:space-y-5">
             <div className="space-y-3 max-md:space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#FFE4F1] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#F8589F] max-md:text-[10px] max-md:px-2.5 max-md:py-0.5">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#FFE4F1] dark:bg-[#F8589F]/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#F8589F] max-md:text-[10px] max-md:px-2.5 max-md:py-0.5">
                 Catalogue clinique
               </div>
               <div>
-                <h2 className="text-[26px] font-semibold text-[#221427] max-md:text-[20px] max-sm:text-[18px]">
+                <h2 className="text-[26px] font-semibold text-[#221427] dark:text-white max-md:text-[20px] max-sm:text-[18px]">
                   Sélectionnez un cas à explorer
                 </h2>
-                <p className="mt-3 text-[15px] leading-relaxed text-[#625371] max-md:text-[14px] max-md:mt-2">
+                <p className="mt-3 text-[15px] leading-relaxed text-[#625371] dark:text-gray-400 max-md:text-[14px] max-md:mt-2">
                   Choisissez le scénario que vous souhaitez tester. Chaque carte correspond
                   au cas de démonstration ou à l&apos;un de vos prototypes publiés dans l&apos;espace freelancer.
                 </p>
@@ -785,7 +785,7 @@ function ClinicalCaseDemoContent() {
 
             <div className="relative">
               {loadingCaseOptions ? (
-                <div className="absolute inset-0 z-10 rounded-[28px] border border-[#F2D0E5] bg-white/70 backdrop-blur-[2px]" />
+                <div className="absolute inset-0 z-10 rounded-[28px] border border-[#F2D0E5] dark:border-gray-700 bg-white/70 dark:bg-[#1a1a1a]/70 backdrop-blur-[2px]" />
               ) : null}
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 max-md:gap-3">
                 {caseOptions.map((option) => {
@@ -795,7 +795,7 @@ function ClinicalCaseDemoContent() {
                       key={option.id}
                       type="button"
                       onClick={() => handleCaseSelection(option.id)}
-                      className={`group relative flex h-full flex-col justify-between rounded-[26px] border border-transparent bg-white px-6 py-5 text-left shadow-[0_18px_60px_-45px_rgba(24,14,41,0.45)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#FD2E8A] max-md:rounded-[20px] max-md:px-4 max-md:py-4 ${
+                      className={`group relative flex h-full flex-col justify-between rounded-[26px] border border-transparent bg-white dark:bg-[#2a2a2a] px-6 py-5 text-left shadow-[0_18px_60px_-45px_rgba(24,14,41,0.45)] dark:shadow-[0px_4px_12px_rgba(0,0,0,0.3)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#FD2E8A] max-md:rounded-[20px] max-md:px-4 max-md:py-4 ${
                         isActive
                           ? "ring-2 ring-[#FD2E8A]"
                           : "hover:border-[#FD2E8A33] hover:shadow-[0_26px_70px_-50px_rgba(24,14,41,0.55)]"
@@ -803,19 +803,19 @@ function ClinicalCaseDemoContent() {
                       aria-pressed={isActive}
                     >
                       <div>
-                        <span className="inline-flex items-center gap-2 rounded-full bg-[#FFE8F3] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#FD2E8A] max-md:text-[9px] max-md:px-2.5 max-md:py-0.5">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-[#FFE8F3] dark:bg-[#F8589F]/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#FD2E8A] max-md:text-[9px] max-md:px-2.5 max-md:py-0.5">
                           {option.id === DEMO_ID ? "Cas démo" : "Prototype"}
                         </span>
-                        <h3 className="mt-3 text-[15px] font-semibold text-[#241B30] leading-snug line-clamp-2 max-md:text-[14px] max-md:mt-2">
+                        <h3 className="mt-3 text-[15px] font-semibold text-[#241B30] dark:text-white leading-snug line-clamp-2 max-md:text-[14px] max-md:mt-2">
                           {option.title}
                         </h3>
                         {option.subtitle ? (
-                          <p className="mt-2 text-[12px] text-[#7D6A90] line-clamp-2 max-md:text-[11px]">
+                          <p className="mt-2 text-[12px] text-[#7D6A90] dark:text-gray-400 line-clamp-2 max-md:text-[11px]">
                             {option.subtitle}
                           </p>
                         ) : null}
                       </div>
-                      <div className="mt-6 flex items-center justify-between text-xs text-[#9680AD] max-md:mt-4 max-md:text-[11px]">
+                      <div className="mt-6 flex items-center justify-between text-xs text-[#9680AD] dark:text-gray-400 max-md:mt-4 max-md:text-[11px]">
                         <span>
                           {isActive ? "Cas sélectionné" : "Cliquer pour charger"}
                         </span>
@@ -823,7 +823,7 @@ function ClinicalCaseDemoContent() {
                           className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition max-md:h-8 max-md:w-8 ${
                             isActive
                               ? "border-[#FD2E8A] bg-[#FD2E8A] text-white"
-                              : "border-[#E4CCE8] bg-white text-[#C58DB2] group-hover:border-[#FD2E8A]"
+                              : "border-[#E4CCE8] dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-[#C58DB2] dark:text-gray-400 group-hover:border-[#FD2E8A]"
                           }`}
                         >
                           {isActive ? "✓" : "→"}
@@ -835,7 +835,7 @@ function ClinicalCaseDemoContent() {
               </div>
             </div>
 
-            <p className="text-xs text-[#7A698C] max-md:text-[11px]">
+            <p className="text-xs text-[#7A698C] dark:text-gray-400 max-md:text-[11px]">
               {caseOptions.length > 1
                 ? `${caseOptions.length - 1} prototype${caseOptions.length - 1 > 1 ? "s" : ""} prêt${caseOptions.length - 1 > 1 ? "s" : ""} à être test${caseOptions.length - 1 > 1 ? "és" : "é"}.`
                 : "Publiez votre premier cas clinique dans l'espace freelancer pour enrichir ce catalogue."}
@@ -846,8 +846,8 @@ function ClinicalCaseDemoContent() {
         <main className="flex flex-1 flex-col">
           {error ? (
             <div className="flex flex-1 items-center justify-center">
-              <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#F64C4C33] bg-[#FFE9EC] px-10 py-12 text-center shadow-md">
-                <p className="text-sm font-medium text-[#B91C1C]">{error}</p>
+              <div className="flex flex-col items-center gap-4 rounded-3xl border border-[#F64C4C33] dark:border-red-900/50 bg-[#FFE9EC] dark:bg-red-900/20 px-10 py-12 text-center shadow-md dark:shadow-[0px_4px_12px_rgba(0,0,0,0.3)]">
+                <p className="text-sm font-medium text-[#B91C1C] dark:text-red-400">{error}</p>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -862,7 +862,7 @@ function ClinicalCaseDemoContent() {
             </div>
           ) : loading || !caseData ? (
             <div className="flex flex-1 items-center justify-center">
-              <div className="rounded-3xl border border-dashed border-[#F6CDE1] bg-white/80 px-12 py-14 text-sm font-medium text-[#6C7A89] shadow-xl backdrop-blur-sm">
+              <div className="rounded-3xl border border-dashed border-[#F6CDE1] dark:border-gray-700 bg-white/80 dark:bg-[#1a1a1a]/80 px-12 py-14 text-sm font-medium text-[#6C7A89] dark:text-gray-400 shadow-xl dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)] backdrop-blur-sm">
                 Chargement du cas clinique...
               </div>
             </div>

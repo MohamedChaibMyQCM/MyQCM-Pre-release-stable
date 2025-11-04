@@ -164,7 +164,6 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
       // console.log("Submitting Guided Schedule Data:", finalData); // Debug if needed
       scheduleTrainingSession(finalData);
     },
-    enableReinitialize: true, // Keep if quiz prop might update
   });
 
   return (

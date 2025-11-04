@@ -121,7 +121,6 @@ const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
 
       scheduleSynergySession(finalData);
     },
-    enableReinitialize: true,
   });
 
   return (

@@ -154,8 +154,7 @@ export const CaseIntroCard = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="mx-auto w-full max-w-4xl rounded-[20px] border bg-white shadow-[0_24px_55px_-38px_rgba(248,88,159,0.55)] xl:max-w-5xl"
-      style={{ borderColor: "#F0E4EC" }}
+      className="mx-auto w-full max-w-4xl rounded-[20px] border border-[#F0E4EC] dark:border-gray-700/50 bg-white dark:bg-[#1a1a1a] shadow-[0_24px_55px_-38px_rgba(248,88,159,0.55)] dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)] xl:max-w-5xl"
     >
       <div className="px-6 py-8 md:px-12 md:py-10 xl:px-16">
         <header className="flex flex-col">
@@ -170,16 +169,16 @@ export const CaseIntroCard = ({
                 title="Temps estime"
               />
             </div>
-            <div className="flex items-center gap-1 text-[12px] font-semibold text-[#858494]" aria-live="polite">
+            <div className="flex items-center gap-1 text-[12px] font-semibold text-[#858494] dark:text-gray-400" aria-live="polite">
               <span>CAS</span>
-              <span className="text-[#191919]">{progressCurrent}</span>
-              <span className="text-[#B0B4C2]">/</span>
+              <span className="text-[#191919] dark:text-white">{progressCurrent}</span>
+              <span className="text-[#B0B4C2] dark:text-gray-600">/</span>
               <span>{totalQuestions || "?"}</span>
             </div>
           </div>
 
           <div
-            className="relative mt-3 h-[3px] w-full overflow-hidden rounded-full bg-[#F0E4EC]"
+            className="relative mt-3 h-[3px] w-full overflow-hidden rounded-full bg-[#F0E4EC] dark:bg-gray-700"
             role="progressbar"
             aria-label="Progression du cas"
             aria-valuemin={0}
@@ -196,15 +195,15 @@ export const CaseIntroCard = ({
           <span className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: "#FD2E8A" }}>
             Cas clinique premium
           </span>
-          <h1 className="font-semibold leading-tight text-[#1F1F1F]" style={{ fontSize: "clamp(24px, 2.2vw, 32px)" }}>
+          <h1 className="font-semibold leading-tight text-[#1F1F1F] dark:text-white" style={{ fontSize: "clamp(24px, 2.2vw, 32px)" }}>
             {title}
           </h1>
-          <p className="max-w-[72ch] text-[14px] leading-7 text-[#2F2A3A] md:text-[15px] md:leading-8">{description}</p>
+          <p className="max-w-[72ch] text-[14px] leading-7 text-[#2F2A3A] dark:text-gray-400 md:text-[15px] md:leading-8">{description}</p>
         </div>
 
         {displayTags.length > 0 ? (
           <section className="mt-6">
-            <div className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#88436F]">
+            <div className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#88436F] dark:text-[#F8589F]">
               <TagIcon className="h-4 w-4" />
               <span className="uppercase tracking-[0.18em]">Mots-cles</span>
             </div>
@@ -220,14 +219,14 @@ export const CaseIntroCard = ({
 
         <section className="mt-10">
           <div className="space-y-2">
-            <h2 className="text-[15px] font-semibold text-[#2A2535]">Scenario clinique</h2>
-            <p className="max-w-[72ch] text-[14px] leading-7 text-[#2F2A3A]">{scenario}</p>
+            <h2 className="text-[15px] font-semibold text-[#2A2535] dark:text-white">Scenario clinique</h2>
+            <p className="max-w-[72ch] text-[14px] leading-7 text-[#2F2A3A] dark:text-gray-400">{scenario}</p>
           </div>
 
           {objectives?.length ? (
             <div className="mt-10 space-y-3 md:mt-12">
-              <h2 className="text-[15px] font-semibold text-[#2A2535]">Objectifs pedagogiques</h2>
-              <ul className="max-w-[72ch] space-y-2.5 text-[14px] leading-7 text-[#2F2A3A]">
+              <h2 className="text-[15px] font-semibold text-[#2A2535] dark:text-white">Objectifs pedagogiques</h2>
+              <ul className="max-w-[72ch] space-y-2.5 text-[14px] leading-7 text-[#2F2A3A] dark:text-gray-400">
                 {objectives.map((objective, index) => (
                   <li key={`${index}-${objective.slice(0, 24)}`} className="relative pl-6">
                     <span className="absolute left-0 top-[10px] h-[6px] w-[6px] rounded-full" style={{ background: "#FD2E8A" }} />
@@ -241,10 +240,9 @@ export const CaseIntroCard = ({
       </div>
 
       <footer
-        className="flex flex-wrap items-center justify-between gap-4 border-t px-6 py-5 md:px-12 xl:px-16"
-        style={{ borderColor: "#F0E4EC" }}
+        className="flex flex-wrap items-center justify-between gap-4 border-t border-[#F0E4EC] dark:border-gray-700 px-6 py-5 md:px-12 xl:px-16"
       >
-        <div className="flex flex-1 items-center justify-end gap-3 text-[12px] text-[#333A48]">
+        <div className="flex flex-1 items-center justify-end gap-3 text-[12px] text-[#333A48] dark:text-gray-400">
           <span>
             {totalQuestions} question{totalQuestions > 1 ? "s" : ""} a valider pour finaliser le cas.
           </span>
@@ -254,7 +252,7 @@ export const CaseIntroCard = ({
               size="md"
               variant="secondary"
               onClick={onDefer}
-              className="hidden border border-[#F0E4EC] text-[#7A1D4A] md:inline-flex"
+              className="hidden border border-[#F0E4EC] dark:border-gray-700 text-[#7A1D4A] dark:text-[#F8589F] md:inline-flex"
             >
               Lire plus tard
             </Button>

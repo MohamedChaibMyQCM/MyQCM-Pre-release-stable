@@ -101,7 +101,6 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
 
       startTrainingSession(finalData);
     },
-    enableReinitialize: true, // Keep if `quiz` prop might update
   });
 
   return (

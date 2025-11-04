@@ -39,6 +39,12 @@ type PendingMcq = {
 const unwrapResponse = <T,>(payload: any): T =>
   (payload?.data ?? payload) as T;
 
+const DEFAULT_PENDING_QUERY = {
+  approval_status: "pending",
+  limit: "200",
+  offset: "0",
+} as const;
+
 export default function PendingReviewPage() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(true);
@@ -56,11 +62,7 @@ export default function PendingReviewPage() {
 
     try {
       setLoading(true);
-      const query = new URLSearchParams({
-        approval_status: "pending",
-        limit: "200",
-        offset: "0",
-      });
+      const query = new URLSearchParams(DEFAULT_PENDING_QUERY);
 
       const response = await apiFetch<any>(`/mcq/freelancer?${query.toString()}`);
       const payload = unwrapResponse<any>(response);

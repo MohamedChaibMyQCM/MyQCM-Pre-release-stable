@@ -27,16 +27,16 @@ const LabsSkeleton = () => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4 }}
-    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F8589F]/10 via-[#FD2E8A]/10 to-[#FF7CB1]/10 p-5 shadow-sm"
+    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F8589F]/10 via-[#FD2E8A]/10 to-[#FF7CB1]/10 dark:from-[#F8589F]/20 dark:via-[#FD2E8A]/20 dark:to-[#FF7CB1]/20 p-5 shadow-sm dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)]"
   >
     <div className="flex items-start gap-4">
-      <div className="h-16 w-16 animate-pulse rounded-xl bg-gradient-to-r from-[#FDE3F0] to-[#F9D8E9]" />
+      <div className="h-16 w-16 animate-pulse rounded-xl bg-gradient-to-r from-[#FDE3F0] to-[#F9D8E9] dark:from-[#F8589F]/30 dark:to-[#FD2E8A]/30" />
       <div className="flex-1 space-y-3">
-        <div className="h-4 w-24 animate-pulse rounded-full bg-gradient-to-r from-[#FDE3F0] to-[#F9D8E9]" />
-        <div className="h-5 w-3/4 animate-pulse rounded-full bg-gradient-to-r from-[#F9D8E9] to-[#FDE3F0]" />
+        <div className="h-4 w-24 animate-pulse rounded-full bg-gradient-to-r from-[#FDE3F0] to-[#F9D8E9] dark:from-[#F8589F]/30 dark:to-[#FD2E8A]/30" />
+        <div className="h-5 w-3/4 animate-pulse rounded-full bg-gradient-to-r from-[#F9D8E9] to-[#FDE3F0] dark:from-[#FD2E8A]/30 dark:to-[#F8589F]/30" />
         <div className="flex gap-2">
-          <div className="h-7 w-20 animate-pulse rounded-full bg-[#FDE3F0]" />
-          <div className="h-7 w-16 animate-pulse rounded-full bg-[#FDE3F0]" />
+          <div className="h-7 w-20 animate-pulse rounded-full bg-[#FDE3F0] dark:bg-[#F8589F]/30" />
+          <div className="h-7 w-16 animate-pulse rounded-full bg-[#FDE3F0] dark:bg-[#F8589F]/30" />
         </div>
       </div>
     </div>
@@ -237,14 +237,14 @@ const LockedFeatureCard = () => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5 }}
-    className="group relative overflow-hidden rounded-2xl border-2 border-dashed border-[#F7C7DD] bg-gradient-to-br from-white to-[#FFF5FA] p-6 shadow-sm transition-all duration-300 hover:border-[#F8589F]/40 hover:shadow-md"
+    className="group relative overflow-hidden rounded-2xl border-2 border-dashed border-[#F7C7DD] dark:border-[#F8589F]/30 bg-gradient-to-br from-white to-[#FFF5FA] dark:from-[#1a1a1a] dark:to-[#2a1a2a] p-6 shadow-sm dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] transition-all duration-300 hover:border-[#F8589F]/40 hover:shadow-md"
   >
     <div className="relative z-10 flex flex-col items-center gap-3 text-center">
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#F8589F]/20 to-[#FD2E8A]/20"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#F8589F]/20 to-[#FD2E8A]/20 dark:from-[#F8589F]/30 dark:to-[#FD2E8A]/30"
       >
         <Lock className="h-6 w-6 text-[#F8589F]" />
       </motion.div>
@@ -254,18 +254,18 @@ const LockedFeatureCard = () => (
         transition={{ delay: 0.3 }}
         className="flex flex-col gap-1.5"
       >
-        <h3 className="text-base font-semibold text-[#7A1D4A]">
+        <h3 className="text-base font-semibold text-[#7A1D4A] dark:text-[#FFB3D9]">
           Réservé aux abonnements Alpha
         </h3>
-        <p className="max-w-md text-[13px] leading-relaxed text-[#9A4E7A]/80">
+        <p className="max-w-md text-[13px] leading-relaxed text-[#9A4E7A]/80 dark:text-gray-400">
           Contactez l&apos;équipe pour rejoindre le programme Labs.
         </p>
       </motion.div>
     </div>
 
     {/* Decorative elements */}
-    <div className="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-[#F8589F]/5 blur-2xl" />
-    <div className="absolute -bottom-8 -right-8 h-20 w-20 rounded-full bg-[#FD2E8A]/5 blur-2xl" />
+    <div className="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-[#F8589F]/5 dark:bg-[#F8589F]/10 blur-2xl" />
+    <div className="absolute -bottom-8 -right-8 h-20 w-20 rounded-full bg-[#FD2E8A]/5 dark:bg-[#FD2E8A]/10 blur-2xl" />
   </motion.div>
 );
 
@@ -274,12 +274,12 @@ const ErrorCard = () => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5 }}
-    className="rounded-2xl border border-[#F8AFCB] bg-gradient-to-br from-white to-[#FFF5F5] p-6 text-center shadow-sm"
+    className="rounded-2xl border border-[#F8AFCB] dark:border-red-900/50 bg-gradient-to-br from-white to-[#FFF5F5] dark:from-[#1a1a1a] dark:to-[#2a1a1a] p-6 text-center shadow-sm dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)]"
   >
     <div className="flex flex-col items-center gap-2.5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#B91C1C]/10">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#B91C1C]/10 dark:bg-red-900/30">
         <svg
-          className="h-5 w-5 text-[#B91C1C]"
+          className="h-5 w-5 text-[#B91C1C] dark:text-red-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -292,7 +292,7 @@ const ErrorCard = () => (
           />
         </svg>
       </div>
-      <p className="text-[13px] font-medium text-[#B91C1C]">
+      <p className="text-[13px] font-medium text-[#B91C1C] dark:text-red-400">
         Impossible de charger les données. Réessayez plus tard.
       </p>
     </div>
@@ -354,7 +354,7 @@ export default function LabsPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] pb-10">
+    <div className="min-h-screen bg-[#F7F8FA] dark:bg-[#0a0a0a] pb-10">
       <div className="px-5 py-6 max-md:px-[20px] max-md:pt-4">
         <motion.header
           initial={{ opacity: 0, y: -10 }}
@@ -366,10 +366,10 @@ export default function LabsPage() {
             <Sparkles className="h-3 w-3" />
             Programme Labs
           </span>
-          <h1 className="text-2xl font-semibold leading-tight text-[#191919] max-md:text-xl">
+          <h1 className="text-2xl font-semibold leading-tight text-[#191919] dark:text-white max-md:text-xl">
             Fonctions Alpha en avant-première
           </h1>
-          <p className="max-w-2xl text-[12px] leading-relaxed text-[#5F6676]">
+          <p className="max-w-2xl text-[12px] leading-relaxed text-[#5F6676] dark:text-gray-400">
             Expérimentez nos prototypes et partagez vos retours.
           </p>
         </motion.header>

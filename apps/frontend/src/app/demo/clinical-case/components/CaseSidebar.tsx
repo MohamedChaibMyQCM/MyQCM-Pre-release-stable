@@ -35,19 +35,10 @@ const SidebarSection = ({
   children: ReactNode;
 }) => (
   <section
-    className="rounded-2xl border p-4 max-md:p-3"
-    style={{
-      background: "rgba(255, 255, 255, 0.92)",
-      borderColor: "rgba(248, 88, 159, 0.12)",
-    }}
+    className="rounded-2xl border border-[#F8589F]/12 dark:border-[#F8589F]/20 bg-white/92 dark:bg-[#2a2a2a]/60 p-4 max-md:p-3"
   >
     <div
-      className="mb-2 inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] max-md:text-[9px] max-md:px-2 max-md:py-0.5"
-      style={{
-        color: COLORS.primaryDark,
-        background: "rgba(248, 88, 159, 0.12)",
-        border: "1px solid rgba(248, 88, 159, 0.18)",
-      }}
+      className="mb-2 inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] max-md:text-[9px] max-md:px-2 max-md:py-0.5 text-[#7A1D4A] dark:text-[#F8589F] bg-[#F8589F]/12 dark:bg-[#F8589F]/20 border border-[#F8589F]/18 dark:border-[#F8589F]/30"
     >
       {Icon ? <Icon className="h-3.5 w-3.5 max-md:h-3 max-md:w-3" style={{ color: COLORS.primary }} /> : null}
       {title}
@@ -69,22 +60,18 @@ export const CaseSidebar = ({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-[20px] border px-6 py-6 max-md:px-4 max-md:py-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
+        className="rounded-[20px] border border-[#F0E4EC] dark:border-gray-700 bg-white dark:bg-[#1a1a1a] px-6 py-6 max-md:px-4 max-md:py-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
         style={{
-          background: "#FFFFFF",
-          borderColor: "#F0E4EC",
           scrollbarGutter: "stable",
         }}
       >
         <div
-          className="text-[10px] font-semibold uppercase tracking-[0.24em] max-md:text-[9px]"
-          style={{ color: COLORS.primaryDark }}
+          className="text-[10px] font-semibold uppercase tracking-[0.24em] max-md:text-[9px] text-[#7A1D4A] dark:text-[#F8589F]"
         >
           Rappel du cas
         </div>
         <h2
-          className="mt-2 text-[18px] font-semibold leading-snug md:text-[20px] max-md:text-[16px]"
-          style={{ color: COLORS.text }}
+          className="mt-2 text-[18px] font-semibold leading-snug md:text-[20px] max-md:text-[16px] text-[#191919] dark:text-white"
         >
           {title}
         </h2>
@@ -102,7 +89,7 @@ export const CaseSidebar = ({
 
         <div className="mt-5 grid gap-4 max-md:mt-4 max-md:gap-3">
           <SidebarSection title="Scenario" icon={BookOpenText}>
-            <p className="text-[13px] leading-relaxed text-[#5F6676] max-md:text-[12px]">
+            <p className="text-[13px] leading-relaxed text-[#5F6676] dark:text-gray-400 max-md:text-[12px]">
               {scenario}
             </p>
           </SidebarSection>
@@ -110,7 +97,7 @@ export const CaseSidebar = ({
           {objectives.length > 0 ? (
             <SidebarSection title="Objectifs" icon={Bookmark}>
               <ul
-                className="space-y-1.5 text-[13px] leading-relaxed text-[#5F6676] max-md:text-[12px] max-md:space-y-1"
+                className="space-y-1.5 text-[13px] leading-relaxed text-[#5F6676] dark:text-gray-400 max-md:text-[12px] max-md:space-y-1"
               >
                 {objectives.map((objective) => (
                   <li key={objective} className="ml-5 list-disc">

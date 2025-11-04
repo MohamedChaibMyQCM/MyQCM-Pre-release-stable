@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import background_profile from "../../../../public/settings/background_profile.avif";
 import edit from "../../../../public/settings/edit.svg";
+import backgroundProfile from "../../../../public/settings/background_profile.avif";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
@@ -91,9 +91,13 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
   return (
     <div className="relative bg-[#FFFFFF] box rounded-[16px] my-8 overflow-hidden">
       <Image
-        src={background_profile}
+        src={backgroundProfile}
         alt="arrière-plan du profil"
-        className="absolute w-full top-[0px] max-md:top-[0px]"
+        fill
+        priority
+        sizes="100vw"
+        placeholder="blur"
+        className="object-cover"
       />
       <div className="relative h-[140px] max-md:h-[110px] mt-2">
         <div className="absolute bottom-0 left-0 px-6 pb- w-full z-10 bg-gradient-to-t from-white via-white/80 to-transparent">

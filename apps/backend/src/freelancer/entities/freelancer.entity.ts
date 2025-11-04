@@ -10,7 +10,6 @@ import {
   OneToMany,
   OneToOne,
 } from "typeorm";
-import * as bcrypt from "bcrypt";
 import { Mcq } from "src/mcq/entities/mcq.entity";
 import { Wallet } from "src/wallet/entities/wallet.entity";
 import { Transaction } from "src/transaction/entities/transaction.entity";

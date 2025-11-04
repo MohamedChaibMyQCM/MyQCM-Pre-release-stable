@@ -12,7 +12,6 @@ import {
   SigninFreelancerByCodeDto,
   SigninFreelancerDto,
 } from "./dto/signin-freelancer.dto";
-import { compare as comparePassword } from "bcrypt";
 import { UpdateFreelancerPasswordDto } from "./dto/update-Freelancer-Password.dto";
 import { UpdateFreelancerEmailDto } from "./dto/update-freelancer-email.dto";
 import { WalletService } from "src/wallet/wallet.service";
@@ -172,7 +171,7 @@ export class FreelancerService {
   ) {
     const freelancer = await this.findFreelancerWithPassword(freelancerId);
     if (!freelancer) throw new UnauthorizedException("Freelancer not Found");
-    const old_password_valid = await comparePassword(
+    const old_password_valid = await verifyHash(
       updateFreelancerPasswordDto.old_password,
       freelancer.password,
     );
@@ -200,7 +199,7 @@ export class FreelancerService {
     if (freelancer.email == updateFreelancerEmailDto.new_email)
       throw new ConflictException("This is your current email");
 
-    const password_valid = await comparePassword(
+    const password_valid = await verifyHash(
       updateFreelancerEmailDto.password,
       freelancer.password,
     );

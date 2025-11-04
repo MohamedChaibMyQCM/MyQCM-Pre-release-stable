@@ -1,4 +1,33 @@
-import * as bcrypt from "bcrypt";
+import { promisify } from "util";
+
+type BcryptModule = Pick<
+  typeof import("bcryptjs"),
+  "compare" | "genSalt" | "hash"
+>;
+
+function loadBcrypt(): BcryptModule {
+  const candidates = ["bcryptjs", "bcrypt"];
+
+  for (const moduleName of candidates) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+      return require(moduleName) as BcryptModule;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "MODULE_NOT_FOUND") {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error(
+    "Unable to load a bcrypt implementation. Install 'bcryptjs' or 'bcrypt'.",
+  );
+}
+
+const bcryptModule = loadBcrypt();
+const genSaltAsync = promisify(bcryptModule.genSalt);
+const hashAsync = promisify(bcryptModule.hash);
+const compareAsync = promisify(bcryptModule.compare);
 
 /**
  * Hashes a given content securely using bcrypt.
@@ -12,8 +41,8 @@ export async function hashString(
 ): Promise<string> {
   if (!content) throw new Error("Content must not be empty");
 
-  const salt = await bcrypt.genSalt(saltRounds);
-  return bcrypt.hash(content, salt);
+  const salt = await genSaltAsync(saltRounds);
+  return hashAsync(content, salt);
 }
 
 /**
@@ -29,5 +58,5 @@ export async function verifyHash(
   if (!plainText || !hashedString)
     throw new Error("Both plainText and hashedString are required");
 
-  return bcrypt.compare(plainText, hashedString);
+  return compareAsync(plainText, hashedString);
 }

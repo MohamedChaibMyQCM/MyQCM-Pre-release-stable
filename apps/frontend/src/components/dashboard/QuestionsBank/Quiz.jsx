@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import solver from "../../../../public/Quiz/solver.svg";
 import { Input } from "@/components/ui/input";
@@ -146,8 +146,7 @@ const Quiz = ({
     useFeedbackSurvey(remainingQrocs);
 
   // Sound effects hook
-  const { playTransition, playTimerWarning, playSelect, playSkip } =
-    useQuizSounds();
+  const sounds = useQuizSounds();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -199,8 +198,6 @@ const Quiz = ({
     },
   });
 
-  const { setFieldValue } = formik;
-
   // Debug effect
   useEffect(() => {
     console.log("Quiz component - activeSurvey changed:", activeSurvey);
@@ -210,42 +207,29 @@ const Quiz = ({
     console.log("Quiz component - remainingQrocs changed:", remainingQrocs);
   }, [remainingQrocs]);
 
-  const prevQuestionMetaRef = useRef({ id: null, estimatedTime: null });
-
   useEffect(() => {
-    const currentQuestionId = questionData?.id;
-    if (!currentQuestionId) {
-      return;
-    }
-
-    const nextEstimatedTime = questionData?.estimated_time || 0;
-    const prevMeta = prevQuestionMetaRef.current;
-
-    if (
-      prevMeta.id === currentQuestionId &&
-      prevMeta.estimatedTime === nextEstimatedTime
-    ) {
-      return;
-    }
-
-    prevQuestionMetaRef.current = {
-      id: currentQuestionId,
-      estimatedTime: nextEstimatedTime,
-    };
-
     isMounted.current = true;
     setCheckAnswer(true);
     setSeeExplanation(false);
     setSelectedOptions([]);
     setAnswer(null);
-    const newInitialTime = nextEstimatedTime;
+    const newInitialTime = questionData?.estimated_time || 0;
     setInitialTime(newInitialTime);
     setTimeRemaining(newInitialTime);
     setShowSkipPopup(false);
     setSkipInitiatedByTimeout(false);
 
     // Play transition sound for new question
-    playTransition();
+    sounds.playTransition();
+
+    formik.resetForm({
+      values: {
+        mcq: questionData?.id,
+        response_options: [],
+        response: "",
+        time_spent: 0,
+      },
+    });
 
     clearInterval(timerRef.current);
     timerRef.current = null;
@@ -254,7 +238,7 @@ const Quiz = ({
       isMounted.current = false;
       clearInterval(timerRef.current);
     };
-  }, [playTransition, questionData?.estimated_time, questionData?.id, setAnswer]);
+  }, [questionData, setAnswer, sounds]);
 
   // Track if warning sound has been played for each threshold
   const warningPlayedRef = useRef({ threshold25: false, threshold15: false });
@@ -263,24 +247,29 @@ const Quiz = ({
     clearInterval(timerRef.current);
     timerRef.current = null;
 
+    warningPlayedRef.current = { threshold25: false, threshold15: false };
+
     if (isMounted.current && checkAnswer && timeRemaining > 0) {
       timerRef.current = setInterval(() => {
         if (isMounted.current) {
           setTimeRemaining((prevTime) => {
-            // Play warning sound at 25% and 15% time remaining
             const warningThreshold1 = Math.floor(initialTime * 0.25);
             const warningThreshold2 = Math.floor(initialTime * 0.15);
 
-            // Play warning at 25% if not already played
-            if (prevTime === warningThreshold1 && !warningPlayedRef.current.threshold25) {
-              playTimerWarning();
+            if (
+              prevTime === warningThreshold1 &&
+              !warningPlayedRef.current.threshold25
+            ) {
+              sounds.playTimerWarning();
               warningPlayedRef.current.threshold25 = true;
               console.log("Playing 25% warning at", prevTime, "seconds");
             }
 
-            // Play warning at 15% if not already played
-            if (prevTime === warningThreshold2 && !warningPlayedRef.current.threshold15) {
-              playTimerWarning();
+            if (
+              prevTime === warningThreshold2 &&
+              !warningPlayedRef.current.threshold15
+            ) {
+              sounds.playTimerWarning();
               warningPlayedRef.current.threshold15 = true;
               console.log("Playing 15% warning at", prevTime, "seconds");
             }
@@ -310,43 +299,39 @@ const Quiz = ({
       clearInterval(timerRef.current);
       timerRef.current = null;
     };
-  }, [checkAnswer, initialTime, playTimerWarning, questionData?.id, timeRemaining]);
+  }, [checkAnswer, timeRemaining, initialTime, sounds, questionData]);
 
   useEffect(() => {
     warningPlayedRef.current = { threshold25: false, threshold15: false };
   }, [questionData?.id, initialTime]);
 
-  const handleOptionClick = useCallback(
-    (option) => {
-      if (!checkAnswer) return;
+  const handleOptionClick = (option) => {
+    if (!checkAnswer) return;
 
-      // Play select sound
-      console.log("Playing select sound");
-      playSelect();
+    console.log("Playing select sound");
+    sounds.playSelect();
 
-      setSelectedOptions((prevSelected) => {
-        if (questionData?.type === "qcs") {
-          return [{ option: option.id }];
-        }
-        const isAlreadySelected = prevSelected.some(
-          (selectedOption) => selectedOption.option === option.id,
+    setSelectedOptions((prevSelected) => {
+      if (questionData?.type === "qcs") {
+        return [{ option: option.id }];
+      }
+      const isAlreadySelected = prevSelected.some(
+        (selectedOption) => selectedOption.option === option.id,
+      );
+      if (isAlreadySelected) {
+        return prevSelected.filter(
+          (selectedOption) => selectedOption.option !== option.id,
         );
-        if (isAlreadySelected) {
-          return prevSelected.filter(
-            (selectedOption) => selectedOption.option !== option.id,
-          );
-        }
-        return [...prevSelected, { option: option.id }];
-      });
-    },
-    [checkAnswer, playSelect, questionData],
-  );
+      }
+      return [...prevSelected, { option: option.id }];
+    });
+  };
 
   useEffect(() => {
     if (questionData?.type === "qcm" || questionData?.type === "qcs") {
-      setFieldValue("response_options", selectedOptions);
+      formik.setFieldValue("response_options", selectedOptions);
     }
-  }, [questionData?.type, selectedOptions, setFieldValue]);
+  }, [questionData?.type, selectedOptions, formik]);
 
   const getBackgroundColor = (ratio) => {
     if (answer != null && ratio !== undefined && ratio !== null) {
@@ -359,11 +344,11 @@ const Quiz = ({
     }
   };
 
-  const triggerSkipPopup = useCallback(() => {
+  const triggerSkipPopup = () => {
     if (!checkAnswer || isSubmitting || isLoadingNextMcq) return;
     setSkipInitiatedByTimeout(false);
     setShowSkipPopup(true);
-  }, [checkAnswer, isLoadingNextMcq, isSubmitting]);
+  };
 
   const handleConfirmSkip = async () => {
     if (!isMounted.current) return;
@@ -373,12 +358,7 @@ const Quiz = ({
 
     // Play skip sound
     console.log("Playing skip sound");
-    playSkip();
-
-    if (isFinalQuestion) {
-      handleSessionCompletion();
-      return;
-    }
+    sounds.playSkip();
 
     try {
       setIsSkipping(true);
@@ -397,6 +377,11 @@ const Quiz = ({
       // When skipping, we don't need to send response options or response
       // as the backend handles this specially for skipped questions
       await Progress(skipPayload);
+
+      if (isFinalQuestion) {
+        await handleSessionCompletion();
+        return;
+      }
 
       fetchNextMcq();
     } catch (error) {
@@ -420,7 +405,7 @@ const Quiz = ({
     }
   };
 
-  const handleSeeExplanationOrNext = useCallback(() => {
+  const handleSeeExplanationOrNext = () => {
     const canSeeExplanation = ["qcm", "qcs", "qroc"].includes(
       questionData?.type,
     );
@@ -433,13 +418,13 @@ const Quiz = ({
       return;
     }
     handleSessionCompletion();
-  }, [fetchNextMcq, handleSessionCompletion, isFinalQuestion, questionData]);
+  };
 
   const handleNextFromExplanation = () => {
     setSeeExplanation(false);
 
     // Play transition sound
-    playTransition();
+    sounds.playTransition();
 
     if (!isFinalQuestion) {
       fetchNextMcq();
@@ -450,15 +435,22 @@ const Quiz = ({
 
   const multiChoiceQuestion = questionData?.type === "qcm";
   const correctOptionIds = useMemo(() => {
-    if (!questionData?.options?.length) {
+    const evaluatedOptions = Array.isArray(answer?.options)
+      ? answer.options
+      : Array.isArray(questionData?.options)
+        ? questionData.options
+        : [];
+
+    if (evaluatedOptions.length === 0) {
       return new Set();
     }
+
     return new Set(
-      questionData.options
+      evaluatedOptions
         .filter((option) => option?.is_correct)
         .map((option) => option.id),
     );
-  }, [questionData]);
+  }, [answer, questionData]);
 
   const getOptionStyling = (optionId) => {
     let classes = "border-border text-foreground bg-card";

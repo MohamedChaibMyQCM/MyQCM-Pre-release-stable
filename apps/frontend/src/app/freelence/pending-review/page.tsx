@@ -58,7 +58,8 @@ export default function PendingReviewPage() {
       setLoading(true);
       const query = new URLSearchParams({
         approval_status: "pending",
-        offset: "200",
+        limit: "200",
+        offset: "0",
       });
 
       const response = await apiFetch<any>(`/mcq/freelancer?${query.toString()}`);

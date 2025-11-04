@@ -1,43 +1,17 @@
 "use client";
 
-import { useState, type CSSProperties, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   apiFetch,
   setAccessToken,
   setRefreshToken,
   UnauthorizedError,
 } from "@/app/lib/api";
-
-const wrapperStyle: CSSProperties = {
-  maxWidth: 420,
-  margin: "4rem auto",
-  display: "grid",
-  gap: "1.5rem",
-  fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-};
-
-const headerStyle: CSSProperties = {
-  display: "grid",
-  gap: "0.5rem",
-};
-
-const inputStyle: CSSProperties = {
-  padding: "0.5rem",
-  border: "1px solid #d1d5db",
-  borderRadius: 4,
-  fontSize: "1rem",
-};
-
-const buttonStyle: CSSProperties = {
-  padding: "0.75rem 1rem",
-  borderRadius: 4,
-  border: "none",
-  backgroundColor: "#111827",
-  color: "#ffffff",
-  fontSize: "1rem",
-  cursor: "pointer",
-};
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { FileText, Mail, Lock } from "lucide-react";
 
 type SigninResponse = {
   token?: { accessToken?: string; refreshToken?: string };
@@ -48,6 +22,7 @@ export default function FreelancerLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +48,9 @@ export default function FreelancerLoginPage() {
 
       setAccessToken(accessToken);
       setRefreshToken(response?.token?.refreshToken ?? null);
-      router.push("/generation/new");
+
+      // Redirect to dashboard instead of generation/new
+      router.push("/freelence/dashboard");
     } catch (err) {
       if (err instanceof UnauthorizedError) {
         setError("Invalid credentials. Please try again.");
@@ -88,59 +65,175 @@ export default function FreelancerLoginPage() {
   };
 
   return (
-    <main style={wrapperStyle} suppressHydrationWarning>
-      <header style={headerStyle}>
-        <h1 style={{ fontSize: "2rem", margin: 0 }}>Freelancer Login</h1>
-        <p style={{ color: "#6b7280", margin: 0 }}>
-          Sign in with your freelancer credentials to manage generation
-          requests.
-        </p>
-      </header>
+    <div className="min-h-screen bg-background">
+      <div className="flex min-h-screen">
+        {/* Left side - Login form */}
+        <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
+          <div className="mx-auto w-full max-w-sm">
+            {/* Logo */}
+            <Link href="/" className="mb-8 flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <FileText className="h-6 w-6" />
+              </div>
+              <span className="text-2xl font-bold">MyQCM</span>
+            </Link>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "grid", gap: "1rem" }}
-        noValidate
-        suppressHydrationWarning
-      >
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          <span>Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            autoComplete="email"
-            style={inputStyle}
-            placeholder="freelancer@example.com"
-            suppressHydrationWarning
-          />
-        </label>
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold tracking-tight">
+                Welcome back
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                Sign in to your freelancer account
+              </p>
+            </div>
 
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          <span>Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            autoComplete="current-password"
-            style={inputStyle}
-            placeholder="Your secure password"
-            suppressHydrationWarning
-          />
-        </label>
+            {/* Error message */}
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-        <button type="submit" style={buttonStyle} disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
+            {/* Login form */}
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    placeholder="freelancer@example.com"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
 
-      {error && (
-        <p style={{ color: "#b91c1c", margin: 0 }} role="alert">
-          {error}
-        </p>
-      )}
-    </main>
+              <div className="space-y-2">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="remember"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    disabled={loading}
+                  />
+                  <label
+                    htmlFor="remember"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Remember me
+                  </label>
+                </div>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Right side - Illustration/Branding */}
+        <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:bg-muted lg:p-12">
+          <div className="mx-auto max-w-md">
+            <h2 className="mb-4 text-3xl font-bold">
+              Create high-quality medical questions
+            </h2>
+            <p className="mb-8 text-lg text-muted-foreground">
+              Join our network of freelancers helping medical students succeed
+              through expertly crafted MCQs and clinical cases.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  ✓
+                </div>
+                <div>
+                  <h3 className="font-semibold">Flexible Work</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Work on your own schedule, from anywhere
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  ✓
+                </div>
+                <div>
+                  <h3 className="font-semibold">Competitive Pay</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Earn for every approved question and case
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  ✓
+                </div>
+                <div>
+                  <h3 className="font-semibold">AI-Assisted</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Leverage AI tools to speed up your workflow
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

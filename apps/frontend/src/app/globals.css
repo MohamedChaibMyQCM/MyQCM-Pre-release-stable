@@ -45,6 +45,27 @@ body {
     --scrollbar-track: 0 0% 100%;
     --scrollbar-thumb: 333 90% 66%;
     --scrollbar-thumb-custom: 0 0% 52%;
+
+    /* Freelancer Dashboard Extended Colors */
+    --success: 142 71% 45%; /* #22c55e */
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 96%; /* #f0fdf4 */
+
+    --warning: 38 92% 50%; /* #f59e0b */
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 48 100% 96%; /* #fffbeb */
+
+    --info: 217 91% 60%; /* #3b82f6 */
+    --info-foreground: 0 0% 100%;
+    --info-light: 214 100% 97%; /* #eff6ff */
+
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 89%;
+
+    --header: 0 0% 100%;
+    --header-foreground: 0 0% 10%;
+    --header-border: 0 0% 89%;
   }
 
   .dark {
@@ -81,6 +102,27 @@ body {
     --scrollbar-track: 0 0% 9%;
     --scrollbar-thumb: 333 90% 66%;
     --scrollbar-thumb-custom: 0 0% 40%;
+
+    /* Freelancer Dashboard Extended Colors */
+    --success: 142 71% 45%; /* #22c55e */
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 16%; /* darker green */
+
+    --warning: 38 92% 50%; /* #f59e0b */
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 48 100% 16%; /* darker yellow */
+
+    --info: 217 91% 60%; /* #3b82f6 */
+    --info-foreground: 0 0% 100%;
+    --info-light: 214 100% 17%; /* darker blue */
+
+    --sidebar: 0 0% 9%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
+
+    --header: 0 0% 9%;
+    --header-foreground: 0 0% 90%;
+    --header-border: 0 0% 15%;
   }
 }
 

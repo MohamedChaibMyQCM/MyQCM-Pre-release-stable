@@ -112,64 +112,11 @@ export default function QROCManualCreatePage() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      const requestPayload = {
-        university_id: courseContext.university,
-        faculty_id: courseContext.faculty,
-        year_of_study: courseContext.year,
-        unit_id: courseContext.unit,
-        subject_id: courseContext.subject,
-        course_id: courseContext.course,
-        difficulty: metadata.difficulty,
-        content_types: ["qroc"],
-        requested_mcq_count: 0,
-        requested_qroc_count: 1,
-      };
-
-      const createResponse = await apiFetch<any>("/generation/requests", {
-        method: "POST",
-        body: requestPayload,
-      });
-
-      const requestId =
-        createResponse?.data?.id ||
-        createResponse?.id ||
-        createResponse?.data?.request?.id;
-
-      if (!requestId) {
-        throw new Error("Failed to create request");
-      }
-
-      const qrocPayload = {
-        type: "qroc",
-        question: qrocData.question,
-        answer: qrocData.answer,
-        difficulty: metadata.difficulty,
-        quiz_type: metadata.quiz_type,
-        mcq_tags: metadata.mcq_tags,
-        estimated_time: metadata.estimated_time,
-        explanation: metadata.explanation || undefined,
-      };
-
-      await apiFetch(`/generation/requests/${requestId}/items`, {
-        method: "POST",
-        body: qrocPayload,
-      });
-
-      toast.success("QROC created successfully!");
-      router.push(`/generation/${requestId}`);
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        redirectToLogin();
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Failed to create QROC");
-      toast.error("Failed to create QROC");
-    } finally {
-      setLoading(false);
-    }
+    // Feature is disabled - backend endpoint doesn't exist yet
+    setError(
+      "⚠️ Manual QROC creation is currently unavailable. This feature requires a backend endpoint (POST /generation/requests/:id/items) that hasn't been implemented yet. Please use AI Generation or Upload Spreadsheet instead."
+    );
+    toast.error("Feature not available - missing backend support");
   };
 
   React.useEffect(() => {

@@ -17,6 +17,9 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
+  Upload,
+  Stethoscope,
 } from "lucide-react";
 import { apiFetch, UnauthorizedError, redirectToLogin, getAccessToken } from "@/app/lib/api";
 import { formatRelativeTime } from "@/lib/utils";
@@ -59,7 +62,6 @@ export default function FreelancerDashboard() {
       try {
         setLoading(true);
 
-        // Load generation requests
         const requestsResponse = await apiFetch<any>("/generation/requests");
         const requests = Array.isArray(requestsResponse?.data)
           ? requestsResponse.data
@@ -67,18 +69,16 @@ export default function FreelancerDashboard() {
           ? requestsResponse
           : [];
 
-        // Calculate stats
         const activeRequests = requests.filter(
           (r: any) => r.status !== "completed"
         ).length;
 
-        // Set recent activity
         setRecentActivity(requests.slice(0, 5));
         setStats({
           activeRequests,
-          pendingReview: 0, // TODO: Load from API
-          approvedToday: 0, // TODO: Load from API
-          totalEarnings: 1234, // TODO: Load from wallet API
+          pendingReview: 0,
+          approvedToday: 0,
+          totalEarnings: 1234,
         });
       } catch (error) {
         if (error instanceof UnauthorizedError) {
@@ -130,13 +130,18 @@ export default function FreelancerDashboard() {
 
   return (
     <FreelancerLayout>
-      <div className="space-y-6">
-        {/* Page header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here's an overview of your work.
-          </p>
+      <div className="space-y-8">
+        {/* Page header with gradient */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 backdrop-blur-sm">
+          <div className="relative z-10">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Welcome Back!
+            </h1>
+            <p className="mt-2 text-lg text-muted-foreground">
+              Here's an overview of your creative work
+            </p>
+          </div>
+          <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-primary/5 to-transparent" />
         </div>
 
         {/* Stats grid */}
@@ -168,135 +173,139 @@ export default function FreelancerDashboard() {
           />
         </div>
 
-        {/* Question Type Cards */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* MCQ Card */}
-          <div className="rounded-lg border bg-card p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">MCQs</h3>
-                <p className="text-sm text-muted-foreground">Multiple Choice Questions</p>
+        {/* Question Type Cards - Beautiful Gradient Cards */}
+        <div>
+          <h2 className="mb-6 text-2xl font-semibold">Create Questions</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* MCQ Card - Blue Gradient */}
+            <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent p-6 shadow-lg shadow-blue-500/5 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/20 to-transparent blur-3xl" />
+              <div className="relative z-10">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
+                    <FileText className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">MCQs</h3>
+                    <p className="text-sm text-muted-foreground">Multiple Choice</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Link
+                    href="/generation/mcq/new"
+                    className="group/btn flex items-center justify-between rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      AI Generation
+                    </span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                  <Link
+                    href="/freelence/pending-review"
+                    className="flex items-center justify-between rounded-xl border border-blue-200 bg-white/50 px-5 py-3 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:bg-white/80 hover:border-blue-300 hover:shadow-md"
+                  >
+                    <span>Review Pending</span>
+                    <Badge variant="warning" className="ml-auto">{stats.pendingReview}</Badge>
+                  </Link>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Link
-                href="/generation/mcq/new"
-                className="flex items-center justify-between rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                <span>AI Generation</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              {/* TODO: Requires backend POST /generation/requests/:id/items endpoint
-              <Link
-                href="/generation/mcq/create"
-                className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                <span>Manual Creation</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              */}
-              <Link
-                href="/freelence/pending-review"
-                className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                <span>Review Pending</span>
-                <Badge variant="warning">{stats.pendingReview}</Badge>
-              </Link>
-            </div>
-          </div>
 
-          {/* QROC Card */}
-          <div className="rounded-lg border bg-card p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-info/10">
-                <ClipboardCheck className="h-6 w-6 text-info" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">QROCs</h3>
-                <p className="text-sm text-muted-foreground">Short Answer Questions</p>
+            {/* QROC Card - Cyan Gradient */}
+            <div className="group relative overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-transparent p-6 shadow-lg shadow-cyan-500/5 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1">
+              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-transparent blur-3xl" />
+              <div className="relative z-10">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg shadow-cyan-500/30">
+                    <ClipboardCheck className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">QROCs</h3>
+                    <p className="text-sm text-muted-foreground">Short Answer</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Link
+                    href="/generation/qroc/new"
+                    className="group/btn flex items-center justify-between rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/40 hover:scale-105"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      AI Generation
+                    </span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Link
-                href="/generation/qroc/new"
-                className="flex items-center justify-between rounded-md bg-info px-4 py-2 text-sm font-medium text-info-foreground transition-colors hover:bg-info/90"
-              >
-                <span>AI Generation</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              {/* TODO: Requires backend POST /generation/requests/:id/items endpoint
-              <Link
-                href="/generation/qroc/create"
-                className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                <span>Manual Creation</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              */}
-            </div>
-          </div>
 
-          {/* Clinical Cases Card */}
-          <div className="rounded-lg border bg-card p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
-                <FileText className="h-6 w-6 text-success" />
+            {/* Clinical Cases Card - Green Gradient */}
+            <div className="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-6 shadow-lg shadow-emerald-500/5 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-emerald-500/20 to-transparent blur-3xl" />
+              <div className="relative z-10">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/30">
+                    <Stethoscope className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Clinical Cases</h3>
+                    <p className="text-sm text-muted-foreground">Case Studies</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Link
+                    href="/generation/clinical-case/new"
+                    className="group/btn flex items-center justify-between rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/40 hover:scale-105"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      Create New Case
+                    </span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">Clinical Cases</h3>
-                <p className="text-sm text-muted-foreground">Complex Case Studies</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Link
-                href="/generation/clinical-case/new"
-                className="flex items-center justify-between rounded-md bg-success px-4 py-2 text-sm font-medium text-success-foreground transition-colors hover:bg-success/90"
-              >
-                <span>Create New Case</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
           </div>
         </div>
 
-        {/* Upload Spreadsheet */}
-        <div className="rounded-lg border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning/10">
-                <FileText className="h-6 w-6 text-warning" />
+        {/* Upload Spreadsheet - Beautiful Banner */}
+        <div className="group relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent p-8 shadow-lg shadow-amber-500/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10">
+          <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-amber-500/10 to-transparent" />
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30">
+                <Upload className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Batch Upload</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-2xl font-bold">Batch Upload</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
                   Import multiple MCQs or QROCs from a spreadsheet
                 </p>
               </div>
             </div>
             <Link
               href="/generation/upload"
-              className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+              className="group/btn inline-flex items-center gap-3 rounded-xl border-2 border-amber-500/30 bg-white/80 px-6 py-3 font-medium backdrop-blur-sm transition-all duration-300 hover:border-amber-500/50 hover:bg-white hover:shadow-lg hover:scale-105"
             >
               <span>Upload Spreadsheet</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-5 w-5 transition-transform group-hover/btn:translate-x-1" />
             </Link>
           </div>
         </div>
 
         {/* Recent activity */}
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-2xl border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b p-6">
             <div>
-              <h2 className="text-lg font-semibold">Recent Activity</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="text-2xl font-semibold">Recent Activity</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Your latest generation requests
               </p>
             </div>
             <Link
-              href="/generation/new"
+              href="/generation/newlegacypage"
               className="text-sm font-medium text-primary hover:underline"
             >
               View all
@@ -310,8 +319,8 @@ export default function FreelancerDashboard() {
               description="Create your first generation request to get started"
               action={
                 <Link
-                  href="/generation/new"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  href="/generation/mcq/new"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/40 hover:scale-105"
                 >
                   <Plus className="h-4 w-4" />
                   Create Request
@@ -325,20 +334,22 @@ export default function FreelancerDashboard() {
                 <Link
                   key={request.id}
                   href={`/generation/${request.id}`}
-                  className="flex items-center justify-between p-6 transition-colors hover:bg-muted"
+                  className="group flex items-center justify-between p-6 transition-all duration-200 hover:bg-muted/50"
                 >
                   <div className="flex items-start gap-4">
-                    {getStatusIcon(request.status)}
+                    <div className="rounded-lg bg-muted p-2 transition-colors group-hover:bg-primary/10">
+                      {getStatusIcon(request.status)}
+                    </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">
+                        <span className="font-medium group-hover:text-primary transition-colors">
                           {request.subject?.name || request.course?.name || "Generation Request"}
                         </span>
                         <Badge variant={getStatusVariant(request.status)}>
                           {request.status.replace(/_/g, " ")}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {request.requested_mcq_count || 0} MCQs
                         {request.requested_qroc_count
                           ? `, ${request.requested_qroc_count} QROCs`
@@ -348,7 +359,7 @@ export default function FreelancerDashboard() {
                       </p>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
                 </Link>
               ))}
             </div>

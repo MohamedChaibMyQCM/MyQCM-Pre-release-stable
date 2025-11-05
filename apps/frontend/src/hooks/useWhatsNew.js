@@ -2,9 +2,11 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import secureLocalStorage from "react-secure-storage";
 import { useOnboardingV2 } from "../context/OnboardingV2Context";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+// Use the same base URL as the rest of the app (backend is on port 3001, no /api prefix)
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -18,7 +20,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+      const token = secureLocalStorage.getItem("token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -68,6 +70,10 @@ export function useWhatsNew() {
       contextMarkSeen(featureId);
       queryClient.invalidateQueries(["whatsNew"]);
     },
+    onError: (error) => {
+      console.error("Failed to mark feature as seen:", error);
+      // Silently fail - this is not critical for UX
+    },
   });
 
   // Mark feature as tried
@@ -80,6 +86,10 @@ export function useWhatsNew() {
       contextMarkTried(featureId);
       queryClient.invalidateQueries(["whatsNew"]);
     },
+    onError: (error) => {
+      console.error("Failed to mark feature as tried:", error);
+      // Silently fail - this is not critical for UX
+    },
   });
 
   // Dismiss feature
@@ -91,6 +101,10 @@ export function useWhatsNew() {
     onSuccess: (featureId) => {
       contextDismiss(featureId);
       queryClient.invalidateQueries(["whatsNew"]);
+    },
+    onError: (error) => {
+      console.error("Failed to dismiss feature:", error);
+      // Silently fail - this is not critical for UX
     },
   });
 

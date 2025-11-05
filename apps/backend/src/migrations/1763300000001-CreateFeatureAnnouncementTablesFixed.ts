@@ -252,21 +252,6 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
           default: "CURRENT_TIMESTAMP",
         },
         {
-          name: "has_seen",
-          type: "boolean",
-          default: false,
-        },
-        {
-          name: "has_tried",
-          type: "boolean",
-          default: false,
-        },
-        {
-          name: "has_dismissed",
-          type: "boolean",
-          default: false,
-        },
-        {
           name: "seen_at",
           type: "timestamp with time zone",
           isNullable: true,
@@ -282,12 +267,12 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
           isNullable: true,
         },
         {
-          name: "featureId",
+          name: "feature_id",
           type: "uuid",
           isNullable: false,
         },
         {
-          name: "userId",
+          name: "user_id",
           type: "uuid",
           isNullable: false,
         },
@@ -307,7 +292,7 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
         "feature_interactions",
         new TableIndex({
           name: "IDX_feature_interactions_user_feature",
-          columnNames: ["userId", "featureId"],
+          columnNames: ["user_id", "feature_id"],
           isUnique: true,
         })
       );
@@ -321,7 +306,7 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
         "feature_interactions",
         new TableIndex({
           name: "IDX_feature_interactions_user",
-          columnNames: ["userId"],
+          columnNames: ["user_id"],
         })
       );
     }
@@ -334,21 +319,21 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
         "feature_interactions",
         new TableIndex({
           name: "IDX_feature_interactions_feature",
-          columnNames: ["featureId"],
+          columnNames: ["feature_id"],
         })
       );
     }
 
     // Create foreign keys for feature_interactions
     const hasFeatureFk = interactionTable?.foreignKeys.some(
-      (fk) => fk.columnNames.includes("featureId")
+      (fk) => fk.columnNames.includes("feature_id")
     );
     if (!hasFeatureFk) {
       await queryRunner.createForeignKey(
         "feature_interactions",
         new TableForeignKey({
           name: "FK_feature_interactions_feature",
-          columnNames: ["featureId"],
+          columnNames: ["feature_id"],
           referencedColumnNames: ["id"],
           referencedTableName: "feature_announcements",
           onDelete: "CASCADE",
@@ -358,14 +343,14 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
     }
 
     const hasUserFk = interactionTable?.foreignKeys.some(
-      (fk) => fk.columnNames.includes("userId")
+      (fk) => fk.columnNames.includes("user_id")
     );
     if (!hasUserFk) {
       await queryRunner.createForeignKey(
         "feature_interactions",
         new TableForeignKey({
           name: "FK_feature_interactions_user",
-          columnNames: ["userId"],
+          columnNames: ["user_id"],
           referencedColumnNames: ["id"],
           referencedTableName: "user",
           onDelete: "CASCADE",

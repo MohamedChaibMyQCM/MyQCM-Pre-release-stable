@@ -18,6 +18,8 @@ const YEAR_OPTIONS = [
   "Seventh Year",
 ];
 
+const LARGE_PAGE_SIZE = "1000";
+
 export interface CourseContext {
   university: string;
   faculty: string;
@@ -32,6 +34,51 @@ interface CourseContextSelectorProps {
   onChange: (value: CourseContext) => void;
   className?: string;
 }
+
+// Helper functions matching the legacy wizard implementation
+const extractItems = (payload: any): any[] => {
+  if (!payload) return [];
+  if (Array.isArray(payload?.units)) return payload.units;
+  if (Array.isArray(payload?.data?.units)) return payload.data.units;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  if (Array.isArray(payload?.data?.rows)) return payload.data.rows;
+  if (Array.isArray(payload?.data?.results)) return payload.data.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (payload?.data?.data?.data && Array.isArray(payload.data.data.data)) {
+    return payload.data.data.data;
+  }
+  return [];
+};
+
+const mapOptions = (items: any[]): SelectOption[] =>
+  items
+    .map((item) => {
+      const rawId =
+        item?.id ??
+        item?.uuid ??
+        item?._id ??
+        item?.identifier ??
+        item?.key ??
+        "";
+      const id = typeof rawId === "string" ? rawId : String(rawId);
+      const name =
+        item?.name ??
+        item?.title ??
+        item?.label ??
+        item?.displayName ??
+        item?.desc ??
+        "Unnamed";
+      return {
+        id,
+        name,
+      };
+    })
+    .filter((option) => option.id);
+
+const unwrapResponse = <T,>(payload: any): T =>
+  (payload?.data ?? payload) as T;
 
 export function CourseContextSelector({
   value,
@@ -48,15 +95,9 @@ export function CourseContextSelector({
   React.useEffect(() => {
     const loadUniversities = async () => {
       try {
-        const response = await apiFetch<any>("/universities?limit=1000");
-        const data = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-          ? response
-          : [];
-        setUniversities(
-          data.map((u: any) => ({ id: u.id || u.uuid, name: u.name }))
-        );
+        const response = await apiFetch<any>("/university");
+        const items = mapOptions(extractItems(unwrapResponse(response)));
+        setUniversities(items);
       } catch (err) {
         console.error("Failed to load universities:", err);
       }
@@ -67,96 +108,107 @@ export function CourseContextSelector({
 
   // Load faculties when university changes
   React.useEffect(() => {
-    if (!value.university) return;
+    if (!value.university) {
+      setFaculties([]);
+      return;
+    }
 
     const loadFaculties = async () => {
       try {
         const response = await apiFetch<any>(
-          `/universities/${value.university}/faculties?limit=1000`
+          `/faculty?universityId=${encodeURIComponent(value.university)}`
         );
-        const data = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-          ? response
-          : [];
-        setFaculties(
-          data.map((f: any) => ({ id: f.id || f.uuid, name: f.name }))
-        );
+        const items = mapOptions(extractItems(unwrapResponse(response)));
+        setFaculties(items);
       } catch (err) {
         console.error("Failed to load faculties:", err);
+        setFaculties([]);
       }
     };
 
     loadFaculties();
   }, [value.university]);
 
-  // Load units when faculty and year are selected
+  // Load units when year is selected
   React.useEffect(() => {
-    if (!value.faculty || !value.year) return;
+    if (!value.year) {
+      setUnits([]);
+      return;
+    }
 
     const loadUnits = async () => {
       try {
-        const response = await apiFetch<any>(
-          `/faculties/${value.faculty}/units?year_of_study=${value.year}&limit=1000`
-        );
-        const data = Array.isArray(response?.units)
-          ? response.units
-          : Array.isArray(response?.data?.units)
-          ? response.data.units
-          : [];
-        setUnits(data.map((u: any) => ({ id: u.id || u.uuid, name: u.name })));
+        const params = new URLSearchParams();
+        params.set("year_of_study", value.year);
+        params.set("page", "1");
+        params.set("offset", LARGE_PAGE_SIZE);
+        const response = await apiFetch<any>(`/unit?${params.toString()}`);
+        const payload = unwrapResponse<any>(response);
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : extractItems(payload);
+        const items = mapOptions(data);
+        setUnits(items);
       } catch (err) {
         console.error("Failed to load units:", err);
+        setUnits([]);
       }
     };
 
     loadUnits();
-  }, [value.faculty, value.year]);
+  }, [value.year]);
 
   // Load subjects when unit is selected
   React.useEffect(() => {
-    if (!value.unit) return;
+    if (!value.unit) {
+      setSubjects([]);
+      return;
+    }
 
     const loadSubjects = async () => {
       try {
-        const response = await apiFetch<any>(
-          `/units/${value.unit}/subjects?limit=1000`
-        );
-        const data = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-          ? response
-          : [];
-        setSubjects(
-          data.map((s: any) => ({ id: s.id || s.uuid, name: s.name }))
-        );
+        const queries = new URLSearchParams();
+        queries.set("unit", value.unit);
+        if (value.year) {
+          queries.set("year_of_study", value.year);
+        }
+        queries.set("page", "1");
+        queries.set("offset", LARGE_PAGE_SIZE);
+        const response = await apiFetch<any>(`/subject?${queries.toString()}`);
+        const payload = unwrapResponse<any>(response);
+        const data = extractItems(payload);
+        const items = mapOptions(data);
+        setSubjects(items);
       } catch (err) {
         console.error("Failed to load subjects:", err);
+        setSubjects([]);
       }
     };
 
     loadSubjects();
-  }, [value.unit]);
+  }, [value.unit, value.year]);
 
   // Load courses when subject is selected
   React.useEffect(() => {
-    if (!value.subject) return;
+    if (!value.subject) {
+      setCourses([]);
+      return;
+    }
 
     const loadCourses = async () => {
       try {
-        const response = await apiFetch<any>(
-          `/subjects/${value.subject}/courses?limit=1000`
-        );
-        const data = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-          ? response
-          : [];
-        setCourses(
-          data.map((c: any) => ({ id: c.id || c.uuid, name: c.name }))
-        );
+        const params = new URLSearchParams();
+        params.set("subject", value.subject);
+        params.set("page", "1");
+        params.set("offset", LARGE_PAGE_SIZE);
+        const response = await apiFetch<any>(`/course?${params.toString()}`);
+        const payload = unwrapResponse<any>(response);
+        const data = extractItems(payload);
+        const items = mapOptions(data);
+        setCourses(items);
       } catch (err) {
         console.error("Failed to load courses:", err);
+        setCourses([]);
       }
     };
 

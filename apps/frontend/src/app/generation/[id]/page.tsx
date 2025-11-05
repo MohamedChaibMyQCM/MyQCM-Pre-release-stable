@@ -107,6 +107,14 @@ export default function GenerationRequestPage() {
     if (!requestId) {
       return;
     }
+
+    // Validate that requestId is a valid UUID to prevent invalid API calls
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(requestId)) {
+      setError("Invalid generation request ID. Please use a valid request URL.");
+      return;
+    }
+
     if (!getAccessToken()) {
       redirectToLogin();
       return;

@@ -17,8 +17,6 @@ import {
   X,
   Bell,
   User,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -33,33 +31,20 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: "MCQs",
+    name: "Requests",
+    href: "/generation/new",
     icon: FileText,
-    subItems: [
-      { name: "AI Generation", href: "/generation/mcq/new" },
-      // { name: "Manual Creation", href: "/generation/mcq/create" }, // TODO: Requires backend POST /generation/requests/:id/items endpoint
-      { name: "Review Pending", href: "/freelence/pending-review" },
-    ],
   },
   {
-    name: "QROCs",
+    name: "Pending Review",
+    href: "/freelence/pending-review",
     icon: ClipboardList,
-    subItems: [
-      { name: "AI Generation", href: "/generation/qroc/new" },
-      // { name: "Manual Creation", href: "/generation/qroc/create" }, // TODO: Requires backend POST /generation/requests/:id/items endpoint
-    ],
+    badge: 0, // Will be updated dynamically
   },
   {
     name: "Clinical Cases",
+    href: "/generation/clinical-case/new",
     icon: Stethoscope,
-    subItems: [
-      { name: "Create New", href: "/generation/clinical-case/new" },
-    ],
-  },
-  {
-    name: "Upload Spreadsheet",
-    href: "/generation/upload",
-    icon: FileText,
   },
   {
     name: "Earnings",
@@ -85,19 +70,6 @@ export function FreelancerLayout({ children }: FreelancerLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [expandedItems, setExpandedItems] = React.useState<Set<string>>(new Set());
-
-  const toggleExpanded = (name: string) => {
-    setExpandedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(name)) {
-        newSet.delete(name);
-      } else {
-        newSet.add(name);
-      }
-      return newSet;
-    });
-  };
 
   const handleLogout = () => {
     // Clear tokens
@@ -149,58 +121,8 @@ export function FreelancerLayout({ children }: FreelancerLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-            {navigation.map((item: any) => {
-              const hasSubItems = item.subItems && item.subItems.length > 0;
-              const isExpanded = expandedItems.has(item.name);
-              const isActive = item.href ? (pathname === item.href || pathname.startsWith(item.href + "/")) : false;
-              const hasActiveSubItem = hasSubItems && item.subItems.some((sub: any) => pathname === sub.href || pathname.startsWith(sub.href + "/"));
-
-              if (hasSubItems) {
-                return (
-                  <div key={item.name}>
-                    <button
-                      onClick={() => toggleExpanded(item.name)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        hasActiveSubItem
-                          ? "bg-primary/10 text-primary"
-                          : "text-sidebar-foreground hover:bg-muted"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span className="flex-1 text-left">{item.name}</span>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                    {isExpanded && (
-                      <div className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
-                        {item.subItems.map((subItem: any) => {
-                          const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href + "/");
-                          return (
-                            <Link
-                              key={subItem.href}
-                              href={subItem.href}
-                              className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                                isSubActive
-                                  ? "bg-primary text-primary-foreground"
-                                  : "text-sidebar-foreground hover:bg-muted"
-                              )}
-                              onClick={() => setSidebarOpen(false)}
-                            >
-                              {subItem.name}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
+            {navigation.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.name}

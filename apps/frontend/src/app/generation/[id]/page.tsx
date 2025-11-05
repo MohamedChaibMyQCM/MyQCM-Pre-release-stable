@@ -307,7 +307,7 @@ export default function GenerationRequestPage() {
               </Link>
             )}
             <Link
-              href="/freelence/dashboard"
+              href="/generation/new"
               style={{ ...linkStyle, color: "#2563eb", borderColor: "#2563eb" }}
             >
               Start another request

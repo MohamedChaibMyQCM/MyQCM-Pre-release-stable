@@ -1695,7 +1695,7 @@ function ClinicalCaseBuilderContent() {
           <footer className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
-              onClick={() => router.push("/freelence/dashboard")}
+              onClick={() => router.push("/generation/new")}
               className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-100"
             >
               Cancel

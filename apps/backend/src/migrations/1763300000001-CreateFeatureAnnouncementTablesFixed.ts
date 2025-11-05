@@ -46,6 +46,15 @@ export class CreateFeatureAnnouncementTablesFixed1763300000001
           SELECT 1 FROM pg_type WHERE typname = 'feature_announcement_media_type_enum'
         ) THEN
           CREATE TYPE "feature_announcement_media_type_enum" AS ENUM ('none', 'image', 'video', 'lottie');
+        ELSE
+          IF NOT EXISTS (
+            SELECT 1
+            FROM pg_enum
+            WHERE enumlabel = 'none'
+              AND enumtypid = 'feature_announcement_media_type_enum'::regtype
+          ) THEN
+            ALTER TYPE "feature_announcement_media_type_enum" ADD VALUE 'none';
+          END IF;
         END IF;
       END
       $$;

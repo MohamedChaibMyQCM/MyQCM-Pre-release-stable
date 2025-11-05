@@ -43,7 +43,7 @@ export class FeatureAnnouncementController {
   async getNewFeatures(@CurrentUser() user: User) {
     return await this.featureAnnouncementService.getNewFeatures(
       user.id,
-      user.role || "student"
+      user.role as string
     );
   }
 

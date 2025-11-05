@@ -73,7 +73,7 @@ export class FeatureAnnouncementService {
   // Get new features for a user
   async getNewFeatures(
     userId: string,
-    userRole: string = "student"
+    userRole: string = "user"
   ): Promise<FeatureAnnouncement[]> {
     // Get all published and active features for the user's role
     const features = await this.featureAnnouncementRepository.find({

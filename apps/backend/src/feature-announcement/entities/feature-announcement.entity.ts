@@ -73,7 +73,7 @@ export class FeatureAnnouncement extends ChronoEntity {
   @Column({ type: "jsonb", nullable: true })
   highlight_steps: HighlightStep[];
 
-  @Column({ type: "simple-array", default: ["student"] })
+  @Column({ type: "jsonb", default: () => "'[\"user\"]'" })
   target_roles: string[];
 
   @Column({ type: "boolean", default: true })

@@ -129,9 +129,9 @@ export function CourseContextSelector({
     loadFaculties();
   }, [value.university]);
 
-  // Load units when year is selected
+  // Load units when faculty and year are selected
   React.useEffect(() => {
-    if (!value.year) {
+    if (!value.faculty || !value.year) {
       setUnits([]);
       return;
     }
@@ -156,7 +156,7 @@ export function CourseContextSelector({
     };
 
     loadUnits();
-  }, [value.year]);
+  }, [value.faculty, value.year]);
 
   // Load subjects when unit is selected
   React.useEffect(() => {

@@ -16,6 +16,8 @@ import { RewardPerk } from "src/reward/entities/reward-perk.entity";
 import { RewardAuction } from "src/reward/entities/reward-auction.entity";
 import { RewardAuctionBid } from "src/reward/entities/reward-auction-bid.entity";
 import { RewardTransaction } from "src/reward/entities/reward-transaction.entity";
+import { FeatureAnnouncement } from "src/feature-announcement/entities/feature-announcement.entity";
+import { FeatureInteraction } from "src/feature-announcement/entities/feature-interaction.entity";
 import { hashString, verifyHash } from "common/utils/hashing";
 
 export const AdminJsConfig = {
@@ -213,6 +215,122 @@ export const AdminJsConfig = {
         resource: RewardTransaction,
         options: {
           navigation: "Rewards",
+        },
+      },
+      {
+        resource: FeatureAnnouncement,
+        options: {
+          navigation: {
+            name: "What's New",
+            icon: "Announcement",
+          },
+          listProperties: [
+            "title",
+            "version",
+            "type",
+            "status",
+            "release_date",
+            "is_active",
+          ],
+          showProperties: [
+            "title",
+            "version",
+            "description",
+            "type",
+            "status",
+            "release_date",
+            "media_type",
+            "media_url",
+            "thumbnail_url",
+            "target_roles",
+            "cta_text",
+            "cta_link",
+            "priority",
+            "is_active",
+            "createdAt",
+            "updatedAt",
+          ],
+          editProperties: [
+            "title",
+            "version",
+            "description",
+            "type",
+            "status",
+            "release_date",
+            "media_type",
+            "media_url",
+            "thumbnail_url",
+            "highlight_steps",
+            "target_roles",
+            "cta_text",
+            "cta_link",
+            "priority",
+            "is_active",
+          ],
+          filterProperties: ["title", "type", "status", "target_roles", "is_active"],
+          properties: {
+            description: {
+              type: "richtext",
+              isVisible: {
+                list: false,
+                filter: false,
+                show: true,
+                edit: true,
+              },
+            },
+            highlight_steps: {
+              type: "textarea",
+              isVisible: {
+                list: false,
+                filter: false,
+                show: true,
+                edit: true,
+              },
+              description:
+                'Format JSON: [{"elementId": "...", "title": "...", "description": "..."}]',
+            },
+            media_url: {
+              type: "string",
+              description: "URL de l'image/vidéo (upload vers Cloudinary d'abord)",
+            },
+            thumbnail_url: {
+              type: "string",
+              description: "Miniature pour les aperçus vidéo",
+            },
+            version: {
+              description: "Versioning sémantique (ex: 2.1.0)",
+            },
+            status: {
+              availableValues: [
+                { value: "draft", label: "Brouillon" },
+                { value: "published", label: "Publié" },
+                { value: "archived", label: "Archivé" },
+              ],
+            },
+            type: {
+              availableValues: [
+                { value: "major", label: "Majeure" },
+                { value: "minor", label: "Mineure" },
+                { value: "update", label: "Mise à jour" },
+                { value: "bugfix", label: "Correction de bug" },
+              ],
+            },
+          },
+        },
+      },
+      {
+        resource: FeatureInteraction,
+        options: {
+          navigation: {
+            name: "What's New",
+            icon: "Analytics",
+          },
+          actions: {
+            new: { isAccessible: false },
+            edit: { isAccessible: false },
+            delete: { isAccessible: false },
+          },
+          listProperties: ["id", "seen_at", "tried_at", "dismissed_at", "createdAt"],
         },
       },
     ],

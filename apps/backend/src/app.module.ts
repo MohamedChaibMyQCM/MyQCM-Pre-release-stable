@@ -41,6 +41,7 @@ import { GenerationModule } from "./generation/generation.module";
 import { RewardModule } from "./reward/reward.module";
 import { KnowledgeComponentModule } from "./knowledge-component/knowledge-component.module";
 import { KcSuggestionModule } from "./kc-suggestion/kc-suggestion.module";
+import { FeatureAnnouncementModule } from "./feature-announcement/feature-announcement.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(PostgresConfig),
@@ -85,6 +86,7 @@ import { KcSuggestionModule } from "./kc-suggestion/kc-suggestion.module";
     RewardModule,
     KnowledgeComponentModule,
     KcSuggestionModule,
+    FeatureAnnouncementModule,
   ],
   providers: [
     {

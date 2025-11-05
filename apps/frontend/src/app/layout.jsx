@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import { MotionConfig } from "framer-motion";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { OnboardingV2Provider } from "@/context/OnboardingV2Context";
+import { AchievementToast } from "@/components/onboarding-v2";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -27,10 +29,14 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.variable} font-Poppins`}>
         <ThemeProvider>
           <ReactQueryProvider>
-            <MotionConfig>
-              <Toaster />
-              {children}
-            </MotionConfig>
+            <OnboardingV2Provider>
+              <MotionConfig>
+                <Toaster />
+                {children}
+                {/* Global achievement toasts - visible across entire app */}
+                <AchievementToast />
+              </MotionConfig>
+            </OnboardingV2Provider>
           </ReactQueryProvider>
         </ThemeProvider>
 

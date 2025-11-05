@@ -13,6 +13,8 @@ import streakIcon from "../../../public/Icons/streak.svg";
 import notificationIcon from "../../../public/Icons/notification.svg";
 import infiniteIcon from "../../../public/Icons/infinite.svg";
 import { motion, AnimatePresence } from "framer-motion";
+import { useWhatsNew } from "@/hooks/useWhatsNew";
+import WhatsNewModal from "@/components/onboarding-v2/WhatsNewModal";
 
 const isUuidV4 = (str) => {
   if (typeof str !== "string") return false;
@@ -25,8 +27,12 @@ const Dash_Header = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [hoveredCounter, setHoveredCounter] = useState(null);
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
   const pathname = usePathname();
   const token = isClient ? secureLocalStorage.getItem("token") || null : null;
+
+  // What's New hook
+  const { hasNewFeatures } = useWhatsNew();
 
   useEffect(() => {
     setIsClient(true);
@@ -290,6 +296,23 @@ const Dash_Header = () => {
           )}
         </div>
 
+        {/* What's New Button */}
+        <div className="relative">
+          <button
+            onClick={() => setIsWhatsNewOpen(true)}
+            className="relative flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 transition-all hover:scale-105 focus-ring group"
+            aria-label="Voir les nouveautés"
+          >
+            <span className="text-lg">✨</span>
+            <span className="text-[13px] font-semibold text-foreground group-hover:text-primary transition-colors">
+              Nouveautés
+            </span>
+            {hasNewFeatures && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse" />
+            )}
+          </button>
+        </div>
+
         <div
           id="tour-qcm-display"
           className="relative"
@@ -387,6 +410,12 @@ const Dash_Header = () => {
           notifications={notificationsArray}
         />
       )}
+
+      {/* What's New Modal */}
+      <WhatsNewModal
+        isOpen={isWhatsNewOpen}
+        onClose={() => setIsWhatsNewOpen(false)}
+      />
     </div>
   );
 };

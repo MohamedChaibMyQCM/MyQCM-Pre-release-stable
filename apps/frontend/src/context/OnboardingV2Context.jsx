@@ -49,6 +49,7 @@ const ActionTypes = {
   RESUME_TOUR: "RESUME_TOUR",
   FINISH_ONBOARDING: "FINISH_ONBOARDING",
   RESET_ONBOARDING: "RESET_ONBOARDING",
+  UPDATE_TIME_SPENT: "UPDATE_TIME_SPENT",
 
   // What's New
   SET_UNSEEN_FEATURES: "SET_UNSEEN_FEATURES",
@@ -184,6 +185,15 @@ function onboardingReducer(state, action) {
       return {
         ...initialState,
         whatsNew: state.whatsNew, // Preserve What's New data
+      };
+
+    case ActionTypes.UPDATE_TIME_SPENT:
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          timeSpent: state.progress.timeSpent + 1,
+        },
       };
 
     case ActionTypes.SET_UNSEEN_FEATURES:
@@ -325,8 +335,7 @@ export function OnboardingV2Provider({ children }) {
 
     const interval = setInterval(() => {
       dispatch({
-        type: ActionTypes.COMPLETE_STEP,
-        payload: { stepId: "time-tracking", xp: 0 },
+        type: ActionTypes.UPDATE_TIME_SPENT,
       });
     }, 1000);
 

@@ -14,13 +14,21 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests
-if (typeof window !== "undefined") {
-  const token = localStorage.getItem("token");
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+// Add request interceptor to dynamically add auth token
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-}
+);
 
 export function useWhatsNew() {
   const queryClient = useQueryClient();

@@ -14,8 +14,11 @@ import { FeatureAnnouncementService } from "./feature-announcement.service";
 import { CreateFeatureAnnouncementDto } from "./dto/create-feature-announcement.dto";
 import { UpdateFeatureAnnouncementDto } from "./dto/update-feature-announcement.dto";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../../common/guards/auth/roles.guard";
+import { Roles } from "../../common/decorators/auth/roles.decorator";
 import { CurrentUser } from "src/auth/decorators/current-user.decorator";
 import { User } from "src/user/entities/user.entity";
+import { BaseRoles } from "../../shared/enums/base-roles.enum";
 
 @Controller("feature-announcements")
 export class FeatureAnnouncementController {
@@ -24,12 +27,12 @@ export class FeatureAnnouncementController {
   ) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN)
   create(
     @Body() createDto: CreateFeatureAnnouncementDto,
     @CurrentUser() user: any
   ) {
-    // Only admins should be able to create (implement role guard if needed)
     return this.featureAnnouncementService.create(createDto, user?.id);
   }
 
@@ -59,9 +62,9 @@ export class FeatureAnnouncementController {
   }
 
   @Get("analytics")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN)
   async getAnalytics() {
-    // Add admin role guard here
     return await this.featureAnnouncementService.getAnalytics();
   }
 
@@ -71,13 +74,15 @@ export class FeatureAnnouncementController {
   }
 
   @Patch(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN)
   update(@Param("id") id: string, @Body() updateDto: UpdateFeatureAnnouncementDto) {
     return this.featureAnnouncementService.update(id, updateDto);
   }
 
   @Delete(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN)
   remove(@Param("id") id: string) {
     return this.featureAnnouncementService.remove(id);
   }

@@ -4,3 +4,5 @@ export { default as PersonaSelection } from "./PersonaSelection";
 export { default as InteractiveFeatureCard, exampleFeatures } from "./InteractiveFeatureCard";
 export { default as ProgressVisualization } from "./ProgressVisualization";
 export { default as CompletionCelebration } from "./CompletionCelebration";
+export { default as WhatsNewModal } from "./WhatsNewModal";
+export { default as Changelog } from "./Changelog";

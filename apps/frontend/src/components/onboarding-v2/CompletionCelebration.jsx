@@ -5,10 +5,10 @@ import { useOnboardingV2 } from "../../context/OnboardingV2Context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const ConfettiPiece = ({ delay = 0, duration = 3 }) => {
+const ConfettiPiece = ({ delay = 0, duration = 3, windowDimensions }) => {
   const colors = ["#F8589F", "#FF3D88", "#FFD700", "#00D9FF", "#FF6B9D"];
   const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  const randomX = Math.random() * window.innerWidth;
+  const randomX = Math.random() * windowDimensions.width;
   const randomRotation = Math.random() * 720;
 
   return (
@@ -20,7 +20,7 @@ const ConfettiPiece = ({ delay = 0, duration = 3 }) => {
         opacity: 1,
       }}
       animate={{
-        y: window.innerHeight + 20,
+        y: windowDimensions.height + 20,
         rotate: randomRotation,
         opacity: [1, 1, 0],
       }}
@@ -63,6 +63,13 @@ export default function CompletionCelebration() {
   const { achievements, xpEarned, progress, resetOnboarding } = useOnboardingV2();
   const router = useRouter();
   const [showConfetti, setShowConfetti] = useState(true);
+  const [windowDimensions, setWindowDimensions] = useState({ width: 1920, height: 1080 });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWindowDimensions({ width: window.innerWidth, height: window.innerHeight });
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -89,7 +96,12 @@ export default function CompletionCelebration() {
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50">
           {[...Array(50)].map((_, i) => (
-            <ConfettiPiece key={i} delay={i * 0.05} duration={3 + Math.random() * 2} />
+            <ConfettiPiece
+              key={i}
+              delay={i * 0.05}
+              duration={3 + Math.random() * 2}
+              windowDimensions={windowDimensions}
+            />
           ))}
         </div>
       )}

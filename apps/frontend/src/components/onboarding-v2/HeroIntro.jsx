@@ -13,9 +13,10 @@ const AnimatedStat = ({ value, label, delay = 0 }) => {
     const steps = 60;
     const increment = target / steps;
     let current = 0;
+    let interval;
 
     const timer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         current += increment;
         if (current >= target) {
           setCount(target);
@@ -24,11 +25,12 @@ const AnimatedStat = ({ value, label, delay = 0 }) => {
           setCount(Math.floor(current));
         }
       }, duration / steps);
-
-      return () => clearInterval(interval);
     }, delay);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (interval) clearInterval(interval);
+    };
   }, [target, delay]);
 
   return (
@@ -49,29 +51,52 @@ const AnimatedStat = ({ value, label, delay = 0 }) => {
 };
 
 const ParticlesBackground = () => {
+  const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+
+      const handleResize = () => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(30)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-white/20 rounded-full"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-          }}
-          animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: [1, 1.5, 1],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: Math.random() * 10 + 10,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-      ))}
+      {[...Array(30)].map((_, i) => {
+        const randomX1 = Math.random() * dimensions.width;
+        const randomY1 = Math.random() * dimensions.height;
+        const randomX2 = Math.random() * dimensions.width;
+        const randomY2 = Math.random() * dimensions.height;
+        const randomDuration = Math.random() * 10 + 10;
+
+        return (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-white/20 rounded-full"
+            initial={{
+              x: randomX1,
+              y: randomY1,
+            }}
+            animate={{
+              x: randomX2,
+              y: randomY2,
+              scale: [1, 1.5, 1],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: randomDuration,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        );
+      })}
     </div>
   );
 };

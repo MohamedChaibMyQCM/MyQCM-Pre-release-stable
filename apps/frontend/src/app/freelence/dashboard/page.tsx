@@ -189,6 +189,7 @@ export default function FreelancerDashboard() {
                 <span>AI Generation</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              {/* TODO: Requires backend POST /generation/requests/:id/items endpoint
               <Link
                 href="/generation/mcq/create"
                 className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
@@ -196,6 +197,7 @@ export default function FreelancerDashboard() {
                 <span>Manual Creation</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              */}
               <Link
                 href="/freelence/pending-review"
                 className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
@@ -225,6 +227,7 @@ export default function FreelancerDashboard() {
                 <span>AI Generation</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              {/* TODO: Requires backend POST /generation/requests/:id/items endpoint
               <Link
                 href="/generation/qroc/create"
                 className="flex items-center justify-between rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
@@ -232,6 +235,7 @@ export default function FreelancerDashboard() {
                 <span>Manual Creation</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              */}
             </div>
           </div>
 

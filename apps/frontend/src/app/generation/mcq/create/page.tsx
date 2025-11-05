@@ -1,3 +1,36 @@
+/*
+ * MANUAL MCQ CREATION PAGE
+ *
+ * ⚠️ CURRENTLY DISABLED - MISSING BACKEND SUPPORT
+ *
+ * This page allows freelancers to manually create individual MCQs from scratch.
+ * However, it requires a backend endpoint that doesn't exist yet:
+ *
+ * Required: POST /generation/requests/:requestId/items
+ *
+ * Payload:
+ * {
+ *   type: "qcm" | "qcs",
+ *   question: string,
+ *   options: [{ content: string, is_correct: boolean }],
+ *   difficulty: "easy" | "medium" | "hard",
+ *   quiz_type: "theorique" | "pratique",
+ *   mcq_tags: string[],
+ *   estimated_time: number,
+ *   explanation?: string
+ * }
+ *
+ * The backend currently only supports creating items via:
+ * 1. AI generation (uploads source file, AI creates items)
+ * 2. Spreadsheet upload (parses CSV/Excel)
+ *
+ * To enable this page:
+ * 1. Add POST endpoint to generation.controller.ts
+ * 2. Implement createItem() in generation.service.ts
+ * 3. Uncomment navigation links in FreelancerLayout.tsx
+ * 4. Uncomment dashboard buttons in dashboard/page.tsx
+ */
+
 "use client";
 
 import * as React from "react";

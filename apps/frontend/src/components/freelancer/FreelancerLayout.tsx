@@ -37,7 +37,7 @@ const navigation = [
     icon: FileText,
     subItems: [
       { name: "AI Generation", href: "/generation/mcq/new" },
-      { name: "Manual Creation", href: "/generation/mcq/create" },
+      // { name: "Manual Creation", href: "/generation/mcq/create" }, // TODO: Requires backend POST /generation/requests/:id/items endpoint
       { name: "Review Pending", href: "/freelence/pending-review" },
     ],
   },
@@ -46,7 +46,7 @@ const navigation = [
     icon: ClipboardList,
     subItems: [
       { name: "AI Generation", href: "/generation/qroc/new" },
-      { name: "Manual Creation", href: "/generation/qroc/create" },
+      // { name: "Manual Creation", href: "/generation/qroc/create" }, // TODO: Requires backend POST /generation/requests/:id/items endpoint
     ],
   },
   {

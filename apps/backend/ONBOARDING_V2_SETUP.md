@@ -1,5 +1,7 @@
 # OnboardingV2 & Feature Announcements - Setup Guide
 
+⚠️ **IMPORTANT:** Critical fixes have been applied to the migration. See `CRITICAL_FIXES_ONBOARDING_V2.md` for complete details.
+
 This guide explains how to set up the database for the new OnboardingV2 system and Feature Announcements.
 
 ## Prerequisites
@@ -8,11 +10,19 @@ This guide explains how to set up the database for the new OnboardingV2 system a
 - Backend application configured with database credentials
 - Node.js and npm installed
 
+## ⚠️ Migration Files
+
+**USE:** `1763300000001-CreateFeatureAnnouncementTablesFixed.ts` ✅ (Corrected version)
+
+**DO NOT USE:** `1763300000000-CreateFeatureAnnouncementTables.ts` ❌ (Has critical bugs)
+
+The original migration had 6 critical issues including wrong table names, missing columns, and field name mismatches. If you already ran the old migration, see `CRITICAL_FIXES_ONBOARDING_V2.md` for recovery steps.
+
 ## Step 1: Run Database Migration
 
 The migration will create the following tables:
-- `feature_announcement` - Stores feature announcements/updates
-- `feature_interaction` - Tracks user interactions with features
+- `feature_announcements` (plural) - Stores feature announcements/updates
+- `feature_interactions` (plural) - Tracks user interactions with features
 
 ### Option A: Using TypeORM CLI
 

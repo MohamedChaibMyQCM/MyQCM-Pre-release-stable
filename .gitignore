@@ -6,3 +6,6 @@ apps/backend/storage/
 
 # Local claude settings (secrets)
 .claude/settings.local.json
+
+# Backend local env
+apps/backend/.env

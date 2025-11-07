@@ -1,6 +1,5 @@
-import Image from "next/image";
 import React from "react"; 
-import heure from "../../../../../public/Question_Bank/heure.svg";
+import { Clock } from "phosphor-react";
 
 const TrainingHour = ({ name, value, setFieldValue }) => {
 
@@ -24,6 +23,9 @@ const TrainingHour = ({ name, value, setFieldValue }) => {
     setFieldValue(name, timeValue);
    };
 
+  const iconClasses =
+    "flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFE7F2] text-[#F8589F] dark:bg-white/10 dark:text-white shrink-0";
+
   return (
     <div className="flex-1">
       <label
@@ -33,7 +35,9 @@ const TrainingHour = ({ name, value, setFieldValue }) => {
         L&apos;heure de la séance.
       </label>
       <div className="flex items-center gap-3 w-full rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 py-2 px-3">
-        <Image src={heure} alt="Heure" className="opacity-60 dark:brightness-0 dark:invert" />
+        <span className={iconClasses}>
+          <Clock size={18} weight="bold" />
+        </span>
         <input
           type="time"
           id={name}

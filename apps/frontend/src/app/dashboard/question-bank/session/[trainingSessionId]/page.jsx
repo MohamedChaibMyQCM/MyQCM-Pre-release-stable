@@ -277,6 +277,18 @@ const Page = () => {
         queryKey: ["sessionDetails", trainingSessionId],
       });
       queryClient.invalidateQueries({ queryKey: ["trainingSessions"] });
+
+      const queriesToInvalidate = [
+        ["userAnalytics"],
+        ["user"],
+        ["userXp"],
+        ["userStreak"],
+        ["userSubscription"],
+      ];
+
+      queriesToInvalidate.forEach((key) =>
+        queryClient.invalidateQueries({ queryKey: key })
+      );
     } catch (error) {
       const message = Array.isArray(error?.response?.data?.message)
         ? error.response.data.message[0]
@@ -416,46 +428,6 @@ const Page = () => {
               : "Terminer la session"}
           </button>
         )}
-      </div>
-
-      {/* Mobile-only progress bar and difficulty */}
-      <div className="flex items-center justify-between md:hidden bg-white/20 rounded-[10px] px-[12px] py-[8px] border border-white/15">
-        <div className="flex items-center gap-2">
-          <div
-            className={`w-[4px] h-[4px] rounded-full ${
-              currentQuestion?.difficulty === "easy"
-                ? "bg-[#4ADE80]"
-                : currentQuestion?.difficulty === "medium"
-                ? "bg-[#FBBF24]"
-                : "bg-[#EF4444]"
-            }`}
-          ></div>
-          <span className="text-white text-[12px] font-semibold capitalize">
-            {currentQuestion?.difficulty === "easy"
-              ? "Facile"
-              : currentQuestion?.difficulty === "medium"
-              ? "Moyen"
-              : "Difficile"}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-white text-[12px] font-semibold">
-            {currentQuestionNumber}/{totalQuestions}
-          </span>
-          <div className="relative w-[60px] h-[3px] bg-white/20 rounded-[10px] overflow-hidden">
-            <div
-              className="absolute top-0 left-0 h-full bg-white rounded-[10px] transition-all duration-500 ease-out"
-              style={{
-                width: `${
-                  totalQuestions > 0
-                    ? (currentQuestionNumber / totalQuestions) * 100
-                    : 0
-                }%`,
-              }}
-            ></div>
-          </div>
-        </div>
       </div>
 
       {isLoadingQuestion && !result && (

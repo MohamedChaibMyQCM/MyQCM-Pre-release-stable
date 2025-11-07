@@ -1,5 +1,4 @@
-import Image from "next/image";
-import time from "../../../../../public/Question_Bank/temps.svg";
+import { Timer } from "phosphor-react";
 
 const TimeLimit = ({ name, value, setFieldValue }) => {
   return (
@@ -8,7 +7,9 @@ const TimeLimit = ({ name, value, setFieldValue }) => {
         Temps par question
       </span>
       <div className="flex items-center py-[8px] gap-3 w-[100%] outline-none px-[14px] rounded-[16px] py-[10px] bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700">
-        <Image src={time} alt="time" className="opacity-60 dark:brightness-0 dark:invert" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFE7F2] text-[#F8589F] dark:bg-white/10 dark:text-white shrink-0">
+          <Timer size={18} weight="bold" />
+        </span>
         <input
           type="number"
           required

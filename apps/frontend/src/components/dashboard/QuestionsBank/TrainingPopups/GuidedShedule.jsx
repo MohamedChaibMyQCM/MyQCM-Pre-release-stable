@@ -183,7 +183,11 @@ const GuidedShedule = ({ setPopup, courseId, quiz = {} }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <Image src={season} alt="season icon" className="w-[24px]" />
+          <Image
+            src={season}
+            alt="season icon"
+            className="w-[24px] opacity-80 dark:brightness-0 dark:invert"
+          />
           <span className="text-foreground font-[600] text-[18px]">
             Planification de la séance (Mode Guidé)
           </span>

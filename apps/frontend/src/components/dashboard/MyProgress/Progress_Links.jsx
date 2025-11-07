@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import calender from "../../../../public/Icons/calender.svg";
-import Image from "next/image";
-import { SlidersHorizontal } from "phosphor-react";
 
-const Progress_Links = () => {
+const Progress_Links = ({ rightContent = null }) => {
   const pathname = usePathname();
 
   const links = [
@@ -15,10 +12,8 @@ const Progress_Links = () => {
   ];
 
   return (
-    <div
-      className="flex items-center justify-between mt-6 px-5 max-md:mt-0"
-    >
-      <ul className="flex items-center gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 mt-4 md:mt-6 px-4 md:px-5 max-md:mt-2">
+      <ul className="flex flex-wrap items-center gap-2 md:gap-4">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -29,7 +24,7 @@ const Progress_Links = () => {
                   isActive
                     ? "bg-[#F8589F] text-[#FFFFFF]"
                     : "bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#191919] dark:text-white"
-                } px-4 py-2 rounded-[20px] text-[13px] font-[500] box border border-transparent dark:border-gray-700`}
+                } px-3 md:px-4 py-1.5 md:py-2 rounded-[20px] text-[12px] md:text-[13px] font-[500] box border border-transparent dark:border-gray-700 whitespace-nowrap`}
               >
                 {link.label}
               </Link>
@@ -37,16 +32,9 @@ const Progress_Links = () => {
           );
         })}
       </ul>
-      {/* <div className="flex items-center gap-3 cursor-pointer">
-        <div className="bg-[#FFFFFF] px-4 py-2 rounded-[20px]">
-          <Image src={calender} alt="calendrier" />
-        </div>
-
-        <div className="font-[500] text-[#191919] bg-[#FFFFFF] px-4 py-2 text-[14px] rounded-[20px]">
-          <span className="max-md:hidden">Tous les modules</span>
-          <SlidersHorizontal size={20} className="md:hidden" />
-        </div>
-      </div> */}
+      {rightContent ? (
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">{rightContent}</div>
+      ) : null}
     </div>
   );
 };

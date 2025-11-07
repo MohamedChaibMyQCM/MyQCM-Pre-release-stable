@@ -30,6 +30,7 @@ export const RingProgress = ({
         stroke={COLORS.bgLightGray}
         strokeWidth={stroke}
         fill="none"
+        className="dark:stroke-gray-700"
       />
       <motion.circle
         cx={size / 2}

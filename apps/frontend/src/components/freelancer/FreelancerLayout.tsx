@@ -19,6 +19,7 @@ import {
   User,
   ChevronDown,
   ChevronRight,
+  Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -55,6 +56,11 @@ const navigation = [
     subItems: [
       { name: "Create New", href: "/generation/clinical-case/new" },
     ],
+  },
+  {
+    name: "Knowledge Components",
+    href: "/freelence/knowledge-components",
+    icon: Layers,
   },
   {
     name: "Upload Spreadsheet",

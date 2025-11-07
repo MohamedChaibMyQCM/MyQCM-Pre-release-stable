@@ -182,27 +182,44 @@ const Courses = ({ courses, subjectId, subjectData }) => {
       case CUSTOM_MODE:
         if (activePopup === "play")
           return (
-            <CustomSeason setPopup={closePopup} courseId={selectedCourseId} />
+            <CustomSeason
+              key={`custom-season-play-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         if (activePopup === "schedule")
           return (
-            <CustomSchedule setPopup={closePopup} courseId={selectedCourseId} />
+            <CustomSchedule
+              key={`custom-schedule-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         break;
       case GUIDED_MODE:
         if (activePopup === "play")
           return (
-            <GuidedSeason setPopup={closePopup} courseId={selectedCourseId} />
+            <GuidedSeason
+              key={`guided-season-play-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         if (activePopup === "schedule")
           return (
-            <GuidedSchedule setPopup={closePopup} courseId={selectedCourseId} />
+            <GuidedSchedule
+              key={`guided-schedule-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         break;
       case INTELLIGENTE_MODE:
         if (activePopup === "schedule")
           return (
             <SynergySchedule
+              key={`synergy-schedule-${selectedCourseId}`}
               setPopup={closePopup}
               courseId={selectedCourseId}
             />
@@ -388,7 +405,7 @@ const Courses = ({ courses, subjectId, subjectData }) => {
         )}
       </motion.ul>
 
-      {renderPopup()}
+      <AnimatePresence mode="wait">{renderPopup()}</AnimatePresence>
     </div>
   );
 };

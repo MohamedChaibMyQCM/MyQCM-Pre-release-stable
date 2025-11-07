@@ -63,9 +63,9 @@ const PasswordChangeForm = () => {
   };
 
   return (
-    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-10 rounded-[16px] box max-md:mt-4">
-      <h3 className="text-[#191919] font-[500] mb-1">Nouveau mot de passe</h3>
-      <p className="text-[#666666] text-[13.6px]">
+    <div className="mx-5 bg-card py-5 px-6 mt-10 rounded-[16px] box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] max-md:mt-4">
+      <h3 className="text-card-foreground font-[500] mb-1">Nouveau mot de passe</h3>
+      <p className="text-muted-foreground text-[13.6px]">
         Mettez à jour votre mot de passe pour sécuriser votre compte. Choisissez
         un mot de passe fort et unique pour protéger vos informations et
         maintenir votre confidentialité.
@@ -77,7 +77,7 @@ const PasswordChangeForm = () => {
           </span>
           <input
             type="password"
-            className="border border-[#E4E7EB] w-[48%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
+            className="border border-border bg-card text-card-foreground w-[48%] rounded-[16px] py-[6px] px-4 outline-none focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F] max-md:w-full"
             {...register("old_password", {
               required: "Le mot de passe actuel est requis",
               minLength: {
@@ -99,7 +99,7 @@ const PasswordChangeForm = () => {
             </span>
             <input
               type="password"
-              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
+              className="border border-border bg-card text-card-foreground w-[100%] rounded-[16px] py-[6px] px-4 outline-none focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F] max-md:w-full"
               {...register("new_password", {
                 required: "Un nouveau mot de passe est requis",
                 minLength: {
@@ -127,7 +127,7 @@ const PasswordChangeForm = () => {
             </span>
             <input
               type="password"
-              className="border border-[#E4E7EB] w-[100%] rounded-[16px] py-[6px] px-4 outline-none max-md:w-full"
+              className="border border-border bg-card text-card-foreground w-[100%] rounded-[16px] py-[6px] px-4 outline-none focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F] max-md:w-full"
               {...register("confirm_password", {
                 required: "Veuillez confirmer votre nouveau mot de passe",
                 validate: (value) =>
@@ -143,14 +143,14 @@ const PasswordChangeForm = () => {
           </div>
         </div>
         <div className="flex justify-between items-center mt-10 max-md:flex-col max-md:gap-6 max-md:mt-6">
-          <span className="text-[#B5BEC6] text-[13px]">
+          <span className="text-muted-foreground text-[13px]">
             Vous devrez vous reconnecter avec votre nouveau mot de passe après
             avoir enregistré les modifications.
           </span>
           <button
             type="submit"
             disabled={passwordMutation.isPending}
-            className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] max-md:self-end disabled:opacity-70"
+            className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] max-md:self-end disabled:opacity-70 hover:bg-[#e04d8a] transition-colors"
           >
             {passwordMutation.isPending
               ? "Enregistrement..."

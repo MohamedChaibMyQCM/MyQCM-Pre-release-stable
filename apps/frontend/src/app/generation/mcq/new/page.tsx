@@ -6,7 +6,10 @@ import { FreelancerLayout } from "@/components/freelancer/FreelancerLayout";
 import { Wizard, WizardStep, WizardActions } from "@/components/ui/wizard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
-import { CourseContextSelector, CourseContext } from "@/components/forms/CourseContextSelector";
+import {
+  CourseContextSelector,
+  CourseContext,
+} from "@/components/forms/CourseContextSelector";
 import { Upload, AlertCircle, FileText } from "lucide-react";
 import {
   apiFetch,
@@ -28,11 +31,68 @@ const DIFFICULTY_OPTIONS = [
   { value: "hard", label: "Hard" },
 ];
 
+type KnowledgeComponentOption = {
+  id: string;
+  name: string;
+  description?: string | null;
+  code?: string | null;
+};
+
+const extractKnowledgeComponentOptions = (
+  payload: any,
+): KnowledgeComponentOption[] => {
+  const candidates = Array.isArray(payload?.data)
+    ? payload.data
+    : Array.isArray(payload?.results)
+    ? payload.results
+    : Array.isArray(payload?.items)
+    ? payload.items
+    : Array.isArray(payload)
+    ? payload
+    : [];
+
+  return candidates
+    .map((item) => {
+      const id =
+        item?.id ??
+        item?.uuid ??
+        item?._id ??
+        item?.identifier ??
+        item?.key ??
+        "";
+
+      if (!id || typeof id !== "string") {
+        return null;
+      }
+
+      return {
+        id,
+        name:
+          item?.name ??
+          item?.title ??
+          item?.label ??
+          item?.slug ??
+          "Unnamed knowledge component",
+        description:
+          item?.description ??
+          item?.details ??
+          item?.summary ??
+          item?.desc ??
+          null,
+        code: item?.code ?? item?.slug ?? null,
+      } as KnowledgeComponentOption;
+    })
+    .filter((option): option is KnowledgeComponentOption => option !== null);
+};
+
 export default function MCQAIWizardPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [knowledgeComponentError, setKnowledgeComponentError] = React.useState<
+    string | null
+  >(null);
 
   // Step 1: Course Context
   const [courseContext, setCourseContext] = React.useState<CourseContext>({
@@ -47,9 +107,87 @@ export default function MCQAIWizardPage() {
   // Step 2: Configuration
   const [difficulty, setDifficulty] = React.useState("medium");
   const [mcqCount, setMcqCount] = React.useState(10);
+  const [knowledgeComponents, setKnowledgeComponents] = React.useState<
+    KnowledgeComponentOption[]
+  >([]);
+  const [
+    selectedKnowledgeComponents,
+    setSelectedKnowledgeComponents,
+  ] = React.useState<string[]>([]);
+  const [
+    loadingKnowledgeComponents,
+    setLoadingKnowledgeComponents,
+  ] = React.useState(false);
 
   // Step 3: Upload
   const [file, setFile] = React.useState<File | null>(null);
+
+  React.useEffect(() => {
+    if (!courseContext.course) {
+      setKnowledgeComponents([]);
+      setSelectedKnowledgeComponents([]);
+      setKnowledgeComponentError(null);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadKnowledgeComponents = async () => {
+      setLoadingKnowledgeComponents(true);
+      setKnowledgeComponentError(null);
+
+      try {
+        const response = await apiFetch<any>(
+          `/knowledge-components?courseId=${encodeURIComponent(
+            courseContext.course,
+          )}&includeInactive=false`,
+        );
+        const options = extractKnowledgeComponentOptions(
+          response?.data ?? response,
+        );
+
+        if (!isCancelled) {
+          setKnowledgeComponents(options);
+          setSelectedKnowledgeComponents((prev) =>
+            prev.filter((id) => options.some((option) => option.id === id)),
+          );
+
+          if (options.length === 0) {
+            setKnowledgeComponentError(
+              "No knowledge components have been configured for this course yet.",
+            );
+          }
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.error("Failed to load knowledge components:", err);
+          setKnowledgeComponents([]);
+          setSelectedKnowledgeComponents([]);
+          setKnowledgeComponentError(
+            "Unable to load knowledge components for this course. Please try again.",
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoadingKnowledgeComponents(false);
+        }
+      }
+    };
+
+    loadKnowledgeComponents();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [courseContext.course]);
+
+  const toggleKnowledgeComponent = (id: string) => {
+    setSelectedKnowledgeComponents((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id],
+    );
+  };
 
   const handleNext = () => {
     setError(null);
@@ -72,6 +210,24 @@ export default function MCQAIWizardPage() {
     if (currentStep === 2) {
       if (mcqCount <= 0) {
         setError("MCQ count must be greater than 0");
+        return;
+      }
+
+      if (loadingKnowledgeComponents) {
+        setError("Knowledge components are still loading. Please wait a moment.");
+        return;
+      }
+
+      if (knowledgeComponents.length === 0) {
+        setError(
+          knowledgeComponentError ??
+            "Knowledge components are required for this course before continuing.",
+        );
+        return;
+      }
+
+      if (selectedKnowledgeComponents.length === 0) {
+        setError("Select at least one knowledge component for this request.");
         return;
       }
     }
@@ -105,16 +261,22 @@ export default function MCQAIWizardPage() {
     try {
       // Create generation request
       const requestPayload = {
-        university_id: courseContext.university,
-        faculty_id: courseContext.faculty,
+        university: courseContext.university,
+        faculty: courseContext.faculty,
         year_of_study: courseContext.year,
-        unit_id: courseContext.unit,
-        subject_id: courseContext.subject,
-        course_id: courseContext.course,
+        unit: courseContext.unit,
+        subject: courseContext.subject,
+        course: courseContext.course,
         difficulty,
-        content_types: ["mcq"],
-        requested_mcq_count: mcqCount,
-        requested_qroc_count: 0,
+        contentTypes: ["mcq"],
+        requestedCounts: {
+          mcq: mcqCount,
+          qroc: 0,
+        },
+        knowledge_component_ids: selectedKnowledgeComponents,
+        sourceFileName: file.name,
+        sourceFileMime: file.type,
+        sourceFileSize: file.size,
       };
 
       const createResponse = await apiFetch<any>("/generation/requests", {
@@ -239,6 +401,52 @@ export default function MCQAIWizardPage() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Knowledge Components *</label>
+                  {loadingKnowledgeComponents ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Spinner className="h-4 w-4" />
+                      <span>Loading knowledge components…</span>
+                    </div>
+                  ) : knowledgeComponentError ? (
+                    <p className="text-sm text-destructive">{knowledgeComponentError}</p>
+                  ) : knowledgeComponents.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No knowledge components available for this course.
+                    </p>
+                  ) : (
+                    <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border border-input p-3">
+                      {knowledgeComponents.map((component) => (
+                        <label
+                          key={component.id}
+                          className="flex items-start gap-2 rounded-md p-2 hover:bg-muted"
+                        >
+                          <input
+                            type="checkbox"
+                            value={component.id}
+                            checked={selectedKnowledgeComponents.includes(component.id)}
+                            onChange={() => toggleKnowledgeComponent(component.id)}
+                            className="mt-1 h-4 w-4 border-input text-primary focus:ring-2 focus:ring-ring"
+                          />
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium leading-5">{component.name}</p>
+                            {component.code && (
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                                {component.code}
+                              </p>
+                            )}
+                            {component.description && (
+                              <p className="text-xs text-muted-foreground">
+                                {component.description}
+                              </p>
+                            )}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="rounded-lg border bg-muted p-4">
                   <h3 className="mb-2 font-semibold">What happens next?</h3>
                   <ul className="space-y-1 text-sm text-muted-foreground">
@@ -326,7 +534,9 @@ export default function MCQAIWizardPage() {
             onCancel={handleCancel}
             isFirstStep={currentStep === 1}
             isLastStep={currentStep === WIZARD_STEPS.length}
-            nextDisabled={loading}
+            nextDisabled={
+              loading || (currentStep === 2 && loadingKnowledgeComponents)
+            }
             loading={loading}
           />
         </div>

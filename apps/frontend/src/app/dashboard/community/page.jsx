@@ -17,11 +17,11 @@ const ComingSoonPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-[#F7F8FA]">
+    <div className="flex items-center justify-center min-h-screen px-4 py-8 bg-background">
       {" "}
-      {/* Softer gradient */}
+      {/* Theme-aware background */}
       <motion.div
-        className="relative max-w-md w-full bg-white rounded-2xl p-8 md:p-10 shadow-xl overflow-hidden max-md:w-[97%]" // Adjusted size, padding, shadow
+        className="relative max-w-md w-full bg-card rounded-2xl p-8 md:p-10 shadow-xl border border-border overflow-hidden max-md:w-[97%]"
         variants={cardVariants}
         initial="hidden"
         animate="visible"
@@ -42,18 +42,18 @@ const ComingSoonPage = () => {
           </div>
 
           {/* Text */}
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-3">
+          <h1 className="text-2xl md:text-3xl font-semibold text-card-foreground mb-3">
             {" "}
-            {/* Adjusted font weight */}
+            {/* Theme-aware text */}
             Bientôt Disponible !
           </h1>
-          <p className="text-gray-600 text-base md:text-lg mb-8">
+          <p className="text-muted-foreground text-base md:text-lg mb-8">
             Nous préparons quelque chose de nouveau pour vous. Restez à
             l&apos;écoute !
           </p>
 
           {/* Simple Progress/Loading Indicator */}
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-[#FD2E8A] to-[#F8589F] rounded-full animate-pulse"></div>{" "}
             {/* Simple pulse animation */}
           </div>

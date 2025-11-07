@@ -91,10 +91,32 @@ const Page = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, modeId) => {
+      const selectedModeName =
+        availableModes?.find((mode) => mode.id === modeId)?.name || null;
+
       toast.success("Mode d'apprentissage mis à jour !");
       router.push("/dashboard/question-bank");
+
+      // Optimistically sync cached profile/mode queries so the Question Bank sees the change immediately
+      queryClient.setQueryData(["userProfile"], (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mode: {
+            ...(prev.mode || {}),
+            id: modeId,
+            name: selectedModeName || prev?.mode?.name,
+          },
+        };
+      });
+
+      if (selectedModeName) {
+        queryClient.setQueryData(["userProfileMode"], selectedModeName);
+      }
+
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["userProfileMode"] });
     },
     onError: (error) => {
       toast.error("Échec de la mise à jour du mode. Veuillez réessayer.");
@@ -124,20 +146,20 @@ const Page = () => {
       />
 
       {isLoading && (
-        <div className="text-center mt-4">Chargement des paramètres...</div>
+        <div className="text-center mt-4 text-muted-foreground">Chargement des paramètres...</div>
       )}
       {profileError && (
-        <div className="text-center mt-4 text-red-500">
+        <div className="text-center mt-4 text-destructive">
           Erreur lors du chargement du profil.
         </div>
       )}
       {modesError && (
-        <div className="text-center mt-4 text-red-500">
+        <div className="text-center mt-4 text-destructive">
           Erreur lors du chargement des modes.
         </div>
       )}
       {subscriptionError && (
-        <div className="text-center mt-4 text-red-500">
+        <div className="text-center mt-4 text-destructive">
           Erreur lors du chargement de l&apos;abonnement.
         </div>
       )}
@@ -146,13 +168,13 @@ const Page = () => {
         <div className="mt-8 flex justify-end items-center gap-6">
           <button
             onClick={() => window.history.back()}
-            className="text-[#F8589F] text-[13px] font-[500] hover:underline"
+            className="text-[#F8589F] text-[13px] font-[500] hover:underline transition-opacity"
             disabled={isUpdatingProfile}
           >
             Retour
           </button>
           <button
-            className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] flex items-center justify-center gap-2 transition-opacity duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] flex items-center justify-center gap-2 hover:bg-[#e04d8a] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleStartSession}
             disabled={!selectedMode || isUpdatingProfile}
           >

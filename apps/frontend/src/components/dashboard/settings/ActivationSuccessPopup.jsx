@@ -65,7 +65,7 @@ const ActivationSuccessPopup = ({ isOpen, onClose, planDetails }) => {
       onClick={onClose}
     >
       <motion.div
-        className="bg-white rounded-2xl p-6 pt-8 max-w-sm w-full mx-auto shadow-xl relative overflow-hidden"
+        className="bg-card rounded-2xl p-6 pt-8 max-w-sm w-full mx-auto shadow-xl relative overflow-hidden border border-border"
         variants={modal}
         exit="exit"
         onClick={(e) => e.stopPropagation()}
@@ -73,7 +73,7 @@ const ActivationSuccessPopup = ({ isOpen, onClose, planDetails }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1"
+          className="absolute top-3 right-3 text-muted-foreground hover:text-card-foreground p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
           aria-label="Fermer"
         >
           <X size={20} weight="bold" />
@@ -86,16 +86,16 @@ const ActivationSuccessPopup = ({ isOpen, onClose, planDetails }) => {
             weight="fill"
             className="text-green-500 mb-3"
           />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          <h3 className="text-xl font-semibold text-card-foreground mb-2">
             Activation Réussie !
           </h3>
-          <p className="text-gray-600 text-sm mb-5 max-w-xs">
+          <p className="text-muted-foreground text-sm mb-5 max-w-xs">
             Votre code a été activé avec succès.
           </p>
         </div>
 
         {/* Separator */}
-        <hr className="my-4 border-gray-200" />
+        <hr className="my-4 border-border" />
 
         {/* Details Section Toggle */}
         <div className="text-center">
@@ -116,24 +116,24 @@ const ActivationSuccessPopup = ({ isOpen, onClose, planDetails }) => {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className="text-left text-sm text-gray-700 space-y-2 overflow-hidden"
+                className="text-left text-sm text-card-foreground space-y-2 overflow-hidden"
               >
-                <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg mt-3">
+                <div className="bg-muted border border-border p-3 rounded-lg mt-3">
                   <p>
-                    <strong className="font-medium text-gray-800">
+                    <strong className="font-medium text-card-foreground">
                       Forfait :
                     </strong>{" "}
                     {planName}
                   </p>
                   <p>
-                    <strong className="font-medium text-gray-800">
+                    <strong className="font-medium text-card-foreground">
                       Durée activée :
                     </strong>{" "}
                     {planDuration}
                   </p>
                   {planExpiry && (
                     <p>
-                      <strong className="font-medium text-gray-800">
+                      <strong className="font-medium text-card-foreground">
                         Expire le :
                       </strong>{" "}
                       {new Date(planExpiry).toLocaleDateString("fr-FR", {

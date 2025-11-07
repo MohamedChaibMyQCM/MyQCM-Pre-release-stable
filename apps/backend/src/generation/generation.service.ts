@@ -255,8 +255,14 @@ export class GenerationService {
 
   async getItems(requestId: string, freelancer: JwtPayload) {
     await this.ensureOwnership(requestId, freelancer);
+
     return this.generationItemRepository.find({
-      where: { request: { id: requestId } },
+      where: {
+        request: {
+          id: requestId,
+          freelancer: { id: freelancer.id },
+        },
+      },
       order: { createdAt: "ASC" },
     });
   }

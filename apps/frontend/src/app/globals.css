@@ -191,6 +191,12 @@ body {
 
 .switch span {
   background-color: #fff !important;
+  transform: translateX(0);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.switch[data-state="checked"] span {
+  transform: translateX(16px);
 }
 
 .feature_anim {

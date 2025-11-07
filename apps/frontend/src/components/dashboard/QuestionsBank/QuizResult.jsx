@@ -50,13 +50,13 @@ const QuizResult = ({ data, length }) => {
   const { title, sub } = resolveHeadline(accuracy);
 
   return (
-    <div className="fixed inset-0 bg-black/40 dark:bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto max-md:items-start max-md:pt-8">
       <motion.section
         initial={{ opacity: 0, y: 18, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -18, scale: 0.96 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto w-full max-w-3xl rounded-[26px] border border-border bg-card px-6 py-6 shadow-[0_24px_60px_-40px_rgba(248,88,159,0.55)] dark:shadow-[0_24px_60px_-40px_rgba(248,88,159,0.35)] md:px-9 md:py-8 max-md:max-w-[96%]"
+        className="mx-auto w-full max-w-3xl rounded-[26px] border border-border bg-card px-6 py-6 shadow-[0_24px_60px_-40px_rgba(248,88,159,0.55)] dark:shadow-[0_24px_60px_-40px_rgba(248,88,159,0.35)] md:px-9 md:py-8 max-md:max-w-[96%] max-md:my-6"
       >
         {/* Header */}
         <div className="flex items-start gap-4">

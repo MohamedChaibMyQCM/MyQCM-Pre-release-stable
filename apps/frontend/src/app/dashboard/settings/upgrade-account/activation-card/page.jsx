@@ -84,11 +84,11 @@ const ActivationCardPage = () => {
   return (
     <>
       <div className="px-4 py-8 space-y-8 h-[100%]">
-        <div className="flex flex-col bg-white rounded-[16px] p-6 box">
-          <h3 className="text-[18px] font-semibold text-[#191919] mb-1">
+        <div className="flex flex-col bg-card rounded-[16px] p-6 box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)]">
+          <h3 className="text-[18px] font-semibold text-card-foreground mb-1">
             Code de la carte d&apos;activation
           </h3>
-          <p className="text-[#666666] mb-6 text-[13px]">
+          <p className="text-muted-foreground mb-6 text-[13px]">
             Entrez votre code d&apos;activation pour débloquer les
             fonctionnalités premium. Assurez-vous que le code est valide et non
             utilisé. En cas de problème, contactez le support.
@@ -107,7 +107,7 @@ const ActivationCardPage = () => {
                 value={code}
                 onChange={handleCodeChange}
                 placeholder="_ _ _ _        _ _ _ _        _ _ _ _        _ _ _ _        _ _ _ _"
-                className="w-full max-w-[490px] px-4 sm:px-6 py-2 border-[2px] border-[#FD2E8A] placeholder:text-[#FD2E8A] text-[#FD2E8A] rounded-[10px] outline-none uppercase"
+                className="w-full max-w-[490px] px-4 sm:px-6 py-2 border-[2px] border-[#FD2E8A] placeholder:text-[#FD2E8A] text-[#FD2E8A] bg-card rounded-[10px] outline-none uppercase"
                 maxLength={29}
                 autoComplete="off"
                 spellCheck="false"

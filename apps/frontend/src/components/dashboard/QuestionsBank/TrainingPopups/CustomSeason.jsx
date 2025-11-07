@@ -16,7 +16,7 @@ import secureLocalStorage from "react-secure-storage";
 import season from "../../../../../public/Question_Bank/season.svg";
 import Image from "next/image";
 import AllowRepeat from "../TrainingInputs/AllowRepeat";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
   const router = useRouter();
@@ -101,7 +101,11 @@ const CustomSeason = ({ setPopup, courseId, quiz = {} }) => {
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
       >
         <div className="flex items-center justify-between mb-3">
-          <Image src={season} alt="Start season icon" className="w-[24px]" />
+          <Image
+            src={season}
+            alt="Start season icon"
+            className="w-[24px] opacity-80 dark:brightness-0 dark:invert"
+          />
           <span className="text-foreground font-[600] text-[18px]">
             Paramètres de la séance
           </span>

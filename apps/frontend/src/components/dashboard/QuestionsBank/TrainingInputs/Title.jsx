@@ -1,17 +1,20 @@
 "use client";
 
 import React from "react";
-import titre from "../../../../../public/Question_Bank/titre.svg"; 
-import Image from "next/image";
+import { TextT } from "phosphor-react";
 
 const Title = ({ name, value, setFieldValue }) => {
   const handleChange = (event) => {
     setFieldValue(name, event.target.value);
   };
+  const iconClasses =
+    "flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFE7F2] text-[#F8589F] dark:bg-white/10 dark:text-white shrink-0";
 
   return (
     <div className="flex items-center gap-3 w-full py-2 px-[12px] bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-[14px]">
-      <Image src={titre} alt="Titre icon" className="opacity-60 dark:brightness-0 dark:invert" />
+      <span className={iconClasses}>
+        <TextT size={18} weight="fill" />
+      </span>
       <input
         type="text"
         name={name}

@@ -44,6 +44,18 @@ export class FreelancerController {
     };
   }
 
+  @Get("dashboard/summary")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.FREELANCER)
+  async getDashboardSummary(@GetUser() freelancer: Freelancer) {
+    const data = await this.freelancerService.getDashboardSummary(freelancer.id);
+    return {
+      message: "freelancer dashboard summary fetched",
+      status: HttpStatus.OK,
+      data,
+    };
+  }
+
   @ApiOperation({
     summary: "get freelancer profile (by token) ",
   })

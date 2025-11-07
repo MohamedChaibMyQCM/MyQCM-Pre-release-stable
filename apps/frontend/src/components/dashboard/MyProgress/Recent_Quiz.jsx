@@ -148,12 +148,34 @@ const Recent_Quiz = ({ recent_quizzes }) => {
           transition: { duration: 0.3 },
         }}
       >
-        <span className="text-[14px] text-[#B5BEC6] dark:text-gray-400">Moyenne globale</span>
-        <div className="flex items-center gap-3 mb-3 mt-1">
-          <span className="text-[#242424] dark:text-white font-[500] text-[40px]">
+        <motion.span
+          className="text-[14px] text-[#B5BEC6] dark:text-gray-400"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Moyenne globale
+        </motion.span>
+        <motion.div
+          className="flex items-center gap-3 mb-3 mt-1"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            delay: 0.5,
+            type: "spring",
+            stiffness: 200,
+            damping: 15
+          }}
+        >
+          <motion.span
+            className="text-[#242424] dark:text-white font-[500] text-[40px]"
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.7, type: "spring", stiffness: 150 }}
+          >
             {overallBand.toFixed(0)}%
-          </span>
-        </div>
+          </motion.span>
+        </motion.div>
         <MotionUl
           className="flex flex-col gap-4"
           variants={containerVariants}
@@ -161,39 +183,66 @@ const Recent_Quiz = ({ recent_quizzes }) => {
           {formattedQuizzes.map((quiz) => (
             <MotionLi
               key={quiz.id}
-              className="border border-[#E4E4E4] dark:border-gray-700 p-4 rounded-[12px]"
+              className="border border-[#E4E4E4] dark:border-gray-700 p-4 rounded-[12px] cursor-pointer transition-all duration-300 group relative overflow-hidden"
               variants={itemVariants}
               whileHover={{
                 scale: 1.02,
-                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
+                y: -3,
+                boxShadow: "0 10px 25px rgba(248, 88, 159, 0.15)",
                 borderColor: "#F8589F",
-                transition: { duration: 0.2 },
+                transition: { duration: 0.3, type: "spring", stiffness: 300 },
               }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="pl-[14px] relative text-[14px] text-[#191919] dark:text-white font-[500] block after:absolute after:w-[6px] after:h-[6px] after:bg-[#F8589F] after:rounded-full after:left-0 after:top-[50%] after:translate-y-[-50%]">
-                {quiz.title}
-              </span>
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="font-[500] text-[20px]"
-                    style={{
-                      color: quiz.rawAccuracy >= 60 ? "#F8589F" : "#F64C4C",
-                    }}
+              {/* Animated background gradient on hover */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-pink-50/50 to-transparent dark:from-pink-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                initial={false}
+              />
+
+              <div className="relative z-10">
+                <motion.span
+                  className="pl-[14px] relative text-[14px] text-[#191919] dark:text-white font-[500] block after:absolute after:w-[6px] after:h-[6px] after:bg-[#F8589F] after:rounded-full after:left-0 after:top-[50%] after:translate-y-[-50%] after:transition-all after:duration-300 group-hover:after:w-[8px] group-hover:after:h-[8px]"
+                  whileHover={{ x: 3 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  {quiz.title}
+                </motion.span>
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-2">
+                    <motion.span
+                      className="font-[500] text-[20px]"
+                      style={{
+                        color: quiz.rawAccuracy >= 60 ? "#F8589F" : "#F64C4C",
+                      }}
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      {quiz.score}
+                    </motion.span>
+                    <motion.span
+                      className="text-[13px] rounded-[12px] px-[10px] py-[2px] font-[500] transition-all duration-300"
+                      style={{
+                        color: quiz.statusColor,
+                        backgroundColor: quiz.statusBg,
+                      }}
+                      whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      {quiz.status}
+                    </motion.span>
+                  </div>
+                  <motion.span
+                    className="text-[13px] text-[#B5BEC6] dark:text-gray-400"
+                    initial={{ opacity: 0.7 }}
+                    whileHover={{ opacity: 1 }}
                   >
-                    {quiz.score}
-                  </span>
-                  <span
-                    className="text-[13px] rounded-[12px] px-[10px] py-[2px] font-[500]"
-                    style={{
-                      color: quiz.statusColor,
-                      backgroundColor: quiz.statusBg,
-                    }}
-                  >
-                    {quiz.status}
-                  </span>
+                    {quiz.date}
+                  </motion.span>
                 </div>
-                <span className="text-[13px] text-[#B5BEC6] dark:text-gray-400">{quiz.date}</span>
               </div>
             </MotionLi>
           ))}

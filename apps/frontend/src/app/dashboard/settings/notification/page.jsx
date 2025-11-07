@@ -106,11 +106,11 @@ const Page = () => {
   };
 
   return (
-    <div className="mx-5 bg-[#FFFFFF] py-5 px-6 mt-10 rounded-[16px] box max-md:mt-6">
-      <h3 className="text-[#191919] font-[500] mb-1">
+    <div className="mx-5 bg-card py-5 px-6 mt-10 rounded-[16px] box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] max-md:mt-6">
+      <h3 className="text-card-foreground font-[500] mb-1">
         Notifications par email
       </h3>
-      <p className="text-[#666666] text-[13.6px]">
+      <p className="text-muted-foreground text-[13.6px]">
         Les notifications par email sont actuellement activées, mais vous pouvez
         les désactiver à tout moment.
       </p>
@@ -134,10 +134,10 @@ const Page = () => {
             }`}
           />
           <div className="flex flex-col gap-2">
-            <Label htmlFor="option-one" className="text-[#191919] font-[500]">
+            <Label htmlFor="option-one" className="text-card-foreground font-[500]">
               Actualités et mises à jour
             </Label>
-            <span className="text-[13.6px] text-[#B5BEC6]">
+            <span className="text-[13.6px] text-muted-foreground">
               Recevez des notifications par email pour les actualités et mises à
               jour.
             </span>
@@ -154,10 +154,10 @@ const Page = () => {
             }`}
           />
           <div className="flex flex-col gap-2">
-            <Label htmlFor="option-two" className="text-[#191919] font-[500]">
+            <Label htmlFor="option-two" className="text-card-foreground font-[500]">
               Rappels d&apos;apprentissage
             </Label>
-            <span className="text-[13.6px] text-[#B5BEC6]">
+            <span className="text-[13.6px] text-muted-foreground">
               Recevez des rappels par email pour suivre votre progression.
             </span>
           </div>
@@ -173,10 +173,10 @@ const Page = () => {
             }`}
           />
           <div className="flex flex-col gap-2">
-            <Label htmlFor="option-three" className="text-[#191919] font-[500]">
+            <Label htmlFor="option-three" className="text-card-foreground font-[500]">
               Abonnement
             </Label>
-            <span className="text-[13.6px] text-[#B5BEC6]">
+            <span className="text-[13.6px] text-muted-foreground">
               Recevez des mises à jour sur votre abonnement, y compris les
               informations importantes et facturation.
             </span>
@@ -185,7 +185,7 @@ const Page = () => {
         <div className="flex justify-end mt-12">
           <button
             type="submit"
-            className={`bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] ${
+            className={`bg-[#F8589F] text-[#FFFFFF] px-5 py-2 rounded-[16px] text-[13px] font-[500] hover:bg-[#e04d8a] transition-colors ${
               !hasChanges ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={!hasChanges || updateNotificationSetting.isPending}

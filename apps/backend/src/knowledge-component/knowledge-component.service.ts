@@ -328,6 +328,18 @@ export class KnowledgeComponentService {
     return this.knowledgeComponentRepository.save(component);
   }
 
+  async deleteComponent(id: string) {
+    const component = await this.knowledgeComponentRepository.findOne({
+      where: { id },
+    });
+
+    if (!component) {
+      throw new NotFoundException("Knowledge component not found");
+    }
+
+    await this.knowledgeComponentRepository.remove(component);
+  }
+
   async upsertDomains(domains: CreateKnowledgeDomainDto[]) {
     if (!domains?.length) {
       return [];

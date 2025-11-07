@@ -125,7 +125,10 @@ export class ProgressService {
       populate: boolean;
     },
   ) {
-    const relations = options?.populate ? ["mcq"] : [];
+    const relations = ["session"];
+    if (options?.populate) {
+      relations.push("mcq");
+    }
     const [progress, total] = await this.progressRepository.findAndCount({
       where: this.generateWhereClauseFromFilters(filters),
       relations,
@@ -176,6 +179,122 @@ export class ProgressService {
     return mcqs;
   }
 
+  /**
+   * Retrieve the detailed timeline of attempts for a specific training session.
+   * The timeline includes enriched MCQ metadata and user attempt data, ordered chronologically.
+   *
+   * @param userId - The ID of the user requesting the timeline
+   * @param sessionId - The training session identifier
+   * @returns Session metadata with ordered attempt records
+   * @throws NotFoundException if the session has no attempts for the user
+   */
+  async getSessionTimeline(userId: string, sessionId: string) {
+    const attempts = await this.progressRepository.find({
+      where: {
+        user: { id: userId },
+        session: { id: sessionId },
+      },
+      relations: [
+        "session",
+        "session.course",
+        "mcq",
+        "mcq.options",
+        "mcq.subject",
+        "mcq.unit",
+        "mcq.course",
+      ],
+      order: {
+        createdAt: "ASC",
+      },
+    });
+
+    if (!attempts.length) {
+      throw new NotFoundException("No progress history found for this session.");
+    }
+
+    const session = attempts[0].session;
+
+    const sessionSummary = session
+      ? {
+          id: session.id,
+          title: session.title,
+          status: session.status,
+          scheduled_at: session.scheduled_at,
+          completed_at: session.completed_at,
+          number_of_questions: session.number_of_questions,
+          total_mcqs: session.total_mcqs,
+          correct_answers: session.correct_answers,
+          incorrect_answers: session.incorrect_answers,
+          accuracy: session.accuracy,
+          xp_earned: session.xp_earned,
+          difficulty: session.difficulty,
+          randomize_questions_order: session.randomize_questions_order,
+          randomize_options_order: session.randomize_options_order,
+          time_limit: session.time_limit,
+        }
+      : null;
+
+    const attemptTimeline = attempts.map((attempt) => {
+      const mcq = attempt.mcq;
+      const mcqMeta = mcq
+        ? {
+            id: mcq.id,
+            type: mcq.type,
+            question: mcq.question,
+            explanation: mcq.explanation,
+            difficulty: mcq.difficulty,
+            estimated_time: mcq.estimated_time,
+            answer: mcq.answer,
+            subject: mcq.subject
+              ? {
+                  id: mcq.subject.id,
+                  name: mcq.subject.name,
+                }
+              : null,
+            unit: mcq.unit
+              ? {
+                  id: mcq.unit.id,
+                  name: mcq.unit.name,
+                }
+              : null,
+            course: mcq.course
+              ? {
+                  id: mcq.course.id,
+                  name: mcq.course.name,
+                }
+              : null,
+            options: Array.isArray(mcq.options)
+              ? mcq.options.map((option) => ({
+                  id: option.id,
+                  content: option.content,
+                  is_correct: option.is_correct,
+                }))
+              : [],
+          }
+        : null;
+
+      return {
+        id: attempt.id,
+        created_at: attempt.createdAt,
+        updated_at: attempt.updatedAt,
+        time_spent: attempt.time_spent ?? null,
+        success_ratio: attempt.success_ratio ?? null,
+        is_skipped: attempt.is_skipped,
+        gained_xp: attempt.gained_xp,
+        feedback: attempt.feedback,
+        response: attempt.response,
+        selected_options: attempt.selected_options ?? [],
+        knowledge_components: attempt.knowledge_components ?? [],
+        mcq: mcqMeta,
+      };
+    });
+
+    return {
+      session: sessionSummary,
+      attempts: attemptTimeline,
+    };
+  }
+
   // ----------------- SECTION 3: Analytics and Statistics
 
   /**
@@ -191,12 +310,22 @@ export class ProgressService {
       recent_quiz_limit?: number;
       week_comparison_period?: number;
       include_trend_data?: boolean;
+      unit?: string;
+      course?: string;
+      subject?: string;
+      from?: Date;
+      to?: Date;
     } = {},
   ) {
     const {
       recent_quiz_limit = 5,
       week_comparison_period = 7,
       include_trend_data = true,
+      unit,
+      course,
+      subject,
+      from,
+      to,
     } = options;
 
     // Calculate date ranges
@@ -222,6 +351,32 @@ export class ProgressService {
       .leftJoinAndSelect("progress.mcq", "mcq")
       .leftJoinAndSelect("progress.session", "session")
       .where("progress.userId = :userId", { userId });
+
+    if (unit) {
+      baseQuery.andWhere("progress.unitId = :unitId", { unitId: unit });
+    }
+
+    if (course) {
+      baseQuery.andWhere("progress.courseId = :courseId", { courseId: course });
+    }
+
+    if (subject) {
+      baseQuery.andWhere("progress.subjectId = :subjectId", {
+        subjectId: subject,
+      });
+    }
+
+    if (from) {
+      baseQuery.andWhere("progress.createdAt >= :analyticsFromDate", {
+        analyticsFromDate: from,
+      });
+    }
+
+    if (to) {
+      baseQuery.andWhere("progress.createdAt <= :analyticsToDate", {
+        analyticsToDate: to,
+      });
+    }
 
     // Perform different queries based on time periods
     const [

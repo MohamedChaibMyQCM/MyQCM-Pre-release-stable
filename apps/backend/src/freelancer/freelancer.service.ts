@@ -7,7 +7,7 @@ import {
 import { UpdateFreelancerDto } from "./dto/update-freelancer.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Freelancer } from "./entities/freelancer.entity";
-import { In, Repository } from "typeorm";
+import { Between, In, Not, Repository } from "typeorm";
 import {
   SigninFreelancerByCodeDto,
   SigninFreelancerDto,
@@ -17,11 +17,19 @@ import { UpdateFreelancerEmailDto } from "./dto/update-freelancer-email.dto";
 import { WalletService } from "src/wallet/wallet.service";
 import { SignupFreelancerDto } from "./dto/create-freelancer.dto";
 import { hashString, verifyHash } from "common/utils/hashing";
+import { GenerationRequest } from "src/generation/entities/generation-request.entity";
+import { GenerationRequestStatus } from "src/generation/enums/generation-request-status.enum";
+import { GenerationItem } from "src/generation/entities/generation-item.entity";
+import { GenerationItemStatus } from "src/generation/enums/generation-item-status.enum";
 @Injectable()
 export class FreelancerService {
   constructor(
     @InjectRepository(Freelancer)
     private readonly freelancerRepository: Repository<Freelancer>,
+    @InjectRepository(GenerationRequest)
+    private readonly generationRequestRepository: Repository<GenerationRequest>,
+    @InjectRepository(GenerationItem)
+    private readonly generationItemRepository: Repository<GenerationItem>,
     private readonly walletService: WalletService,
   ) {}
   async checkEmailExists(email: string): Promise<boolean> {
@@ -94,6 +102,73 @@ export class FreelancerService {
       .getRawMany();
 
     return topFreelancers.filter((freelancer) => freelancer.total_count > 0);
+  }
+
+  async getDashboardSummary(freelancerId: string) {
+    const now = await this.getDatabaseCurrentTime();
+    const startOfDay = new Date(now);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    const [activeRequests, pendingReview, approvedToday, wallet, recentRequests] = await Promise.all([
+      this.generationRequestRepository.count({
+        where: {
+          freelancer: { id: freelancerId },
+          status: Not(
+            In([GenerationRequestStatus.COMPLETED, GenerationRequestStatus.FAILED]),
+          ),
+        },
+      }),
+      this.generationRequestRepository.count({
+        where: {
+          freelancer: { id: freelancerId },
+          status: GenerationRequestStatus.READY_FOR_REVIEW,
+        },
+      }),
+      this.generationItemRepository.count({
+        where: {
+          request: { freelancer: { id: freelancerId } },
+          status: In([GenerationItemStatus.APPROVED, GenerationItemStatus.CONVERTED]),
+          updatedAt: Between(startOfDay, endOfDay),
+        },
+      }),
+      this.walletService
+        .findOne(freelancerId)
+        .catch(() => ({ balance: 0 } as any)),
+      this.generationRequestRepository.find({
+        where: { freelancer: { id: freelancerId } },
+        relations: {
+          course: true,
+          subject: true,
+        },
+        order: { updatedAt: "DESC" },
+        take: 10,
+      }),
+    ]);
+
+    return {
+      stats: {
+        activeRequests,
+        pendingReview,
+        approvedToday,
+        totalEarnings: Number(wallet?.balance ?? 0),
+      },
+      recentRequests: recentRequests.map((request) => ({
+        id: request.id,
+        status: request.status,
+        createdAt: request.createdAt,
+        updatedAt: request.updatedAt,
+        requested_mcq_count: request.requested_mcq_count,
+        requested_qroc_count: request.requested_qroc_count,
+        course: request.course
+          ? { id: request.course.id, name: request.course.name }
+          : null,
+        subject: request.subject
+          ? { id: request.subject.id, name: request.subject.name }
+          : null,
+      })),
+    };
   }
   async findFreelancersByIds(freelancerIds: any[]): Promise<Freelancer[]> {
     return await this.freelancerRepository.findBy({

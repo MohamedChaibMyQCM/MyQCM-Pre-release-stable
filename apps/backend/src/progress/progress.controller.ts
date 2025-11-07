@@ -10,6 +10,7 @@ import {
   ParseUUIDPipe,
   DefaultValuePipe,
   ParseIntPipe,
+  BadRequestException,
 } from "@nestjs/common";
 import { ProgressService } from "./progress.service";
 import { AccessTokenGuard } from "common/guards/auth/access-token.guard";
@@ -242,6 +243,43 @@ export class ProgressController {
     type: Boolean,
     example: true,
   })
+  @ApiQuery({
+    name: "unit",
+    required: false,
+    description: "Filter analytics by unit UUID",
+    type: String,
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiQuery({
+    name: "course",
+    required: false,
+    description: "Filter analytics by course UUID",
+    type: String,
+    example: "123e4567-e89b-12d3-a456-426614174001",
+  })
+  @ApiQuery({
+    name: "subject",
+    required: false,
+    description: "Filter analytics by subject UUID",
+    type: String,
+    example: "123e4567-e89b-12d3-a456-426614174002",
+  })
+  @ApiQuery({
+    name: "from",
+    required: false,
+    description:
+      "Start date for analytics filtering (inclusive, format: YYYY-MM-DD)",
+    type: String,
+    example: "2025-01-01",
+  })
+  @ApiQuery({
+    name: "to",
+    required: false,
+    description:
+      "End date for analytics filtering (inclusive, format: YYYY-MM-DD)",
+    type: String,
+    example: "2025-01-31",
+  })
   @ApiResponse({
     status: 200,
     description: "Successfully retrieved user analytics",
@@ -268,11 +306,40 @@ export class ProgressController {
     week_comparison_period?: number,
     @Query("include_trend_data", new DefaultValuePipe(true))
     include_trend_data?: boolean,
+    @Query("unit", new ParseUUIDPipe({ optional: true })) unit?: string,
+    @Query("course", new ParseUUIDPipe({ optional: true })) course?: string,
+    @Query("subject", new ParseUUIDPipe({ optional: true })) subject?: string,
+    @Query("from") from?: string,
+    @Query("to") to?: string,
   ) {
+    let fromDate: Date | undefined;
+    let toDate: Date | undefined;
+
+    if (from) {
+      const validatedFrom = DateUtils.validateDate(from);
+      fromDate = DateUtils.getDayBoundaries(validatedFrom).startOfDay;
+    }
+
+    if (to) {
+      const validatedTo = DateUtils.validateDate(to);
+      toDate = DateUtils.getDayBoundaries(validatedTo).endOfDay;
+    }
+
+    if (fromDate && toDate && toDate < fromDate) {
+      throw new BadRequestException(
+        "'to' date must be greater than or equal to 'from' date",
+      );
+    }
+
     const options = {
       recent_quiz_limit,
       week_comparison_period,
       include_trend_data,
+      unit,
+      course,
+      subject,
+      from: fromDate,
+      to: toDate,
     };
     const data = await this.progressService.getUserAnalytics(user.id, options);
 
@@ -379,6 +446,44 @@ export class ProgressController {
     const data = await this.progressService.getAccuracyOverTime(user.id, limit);
     return {
       message: "Accuracy trend fetched successfully",
+      status: HttpStatus.OK,
+      data,
+    };
+  }
+
+  @Get("/session/:sessionId/timeline")
+  @ApiOperation({
+    summary: "Get the replay timeline for a training session",
+    description:
+      "Returns the ordered list of attempts for a specific training session, including MCQ metadata and user responses.",
+  })
+  @ApiParam({
+    name: "sessionId",
+    description: "UUID of the training session",
+    type: "string",
+    format: "uuid",
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Successfully fetched session timeline",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "No progress history found for this session",
+  })
+  @UseGuards(RolesGuard)
+  @Roles(BaseRoles.USER)
+  async getSessionTimeline(
+    @GetUser() user: JwtPayload,
+    @Param("sessionId", ParseUUIDPipe) sessionId: string,
+  ) {
+    const data = await this.progressService.getSessionTimeline(
+      user.id,
+      sessionId,
+    );
+    return {
+      message: "Session timeline fetched successfully",
       status: HttpStatus.OK,
       data,
     };

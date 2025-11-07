@@ -1,13 +1,9 @@
 "use client";
 
-import quiz_attemp from "../../../../public/Icons/quiz_attem.svg";
-import accuracy from "../../../../public/Icons/accuracy.svg";
-import time_spent from "../../../../public/Icons/time_spent.svg";
-import Image from "next/image";
 import { motion } from "framer-motion";
+import { ListBullets, Target, HourglassHigh } from "phosphor-react";
 
 const GeneraleStat = ({ overall_summary }) => {
-  // Helper function to convert seconds to H:M:S format
   const formatTimeSpent = (seconds) => {
     if (!seconds || seconds === 0) return "0s";
 
@@ -24,7 +20,6 @@ const GeneraleStat = ({ overall_summary }) => {
     return `${secs}s`;
   };
 
-  // Premium animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -65,6 +60,9 @@ const GeneraleStat = ({ overall_summary }) => {
     },
   };
 
+  const iconWrapperClasses =
+    "flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFE7F2] text-[#F8589F] dark:bg-white/10 dark:text-white shrink-0";
+
   return (
     <motion.div
       id="tour-general-stats"
@@ -79,12 +77,12 @@ const GeneraleStat = ({ overall_summary }) => {
         Général
       </motion.h3>
       <motion.ul
-        className="flex items-center gap-4"
+        className="flex flex-wrap items-stretch gap-4"
         variants={containerVariants}
       >
         <motion.li
           id="tour-question-tentées"
-          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-2 max-md:h-[154px] border border-transparent dark:border-gray-700"
+          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 min-w-[230px] box max-md:flex-col max-md:gap-2 max-md:h-[154px] border border-transparent dark:border-gray-700"
           variants={cardVariants}
           whileHover={{
             y: -5,
@@ -104,11 +102,13 @@ const GeneraleStat = ({ overall_summary }) => {
               </span>
             )}
           </div>
-          <Image src={quiz_attemp} alt="Quiz tentés" width={40} height={40} className="dark:brightness-0 dark:invert dark:opacity-80" />
+          <span className={iconWrapperClasses}>
+            <ListBullets size={24} weight="fill" />
+          </span>
         </motion.li>
         <motion.li
           id="tour-précision"
-          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-[32px] max-md:h-[154px] border border-transparent dark:border-gray-700"
+          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 min-w-[230px] box max-md:flex-col max-md:gap-[32px] max-md:h-[154px] border border-transparent dark:border-gray-700"
           variants={cardVariants}
           whileHover={{
             y: -5,
@@ -123,11 +123,13 @@ const GeneraleStat = ({ overall_summary }) => {
               {overall_summary?.overall_accuracy?.percentage}%
             </span>
           </div>
-          <Image src={accuracy} alt="Précision" width={40} height={40} className="dark:brightness-0 dark:invert dark:opacity-80" />
+          <span className={iconWrapperClasses}>
+            <Target size={24} weight="fill" />
+          </span>
         </motion.li>
         <motion.li
           id="tour-temps-passé"
-          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 box max-md:flex-col max-md:gap-2 max-md:h-[154px] border border-transparent dark:border-gray-700"
+          className="bg-[#FFFFFF] dark:bg-[#1a1a1a] flex items-center justify-between py-3 px-4 rounded-[20px] flex-1 min-w-[230px] box max-md:flex-col max-md:gap-2 max-md:h-[154px] border border-transparent dark:border-gray-700"
           variants={cardVariants}
           whileHover={{
             y: -5,
@@ -147,7 +149,9 @@ const GeneraleStat = ({ overall_summary }) => {
               </span>
             )}
           </div>
-          <Image src={time_spent} alt="Temps passé" width={40} height={40} className="dark:brightness-0 dark:invert dark:opacity-80" />
+          <span className={iconWrapperClasses}>
+            <HourglassHigh size={24} weight="fill" />
+          </span>
         </motion.li>
       </motion.ul>
     </motion.div>

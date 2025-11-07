@@ -9,6 +9,7 @@ import GeneraleStat from "@/components/dashboard/MyProgress/GeneraleStat";
 import Shedule_Stat from "@/components/dashboard/MyProgress/Shedule_Stat";
 import Strength_Stat from "@/components/dashboard/MyProgress/Strength_Stat";
 import Loading from "@/components/Loading";
+import Progress_Links from "@/components/dashboard/MyProgress/Progress_Links";
 
 const ProgressSummaryPage = () => {
   const {
@@ -98,11 +99,14 @@ const ProgressSummaryPage = () => {
   }
 
   return (
-    <div className="px-6 mt-8">
-      <GeneraleStat overall_summary={activityData.overall_summary} />
-      <Strength_Stat subject_strengths={activityData.subject_strengths} />
-      <Shedule_Stat accuracy_trend={activityData.accuracy_trend} />
-    </div>
+    <>
+      <Progress_Links />
+      <div className="px-4 md:px-6 mt-4 md:mt-8 pb-6 md:pb-8">
+        <GeneraleStat overall_summary={activityData.overall_summary} />
+        <Strength_Stat subject_strengths={activityData.subject_strengths} />
+        <Shedule_Stat accuracy_trend={activityData.accuracy_trend} />
+      </div>
+    </>
   );
 };
 

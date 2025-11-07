@@ -110,11 +110,11 @@ const Choose_plan = () => {
     <div>
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[16px] p-6 max-w-md w-full mx-auto shadow-lg">
-            <h3 className="text-[#191919] text-lg md:text-xl font-medium mb-4">
+          <div className="bg-card rounded-[16px] p-6 max-w-md w-full mx-auto shadow-lg border border-border">
+            <h3 className="text-card-foreground text-lg md:text-xl font-medium mb-4">
               Paiement Bientôt Disponible !
             </h3>
-            <p className="text-[#4F4D55] text-sm md:text-[14px] mb-6">
+            <p className="text-muted-foreground text-sm md:text-[14px] mb-6">
               La fonctionnalité de paiement par El Dhahabia arrive très
               prochainement. En attendant, vous pouvez utiliser l&apos;option
               Carte d&apos;activation si vous en possédez une.
@@ -132,7 +132,7 @@ const Choose_plan = () => {
       )}
 
       <div className="mt-8">
-        <h3 className="text-[#191919] text-[17px] font-[500]">
+        <h3 className="text-card-foreground text-[17px] font-[500]">
           1. Choisissez un moyen de paiement
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4 md:gap-6">
@@ -155,7 +155,7 @@ const Choose_plan = () => {
             : "opacity-100"
         }`}
       >
-        <h3 className="text-[#191919] text-[17px] font-[500]">
+        <h3 className="text-card-foreground text-[17px] font-[500]">
           {disablePlanSelection
             ? "Forfait (Activé par Carte)"
             : "2. Choisissez votre offre"}{" "}
@@ -174,7 +174,7 @@ const Choose_plan = () => {
           ))}
         </div>
         {!disablePlanSelection && (
-          <span className="text-[#B5BEC6] text-[13px] block">
+          <span className="text-muted-foreground text-[13px] block">
             Votre nouveau forfait payant commencera immédiatement ou après la
             fin de votre période actuelle si applicable.
           </span>
@@ -188,7 +188,7 @@ const Choose_plan = () => {
             : "opacity-100"
         }`}
       >
-        <h3 className="text-[#191919] text-[17px] font-[500]">
+        <h3 className="text-card-foreground text-[17px] font-[500]">
           {disableDurationSelection
             ? "Durée (Non Applicable)"
             : "3. Choisissez la durée"}{" "}
@@ -202,12 +202,12 @@ const Choose_plan = () => {
               className={`box transition-colors duration-200 ease-in-out ${
                 selectedDuration === duration
                   ? "bg-[#FFF5FA] text-[#F8589F] border border-[#F8589F]"
-                  : "bg-white text-[#191919] border border-gray-300 hover:border-gray-400"
-              } px-4 py-1.5 text-[14px] rounded-[12px]`} 
+                  : "bg-card text-card-foreground border border-border hover:border-primary"
+              } px-4 py-1.5 text-[14px] rounded-[12px]`}
               onClick={() =>
                 !disableDurationSelection && setSelectedDuration(duration)
               }
-              disabled={disableDurationSelection} 
+              disabled={disableDurationSelection}
             >
               {duration}
             </button>

@@ -59,7 +59,7 @@ const Reward = () => {
 
   return (
     <motion.div
-      className="relative mx-5 mt-10 bg-[#FFFFFF] p-6 text-center rounded-[16px] overflow-hidden box max-md:mt-4"
+      className="relative mx-5 mt-10 bg-card p-6 text-center rounded-[16px] overflow-hidden box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] max-md:mt-4"
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -69,7 +69,7 @@ const Reward = () => {
       }}
     >
       <motion.h2
-        className="text-[#191919] text-[20px] font-[500]"
+        className="text-card-foreground text-[20px] font-[500]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
@@ -90,7 +90,7 @@ const Reward = () => {
       </motion.h2>
 
       <motion.p
-        className="my-4 text-[#191919] text-[14px] px-20 max-md:px-0"
+        className="my-4 text-card-foreground text-[14px] px-20 max-md:px-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}

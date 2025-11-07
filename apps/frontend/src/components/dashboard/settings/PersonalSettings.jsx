@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import edit from "../../../../public/settings/edit.svg";
-import backgroundProfile from "../../../../public/settings/background_profile.avif";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
@@ -89,18 +88,20 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
   };
 
   return (
-    <div className="relative bg-[#FFFFFF] box rounded-[16px] my-8 overflow-hidden">
-      <Image
-        src={backgroundProfile}
-        alt="arrière-plan du profil"
-        fill
-        priority
-        sizes="100vw"
-        placeholder="blur"
-        className="object-cover"
-      />
-      <div className="relative h-[140px] max-md:h-[110px] mt-2">
-        <div className="absolute bottom-0 left-0 px-6 pb- w-full z-10 bg-gradient-to-t from-white via-white/80 to-transparent">
+    <div className="bg-card box rounded-[16px] my-8 overflow-hidden border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)]">
+      <div className="relative h-[140px] max-md:h-[110px]">
+        <Image
+          src="/settings/background_profile.avif"
+          alt="arrière-plan du profil"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-card via-card/70 to-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-4 w-full z-10">
           <div className="flex justify-between items-end">
             <div className="flex items-center">
               <Image
@@ -108,14 +109,14 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                 width={70}
                 height={70}
                 alt="photo de profil"
-                className="w-[60px] h-[60px] md:w-[70px] md:h-[70px] border-2 border-white bg-gray-200"
+                className="w-[60px] h-[60px] md:w-[70px] md:h-[70px] border-2 border-card bg-muted"
                 style={{ objectFit: "cover" }}
               />
               <div className="ml-4">
-                <div className="text-[#191919] text-[15px] font-[500] line-clamp-1">
+                <div className="text-card-foreground text-[15px] font-[500] line-clamp-1">
                   {isEditing ? name : userData?.name || "Non renseigné"}
                 </div>
-                <div className="text-[#B5BEC6] text-[14px]">
+                <div className="text-muted-foreground text-[14px]">
                   Plan {subscriptionData?.plan?.name || "Gratuit"}
                 </div>
               </div>
@@ -126,7 +127,7 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                 <>
                   <button
                     onClick={handleSave}
-                    className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-white hover:bg-pink-50 transition duration-150 disabled:opacity-50"
+                    className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-card hover:bg-pink-50 dark:hover:bg-pink-950/30 transition duration-150 disabled:opacity-50"
                     disabled={
                       updateNameMutation.isLoading ||
                       !name.trim() ||
@@ -141,16 +142,16 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                   </button>
                   <button
                     onClick={handleCancel}
-                    className="flex items-center gap-1 border border-gray-300 px-3 py-[3px] rounded-[16px] bg-white hover:bg-gray-100 transition duration-150"
+                    className="flex items-center gap-1 border border-border px-3 py-[3px] rounded-[16px] bg-card hover:bg-accent transition duration-150"
                     disabled={updateNameMutation.isLoading}
                   >
-                    <span className="text-[13px] text-gray-600">Annuler</span>
+                    <span className="text-[13px] text-muted-foreground">Annuler</span>
                   </button>
                 </>
               ) : (
                 <button
                   onClick={handleEditClick}
-                  className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-white hover:bg-pink-50 transition duration-150"
+                  className="flex items-center gap-1 border border-[#F8589F] px-3 py-[3px] rounded-[16px] bg-card hover:bg-pink-50 dark:hover:bg-pink-950/30 transition duration-150"
                 >
                   <span className="text-[13px] text-[#F8589F]">Modifier</span>
                   <Image src={edit} alt="" className="w-[11px]" />
@@ -163,10 +164,10 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
 
       <div className="p-6">
         <div className="mb-6">
-          <h3 className="text-[#191919] font-[500] mb-2 text-[17px]">
+          <h3 className="text-card-foreground font-[500] mb-2 text-[17px]">
             Informations personnelles
           </h3>
-          <p className="text-[#666666] text-[13px]">
+          <p className="text-muted-foreground text-[13px]">
             Gérez vos informations personnelles et mettez à jour vos coordonnées
             pour maintenir votre profil à jour.
           </p>
@@ -186,13 +187,13 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-[20px] py-[6px] rounded-[16px] outline-none border border-gray-300 text-[13px] text-[#191919] focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F]"
+                className="w-full px-[20px] py-[6px] rounded-[16px] outline-none border border-border bg-card text-[13px] text-card-foreground focus:border-[#F8589F] focus:ring-1 focus:ring-[#F8589F]"
                 disabled={updateNameMutation.isLoading}
               />
             ) : (
-              <div className="text-[13px] text-[#191919] mt-1 py-[7px]">
+              <div className="text-[13px] text-card-foreground mt-1 py-[7px]">
                 {userData?.name || (
-                  <span className="text-gray-400">Non renseigné</span>
+                  <span className="text-muted-foreground">Non renseigné</span>
                 )}
               </div>
             )}
@@ -213,12 +214,12 @@ const ProfileSettings = ({ userData, onNameUpdate }) => {
                 value={userData?.email || ""}
                 disabled // Always disabled when in input mode
                 readOnly // Always readOnly
-                className="w-full px-[20px] py-[6px] rounded-[16px] border border-gray-300 text-[13px] text-gray-500 bg-gray-100 cursor-not-allowed"
+                className="w-full px-[20px] py-[6px] rounded-[16px] border border-border text-[13px] text-muted-foreground bg-muted cursor-not-allowed"
               />
             ) : (
-              <div className="text-[13px] text-[#191919] mt-1 py-[7px]">
+              <div className="text-[13px] text-card-foreground mt-1 py-[7px]">
                 {userData?.email || (
-                  <span className="text-gray-400">Non renseigné</span>
+                  <span className="text-muted-foreground">Non renseigné</span>
                 )}
               </div>
             )}

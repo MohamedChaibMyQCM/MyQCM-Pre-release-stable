@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
   const pathname = usePathname();
 
   return (
-    <div className="bg-[#F7F8FA] pb-8">
+    <div className="bg-background pb-8 min-h-screen">
       <motion.div
         className="max-md:hidden"
         initial={{ opacity: 0, y: -10 }}

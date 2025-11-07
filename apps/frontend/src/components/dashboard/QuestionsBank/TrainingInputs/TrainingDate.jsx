@@ -1,9 +1,7 @@
 "use client";
 
-import { CaretDown, CaretLeft, CaretRight } from "phosphor-react";
+import { CaretDown, CaretLeft, CaretRight, CalendarBlank } from "phosphor-react";
 import { useState, useRef, useEffect } from "react";
-import dateIcon from "../../../../../public/Question_Bank/date.svg"; 
-import Image from "next/image";
 import React from "react";
 
 const toYYYYMMDD = (dateObj) => {
@@ -176,6 +174,9 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
   };
   // --- End Render logic ---
 
+  const iconClasses =
+    "flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFE7F2] text-[#F8589F] dark:bg-white/10 dark:text-white shrink-0";
+
   return (
     <div className="flex-1">
       <label
@@ -193,7 +194,9 @@ const TrainingDate = ({ name, value, setFieldValue }) => {
           aria-haspopup="true"
           aria-expanded={isOpen}
         >
-          <Image src={dateIcon} alt="date" className="w-5 h-5 shrink-0 opacity-60 dark:brightness-0 dark:invert" />
+          <span className={iconClasses}>
+            <CalendarBlank size={18} weight="bold" />
+          </span>
           <span className="flex-grow text-[13px] font-medium text-[#191919] dark:text-white">
             {formatDateForDisplay(selectedDate)}
           </span>

@@ -312,26 +312,28 @@ const Quiz = ({
     sounds.playSelect();
 
     setSelectedOptions((prevSelected) => {
+      let updatedSelection;
+
       if (questionData?.type === "qcs") {
-        return [{ option: option.id }];
-      }
-      const isAlreadySelected = prevSelected.some(
-        (selectedOption) => selectedOption.option === option.id,
-      );
-      if (isAlreadySelected) {
-        return prevSelected.filter(
-          (selectedOption) => selectedOption.option !== option.id,
+        updatedSelection = [{ option: option.id }];
+      } else {
+        const isAlreadySelected = prevSelected.some(
+          (selectedOption) => selectedOption.option === option.id,
         );
+
+        if (isAlreadySelected) {
+          updatedSelection = prevSelected.filter(
+            (selectedOption) => selectedOption.option !== option.id,
+          );
+        } else {
+          updatedSelection = [...prevSelected, { option: option.id }];
+        }
       }
-      return [...prevSelected, { option: option.id }];
+
+      formik.setFieldValue("response_options", updatedSelection);
+      return updatedSelection;
     });
   };
-
-  useEffect(() => {
-    if (questionData?.type === "qcm" || questionData?.type === "qcs") {
-      formik.setFieldValue("response_options", selectedOptions);
-    }
-  }, [questionData?.type, selectedOptions, formik]);
 
   const getBackgroundColor = (ratio) => {
     if (answer != null && ratio !== undefined && ratio !== null) {

@@ -71,7 +71,7 @@ export const CaseFeedbackModal = ({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-[480px] overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="relative w-full max-w-[480px] overflow-hidden rounded-2xl bg-white dark:bg-[#2a2a2a] shadow-2xl dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)]"
           >
             {/* Gradient header accent */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F8589F] via-[#FD2E8A] to-[#FF7CB1]" />
@@ -80,7 +80,7 @@ export const CaseFeedbackModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-4 top-4 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#F8589F] focus:ring-offset-2"
+              className="absolute right-4 top-4 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 transition-all hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#F8589F] focus:ring-offset-2"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
@@ -98,10 +98,10 @@ export const CaseFeedbackModal = ({
                   <Sparkles className="h-3 w-3" />
                   Feedback
                 </span>
-                <h2 className="mt-3 text-xl font-bold text-gray-900">
+                <h2 className="mt-3 text-xl font-bold text-gray-900 dark:text-white">
                   Évaluez ce prototype
                 </h2>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-gray-600">
+                <p className="mt-1.5 text-[13px] leading-relaxed text-gray-600 dark:text-gray-400">
                   Votre avis aide à prioriser les améliorations avant l&apos;intégration.
                 </p>
               </motion.div>
@@ -114,10 +114,10 @@ export const CaseFeedbackModal = ({
                 className="mb-5"
               >
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-700">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     Note globale
                   </span>
-                  <span className="text-[10px] font-medium text-gray-500">
+                  <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
                     1 = À retravailler · 5 = Prêt
                   </span>
                 </div>
@@ -160,10 +160,10 @@ export const CaseFeedbackModal = ({
                 className="mb-5"
               >
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-700">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     Vos observations
                   </span>
-                  <span className="text-[10px] font-medium text-gray-500">
+                  <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
                     {review.length}/2000
                   </span>
                 </div>
@@ -171,11 +171,11 @@ export const CaseFeedbackModal = ({
                   value={review}
                   onChange={(event) => setReview(event.target.value.slice(0, 2000))}
                   placeholder="Ce qui fonctionne bien et ce qui mérite d'être amélioré..."
-                  className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-[#F8589F] focus:bg-white focus:ring-2 focus:ring-[#F8589F]/20"
+                  className="w-full resize-none rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-[13px] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none transition-all focus:border-[#F8589F] focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-[#F8589F]/20"
                   rows={3}
                   disabled={isSubmitting}
                 />
-                <p className="mt-2 text-[10px] leading-relaxed text-gray-500">
+                <p className="mt-2 text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
                   <span className="inline-flex items-center gap-1">
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -210,7 +210,7 @@ export const CaseFeedbackModal = ({
                 <button
                   type="button"
                   onClick={onSkip}
-                  className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-[13px] font-semibold text-gray-700 dark:text-gray-300 transition-all hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isSubmitting}
                 >
                   Plus tard
@@ -229,7 +229,7 @@ export const CaseFeedbackModal = ({
                     }
                   }}
                   disabled={!canSubmit}
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-[#F8589F]/25 transition-all hover:shadow-xl hover:shadow-[#F8589F]/30 focus:outline-none focus:ring-2 focus:ring-[#F8589F] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-[#F8589F]/25 dark:shadow-[#F8589F]/10 transition-all hover:shadow-xl hover:shadow-[#F8589F]/30 dark:hover:shadow-[#F8589F]/20 focus:outline-none focus:ring-2 focus:ring-[#F8589F] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                 >
                   Envoyer et retourner au tableau de bord
                   <svg

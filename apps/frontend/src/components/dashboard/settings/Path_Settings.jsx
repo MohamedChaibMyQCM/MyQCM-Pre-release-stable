@@ -69,14 +69,14 @@ const Path_Settings = ({
   if (isLoading) {
     return (
       <div className="mt-4 rounded-[16px]">
-        <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+        <h3 className="font-[500] text-[17px] mb-4 text-card-foreground">
           Choisissez votre parcours vers la maîtrise
         </h3>
-        <div className="bg-[#FFFFFF] p-6 rounded-[16px] box">
+        <div className="bg-card p-6 rounded-[16px] box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)]">
           <div className="animate-pulse space-y-4">
-            <div className="h-20 bg-gray-200 rounded"></div>
-            <div className="h-20 bg-gray-200 rounded"></div>
-            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-muted rounded"></div>
+            <div className="h-20 bg-muted rounded"></div>
+            <div className="h-20 bg-muted rounded"></div>
           </div>
         </div>
       </div>
@@ -85,10 +85,10 @@ const Path_Settings = ({
 
   return (
     <div className="mt-10 rounded-[16px]">
-      <h3 className="font-[500] text-[17px] mb-4 text-[#191919]">
+      <h3 className="font-[500] text-[17px] mb-4 text-card-foreground">
         Choisissez votre parcours vers la maîtrise
       </h3>
-      <div className="bg-[#FFFFFF] pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box max-md:flex-col max-md:pr-6">
+      <div className="bg-card pl-6 pr-12 py-6 flex items-center justify-between rounded-[16px] box border border-border shadow-[0px_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0px_2px_8px_rgba(0,0,0,0.3)] max-md:flex-col max-md:pr-6">
         <form className="w-full">
           {learningModes.map((mode) => {
             const isLocked = mode.requiresPremium && !hasPremiumPlan;
@@ -99,8 +99,8 @@ const Path_Settings = ({
                 key={mode.id}
                 className={`relative flex flex-col p-4 rounded-[8px] w-[90%] border max-md:w-full ${
                   displayedSelectedModeId === mode.id && !isLocked
-                    ? "bg-[#FFF5FA] border-[#F8589F]"
-                    : "border-[#E4E4E4]"
+                    ? "bg-[#FFF5FA] dark:bg-pink-950/20 border-[#F8589F]"
+                    : "border-border"
                 } ${
                   mode.id !== "8770d57c-ad5f-4096-8f26-7cf8a1b67f79" ? "mb-4" : ""
                 } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -115,9 +115,9 @@ const Path_Settings = ({
 
                 {/* Tooltip */}
                 {isLocked && hoveredMode === mode.id && (
-                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-[#191919] text-white text-xs rounded-md px-3 py-2 whitespace-nowrap z-10 shadow-lg">
+                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-card border border-border text-card-foreground text-xs rounded-md px-3 py-2 whitespace-nowrap z-10 shadow-lg">
                     {premiumTooltip}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#191919]"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-card"></div>
                   </div>
                 )}
 
@@ -158,7 +158,7 @@ const Path_Settings = ({
                   />
                   <Label
                     htmlFor={mode.id}
-                    className={`text-[#191919] font-[500] text-[15px] ${
+                    className={`text-card-foreground font-[500] text-[15px] ${
                       isDisabled ? "cursor-not-allowed" : ""
                     }`}
                   >
@@ -168,7 +168,7 @@ const Path_Settings = ({
                   </Label>
                 </div>
                 <p
-                  className={`text-[12px] pl-[34px] text-[#666666] ${
+                  className={`text-[12px] pl-[34px] text-muted-foreground ${
                     isDisabled ? "opacity-70" : ""
                   }`}
                 >

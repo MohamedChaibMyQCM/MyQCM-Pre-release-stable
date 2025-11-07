@@ -270,6 +270,16 @@ export default function KanbanItemsReviewPage() {
     };
   }, [items]);
 
+  const handleStartEdit = React.useCallback(
+    (itemId: string) => {
+      const match = items.find((candidate) => candidate.id === itemId);
+      if (match) {
+        setEditingItem(match);
+      }
+    },
+    [items],
+  );
+
   if (loading) {
     return (
       <FreelancerLayout>
@@ -394,7 +404,7 @@ export default function KanbanItemsReviewPage() {
                     {item.type.toUpperCase()}
                   </Badge>
                   <button
-                    onClick={() => setEditingItem(item as ItemData)}
+                    onClick={() => handleStartEdit(item.id)}
                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   >
                     <Edit className="h-4 w-4" />

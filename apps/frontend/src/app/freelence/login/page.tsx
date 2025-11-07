@@ -20,9 +20,6 @@ type SigninResponse = {
 
 export default function FreelancerLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +29,14 @@ export default function FreelancerLoginPage() {
     setLoading(true);
 
     try {
+      const formData = new FormData(event.currentTarget);
+      const email = (formData.get("email") as string)?.trim() ?? "";
+      const password = (formData.get("password") as string) ?? "";
+
+      if (!email || !password) {
+        throw new Error("Please provide both email and password.");
+      }
+
       const response = await apiFetch<SigninResponse>(
         "/auth/freelancer/signin",
         {
@@ -108,9 +113,8 @@ export default function FreelancerLoginPage() {
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     id="email"
+                    name="email"
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
                     placeholder="freelancer@example.com"
@@ -131,9 +135,8 @@ export default function FreelancerLoginPage() {
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     id="password"
+                    name="password"
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
                     placeholder="••••••••"
@@ -147,9 +150,8 @@ export default function FreelancerLoginPage() {
                 <div className="flex items-center space-x-2">
                   <input
                     id="remember"
+                    name="remember"
                     type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
                     className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     disabled={loading}
                   />

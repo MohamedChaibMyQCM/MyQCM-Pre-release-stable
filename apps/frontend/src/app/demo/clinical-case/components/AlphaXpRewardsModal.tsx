@@ -79,6 +79,7 @@ export const AlphaXpRewardsModal = ({
       description: rewards.breakdown.testing,
       color: "from-[#F8589F] to-[#FD2E8A]",
       bgColor: "from-[#F8589F]/10 to-[#FD2E8A]/10",
+      darkBgColor: "dark:from-[#F8589F]/10 dark:to-[#FD2E8A]/10",
     },
     {
       label: "Temps d'exploration",
@@ -86,6 +87,7 @@ export const AlphaXpRewardsModal = ({
       description: rewards.breakdown.timeSpent,
       color: "from-blue-500 to-indigo-600",
       bgColor: "from-blue-50 to-indigo-50",
+      darkBgColor: "dark:from-blue-900/20 dark:to-indigo-900/20",
     },
     {
       label: "Qualité du feedback",
@@ -93,6 +95,7 @@ export const AlphaXpRewardsModal = ({
       description: rewards.breakdown.feedbackQuality,
       color: "from-amber-500 to-yellow-600",
       bgColor: "from-amber-50 to-yellow-50",
+      darkBgColor: "dark:from-amber-900/20 dark:to-yellow-900/20",
     },
   ];
 
@@ -110,7 +113,7 @@ export const AlphaXpRewardsModal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-[480px] overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="relative w-full max-w-[480px] overflow-hidden rounded-2xl bg-white dark:bg-[#2a2a2a] shadow-2xl dark:shadow-[0px_8px_24px_rgba(0,0,0,0.4)]"
           >
             {/* Header with total XP */}
             <div className="relative overflow-hidden bg-gradient-to-br from-[#F8589F] via-[#FD2E8A] to-[#FF7CB1] px-6 py-8 text-center text-white">
@@ -158,7 +161,7 @@ export const AlphaXpRewardsModal = ({
 
             {/* XP Breakdown */}
             <div className="px-6 py-6">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Détail des récompenses
               </h3>
 
@@ -169,11 +172,11 @@ export const AlphaXpRewardsModal = ({
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.6 + index * 0.1 }}
-                    className={`flex items-center justify-between rounded-xl bg-gradient-to-r ${item.bgColor} p-4`}
+                    className={`flex items-center justify-between rounded-xl bg-gradient-to-r ${item.bgColor} ${item.darkBgColor} p-4`}
                   >
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-900">{item.label}</div>
-                      <div className="mt-1 text-xs text-gray-600">
+                      <div className="font-semibold text-gray-900 dark:text-white">{item.label}</div>
+                      <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                         {item.description}
                       </div>
                     </div>
@@ -190,7 +193,7 @@ export const AlphaXpRewardsModal = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
                 onClick={onClose}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#F8589F]/25 transition-all hover:shadow-xl hover:shadow-[#F8589F]/30"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F8589F] to-[#FD2E8A] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#F8589F]/25 dark:shadow-[#F8589F]/10 transition-all hover:shadow-xl hover:shadow-[#F8589F]/30 dark:hover:shadow-[#F8589F]/20"
               >
                 <TrendingUp className="h-4 w-4" />
                 Voir mon classement

@@ -139,7 +139,11 @@ const SynergyShedule = ({ setPopup, courseId, quiz = {} }) => {
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
       >
         <div className="flex items-center justify-between mb-3">
-          <Image src={season} alt="season icon" className="w-[24px]" />
+          <Image
+            src={season}
+            alt="season icon"
+            className="w-[24px] opacity-80 dark:brightness-0 dark:invert"
+          />
           <span className="text-foreground font-[600] text-[18px]">
             Planification de la séance
           </span>

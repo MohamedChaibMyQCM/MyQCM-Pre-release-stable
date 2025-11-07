@@ -16,13 +16,19 @@ import {
   parseISO,
   startOfDay,
   endOfDay,
+  isValid,
+  isWithinInterval,
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
+const MotionDiv = motion.div;
+const MotionButton = motion.button;
 // --- Tooltip component (Keep the working version with click/touch) ---
-const Tooltip = ({ children, content }) => {
+const Tooltip = ({ children, content, onActivate }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const tooltipRef = useRef(null);
@@ -40,10 +46,14 @@ const Tooltip = ({ children, content }) => {
     if (!isTouchDevice) setIsVisible(false);
   };
   const handleClick = (event) => {
-    if (isTouchDevice) {
-      event.stopPropagation();
-      setIsVisible((prev) => !prev);
+    if (!isTouchDevice) return;
+    event.stopPropagation();
+    if (typeof onActivate === "function") {
+      onActivate();
+      setIsVisible(false);
+      return;
     }
+    setIsVisible((prev) => !prev);
   };
 
   useEffect(() => {
@@ -87,32 +97,217 @@ const timeSlots = [
   "22:00",
 ];
 
-const Learning_calendar = () => {
+const SEASON_STATUS_CONFIG = {
+  good: { label: "Bonnes réponses", color: "#22c55e" },
+  bad: { label: "Réponses incorrectes", color: "#ef4444" },
+  neutral: { label: "Neutres", color: "#facc15" },
+  skipped: { label: "Ignorées", color: "#ec4899" },
+};
+
+const SEASON_STATUS_SUMMARY = {
+  good: "Saison réussie",
+  bad: "Saison à retravailler",
+  neutral: "Saison équilibrée",
+  skipped: "Questions ignorées",
+};
+
+const getTimeSlotLabelFromHour = (hour = 0) => {
+  if (hour < 10) return "10:00";
+  if (hour < 12) return "12:00";
+  if (hour < 14) return "14:00";
+  if (hour < 16) return "16:00";
+  if (hour < 18) return "18:00";
+  if (hour < 20) return "20:00";
+  return "22:00";
+};
+
+const getTimeSlotLabelFromDate = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return getTimeSlotLabelFromHour();
+  }
+  return getTimeSlotLabelFromHour(date.getHours());
+};
+
+const categorizeProgressAttempt = (attempt) => {
+  if (!attempt) return "neutral";
+  if (attempt.is_skipped) return "skipped";
+  const ratio =
+    typeof attempt.success_ratio === "number" ? attempt.success_ratio : null;
+  if (ratio === null) return "neutral";
+  if (ratio >= 0.8) return "good";
+  if (ratio <= 0.4) return "bad";
+  return "neutral";
+};
+
+const getDominantCategory = (counts) => {
+  let dominant = "neutral";
+  let max = -1;
+  Object.entries(counts).forEach(([key, value]) => {
+    if (value > max) {
+      dominant = key;
+      max = value;
+    }
+  });
+  return dominant;
+};
+
+const buildSeasonDotStyle = (counts) => {
+  const total = Object.values(counts || {}).reduce((sum, val) => sum + val, 0);
+  if (!total) {
+    return { backgroundColor: "rgba(255, 255, 255, 0.2)" };
+  }
+
+  if (counts.skipped === total) {
+    return { backgroundColor: SEASON_STATUS_CONFIG.skipped.color };
+  }
+
+  const order = ["good", "neutral", "bad", "skipped"];
+  let currentAngle = 0;
+  const segments = [];
+
+  order.forEach((key) => {
+    const value = counts[key];
+    if (!value) return;
+    const nextAngle = currentAngle + (value / total) * 360;
+    segments.push(
+      `${SEASON_STATUS_CONFIG[key].color} ${currentAngle}deg ${nextAngle}deg`,
+    );
+    currentAngle = nextAngle;
+  });
+
+  if (!segments.length) {
+    return { backgroundColor: "rgba(255, 255, 255, 0.2)" };
+  }
+
+  return {
+    background: `conic-gradient(${segments.join(", ")})`,
+  };
+};
+
+const Learning_calendar = ({ unitId, subjectId, dateRange }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [interactionsByTime, setInteractionsByTime] = useState({});
-  const [interactionDetails, setInteractionDetails] = useState({});
+  const router = useRouter();
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  const dayVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.2 + i * 0.05,
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+      },
+    }),
+  };
+
+  const timeSlotVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: 0.4 + i * 0.05,
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    }),
+  };
+
+  const dotVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: (i) => ({
+      scale: 1,
+      opacity: 1,
+      transition: {
+        delay: 0.6 + i * 0.05,
+        type: "spring",
+        stiffness: 400,
+        damping: 20,
+      },
+    }),
+  };
 
   const formattedSelectedDate = format(selectedDate, "yyyy-MM-dd");
 
+  const dateRangeKey = useMemo(() => {
+    if (!dateRange?.from) return "all";
+    const fromKey = format(dateRange.from, "yyyy-MM-dd");
+    const toKey = dateRange.to
+      ? format(dateRange.to, "yyyy-MM-dd")
+      : fromKey;
+    return `${fromKey}:${toKey}`;
+  }, [dateRange]);
+
   const { data: fetchedProgress, isLoading } = useQuery({
-    queryKey: ["learningCalendarProgress", formattedSelectedDate],
+    queryKey: [
+      "learningCalendarProgress",
+      formattedSelectedDate,
+      unitId || "all-units",
+      subjectId || "all-subjects",
+      dateRangeKey,
+    ],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) return [];
       try {
+        const params = {
+          date: formattedSelectedDate,
+          offset: 250,
+          page: 1,
+        };
+        if (unitId) params.unit = unitId;
+        if (subjectId) params.subject = subjectId;
+
         const response = await BaseUrl.get("/progress", {
-          params: {
-            date: formattedSelectedDate,
-            offset: 100, // Request higher offset to capture all attempts for heavy study days
-            page: 1
-          },
+          params,
           headers: { Authorization: `Bearer ${token}` },
         });
         return response.data.data?.progress || [];
       } catch (error) {
         toast.error(
-          "Erreur lors de la récupération des données d'apprentissage."
+          "Erreur lors de la récupération des données d'apprentissage.",
         );
         console.error("Fetch error:", error);
         return [];
@@ -121,101 +316,143 @@ const Learning_calendar = () => {
     enabled: !!formattedSelectedDate,
   });
 
-  // Get appropriate feedback summary (keep original logic)
-  const getFeedbackSummary = (feedback) => {
-    if (!feedback) return "Pas de feedback";
-    if (typeof feedback !== "string") return "Feedback invalide";
-
-    if (feedback.includes("Perfect") || feedback.includes("completely correct"))
-      return "Réponse parfaite";
-    if (
-      feedback.includes("pertinente") ||
-      feedback.includes("aborde les principaux")
-    )
-      return "Réponse partiellement correcte";
-    // Keep original fallback
-    return "Réponse à améliorer";
-  };
-
-  // Get appropriate color based on feedback (keep original logic)
-  const getFeedbackColor = (feedback) => {
-    if (!feedback || typeof feedback !== "string") return "gray";
-
-    if (feedback.includes("Perfect") || feedback.includes("completely correct"))
-      return "green";
-    if (
-      feedback.includes("pertinente") ||
-      feedback.includes("aborde les principaux")
-    )
-      return "yellow";
-    // Keep original fallback
-    return "red"; // Or "pink" if preferred
-  };
-
-  // useEffect logic
   useEffect(() => {
-    // Initialize maps outside the conditional logic
-    const initialTimeMap = {};
-    const initialDetailsMap = {};
-    timeSlots.forEach((time) => {
-      initialTimeMap[time] = 0;
-      initialDetailsMap[time] = [];
+    if (!dateRange?.from) return;
+    const rangeStart = startOfDay(dateRange.from);
+    const rangeEnd = endOfDay(dateRange.to ?? dateRange.from);
+
+    const isInsideRange = isWithinInterval(selectedDate, {
+      start: rangeStart,
+      end: rangeEnd,
     });
 
-    if (fetchedProgress && fetchedProgress.length > 0) {
-      // Check if fetchedProgress has data
-      const timeMap = { ...initialTimeMap }; // Start with initialized map
-      const detailsMap = { ...initialDetailsMap }; // Start with initialized map
-
-      const selectedDateStart = startOfDay(selectedDate);
-      const selectedDateEnd = endOfDay(selectedDate);
-
-      fetchedProgress.forEach((item) => {
-        if (!item || !item.createdAt) return;
-        try {
-          const itemDate = parseISO(item.createdAt);
-          if (
-            !isNaN(itemDate) &&
-            itemDate >= selectedDateStart &&
-            itemDate <= selectedDateEnd
-          ) {
-            const hour = itemDate.getHours();
-            let timeSlot;
-            if (hour < 10) timeSlot = "10:00";
-            else if (hour < 12) timeSlot = "12:00";
-            else if (hour < 14) timeSlot = "14:00";
-            else if (hour < 16) timeSlot = "16:00";
-            else if (hour < 18) timeSlot = "18:00";
-            else if (hour < 20) timeSlot = "20:00";
-            else timeSlot = "22:00";
-
-            // Only update if the slot exists (it always should now)
-            if (timeMap.hasOwnProperty(timeSlot)) {
-              timeMap[timeSlot] += 1;
-              detailsMap[timeSlot].push({
-                id: item.id || `detail-${Math.random()}`,
-                time: format(itemDate, "HH:mm"),
-                feedback: item.feedback || null,
-                success_ratio: item.success_ratio ?? 0,
-                timeSpent: item.time_spent ?? 0,
-                xp: item.gained_xp ?? 0,
-              });
-            }
-          }
-        } catch (e) {
-          console.error("Error processing progress item:", item, e);
-        }
-      });
-
-      setInteractionsByTime(timeMap);
-      setInteractionDetails(detailsMap);
-    } else {
-      // Reset to empty maps if fetchedProgress is empty, null, or undefined
-      setInteractionsByTime(initialTimeMap);
-      setInteractionDetails(initialDetailsMap);
+    if (!isInsideRange) {
+      setSelectedDate(rangeStart);
+      setCurrentDate(rangeStart);
     }
-    // *** Remove timeSlots from dependency array ***
-  }, [fetchedProgress, selectedDate]);
+  }, [dateRange, selectedDate]);
+
+  const seasonAggregation = useMemo(() => {
+    const baseTimeMap = {};
+    const baseDetailsMap = {};
+    timeSlots.forEach((slot) => {
+      baseTimeMap[slot] = 0;
+      baseDetailsMap[slot] = [];
+    });
+
+    if (!Array.isArray(fetchedProgress) || fetchedProgress.length === 0) {
+      return {
+        timeMap: baseTimeMap,
+        detailMap: baseDetailsMap,
+        totalSeasons: 0,
+      };
+    }
+
+    const seasonsMap = new Map();
+
+    fetchedProgress.forEach((item) => {
+      if (!item) return;
+      const sessionId = item.session?.id ?? `standalone-${item.id}`;
+      const attemptDate =
+        item.createdAt && typeof item.createdAt === "string"
+          ? parseISO(item.createdAt)
+          : null;
+      const validDate =
+        attemptDate && isValid(attemptDate) ? attemptDate : null;
+      const isSessionless = !item.session?.id;
+      if (!seasonsMap.has(sessionId)) {
+        const fallbackTitle = isSessionless
+          ? "Pratique libre"
+          : "Saison sans titre";
+        seasonsMap.set(sessionId, {
+          id: sessionId,
+          sessionId: item.session?.id ?? null,
+          sessionTitle:
+            item.session?.title?.trim() && item.session?.title.length > 0
+              ? item.session.title
+              : fallbackTitle,
+          counts: { good: 0, bad: 0, neutral: 0, skipped: 0 },
+          totalMcqs: 0,
+          sumSuccessRatio: 0,
+          totalXp: 0,
+          attempts: [],
+          earliest: validDate,
+          latest: validDate,
+        });
+      }
+
+      const season = seasonsMap.get(sessionId);
+      const category = categorizeProgressAttempt(item);
+
+      season.counts[category] += 1;
+      season.totalMcqs += 1;
+      season.totalXp += item.gained_xp ?? 0;
+      if (typeof item.success_ratio === "number") {
+        season.sumSuccessRatio += item.success_ratio;
+      }
+      if (validDate) {
+        if (!season.earliest || validDate < season.earliest) {
+          season.earliest = validDate;
+        }
+        if (!season.latest || validDate > season.latest) {
+          season.latest = validDate;
+        }
+      }
+      season.attempts.push({
+        id: item.id || `attempt-${Math.random()}`,
+        createdAt: validDate,
+        category,
+        isSkipped: item.is_skipped,
+      });
+    });
+
+    const seasons = Array.from(seasonsMap.values()).map((season) => {
+      const total = season.totalMcqs;
+      const avgSuccessRatio =
+        total > 0 ? season.sumSuccessRatio / total : 0;
+      const earliest = season.earliest ?? null;
+      const timeSlot = getTimeSlotLabelFromDate(
+        earliest ?? new Date(currentDate),
+      );
+
+      return {
+        ...season,
+        avgSuccessRatio,
+        earliest,
+        timeSlot,
+        isAllSkipped: total > 0 && season.counts.skipped === total,
+        dominantCategory: getDominantCategory(season.counts),
+      };
+    });
+
+    seasons.forEach((season) => {
+      const slot = season.timeSlot ?? timeSlots[timeSlots.length - 1];
+      if (!baseDetailsMap[slot]) {
+        baseDetailsMap[slot] = [];
+        baseTimeMap[slot] = 0;
+      }
+      baseDetailsMap[slot].push(season);
+      baseTimeMap[slot] += 1;
+    });
+
+    Object.values(baseDetailsMap).forEach((details) => {
+      details.sort((a, b) => {
+        const aTime = a.earliest ? a.earliest.getTime() : 0;
+        const bTime = b.earliest ? b.earliest.getTime() : 0;
+        return aTime - bTime;
+      });
+    });
+
+    return {
+      timeMap: baseTimeMap,
+      detailMap: baseDetailsMap,
+      totalSeasons: seasons.length,
+    };
+  }, [fetchedProgress, currentDate]);
+
+  const interactionsByTime = seasonAggregation.timeMap;
+  const interactionDetails = seasonAggregation.detailMap;
+  const totalDailyInteractions = seasonAggregation.totalSeasons;
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -233,13 +470,6 @@ const Learning_calendar = () => {
     setSelectedDate(date);
   };
 
-  const totalDailyInteractions = useMemo(() => {
-    return Object.values(interactionsByTime).reduce(
-      (sum, count) => sum + (count || 0),
-      0
-    );
-  }, [interactionsByTime]);
-
   if (isLoading) {
     return (
       <div className="flex-1 mb-6 md:mb-0">
@@ -255,51 +485,93 @@ const Learning_calendar = () => {
 
   // Keep the rest of the JSX exactly the same as your last provided version
   return (
-    <div id="tour-learning-calendar" className="flex-1 mb-6 md:mb-0">
-      <h3 className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919] dark:text-white">
+    <MotionDiv
+      id="tour-learning-calendar"
+      className="flex-1 mb-6 md:mb-0"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.h3
+        className="font-[500] text-[16px] sm:text-[17px] mb-3 sm:mb-4 text-[#191919] dark:text-white"
+        variants={headerVariants}
+      >
         Calendrier d&apos;apprentissage
-      </h3>
-      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] p-4 sm:py-6 sm:px-6 box border border-transparent dark:border-gray-700">
+      </motion.h3>
+      <MotionDiv
+        className="bg-[#FFFFFF] dark:bg-[#1a1a1a] rounded-[16px] p-4 sm:py-6 sm:px-6 box border border-transparent dark:border-gray-700"
+        variants={cardVariants}
+        whileHover={{
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
+          transition: { duration: 0.3 },
+        }}
+      >
         <Card className="border-none shadow-none">
           <CardContent className="p-0">
             {/* Header: Legend and Navigation */}
-            <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4">
-              <div className="flex items-center">
-                {/* Using a neutral color dot for the legend */}
-                <div className="w-3 h-3 bg-pink-500 rounded-full mr-2 flex-shrink-0"></div>
-                <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Interactions (clic/survol pour détails)
+            <motion.div
+              className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  Saisons (clic/survol pour détails)
                 </span>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {Object.entries(SEASON_STATUS_CONFIG).map(([key, meta]) => (
+                    <div key={key} className="flex items-center gap-1">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-white/20"
+                        style={{ backgroundColor: meta.color }}
+                        aria-hidden="true"
+                      ></span>
+                      <span className="text-[11px] sm:text-xs">{meta.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-4">
-                <button
+                <MotionButton
                   onClick={handlePrevWeek}
                   className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50"
                   aria-label="Semaine précédente"
+                  whileHover={{ scale: 1.1, x: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                 >
                   <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
-                </button>
-                <span className="font-medium text-xs sm:text-sm text-center w-[140px] sm:w-auto text-gray-700 dark:text-white">
+                </MotionButton>
+                <motion.span
+                  className="font-medium text-xs sm:text-sm text-center w-[140px] sm:w-auto text-gray-700 dark:text-white"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                >
                   {format(weekStart, "d MMM")} -{" "}
                   {format(weekEnd, "d MMM, yyyy")}
-                </span>
-                <button
+                </motion.span>
+                <MotionButton
                   onClick={handleNextWeek}
                   className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50"
                   aria-label="Semaine suivante"
+                  whileHover={{ scale: 1.1, x: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                 >
                   <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
-                </button>
+                </MotionButton>
               </div>
-            </div>
+            </motion.div>
 
             {/* Week Day Selector */}
             <div className="flex mb-3 sm:mb-4">
-              {weekDays.map((day) => {
+              {weekDays.map((day, index) => {
                 const isSelected = isSameDay(day, selectedDate);
                 const isToday = isSameDay(day, new Date());
                 return (
-                  <div
+                  <MotionDiv
                     key={day.toISOString()} // Use ISO string for key
                     className={`flex-1 text-center py-1 cursor-pointer rounded transition-colors duration-150 ${
                       isSelected ? "bg-pink-100 dark:bg-pink-900/30" : "hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -312,6 +584,13 @@ const Learning_calendar = () => {
                       (e.key === "Enter" || e.key === " ") &&
                       handleDateSelect(day)
                     }
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={dayVariants}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   >
                     <div
                       className={`text-[11px] sm:text-xs uppercase tracking-wide ${
@@ -331,7 +610,7 @@ const Learning_calendar = () => {
                     >
                       {format(day, "d")}
                     </div>
-                  </div>
+                  </MotionDiv>
                 );
               })}
             </div>
@@ -344,7 +623,7 @@ const Learning_calendar = () => {
                 </span>
               </div>
 
-              {timeSlots.map((time) => {
+              {timeSlots.map((time, timeIndex) => {
                 const interactionCount = interactionsByTime[time] || 0;
                 const details = interactionDetails[time] || [];
                 const hour = parseInt(time.split(":")[0], 10);
@@ -352,9 +631,13 @@ const Learning_calendar = () => {
                 const displayTime = format(new Date(0, 0, 0, hour), "HH:mm");
 
                 return (
-                  <div
+                  <MotionDiv
                     key={time}
                     className="flex items-center relative min-h-[32px] sm:min-h-[36px]"
+                    custom={timeIndex}
+                    initial="hidden"
+                    animate="visible"
+                    variants={timeSlotVariants}
                   >
                     {/* Time Label */}
                     <div className="w-12 sm:w-14 text-right text-gray-400 dark:text-gray-500 text-[10px] sm:text-xs pr-2 sm:pr-3 flex-shrink-0 tabular-nums">
@@ -369,94 +652,192 @@ const Learning_calendar = () => {
                       <div className="absolute top-1/2 transform -translate-y-1/2 left-[54px] sm:left-[62px] right-0 flex items-center justify-between pr-2 sm:pr-4">
                         {/* Container for the dots */}
                         <div className="flex space-x-1 items-center">
-                          {details.slice(0, 8).map((detail) => {
-                            // Limit to showing 8 dots initially
-                            const color = getFeedbackColor(detail.feedback);
+                          {details.slice(0, 8).map((detail, dotIndex) => {
+                            const dominantMeta =
+                              SEASON_STATUS_CONFIG[detail.dominantCategory] ||
+                              SEASON_STATUS_CONFIG.neutral;
+                            const dotStyle = buildSeasonDotStyle(detail.counts);
+                            const hoverShadowColor = dominantMeta.color;
+                            const timeLabel = detail.earliest
+                              ? format(detail.earliest, "HH:mm")
+                              : "—";
+                            const endTimeLabel =
+                              detail.latest &&
+                              detail.earliest &&
+                              detail.latest.getTime() !== detail.earliest.getTime()
+                                ? format(detail.latest, "HH:mm")
+                                : null;
+                            const isReplayAvailable = Boolean(detail.sessionId);
+                            const accuracyDisplay =
+                              typeof detail.avgSuccessRatio === "number" &&
+                              !Number.isNaN(detail.avgSuccessRatio)
+                                ? `${Math.round(detail.avgSuccessRatio * 100)}%`
+                                : "—";
+                            const summaryCounts = Object.entries(detail.counts || {}).filter(
+                              ([, value]) => value > 0,
+                            );
+
+                            const navigateToReplay = () => {
+                              if (!isReplayAvailable) {
+                                toast.error("Aucun replay disponible pour cette saison.");
+                                return;
+                              }
+                              router.push(
+                                `/dashboard/question-bank/session/${detail.sessionId}/replay?date=${formattedSelectedDate}`,
+                              );
+                            };
+
                             return (
                               <Tooltip
                                 key={detail.id}
                                 content={
-                                  <div className="text-xs text-left">
-                                    <div className="font-medium mb-1">
-                                      {detail.time}
+                                  <div className="text-xs text-left space-y-2 max-w-[220px]">
+                                    <div>
+                                      <div className="font-semibold text-white">
+                                        {detail.sessionTitle}
+                                      </div>
+                                      <div className="text-[10px] text-gray-300">
+                                        {timeLabel}
+                                        {endTimeLabel ? ` - ${endTimeLabel}` : ""}
+                                      </div>
                                     </div>
-                                    <div
-                                      className={`capitalize ${
-                                        color === "green"
-                                          ? "text-green-400"
-                                          : color === "yellow"
-                                          ? "text-yellow-400"
-                                          : "text-pink-400" // Assuming pink for 'red' case
-                                      }`}
-                                    >
-                                      {getFeedbackSummary(detail.feedback)}
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
+                                      {summaryCounts.length === 0 && (
+                                        <span className="col-span-2 text-gray-300">
+                                          Aucune donnée disponible
+                                        </span>
+                                      )}
+                                      {summaryCounts.map(([key, value]) => (
+                                        <span key={key} className="flex items-center gap-1">
+                                          <span
+                                            className="w-2 h-2 rounded-full"
+                                            style={{
+                                              backgroundColor:
+                                                SEASON_STATUS_CONFIG[key]?.color,
+                                            }}
+                                            aria-hidden="true"
+                                          ></span>
+                                          <span>
+                                            {SEASON_STATUS_CONFIG[key]?.label}: {value}
+                                          </span>
+                                        </span>
+                                      ))}
                                     </div>
-                                    {/* Keep original null/undefined checks */}
-                                    {detail.timeSpent != null && (
-                                      <div>Durée: {detail.timeSpent}s</div>
-                                    )}
-                                    {detail.xp != null && detail.xp > 0 && (
-                                      <div>XP: +{detail.xp}</div>
-                                    )}
+                                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-200">
+                                      <span>
+                                        MCQ : <strong>{detail.totalMcqs}</strong>
+                                      </span>
+                                      <span>
+                                        Précision : <strong>{accuracyDisplay}</strong>
+                                      </span>
+                                      {detail.totalXp > 0 && (
+                                        <span>
+                                          XP : <strong>+{detail.totalXp}</strong>
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-[11px] text-gray-200">
+                                      {SEASON_STATUS_SUMMARY[detail.dominantCategory] ||
+                                        SEASON_STATUS_SUMMARY.neutral}
+                                    </div>
+                                    <div className="pt-1 text-[10px] text-gray-300 opacity-80">
+                                      {isReplayAvailable
+                                        ? "Cliquer pour revoir la saison"
+                                        : "Replay indisponible"}
+                                    </div>
                                   </div>
                                 }
+                                onActivate={isReplayAvailable ? navigateToReplay : undefined}
                               >
-                                {/* The actual colored dot */}
-                                <div
-                                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full cursor-pointer shadow-sm border border-white ${
-                                    color === "green"
-                                      ? "bg-green-500 hover:bg-green-400"
-                                      : color === "yellow"
-                                      ? "bg-yellow-400 hover:bg-yellow-300"
-                                      : "bg-pink-500 hover:bg-pink-400" // Keep original pink/red logic
-                                  }`}
-                                  aria-label={`Interaction à ${detail.time}`}
-                                ></div>
+                                <motion.div
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full cursor-pointer shadow-sm border border-white/40"
+                                  style={dotStyle}
+                                  aria-label={`Saison ${detail.sessionTitle}`}
+                                  custom={dotIndex}
+                                  initial="hidden"
+                                  animate="visible"
+                                  variants={dotVariants}
+                                  whileHover={{
+                                    scale: 1.2,
+                                    boxShadow: `0 0 12px ${hoverShadowColor}99`,
+                                  }}
+                                  whileTap={{ scale: 0.92 }}
+                                  onClick={isReplayAvailable ? navigateToReplay : undefined}
+                                ></motion.div>
                               </Tooltip>
                             );
                           })}
                           {/* Indicator if more dots exist */}
                           {interactionCount > 8 && (
-                            <span className="text-[9px] sm:text-[10px] text-pink-400 ml-1 font-medium">
+                            <motion.span
+                              className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500 ml-1 font-medium"
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.65, type: "spring", stiffness: 280 }}
+                            >
                               +{interactionCount - 8}
-                            </span>
+                            </motion.span>
                           )}
                         </div>
                         {/* Total count for the time slot */}
-                        <div className="text-pink-500 font-medium text-[11px] sm:text-xs ml-2 tabular-nums">
+                        <motion.div
+                          className="text-gray-600 dark:text-gray-200 font-medium text-[11px] sm:text-xs ml-2 tabular-nums"
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.6, duration: 0.3 }}
+                        >
                           {interactionCount}
-                        </div>
+                        </motion.div>
                       </div>
                     )}
-                  </div>
+                  </MotionDiv>
                 );
               })}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-2"></div>
             </div>
 
             {/* Summary Footer */}
-            {!isLoading && totalDailyInteractions > 0 && (
-              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3">
-                <p>
-                  Total le {format(selectedDate, "d MMMM yyyy", { locale: fr })}
-                  :{" "}
-                  <span className="font-semibold text-pink-500">
-                    {totalDailyInteractions} interaction
-                    {totalDailyInteractions > 1 ? "s" : ""}
-                  </span>
-                </p>
-              </div>
-            )}
-            {!isLoading && totalDailyInteractions === 0 && (
-              <div className="mt-6 text-center text-gray-400 dark:text-gray-500 text-xs sm:text-sm py-4">
-                Aucune interaction enregistrée pour le{" "}
-                {format(selectedDate, "d MMMM yyyy", { locale: fr })}.
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {!isLoading && totalDailyInteractions > 0 && (
+                <motion.div
+                  className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ delay: 0.8, duration: 0.4 }}
+                >
+                  <p>
+                    Total le {format(selectedDate, "d MMMM yyyy", { locale: fr })}
+                    :{" "}
+                    <motion.span
+                      className="font-semibold text-pink-500"
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 1, type: "spring", stiffness: 200 }}
+                    >
+                      {totalDailyInteractions} saison
+                      {totalDailyInteractions > 1 ? "s" : ""}
+                    </motion.span>
+                  </p>
+                </motion.div>
+              )}
+              {!isLoading && totalDailyInteractions === 0 && (
+                <motion.div
+                  className="mt-6 text-center text-gray-400 dark:text-gray-500 text-xs sm:text-sm py-4"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                >
+                  Aucune saison enregistrée pour le{" "}
+                  {format(selectedDate, "d MMMM yyyy", { locale: fr })}.
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
 };
 

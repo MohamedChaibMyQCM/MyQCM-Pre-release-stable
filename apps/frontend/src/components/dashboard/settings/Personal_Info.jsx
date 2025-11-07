@@ -23,7 +23,7 @@ const Personal_Info = () => {
     setTokenReady(true);
   }, []);
 
-  const { data: userData, isLoading, error } = useQuery({
+  const { data: userData, isLoading: isLoadingProfile, error: profileError } = useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
       try {
@@ -34,7 +34,7 @@ const Personal_Info = () => {
         });
         return response.data?.data || {};
       } catch (err) {
-        toast.error("Failed to fetch user data. Please try again later.");
+        toast.error("Failed to fetch user profile data. Please try again later.");
         throw err;
       }
     },
@@ -42,7 +42,7 @@ const Personal_Info = () => {
     retry: false,
   });
 
-  const { data: userPro, refetch: refetchUserPro } = useQuery({
+  const { data: userPro, isLoading: isLoadingUser, error: userError, refetch: refetchUserPro } = useQuery({
     queryKey: ["userPro"],
     queryFn: async () => {
       try {
@@ -74,7 +74,19 @@ const Personal_Info = () => {
     await refetchUserPro();
   };
 
+  console.log('Personal_Info Debug:', {
+    tokenReady,
+    authToken: !!authToken,
+    isLoadingProfile,
+    isLoadingUser,
+    profileError,
+    userError,
+    userData,
+    userPro
+  });
+
   if (!tokenReady) {
+    console.log('Personal_Info: Token not ready');
     return (
       <div className="mx-5">
         <Loading />
@@ -83,10 +95,12 @@ const Personal_Info = () => {
   }
 
   if (!authToken) {
-    return <div className="mx-5">Veuillez vous reconnecter pour voir vos paramètres.</div>;
+    console.log('Personal_Info: No auth token');
+    return <div className="mx-5 text-card-foreground">Veuillez vous reconnecter pour voir vos paramètres.</div>;
   }
 
-  if (isLoading) {
+  if (isLoadingProfile || isLoadingUser) {
+    console.log('Personal_Info: Still loading');
     return (
       <div className="mx-5">
         <Loading />
@@ -94,9 +108,12 @@ const Personal_Info = () => {
     );
   }
 
-  if (error) {
-    return <div className="mx-5">Error loading user data</div>;
+  if (profileError || userError) {
+    console.log('Personal_Info: Error occurred', { profileError, userError });
+    return <div className="mx-5 text-destructive">Error loading user data</div>;
   }
+
+  console.log('Personal_Info: Rendering component');
 
   return (
     <div className="mx-5">

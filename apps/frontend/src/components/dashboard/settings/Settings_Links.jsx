@@ -64,8 +64,8 @@ const Settings_Links = () => {
                 href={link.href}
                 className={`${
                   isActive
-                    ? "bg-[#F8589F] text-[#FFFFFF] shadow-md" // Original active style + shadow
-                    : "bg-[#FFFFFF] text-[#191919] hover:shadow-sm" // Original inactive style + hover shadow
+                    ? "bg-[#F8589F] text-[#FFFFFF] shadow-md" // Active style
+                    : "bg-card text-card-foreground hover:shadow-sm border border-border" // Inactive style with dark mode
                 } px-4 py-2 rounded-[20px] text-[13px] font-[500] box whitespace-nowrap transition-all duration-300`}
               >
                 {link.label}

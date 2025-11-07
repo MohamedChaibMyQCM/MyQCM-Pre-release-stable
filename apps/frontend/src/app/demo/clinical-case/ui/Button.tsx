@@ -87,11 +87,16 @@ export const Button = ({
     }
   };
 
+  const darkModeClasses =
+    variant === "secondary" ? "dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" :
+    variant === "ghost" ? "dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" :
+    "";
+
   return (
     <motion.button
       type={type}
       whileTap={!disabled ? { scale: 0.99 } : undefined}
-      className={`inline-flex items-center gap-2 rounded-xl font-semibold transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A] ${sizeClasses[size]} ${disabled ? "cursor-not-allowed opacity-60" : ""} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-xl font-semibold transition-colors focus:outline-none focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-offset-2 focus-visible:outline-[#FD2E8A] ${sizeClasses[size]} ${disabled ? "cursor-not-allowed opacity-60" : ""} ${darkModeClasses} ${className}`}
       style={styles.style}
       disabled={disabled}
       aria-disabled={disabled || undefined}

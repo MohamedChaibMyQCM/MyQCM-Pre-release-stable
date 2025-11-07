@@ -62,24 +62,21 @@ export default function FreelancerDashboard() {
       try {
         setLoading(true);
 
-        const requestsResponse = await apiFetch<any>("/generation/requests");
-        const requests = Array.isArray(requestsResponse?.data)
-          ? requestsResponse.data
-          : Array.isArray(requestsResponse)
-          ? requestsResponse
+        const summaryResponse = await apiFetch<any>("/freelancer/dashboard/summary");
+        const payload = summaryResponse?.data ?? summaryResponse ?? {};
+
+        const summaryStats = payload?.stats ?? {};
+        const requests = Array.isArray(payload?.recentRequests)
+          ? payload.recentRequests
           : [];
 
-        const activeRequests = requests.filter(
-          (r: any) => r.status !== "completed"
-        ).length;
-
-        setRecentActivity(requests.slice(0, 5));
         setStats({
-          activeRequests,
-          pendingReview: 0,
-          approvedToday: 0,
-          totalEarnings: 1234,
+          activeRequests: summaryStats.activeRequests ?? 0,
+          pendingReview: summaryStats.pendingReview ?? 0,
+          approvedToday: summaryStats.approvedToday ?? 0,
+          totalEarnings: summaryStats.totalEarnings ?? 0,
         });
+        setRecentActivity(requests.slice(0, 5));
       } catch (error) {
         if (error instanceof UnauthorizedError) {
           redirectToLogin();
@@ -138,7 +135,7 @@ export default function FreelancerDashboard() {
               Welcome Back!
             </h1>
             <p className="mt-2 text-lg text-muted-foreground">
-              Here's an overview of your creative work
+              Here&apos;s an overview of your creative work
             </p>
           </div>
           <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-primary/5 to-transparent" />

@@ -16,7 +16,7 @@ import GuidedSeason from "./TrainingPopups/GuidedSeason";
 import GuidedSchedule from "./TrainingPopups/GuidedShedule";
 import SynergySchedule from "./TrainingPopups/SynergyShedule";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import BulkKcSuggestionModal from "./BulkKcSuggestionModal";
 import BulkKcSuggestionProgressModal from "./BulkKcSuggestionProgressModal";
 
@@ -209,27 +209,44 @@ const Questions = ({
       case NORMALIZED_CUSTOM_MODE:
         if (activePopup === "play")
           return (
-            <CustomSeason setPopup={closePopup} courseId={selectedCourseId} />
+            <CustomSeason
+              key={`custom-season-play-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         if (activePopup === "schedule")
           return (
-            <CustomSchedule setPopup={closePopup} courseId={selectedCourseId} />
+            <CustomSchedule
+              key={`custom-schedule-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         break;
       case NORMALIZED_GUIDED_MODE:
         if (activePopup === "play")
           return (
-            <GuidedSeason setPopup={closePopup} courseId={selectedCourseId} />
+            <GuidedSeason
+              key={`guided-season-play-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         if (activePopup === "schedule")
           return (
-            <GuidedSchedule setPopup={closePopup} courseId={selectedCourseId} />
+            <GuidedSchedule
+              key={`guided-schedule-${selectedCourseId}`}
+              setPopup={closePopup}
+              courseId={selectedCourseId}
+            />
           );
         break;
       case NORMALIZED_INTELLIGENTE_MODE:
         if (activePopup === "schedule")
           return (
             <SynergySchedule
+              key={`synergy-schedule-${selectedCourseId}`}
               setPopup={closePopup}
               courseId={selectedCourseId}
             />
@@ -534,7 +551,7 @@ const Questions = ({
         </motion.ul>
       )}
 
-      {renderPopup()}
+      <AnimatePresence mode="wait">{renderPopup()}</AnimatePresence>
 
       {kcFeatureEnabled && bulkModalCourse ? (
         <BulkKcSuggestionModal

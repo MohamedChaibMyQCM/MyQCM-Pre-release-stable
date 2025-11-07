@@ -13,7 +13,7 @@ import { X } from "phosphor-react";
 import secureLocalStorage from "react-secure-storage";
 import season from "../../../../../public/Question_Bank/season.svg";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Renamed component based on file name (GuidedSeason)
 const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
@@ -120,7 +120,11 @@ const GuidedSeason = ({ setPopup, courseId, quiz = {} }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <Image src={season} alt="season" className="w-[24px]" />
+          <Image
+            src={season}
+            alt="season"
+            className="w-[24px] opacity-80 dark:brightness-0 dark:invert"
+          />
           <span className="text-foreground font-[600] text-[18px]">
             Paramètres de la séance
           </span>

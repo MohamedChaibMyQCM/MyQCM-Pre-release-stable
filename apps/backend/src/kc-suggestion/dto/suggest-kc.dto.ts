@@ -38,7 +38,7 @@ export class SuggestKcItemDto {
   @IsOptional()
   @IsString()
   @MaxLength(2000)
-  explanation?: string | null;
+  answer?: string | null;
 
   @IsArray()
   @ArrayNotEmpty()

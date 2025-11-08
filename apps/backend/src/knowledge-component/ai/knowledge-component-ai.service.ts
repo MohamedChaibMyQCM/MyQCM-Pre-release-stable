@@ -94,6 +94,7 @@ export class KnowledgeComponentAiService {
 
     const aggregatedItems: SuggestionResultItem[] = [];
     const requestIds: string[] = [];
+    let modelUsed: string | undefined;
 
     for (const batch of this.chunk(candidateItems, this.chunkSize)) {
       const payload: SuggestKcRequestDto = {
@@ -109,6 +110,7 @@ export class KnowledgeComponentAiService {
 
       aggregatedItems.push(...response.items);
       requestIds.push(response.requestId);
+      modelUsed = response.model;
     }
 
     const matchedIds = new Set(
@@ -120,6 +122,20 @@ export class KnowledgeComponentAiService {
     const optionsSkipped = mcqs.length - candidateItems.length;
     const skipped = mcqs.length - matchedIds.size;
 
+    const tokens = this.aggregateTokenUsage(aggregatedItems);
+
+    await this.recordReviewSessionLog({
+      courseId,
+      model: modelUsed ?? "unknown",
+      requestIds,
+      requested: mcqs.length,
+      processed: matchedIds.size,
+      skipped,
+      optionsSkipped,
+      tokens,
+      user,
+    });
+
     return {
       items: aggregatedItems,
       requestIds,
@@ -127,7 +143,7 @@ export class KnowledgeComponentAiService {
       requested: mcqs.length,
       skipped,
       optionsSkipped,
-      tokens: this.aggregateTokenUsage(aggregatedItems),
+      tokens,
     };
   }
 
@@ -216,7 +232,7 @@ export class KnowledgeComponentAiService {
 
     return {
       stem: mcq.question,
-      explanation: mcq.explanation ?? undefined,
+      answer: mcq.answer ?? undefined,
       options,
       metadata: {
         mcqId: mcq.id,
@@ -246,5 +262,33 @@ export class KnowledgeComponentAiService {
       result.push(input.slice(i, i + size));
     }
     return result;
+  }
+
+  async recordReviewSessionLog(params: {
+    courseId: string;
+    model: string;
+    requestIds: string[];
+    requested: number;
+    processed: number;
+    skipped: number;
+    optionsSkipped: number;
+    tokens: { promptTokens: number; completionTokens: number; totalTokens: number };
+    user?: { id?: string; email?: string; name?: string };
+  }) {
+    await this.suggestionService.recordSessionLog({
+      courseId: params.courseId,
+      model: params.model,
+      requested: params.requested,
+      processed: params.processed,
+      skipped: params.skipped,
+      optionsSkipped: params.optionsSkipped,
+      tokens: params.tokens,
+      requestIds: params.requestIds,
+      initiatedBy: params.user,
+    });
+  }
+
+  async listSessionLogs(courseId: string) {
+    return this.suggestionService.listSessionLogs(courseId);
   }
 }

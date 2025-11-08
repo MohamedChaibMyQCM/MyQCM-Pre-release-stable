@@ -7,6 +7,7 @@ import { KcPromptBuilderService } from "./services/kc-prompt-builder.service";
 import { KcSuggestionLlmService } from "./services/kc-suggestion-llm.service";
 import { KcSuggestionService } from "./services/kc-suggestion.service";
 import { KnowledgeComponentSuggestionCall } from "./entities/kc-suggestion-call.entity";
+import { KnowledgeComponentSuggestionLog } from "./entities/kc-suggestion-log.entity";
 import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
 import { CourseModule } from "src/course/course.module";
 import { McqModule } from "src/mcq/mcq.module";
@@ -16,7 +17,11 @@ import { Mcq } from "src/mcq/entities/mcq.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([KnowledgeComponentSuggestionCall, Mcq]),
+    TypeOrmModule.forFeature([
+      KnowledgeComponentSuggestionCall,
+      KnowledgeComponentSuggestionLog,
+      Mcq,
+    ]),
     BullModule.registerQueue({
       name: "kc-suggestion",
     }),

@@ -24,6 +24,7 @@ import { Queue } from "bullmq";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { KnowledgeComponentSuggestionCall } from "../entities/kc-suggestion-call.entity";
+import { KnowledgeComponentSuggestionLog } from "../entities/kc-suggestion-log.entity";
 import { Mcq, SuggestedKnowledgeComponent } from "src/mcq/entities/mcq.entity";
 
 const ResponseValidationSchema = z.object({
@@ -87,6 +88,8 @@ export class KcSuggestionService {
     private readonly mcqService: McqService,
     @InjectRepository(KnowledgeComponentSuggestionCall)
     private readonly callRepository: Repository<KnowledgeComponentSuggestionCall>,
+    @InjectRepository(KnowledgeComponentSuggestionLog)
+    private readonly logRepository: Repository<KnowledgeComponentSuggestionLog>,
     @InjectRepository(Mcq)
     private readonly mcqRepository: Repository<Mcq>,
     @InjectQueue("kc-suggestion")
@@ -184,6 +187,15 @@ export class KcSuggestionService {
       );
     }
 
+    const invalidItem = request.items.find(
+      (item) => !Array.isArray(item.options) || item.options.length === 0,
+    );
+    if (invalidItem) {
+      throw new BadRequestException(
+        "Each suggestion item must include at least one answer option.",
+      );
+    }
+
     const course = await this.courseService.getCourseById(request.courseId);
 
     const candidateComponents = await this.resolveCandidateComponents(
@@ -269,6 +281,41 @@ export class KcSuggestionService {
     });
 
     return response;
+  }
+
+  async recordSessionLog(params: {
+    courseId: string;
+    model: string;
+    requested: number;
+    processed: number;
+    skipped: number;
+    optionsSkipped: number;
+    tokens: { promptTokens: number; completionTokens: number; totalTokens: number };
+    requestIds: string[];
+    initiatedBy?: { userId?: string; email?: string; name?: string };
+  }) {
+    const entry = this.logRepository.create({
+      course_id: params.courseId,
+      model: params.model,
+      requested: params.requested,
+      processed: params.processed,
+      skipped: params.skipped,
+      options_skipped: params.optionsSkipped,
+      prompt_tokens: params.tokens.promptTokens,
+      completion_tokens: params.tokens.completionTokens,
+      total_tokens: params.tokens.totalTokens,
+      request_ids: params.requestIds,
+      initiated_by: params.initiatedBy,
+    });
+    await this.logRepository.save(entry);
+  }
+
+  async listSessionLogs(courseId: string, limit = 20) {
+    return this.logRepository.find({
+      where: { course_id: courseId },
+      order: { createdAt: "DESC" },
+      take: limit,
+    });
   }
 
   async persistResults(response: SuggestionBatchResponse) {

@@ -21,6 +21,7 @@ import {
   AiReviewConfidence,
   AiReviewItem,
   AiReviewResponse,
+  AiSessionLog,
   FormState,
   KnowledgeComponentRow,
   SelectOption,
@@ -122,6 +123,8 @@ export default function KnowledgeComponentsPage() {
   } | null>(null);
   const [enrichmentLimit, setEnrichmentLimit] = React.useState(25);
   const [enrichmentOnlyPending, setEnrichmentOnlyPending] = React.useState(true);
+  const [aiLogs, setAiLogs] = React.useState<AiSessionLog[]>([]);
+  const [aiLogsLoading, setAiLogsLoading] = React.useState(false);
 
   const storedSuggestionsResponse = React.useMemo<AiReviewResponse | null>(() => {
     if (!storedSuggestions.length) {
@@ -193,15 +196,56 @@ export default function KnowledgeComponentsPage() {
     [],
   );
 
+  const loadSessionLogs = React.useCallback(
+    async (courseId: string) => {
+      if (!courseId) {
+        setAiLogs([]);
+        return;
+      }
+      setAiLogsLoading(true);
+      try {
+        const response = await apiFetch<{ data?: any[] }>(
+          `/knowledge-components/courses/${courseId}/ai-logs`,
+        );
+        const entries = response.data ?? [];
+        const mapped: AiSessionLog[] = entries.map((entry) => ({
+          id: entry.id,
+          createdAt: entry.createdAt ?? entry.created_at,
+          requested: entry.requested ?? 0,
+          processed: entry.processed ?? 0,
+          skipped: entry.skipped ?? 0,
+          optionsSkipped: entry.options_skipped ?? entry.optionsSkipped ?? 0,
+          promptTokens: entry.prompt_tokens ?? entry.promptTokens ?? 0,
+          completionTokens: entry.completion_tokens ?? entry.completionTokens ?? 0,
+          totalTokens: entry.total_tokens ?? entry.totalTokens ?? 0,
+          model: entry.model ?? "unknown",
+          initiatedBy: entry.initiated_by ?? entry.initiatedBy ?? null,
+        }));
+        setAiLogs(mapped);
+      } catch (err) {
+        if (err instanceof UnauthorizedError) {
+          redirectToLogin();
+          return;
+        }
+        console.error(err);
+      } finally {
+        setAiLogsLoading(false);
+      }
+    },
+    [],
+  );
+
   React.useEffect(() => {
     if (!selectedCourse) {
       setStoredSuggestions([]);
       setAiReviewResponse(null);
+      setAiLogs([]);
       return;
     }
     loadStoredSuggestions(selectedCourse);
+    loadSessionLogs(selectedCourse);
     setAiReviewResponse(null);
-  }, [selectedCourse, loadStoredSuggestions]);
+  }, [selectedCourse, loadStoredSuggestions, loadSessionLogs]);
 
   const resetForm = React.useCallback(
     (mode: "create" | "edit" = "create") => {
@@ -678,6 +722,8 @@ export default function KnowledgeComponentsPage() {
               selectedCourse={selectedCourse}
               aiReviewResponse={displayedReview}
               aiEnrichmentResult={aiEnrichmentResult}
+              aiLogs={aiLogs}
+              aiLogsLoading={aiLogsLoading}
               enrichmentLimit={enrichmentLimit}
               enrichmentOnlyPending={enrichmentOnlyPending}
               onRunAiReview={handleRunAiReview}
@@ -689,6 +735,9 @@ export default function KnowledgeComponentsPage() {
               }
               onClearResults={() => setAiReviewResponse(null)}
               onClearEnrichmentResult={() => setAiEnrichmentResult(null)}
+              onRefreshLogs={() =>
+                selectedCourse ? loadSessionLogs(selectedCourse) : undefined
+              }
             />
           </div>
 

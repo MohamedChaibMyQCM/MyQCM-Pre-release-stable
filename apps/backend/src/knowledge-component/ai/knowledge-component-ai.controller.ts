@@ -111,4 +111,20 @@ export class KnowledgeComponentAiController {
       data,
     };
   }
+
+  @Get("courses/:courseId/ai-logs")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN, BaseRoles.FREELANCER)
+  @ApiOperation({
+    summary: "List AI KC suggestion sessions",
+    description: "Returns recent KC matching runs with their KPIs.",
+  })
+  async listLogs(@Param("courseId", ParseUUIDPipe) courseId: string) {
+    const data = await this.aiService.listSessionLogs(courseId);
+    return {
+      message: "Retrieved AI session logs.",
+      status: HttpStatus.OK,
+      data,
+    };
+  }
 }

@@ -90,4 +90,35 @@ describe("AdaptiveEngineService", () => {
     expect(saved.mastery).toBeGreaterThanOrEqual(0);
     expect(saved.ability).toBeLessThan(0.4);
   });
+
+  it("keeps ability finite even when supplied with invalid IRT params", async () => {
+    const result = await (service as any).calculateIrt(
+      { ability: Number.NaN },
+      {
+        difficulty: Number.POSITIVE_INFINITY,
+        discrimination: Number.NaN,
+        guessing: Number.NaN,
+      },
+      true,
+    );
+
+    expect(Number.isFinite(result)).toBe(true);
+  });
+
+  it("moves ability upward for a streak of correct answers on hard items", async () => {
+    let ability = 0;
+    const thetaSpy = jest.spyOn(service as any, "calculateIrt");
+
+    for (let i = 0; i < 5; i += 1) {
+      ability = await (service as any).calculateIrt(
+        { ability },
+        { difficulty: 1.5, discrimination: 2.5, guessing: 0.2 },
+        true,
+      );
+    }
+
+    expect(thetaSpy).toHaveBeenCalledTimes(5);
+    expect(ability).toBeGreaterThan(0.5);
+    thetaSpy.mockRestore();
+  });
 });

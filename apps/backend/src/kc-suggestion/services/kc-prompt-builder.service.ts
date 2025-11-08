@@ -31,9 +31,26 @@ export class KcPromptBuilderService {
 
     const itemLines = params.items.map((item, index) => {
       const mcqIdPart = item.metadata?.mcqId ? ` [mcq_id=${item.metadata.mcqId}]` : "";
-      return [`Item ${index + 1}${mcqIdPart}`, `Question: ${this.condense(item.stem)}`].join(
-        "\n",
-      );
+      const optionLines =
+        item.options.length > 0
+          ? [
+              "Options:",
+              ...item.options.map((option, idx) => {
+                const marker = String.fromCharCode(65 + idx);
+                const correctness = option.is_correct ? " [correct]" : "";
+                return `  ${marker}. ${this.condense(option.content)}${correctness}`;
+              }),
+            ].join("\n")
+          : undefined;
+      const derivedAnswer = this.formatAnswer(item);
+      return [
+        `Item ${index + 1}${mcqIdPart}`,
+        `Question: ${this.condense(item.stem)}`,
+        optionLines,
+        derivedAnswer ? `Answer: ${derivedAnswer}` : undefined,
+      ]
+        .filter((segment): segment is string => Boolean(segment))
+        .join("\n");
     });
 
     const systemPrompt = [
@@ -75,5 +92,18 @@ export class KcPromptBuilderService {
 
   private condense(value: string): string {
     return value.replace(/\s+/g, " ").trim();
+  }
+
+  private formatAnswer(item: SuggestionItemInput): string | undefined {
+    if (item.answer) {
+      return this.condense(item.answer);
+    }
+    const correctOptions = item.options
+      .filter((option) => option.is_correct)
+      .map((option) => this.condense(option.content));
+    if (correctOptions.length > 0) {
+      return correctOptions.join("; ");
+    }
+    return undefined;
   }
 }

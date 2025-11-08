@@ -326,8 +326,22 @@ export class AdaptiveEngineService {
     irtParams: IrtParamsInterface,
     isCorrect: boolean,
   ): Promise<number> {
-    const theta = learner.ability ?? 0;
-    const { difficulty, discrimination, guessing } = irtParams;
+    const theta = Number.isFinite(learner.ability) ? learner.ability : 0;
+    const difficulty = Number.isFinite(irtParams.difficulty)
+      ? irtParams.difficulty
+      : 0;
+    const discrimination = Math.max(
+      0.1,
+      Math.min(
+        4,
+        Number.isFinite(irtParams.discrimination)
+          ? irtParams.discrimination
+          : 1,
+      ),
+    );
+    const guessing = this.clamp01(
+      Number.isFinite(irtParams.guessing) ? irtParams.guessing : 0.2,
+    );
     const eps = 1e-9;
     const response = isCorrect ? 1 : 0;
     const logistic = 1 / (1 + Math.exp(-discrimination * (theta - difficulty)));
@@ -342,7 +356,9 @@ export class AdaptiveEngineService {
       (response - boundedProbability) *
       (dPdTheta / (boundedProbability * (1 - boundedProbability)));
     const gradPrior = -(theta - this.irtPriorMean) / this.irtPriorVariance;
-    return theta + this.irtLearningRate * (gradLikelihood + gradPrior);
+    const updatedTheta =
+      theta + this.irtLearningRate * (gradLikelihood + gradPrior);
+    return Number.isFinite(updatedTheta) ? updatedTheta : theta;
   }
 
   private clamp01(value: number) {

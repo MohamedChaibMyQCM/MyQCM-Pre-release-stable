@@ -61,3 +61,21 @@ export type AiReviewResponse = {
     totalTokens: number;
   };
 };
+
+export type AiSessionLog = {
+  id: string;
+  createdAt: string;
+  requested: number;
+  processed: number;
+  skipped: number;
+  optionsSkipped: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  model: string;
+  initiatedBy?: {
+    userId?: string;
+    name?: string;
+    email?: string;
+  } | null;
+};

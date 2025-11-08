@@ -19,7 +19,7 @@ export type SuggestionCandidateInput = {
 
 export type SuggestionItemInput = {
   stem: string;
-  explanation?: string | null;
+  answer?: string | null;
   options: {
     content: string;
     is_correct?: boolean;

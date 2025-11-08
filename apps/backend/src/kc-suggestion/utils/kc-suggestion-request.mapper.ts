@@ -13,7 +13,7 @@ export class KcSuggestionRequestMapper {
   ): SuggestionBatchRequest {
     const items: SuggestionItemInput[] = dto.items.map((item) => ({
       stem: item.stem,
-      explanation: item.explanation ?? undefined,
+      answer: item.answer ?? undefined,
       options: item.options.map((option) => ({
         content: option.content,
         is_correct: option.is_correct ?? undefined,

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-import { AiReviewConfidence, AiReviewResponse } from "../types";
+import { AiReviewConfidence, AiReviewResponse, AiSessionLog } from "../types";
 
 const confidenceBadgeVariantMap: Record<
   AiReviewConfidence,
@@ -27,6 +27,8 @@ export type AiMcqMapperSectionProps = {
   selectedCourse?: string;
   aiReviewResponse: AiReviewResponse | null;
   aiEnrichmentResult: { queued: number; mcqIds: string[] } | null;
+  aiLogs: AiSessionLog[];
+  aiLogsLoading: boolean;
   enrichmentLimit: number;
   enrichmentOnlyPending: boolean;
   onRunAiReview: () => void;
@@ -36,6 +38,7 @@ export type AiMcqMapperSectionProps = {
   onToggleOnlyPending: (value: boolean) => void;
   onClearResults: () => void;
   onClearEnrichmentResult: () => void;
+  onRefreshLogs: () => void;
 };
 
 export function AiMcqMapperSection({
@@ -47,6 +50,8 @@ export function AiMcqMapperSection({
   selectedCourse,
   aiReviewResponse,
   aiEnrichmentResult,
+  aiLogs,
+  aiLogsLoading,
   enrichmentLimit,
   enrichmentOnlyPending,
   onRunAiReview,
@@ -56,6 +61,7 @@ export function AiMcqMapperSection({
   onToggleOnlyPending,
   onClearResults,
   onClearEnrichmentResult,
+  onRefreshLogs,
 }: AiMcqMapperSectionProps) {
   return (
     <section className="space-y-4 rounded-lg border border-border bg-card p-6">
@@ -190,11 +196,11 @@ export function AiMcqMapperSection({
               {aiReviewResponse.skipped} skipped, {aiReviewResponse.optionsSkipped} without
               options).
             </p>
-            <p>AI calls: {aiReviewResponse.requestIds.length}.</p>
+            <p>AI calls: {aiReviewResponse.requestIds?.length ?? 0}.</p>
             <p>
-              Tokens used: {aiReviewResponse.tokens.totalTokens} total (
-              {aiReviewResponse.tokens.promptTokens} prompt / {" "}
-              {aiReviewResponse.tokens.completionTokens} completion).
+              Tokens used: {aiReviewResponse.tokens?.totalTokens ?? 0} total (
+              {aiReviewResponse.tokens?.promptTokens ?? 0} prompt /{" "}
+              {aiReviewResponse.tokens?.completionTokens ?? 0} completion).
             </p>
           </div>
         ) : (
@@ -211,6 +217,71 @@ export function AiMcqMapperSection({
               </>
             )}
           </p>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Recent AI sessions</p>
+            <p className="text-xs text-muted-foreground">
+              Logged KC matching runs with token usage and coverage metrics.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onRefreshLogs}
+            disabled={aiLogsLoading || !selectedCourse}
+          >
+            {aiLogsLoading ? "Refreshing…" : "Refresh"}
+          </Button>
+        </div>
+        {aiLogsLoading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" />
+            <span>Loading session logs…</span>
+          </div>
+        ) : aiLogs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No AI sessions have been recorded for this course yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead>
+                <tr className="text-xs uppercase text-muted-foreground">
+                  <th className="px-2 py-1">When</th>
+                  <th className="px-2 py-1">Coverage</th>
+                  <th className="px-2 py-1">Skipped</th>
+                  <th className="px-2 py-1">Tokens</th>
+                  <th className="px-2 py-1">Model</th>
+                </tr>
+              </thead>
+              <tbody>
+                {aiLogs.map((log) => (
+                  <tr key={log.id} className="border-t border-border/50">
+                    <td className="px-2 py-1 text-xs">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1">
+                      {log.processed}/{log.requested}
+                    </td>
+                    <td className="px-2 py-1 text-xs">
+                      {log.skipped} (options {log.optionsSkipped})
+                    </td>
+                    <td className="px-2 py-1 text-xs">
+                      {log.totalTokens} total • {log.promptTokens} / {log.completionTokens}
+                    </td>
+                    <td className="px-2 py-1 text-xs text-muted-foreground">
+                      {log.model}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

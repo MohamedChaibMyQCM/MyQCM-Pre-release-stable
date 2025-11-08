@@ -23,7 +23,6 @@ export class AdaptiveEngineService {
     private readonly learnerKnowledgeComponentRepository: Repository<AdaptiveLearnerKnowledgeComponent>,
   ) {}
   private readonly logger = new Logger(AdaptiveEngineService.name);
-  private readonly USE_CORRECTED_BKT = process.env.FF_BKT_CORRECTED === "true";
   private readonly irtPriorMean = 0;
   private readonly irtPriorVariance = 4;
   private readonly irtLearningRate = 0.75;
@@ -124,8 +123,11 @@ export class AdaptiveEngineService {
       params,
       transactionManager,
     );
-    const { guessing_probability, slipping_probability, learning_rate } =
-      adaptive_learner.course;
+    const normalizedBktParams = this.normalizeBktParams({
+      guessing_probability: adaptive_learner.course.guessing_probability,
+      slipping_probability: adaptive_learner.course.slipping_probability,
+      learning_rate: adaptive_learner.course.learning_rate,
+    });
     const knowledgeComponentIds = options.knowledgeComponentIds ?? [];
     const observation = {
       isCorrect: options.is_correct,
@@ -135,7 +137,7 @@ export class AdaptiveEngineService {
     // Calculate new mastery using BKT model
     const new_bkt_mastery = await this.calculateBkt(
       adaptive_learner,
-      { guessing_probability, slipping_probability, learning_rate },
+      normalizedBktParams,
       observation,
     );
     adaptive_learner.mastery = this.clamp01(new_bkt_mastery);
@@ -143,7 +145,7 @@ export class AdaptiveEngineService {
     await this.upsertKnowledgeComponentMastery(
       adaptive_learner,
       knowledgeComponentIds,
-      { guessing_probability, slipping_probability, learning_rate },
+      normalizedBktParams,
       observation,
       transactionManager,
     );
@@ -183,72 +185,32 @@ export class AdaptiveEngineService {
     observation: { isCorrect: boolean; accuracy?: number | null },
   ): Promise<number> {
     const { isCorrect } = observation;
-    const accuracy_rate =
+    const normalizedAccuracy =
       observation.accuracy != null && !Number.isNaN(observation.accuracy)
-        ? observation.accuracy
+        ? Number(observation.accuracy)
         : isCorrect
         ? 1
         : 0;
-
-    // Legacy path (FF off): preserve behavior, but avoid overriding legitimate zeros
-    if (!this.USE_CORRECTED_BKT) {
-      let { slipping_probability, guessing_probability, learning_rate } = bktParams;
-      const { mastery } = learner;
-
-      if (guessing_probability == null) {
-        guessing_probability = DefaultBktParamsConfig.guessing_probability;
-      }
-      if (slipping_probability == null) {
-        slipping_probability = DefaultBktParamsConfig.slipping_probability;
-      }
-      if (learning_rate == null) {
-        learning_rate = DefaultBktParamsConfig.learning_rate;
-      }
-      const p_learn_temp = mastery + (1 - mastery) * learning_rate;
-
-      const updatedMastery = ((): number => {
-        if (isCorrect) {
-          const numerator = p_learn_temp * (1 - slipping_probability);
-          const denominator =
-            numerator + (1 - p_learn_temp) * guessing_probability;
-          return numerator / denominator;
-        } else {
-          const numerator = p_learn_temp * slipping_probability;
-          const denominator =
-            numerator + (1 - p_learn_temp) * (1 - guessing_probability);
-          return numerator / denominator;
-        }
-      })();
-
-      return Math.min(1, Math.max(0, updatedMastery));
-    }
-
-    // Corrected path (FF on): posterior → learn, with clamps and epsilon guards
-    const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+    const accuracy_rate = Number.isFinite(normalizedAccuracy)
+      ? this.clamp01(normalizedAccuracy)
+      : null;
     const eps = 1e-12;
-
-    let { slipping_probability, guessing_probability, learning_rate } = bktParams;
-    const pL0 = clamp01(learner.mastery);
-    const s = clamp01(
-      slipping_probability ?? DefaultBktParamsConfig.slipping_probability,
-    );
-    const g = clamp01(
-      guessing_probability ?? DefaultBktParamsConfig.guessing_probability,
-    );
-    const t = clamp01(learning_rate ?? DefaultBktParamsConfig.learning_rate);
 
     if (accuracy_rate == null || Number.isNaN(accuracy_rate)) {
       this.logger.debug("BKT skip: null/NaN accuracy_rate");
-      return pL0;
+      return this.clamp01(learner.mastery);
     }
 
+    const { guessing_probability: g, slipping_probability: s, learning_rate: t } =
+      this.normalizeBktParams(bktParams);
+    const pL0 = this.clamp01(learner.mastery);
     const correct = isCorrect;
     const pC = pL0 * (1 - s) + (1 - pL0) * g;
     const pI = pL0 * s + (1 - pL0) * (1 - g);
     const post = correct
       ? (pL0 * (1 - s)) / Math.max(eps, pC)
       : (pL0 * s) / Math.max(eps, pI);
-    return clamp01(post + (1 - post) * t);
+    return this.clamp01(post + (1 - post) * t);
   }
 
   /**
@@ -369,7 +331,37 @@ export class AdaptiveEngineService {
   }
 
   private clamp01(value: number) {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
     return Math.min(1, Math.max(0, value));
+  }
+
+  private normalizeBktParams(
+    params?: Partial<BktParamsInterface> | null,
+  ): BktParamsInterface {
+    const normalizeValue = (
+      candidate: number | undefined,
+      fallback: number,
+    ): number => {
+      const source = Number.isFinite(candidate) ? (candidate as number) : fallback;
+      return this.clamp01(source);
+    };
+
+    return {
+      guessing_probability: normalizeValue(
+        params?.guessing_probability,
+        DefaultBktParamsConfig.guessing_probability,
+      ),
+      slipping_probability: normalizeValue(
+        params?.slipping_probability,
+        DefaultBktParamsConfig.slipping_probability,
+      ),
+      learning_rate: normalizeValue(
+        params?.learning_rate,
+        DefaultBktParamsConfig.learning_rate,
+      ),
+    };
   }
 
   private async upsertKnowledgeComponentMastery(

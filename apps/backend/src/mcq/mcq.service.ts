@@ -33,6 +33,8 @@ import { TransactionStatus } from "src/transaction/dto/transaction.type";
 import { RedisService } from "src/redis/redis.service";
 import { RedisKeys } from "common/utils/redis-keys.util";
 import { TransactionConfigInterface } from "shared/interfaces/transaction-config.interface";
+import { AccuracyThresholdConfigInterface } from "shared/interfaces/accuracy-threshold-config.interface";
+import { DefaultAccuracyThresholdConfig } from "config/default-accuracy-threshold.config";
 import { JwtPayload } from "src/auth/types/interfaces/payload.interface";
 import { McqFilters } from "./types/interfaces/mcq-filters.interface";
 import { PaginationInterface } from "shared/interfaces/pagination.interface";
@@ -59,6 +61,11 @@ import { Progress } from "src/progress/entities/progress.entity";
 import { McqBatchUploadMetadataDto } from "./dto/mcq-batch-upload.dto";
 import * as XLSX from "xlsx";
 import { KnowledgeComponentService } from "src/knowledge-component/knowledge-component.service";
+import {
+  qrocBlankFeedback,
+  resolveAccuracyThreshold,
+  shouldTreatBlankQrocAsUnanswered,
+} from "./utils/accuracy-threshold.util";
 
 @Injectable()
 export class McqService {
@@ -117,6 +124,14 @@ export class McqService {
     const defaultComponent =
       await this.knowledgeComponentService.getDefaultComponent(manager);
     return [defaultComponent.id];
+  }
+
+  private async getAccuracyThresholdConfig(): Promise<AccuracyThresholdConfigInterface> {
+    const config = (await this.redisService.get(
+      RedisKeys.getRedisAccuracyThresholdConfig(),
+      true,
+    )) as AccuracyThresholdConfigInterface | null;
+    return config ?? DefaultAccuracyThresholdConfig;
   }
 
   async listMcqsForCourse(
@@ -280,6 +295,20 @@ export class McqService {
       offset,
       total_pages: Math.ceil(total / offset),
     };
+  }
+
+  async getMcqsByIds(
+    ids: string[],
+    options?: { populate?: string[] },
+  ): Promise<Mcq[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+    const relations = options?.populate ?? [];
+    return this.mcqRepository.find({
+      where: { id: In(ids) },
+      relations,
+    });
   }
 
   /**
@@ -1886,19 +1915,37 @@ export class McqService {
     feedback: string | null;
     isCorrect: boolean;
   }> {
-    let rating: number | null;
-    let feedback: string | null;
+    const accuracyConfig = await this.getAccuracyThresholdConfig();
+    const correctnessThreshold = resolveAccuracyThreshold(
+      accuracyConfig,
+      mcq.type,
+      mcq.difficulty,
+    );
+
+    let rating: number | null = null;
+    let feedback: string | null = null;
     let isCorrect = false;
 
     if (mcq.type === McqType.qroc) {
       const expected = this.normalizeFreeResponse(mcq.answer);
-      const received = this.normalizeFreeResponse(
-        submitMcqAttemptDto.response ?? "",
-      );
+      const receivedRaw = submitMcqAttemptDto.response ?? "";
+      const received = this.normalizeFreeResponse(receivedRaw);
+
+      if (
+        shouldTreatBlankQrocAsUnanswered(accuracyConfig) &&
+        received.length === 0
+      ) {
+        return {
+          rating: null,
+          feedback: qrocBlankFeedback(accuracyConfig),
+          isCorrect: false,
+        };
+      }
+
       if (!options.analysis) {
-        isCorrect = expected.length > 0 && received === expected;
-        rating = isCorrect ? 1 : 0;
-        feedback = isCorrect
+        const matches = expected.length > 0 && received === expected;
+        rating = matches ? 1 : 0;
+        feedback = matches
           ? "Correct."
           : "La r\u00e9ponse ne correspond pas \u00e0 la correction attendue.";
       } else {
@@ -1907,15 +1954,21 @@ export class McqService {
             submitMcqAttemptDto.response,
             mcq,
           );
-        rating = response.rating;
+        rating =
+          response.rating != null && Number.isFinite(response.rating)
+            ? response.rating
+            : null;
         feedback = response.feedback;
-        const assistantAffirms = (response.rating ?? 0) >= 0.9;
-        isCorrect = expected.length > 0 && received === expected
-          ? true
-          : assistantAffirms;
+        if (expected.length > 0 && received === expected) {
+          rating = 1;
+        }
       }
+
+      if (rating != null) {
+        rating = Math.max(0, Math.min(1, rating));
+      }
+      isCorrect = rating != null && rating >= correctnessThreshold;
     } else if (mcq.type === McqType.qcs || mcq.type === McqType.qcm) {
-      // For qcs and qcm, always calculate success ratio based on selected options
       const correctOptions = new Set(
         mcq.options
           .filter((option) => option.is_correct)
@@ -1939,9 +1992,7 @@ export class McqService {
         incorrectSelections.size / mcq.options.length;
       rating = Math.max(0, Math.min(1, rating));
       feedback = this.generateFeedbackForRating(rating);
-      isCorrect =
-        correctSelections.size === correctOptions.size &&
-        incorrectSelections.size === 0;
+      isCorrect = rating >= correctnessThreshold;
     } else {
       throw new BadRequestException(`Unsupported MCQ type: ${mcq.type}`);
     }
@@ -2037,7 +2088,10 @@ export class McqService {
       { analysis: enableAnalysis },
     );
 
-    const gained_xp = await this.calculateEarnedXp(mcq);
+    const gained_xp =
+      attempt_accuracy.rating == null
+        ? 0
+        : await this.calculateEarnedXp(mcq);
     return {
       selected_options: selected_options || undefined,
       response: submitMcqAttemptDto.response,
@@ -2102,6 +2156,13 @@ export class McqService {
         transactionManager,
       );
     });
+
+    if (submitMcqAttemptDto.session) {
+      const counterKey = RedisKeys.getSessionAttemptCounter(
+        submitMcqAttemptDto.session,
+      );
+      await this.redisService.increment(counterKey);
+    }
   }
 
   /**

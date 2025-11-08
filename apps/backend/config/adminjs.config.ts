@@ -659,14 +659,27 @@ export const AdminJsConfig = {
                   };
                 }
 
+                const selectedPlan = await Plan.findOne({
+                  where: { id: plan },
+                });
+
+                if (!selectedPlan) {
+                  return {
+                    notice: {
+                      type: "error",
+                      message: "Selected plan could not be found.",
+                    },
+                  };
+                }
+
                 const cards = Array.from({ length: quantity }).map(() =>
                   ActivationCard.create({
                     code: generateActivationCode(),
-                    plan: { id: plan } as any,
+                    plan: selectedPlan,
                     expires_at,
                   }),
                 );
-                await ActivationCard.save(cards);
+                const savedCards = await ActivationCard.save(cards);
 
                 await recordAuditLog(context.currentAdmin, {
                   resource: "ActivationCard",
@@ -675,11 +688,35 @@ export const AdminJsConfig = {
                   context: { quantity, plan },
                 });
 
+                const timestamp = new Date()
+                  .toISOString()
+                  .replace(/[:.]/g, "-");
+                const safePlanSlug = selectedPlan.name
+                  ? selectedPlan.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                  : "plan";
+
+                const excelExport = {
+                  generatedAt: new Date(),
+                  fileName: `activation-cards-${safePlanSlug}-${timestamp}.xlsx`,
+                  plan: {
+                    id: selectedPlan.id,
+                    name: selectedPlan.name,
+                    period: selectedPlan.period,
+                    price: selectedPlan.price,
+                  },
+                  cards: savedCards.map((card) => ({
+                    code: card.code,
+                    expires_at: card.expires_at,
+                    created_at: card.createdAt,
+                  })),
+                };
+
                 return {
                   notice: {
                     type: "success",
                     message: `Minted ${quantity} activation card(s).`,
                   },
+                  excelExport,
                 };
               },
             },

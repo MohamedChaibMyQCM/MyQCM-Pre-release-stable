@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   Logger,
+  Optional,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
@@ -35,11 +36,17 @@ import { createSessionLink } from "common/utils/url.util";
 import { RedisKeys } from "common/utils/redis-keys.util";
 import { default_offset, default_page } from "shared/constants/pagination";
 import { PaginationInterface } from "shared/interfaces/pagination.interface";
+import { PaginatedResponse } from "shared/interfaces/paginated.response.interface";
 import { AccuracyThresholdConfigInterface } from "shared/interfaces/accuracy-threshold-config.interface";
+import { DefaultAccuracyThresholdConfig } from "config/default-accuracy-threshold.config";
 import { ModeDefiner } from "src/mode/types/enums/mode-definier.enum";
 import { NotificationType } from "src/notification/types/enums/notification-type.enum";
 import { NotificationStatus } from "src/notification/types/enums/notification-status.enum";
 import { NotificationChannel } from "src/notification/types/enums/notification-channel.enum";
+import { resolveAccuracyThreshold } from "src/mcq/utils/accuracy-threshold.util";
+import { createHash } from "crypto";
+import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import { Counter } from "prom-client";
 
 /**
  * Service responsible for managing training sessions in the e-learning platform
@@ -54,6 +61,7 @@ import { NotificationChannel } from "src/notification/types/enums/notification-c
 @Injectable()
 export class TrainingSessionService {
   private readonly logger = new Logger(TrainingSessionService.name);
+  private readonly sessionMcqCacheTtlSeconds: number;
   constructor(
     @InjectRepository(TrainingSession)
     private readonly trainingSessionRepository: Repository<TrainingSession>,
@@ -65,7 +73,15 @@ export class TrainingSessionService {
     private readonly mcqService: McqService,
     private readonly redisService: RedisService,
     private readonly adaptiveEngineService: AdaptiveEngineService,
-  ) {}
+    @Optional()
+    @InjectMetric("session_mcq_cache_hits_total")
+    private readonly sessionCacheHitCounter?: Counter<string>,
+    @Optional()
+    @InjectMetric("session_mcq_cache_misses_total")
+    private readonly sessionCacheMissCounter?: Counter<string>,
+  ) {
+    this.sessionMcqCacheTtlSeconds = this.resolveSessionCacheTtl();
+  }
 
   /**
    * Creates a new training session for a user with configured parameters
@@ -259,33 +275,96 @@ export class TrainingSessionService {
       difficultyFilter = McqDifficulty.hard;
     }
 
-    let difficultyFallback = false;
-    let unattempted_mcqs = await this.mcqService.findMcqsPaginated(
-      {
-        course: session.course.id,
-        exclude_ids: attemptedMcqIds,
-        type: selected_types,
-        difficulty: difficultyFilter,
-      },
-      { offset: 1 },
-      { randomize, populate: ["options"] },
+    const attemptCounterKey = RedisKeys.getSessionAttemptCounter(sessionId);
+    const attemptVersionRaw = await this.redisService.get(
+      attemptCounterKey,
+      false,
     );
-    if (unattempted_mcqs.data.length === 0) {
-      difficultyFallback = true;
-      this.logger.warn("ADAPTIVE_DIFFICULTY_FALLBACK", {
-        userId,
+    const attemptVersion = Number(attemptVersionRaw) || 0;
+    const isCacheEnabled =
+      !isAssistantMode && this.sessionMcqCacheTtlSeconds > 0;
+    const cacheKey = this.buildSessionCacheKey({
+      sessionId,
+      difficulty: difficultyFilter,
+      types: selected_types,
+      attemptVersion,
+    });
+    let cachedPayload: CachedSessionMcqPayload | null = null;
+    if (isCacheEnabled) {
+      cachedPayload = (await this.redisService.get(
+        cacheKey,
+        true,
+      )) as CachedSessionMcqPayload | null;
+    } else if (isAssistantMode) {
+      this.logger.debug("SESSION_MCQ_CACHE_SKIPPED_ASSISTANT", {
         sessionId,
-        requestedDifficulty: difficultyFilter,
       });
+    }
+
+    let difficultyFallback = false;
+    let unattempted_mcqs: PaginatedResponse<Mcq>;
+
+    if (cachedPayload) {
+      const hydrated = await this.mcqService.getMcqsByIds(
+        cachedPayload.mcqIds,
+        { populate: ["options"] },
+      );
+      const mcqMap = new Map(hydrated.map((mcq) => [mcq.id, mcq]));
+      const orderedData = cachedPayload.mcqIds
+        .map((id) => mcqMap.get(id))
+        .filter((mcq): mcq is Mcq => Boolean(mcq));
+      unattempted_mcqs = {
+        data: orderedData,
+        total: cachedPayload.total,
+        page: cachedPayload.page ?? 1,
+        offset: cachedPayload.offset,
+        total_pages: cachedPayload.total_pages,
+      };
+      this.recordSessionCacheMetric(true, sessionId, difficultyFilter);
+    } else {
       unattempted_mcqs = await this.mcqService.findMcqsPaginated(
         {
           course: session.course.id,
           exclude_ids: attemptedMcqIds,
           type: selected_types,
+          difficulty: difficultyFilter,
         },
         { offset: 1 },
         { randomize, populate: ["options"] },
       );
+      if (unattempted_mcqs.data.length === 0) {
+        difficultyFallback = true;
+        this.logger.warn("ADAPTIVE_DIFFICULTY_FALLBACK", {
+          userId,
+          sessionId,
+          requestedDifficulty: difficultyFilter,
+        });
+        unattempted_mcqs = await this.mcqService.findMcqsPaginated(
+          {
+            course: session.course.id,
+            exclude_ids: attemptedMcqIds,
+            type: selected_types,
+          },
+          { offset: 1 },
+          { randomize, populate: ["options"] },
+        );
+      }
+
+      if (isCacheEnabled) {
+        const payload: CachedSessionMcqPayload = {
+          mcqIds: unattempted_mcqs.data.map((mcq) => mcq.id),
+          total: unattempted_mcqs.total,
+          page: unattempted_mcqs.page ?? 1,
+          offset: unattempted_mcqs.offset,
+          total_pages: unattempted_mcqs.total_pages,
+        };
+        await this.redisService.set(
+          cacheKey,
+          payload,
+          this.sessionMcqCacheTtlSeconds,
+        );
+        this.recordSessionCacheMetric(false, sessionId, difficultyFilter);
+      }
     }
 
     unattempted_mcqs.data = this.applyFiltersToMcqs(unattempted_mcqs.data, {
@@ -722,7 +801,7 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
           success_ratio: true,
           time_spent: true,
           gained_xp: true,
-          mcq: { id: true },
+          mcq: { id: true, type: true, difficulty: true },
           is_skipped: true,
         },
         distinct: true,
@@ -730,7 +809,6 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
     );
 
     const thresholdConfig = await this.getAccuracyThresholdConfig();
-    const { correct_threshold, performance_bands } = thresholdConfig;
 
     // Initialize evaluation metrics
     const evaluationMetrics = {
@@ -750,23 +828,30 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
     attempts.forEach((attempt) => {
       evaluationMetrics.xp_earned += attempt.gained_xp || 0;
 
-      // Handle skipped MCQs first
-      if (attempt.is_skipped) {
+      const successRatio =
+        typeof attempt.success_ratio === "number"
+          ? attempt.success_ratio
+          : null;
+
+      if (attempt.is_skipped || successRatio == null) {
         evaluationMetrics.skipped_mcqs++;
+        return;
+      }
+
+      evaluationMetrics.time_spent += attempt.time_spent || 0;
+      total_success_ratio += successRatio;
+      answered_mcqs_count++;
+
+      const threshold = resolveAccuracyThreshold(
+        thresholdConfig,
+        attempt.mcq?.type,
+        attempt.mcq?.difficulty,
+      );
+
+      if (successRatio >= threshold) {
+        evaluationMetrics.correct_answers++;
       } else {
-        // Only process attempts that were NOT skipped for accuracy metrics
-        const successRatio = attempt.success_ratio || 0;
-        total_success_ratio += successRatio;
-        answered_mcqs_count++; // Increment count for answered MCQs
-
-        evaluationMetrics.time_spent += attempt.time_spent || 0;
-
-        if (successRatio >= correct_threshold) {
-          evaluationMetrics.correct_answers++;
-        } else {
-          // If not skipped and not correct, it's incorrect
-          evaluationMetrics.incorrect_answers++;
-        }
+        evaluationMetrics.incorrect_answers++;
       }
     });
 
@@ -787,11 +872,54 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
    * @returns Accuracy threshold configuration
    * @private
    */
-  private getAccuracyThresholdConfig(): Promise<AccuracyThresholdConfigInterface> {
-    return this.redisService.get(
+  private resolveSessionCacheTtl(): number {
+    const raw = Number(process.env.SESSION_MCQ_CACHE_TTL_MS ?? 60000);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      return 0;
+    }
+    return Math.max(1, Math.floor(raw / 1000));
+  }
+
+  private async getAccuracyThresholdConfig(): Promise<AccuracyThresholdConfigInterface> {
+    const config = (await this.redisService.get(
       RedisKeys.getRedisAccuracyThresholdConfig(),
       true,
-    ) as Promise<AccuracyThresholdConfigInterface>;
+    )) as AccuracyThresholdConfigInterface | null;
+    return config ?? DefaultAccuracyThresholdConfig;
+  }
+
+  private buildSessionCacheKey(params: {
+    sessionId: string;
+    difficulty: McqDifficulty;
+    types: McqType[];
+    attemptVersion: number;
+  }): string {
+    const payload = {
+      difficulty: params.difficulty,
+      types: [...params.types].sort(),
+      attemptVersion: params.attemptVersion,
+    };
+    const hash = createHash("sha1")
+      .update(JSON.stringify(payload))
+      .digest("hex");
+    return RedisKeys.getSessionMcqCache(params.sessionId, hash);
+  }
+
+  private recordSessionCacheMetric(
+    hit: boolean,
+    sessionId: string,
+    difficulty: McqDifficulty,
+  ) {
+    const labels = { difficulty };
+    if (hit) {
+      this.sessionCacheHitCounter?.inc(labels);
+    } else {
+      this.sessionCacheMissCounter?.inc(labels);
+    }
+    this.logger.log(hit ? "SESSION_MCQ_CACHE_HIT" : "SESSION_MCQ_CACHE_MISS", {
+      sessionId,
+      difficulty,
+    });
   }
 
   /**
@@ -1030,4 +1158,12 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
     }
     return 1 / (1 + Math.exp(-theta));
   }
+}
+
+interface CachedSessionMcqPayload {
+  mcqIds: string[];
+  total: number;
+  page: number;
+  offset: number;
+  total_pages: number;
 }

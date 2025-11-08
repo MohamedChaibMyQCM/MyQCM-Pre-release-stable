@@ -10,6 +10,7 @@ import { ProgressModule } from "src/progress/progress.module";
 import { McqModule } from "src/mcq/mcq.module";
 import { RedisModule } from "src/redis/redis.module";
 import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module";
+import { makeCounterProvider } from "@willsoto/nestjs-prometheus";
 
 @Module({
   imports: [
@@ -23,6 +24,18 @@ import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module
     AdaptiveEngineModule,
   ],
   controllers: [TrainingSessionController],
-  providers: [TrainingSessionService],
+  providers: [
+    TrainingSessionService,
+    makeCounterProvider({
+      name: "session_mcq_cache_hits_total",
+      help: "Counts cache hits for training session MCQ selection",
+      labelNames: ["difficulty"],
+    }),
+    makeCounterProvider({
+      name: "session_mcq_cache_misses_total",
+      help: "Counts cache misses for training session MCQ selection",
+      labelNames: ["difficulty"],
+    }),
+  ],
 })
 export class TrainingSessionModule {}

@@ -36,6 +36,29 @@
 | DEVOPS-007 | Set up centralized logging + metrics (e.g., Loki/Grafana, ELK). Pipe Nest logs + Prometheus metrics. | P1 | DevOps | DEVOPS-005 | Activate `@willsoto/nestjs-prometheus`; add dashboards. |
 | DEVOPS-008 | Establish disaster recovery plan: DB backups, Redis snapshots, runbooks, RTO/RPO targets. | P2 | DevOps | DEVOPS-005 | Include restoration testing schedule. |
 
+### Session MCQ cache operations
+- **Keyspace:** `session:mcq-cache:<sessionId>:<hash>` stores serialized MCQ id lists (TTL driven by `SESSION_MCQ_CACHE_TTL_MS`), while `session:mcq-attempts:<sessionId>` is a monotonic counter invalidating cache entries on each attempt write.  
+- **Refresh logic:** deleting the attempt counter key forces new cache keys without touching per-filter entries; full flush via `redis-cli --raw keys 'session:mcq-cache:*' | xargs redis-cli DEL` only when coordinating maintenance.  
+- **Monitoring:** track `session_mcq_cache_hits_total` / `session_mcq_cache_misses_total` (labelled by difficulty) plus Redis memory. Alert when miss rate >70% for 15 min or memory exceeds 200 MB for this keyspace, indicating stale TTL or unexpected invalidations.  
+- **Rollback:** set `SESSION_MCQ_CACHE_TTL_MS=0` and restart backend pods to disable caching while leaving counters intact; document the change in the ops log and re-enable once DB load stabilizes.
+
+---
+
+## 2. Adaptive Phase Status & Roadmap
+
+| Phase | Status | Highlights |
+| --- | --- | --- |
+| **P0 – Stabilize** | ✅ Completed | Restored ability/mast updates, added adaptive DB indices/logging, ensured zero-downtime migrations. |
+| **P1 – Quality & Signals** | ✅ Completed | DATA-005..008 delivered: corrected BKT/IRT math, per-type attempt labeling, session MCQ cache with Redis invalidation, evaluation harness + docs. |
+| **P2 – Ops & Observability** | ✅ Completed | Accuracy-threshold tuning guide, session cache runbook, Prometheus counters, CI tests covering adaptive flows. |
+| **P3 – Intelligent Synergy** | 🚧 In progress | Automated parameter retraining, smarter selection policy, richer dashboards, resilient cache strategy (details below). |
+
+### P3 Objectives
+1. **Model Freshness** – Automate IRT/BKT retraining (nightly/weekly) with calibration gates (log-loss, Brier, ECE) before publishing new parameters; store artifacts + version IDs for rollback and audit.
+2. **Policy Evolution** – Introduce an adaptive policy module balancing ability fit, KC mastery gaps, exploration bonuses, and session pacing aligned to learner goals; surface reason codes in the UI to explain Synergy’s choices.
+3. **Adaptive Observability** – Ship Grafana dashboards + alerts covering calibration metrics, KC coverage, cache health, and cohort fairness; integrate the evaluation harness into CI/CD and release checklists.
+4. **Cache & Session Resilience** – Extend Redis caching with device-aware invalidation, soft TTLs for long-lived sessions, and runtime toggles (`SESSION_MCQ_CACHE_*`) so ops can tune/disable strategies without redeploys.
+
 ---
 
 ## 3. Backend Platform & API
@@ -134,4 +157,3 @@ Each sprint should end with demo + audit checkpoint using MYQCM_Comprehensive_Au
 - Maintain this plan as the single source of truth; update IDs/status weekly.  
 - Record progress in project management tool (Jira/Linear) referencing task IDs above.  
 - Re-run full audit upon completion to verify production readiness before launch.
-

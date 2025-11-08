@@ -27,4 +27,12 @@ export class RedisKeys {
   static getRedisAccuracyThresholdConfig() {
     return `config:accuracy-threshold`;
   }
+
+  static getSessionMcqCache(sessionId: string, hash: string) {
+    return `session:mcq-cache:${sessionId}:${hash}`;
+  }
+
+  static getSessionAttemptCounter(sessionId: string) {
+    return `session:mcq-attempts:${sessionId}`;
+  }
 }

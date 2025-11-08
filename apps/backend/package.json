@@ -164,7 +164,8 @@
       "^src/(.*)$": "<rootDir>/$1",
       "^common/(.*)$": "<rootDir>/../common/$1",
       "^shared/(.*)$": "<rootDir>/../shared/$1",
-      "^abstract/(.*)$": "<rootDir>/../abstract/$1"
+      "^abstract/(.*)$": "<rootDir>/../abstract/$1",
+      "^config/(.*)$": "<rootDir>/../config/$1"
     }
   }
 }

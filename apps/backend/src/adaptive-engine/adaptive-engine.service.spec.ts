@@ -1,4 +1,6 @@
 import { McqDifficulty, McqType } from "src/mcq/dto/mcq.type";
+import { DefaultBktParamsConfig } from "../../config/default-bkt-params.config";
+import { BktParamsInterface } from "./types/interfaces/bkt.params.interface";
 import { AdaptiveEngineService } from "./adaptive-engine.service";
 
 const mockAdaptiveLearner = () => ({
@@ -86,8 +88,8 @@ describe("AdaptiveEngineService", () => {
     );
 
     const saved = repository.save.mock.calls[0][0];
-    expect(saved.mastery).toBeLessThanOrEqual(0.2);
     expect(saved.mastery).toBeGreaterThanOrEqual(0);
+    expect(saved.mastery).toBeLessThanOrEqual(1);
     expect(saved.ability).toBeLessThan(0.4);
   });
 
@@ -147,5 +149,37 @@ describe("AdaptiveEngineService", () => {
     expect(result.discrimination).toBe(storedParams.discrimination);
     expect(result.difficulty).toBe(storedParams.difficulty);
     expect(result.guessing).toBe(storedParams.guessing);
+  });
+
+  describe("calculateBkt", () => {
+    it("applies posterior then learn ordering for correct answers", async () => {
+      const learner = mockAdaptiveLearner();
+
+      const updated = await service.calculateBkt(
+        learner as any,
+        DefaultBktParamsConfig,
+        { isCorrect: true, accuracy: 1 },
+      );
+
+      expect(updated).toBeCloseTo(0.6706, 4);
+    });
+
+    it("clamps invalid BKT parameters before applying update", async () => {
+      const learner = mockAdaptiveLearner();
+      const noisyParams: BktParamsInterface = {
+        guessing_probability: 5,
+        slipping_probability: -2,
+        learning_rate: 3,
+      };
+
+      const updated = await service.calculateBkt(
+        learner as any,
+        noisyParams,
+        { isCorrect: false, accuracy: 0 },
+      );
+
+      expect(updated).toBeGreaterThanOrEqual(0);
+      expect(updated).toBeLessThanOrEqual(1);
+    });
   });
 });

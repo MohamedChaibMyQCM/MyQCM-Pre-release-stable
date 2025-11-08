@@ -144,6 +144,11 @@ Each phase ships with accompanying design docs, schema migrations, automated tes
 4. Outline the pretest pipeline architecture with anchor strategy, hallucination checks, and drift heuristics; identify required data hooks (P2.5).
 5. Create a cross-functional project board covering all phases, assign owners per strategic pillar, and schedule a roadmap review with engineering, data science, content, ops, and product leads.
 
+### Accuracy-threshold tuning & rollout
+- **Knobs live in code**: update `apps/backend/config/default-accuracy-threshold.config.ts` (per MCQ type/difficulty thresholds + QROC blank-response policy) and, for environment-specific overrides, write to Redis key `config:accuracy-threshold`.  
+- **Reload procedure**: after changing defaults, run `redis-cli -u $REDIS_URL DEL config:accuracy-threshold` (or `SET` with the new JSON) so `RedisService.initDefaultAccuracyThreshold()` reseeds on next boot; confirm via `redis-cli GET config:accuracy-threshold`.  
+- **Communication**: product/ops should capture desired threshold changes in the release checklist, including who approved the new policy, when the Redis key was refreshed, and any validation metrics (Brier/log-loss deltas) reviewed before rollout.
+
 ---
 
 ## 8. Getting Involved

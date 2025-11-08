@@ -2,6 +2,7 @@ import { ModeDefiner } from '../mode/types/enums/mode-definier.enum';
 import { TrainingSessionStatus } from './types/enums/training-session.enum';
 import { McqDifficulty } from 'src/mcq/dto/mcq.type';
 import { TrainingSessionService } from './training-session.service';
+import { RedisKeys } from 'common/utils/redis-keys.util';
 
 jest.mock('src/user/entities/user.entity', () => ({}), { virtual: true });
 jest.mock('src/user/services/user.service', () => ({}), { virtual: true });
@@ -12,6 +13,24 @@ jest.mock('src/redis/redis.service', () => ({}), { virtual: true });
 jest.mock('src/adaptive-engine/adaptive-engine.service', () => ({}), { virtual: true });
 
 const baseDeps = () => {
+  const redisStore = new Map<string, string>();
+  const redisService = {
+    get: jest.fn(async (key: string, parse: boolean = false) => {
+      const raw = redisStore.get(key) ?? null;
+      if (raw === null) return null;
+      return parse ? JSON.parse(raw) : raw;
+    }),
+    set: jest.fn(async (key: string, value: any, ttl?: number, stringify: boolean = typeof value !== 'string') => {
+      const payload = stringify ? JSON.stringify(value) : value;
+      redisStore.set(key, payload);
+      return 'OK';
+    }),
+    increment: jest.fn(async (key: string) => {
+      const next = (Number(redisStore.get(key) ?? '0') || 0) + 1;
+      redisStore.set(key, String(next));
+      return next;
+    }),
+  } as any;
   const trainingSessionRepository = {
     findOne: jest.fn().mockResolvedValue({
       id: 'session1',
@@ -26,7 +45,6 @@ const baseDeps = () => {
   const adaptiveEngineService = {
     getAdaptiveLearner: jest.fn().mockResolvedValue({ ability: 0.5, mastery: 0.8 }),
   } as any;
-  const redisService = {} as any;
   const emailQueue = {} as any;
   const notificationQueue = {} as any;
   return {
@@ -36,6 +54,7 @@ const baseDeps = () => {
     redisService,
     emailQueue,
     notificationQueue,
+    redisStore,
   };
 };
 
@@ -74,6 +93,8 @@ describe('TrainingSessionService', () => {
       mcqService,
       deps.redisService,
       deps.adaptiveEngineService,
+      undefined,
+      undefined,
     );
 
     const result = await service.getSessionMcqs('user1', 'session1');
@@ -106,6 +127,8 @@ describe('TrainingSessionService', () => {
       mcqService,
       deps.redisService,
       deps.adaptiveEngineService,
+      undefined,
+      undefined,
     );
 
     const result = await service.getSessionMcqs('user1', 'session1');
@@ -147,6 +170,8 @@ describe('TrainingSessionService', () => {
       mcqService,
       deps.redisService,
       deps.adaptiveEngineService,
+      undefined,
+      undefined,
     );
 
     const result = await service.getSessionMcqs('user1', 'session1');
@@ -194,6 +219,24 @@ describe('TrainingSessionService', () => {
         },
       }),
     } as any;
+    const redisStore = new Map<string, string>();
+    const redisService = {
+      get: jest.fn(async (key: string, parse: boolean = false) => {
+        const raw = redisStore.get(key) ?? null;
+        if (raw === null) return null;
+        return parse ? JSON.parse(raw) : raw;
+      }),
+      set: jest.fn(async (key: string, value: any, ttl?: number, stringify: boolean = typeof value !== 'string') => {
+        const payload = stringify ? JSON.stringify(value) : value;
+        redisStore.set(key, payload);
+        return 'OK';
+      }),
+      increment: jest.fn(async (key: string) => {
+        const next = (Number(redisStore.get(key) ?? '0') || 0) + 1;
+        redisStore.set(key, String(next));
+        return next;
+      }),
+    } as any;
 
     const service = new TrainingSessionService(
       trainingSessionRepository,
@@ -203,8 +246,10 @@ describe('TrainingSessionService', () => {
       userProfileService,
       progressService,
       mcqService,
-      {} as any,
+      redisService,
       adaptiveEngineService,
+      undefined,
+      undefined,
     );
 
     (service as any).defineTrainingSessionParams = jest
@@ -221,17 +266,129 @@ describe('TrainingSessionService', () => {
 
     expect(mcqService.findMcqsPaginated).toHaveBeenCalledTimes(2);
     expect(mcqService.findMcqsPaginated.mock.calls[0][0].difficulty).toEqual(
-      McqDifficulty.easy,
+      McqDifficulty.medium,
     );
     expect(warnSpy).toHaveBeenCalledWith(
       'ADAPTIVE_DIFFICULTY_FALLBACK',
       expect.objectContaining({
         userId: 'user1',
         sessionId: 'session1',
-        requestedDifficulty: McqDifficulty.easy,
+        requestedDifficulty: McqDifficulty.medium,
       }),
     );
     expect(result.difficultyFallback).toBe(true);
     expect(result.assistantNext).toEqual(mcq);
+  });
+
+  it('reuses cached MCQ ids for identical requests', async () => {
+    const deps = baseDeps();
+    const mcq = { id: 'mcq-cache', options: [] };
+    const mcqService = {
+      findMcqsPaginated: jest.fn().mockResolvedValue({
+        data: [mcq],
+        total: 1,
+        page: 1,
+        offset: 1,
+        total_pages: 1,
+      }),
+      getMcqsByIds: jest.fn().mockResolvedValue([mcq]),
+      findFallbackMcq: jest.fn(),
+    } as any;
+    const userProfileService = {
+      getAuthenticatedUserProfileById: jest.fn().mockResolvedValue({
+        mode: {
+          include_qcm_definer: ModeDefiner.USER,
+          include_qcs_definer: ModeDefiner.USER,
+          include_qroc_definer: ModeDefiner.USER,
+          time_limit_definer: ModeDefiner.USER,
+          number_of_questions_definer: ModeDefiner.USER,
+          randomize_questions_order_definer: ModeDefiner.USER,
+          randomize_options_order_definer: ModeDefiner.USER,
+          difficulty_definer: ModeDefiner.USER,
+        },
+      }),
+    } as any;
+
+    const service = new TrainingSessionService(
+      deps.trainingSessionRepository,
+      deps.emailQueue,
+      deps.notificationQueue,
+      {} as any,
+      userProfileService,
+      deps.progressService,
+      mcqService,
+      deps.redisService,
+      deps.adaptiveEngineService,
+      undefined,
+      undefined,
+    );
+
+    (service as any).defineTrainingSessionParams = jest
+      .fn()
+      .mockResolvedValue({});
+
+    await service.getSessionMcqs('user1', 'session1');
+    await service.getSessionMcqs('user1', 'session1');
+
+    expect(mcqService.findMcqsPaginated).toHaveBeenCalledTimes(1);
+    expect(mcqService.getMcqsByIds).toHaveBeenCalledTimes(1);
+  });
+
+  it('invalidates the cache when the session attempt counter changes', async () => {
+    const deps = baseDeps();
+    const mcq = { id: 'mcq-cache', options: [] };
+    const mcqService = {
+      findMcqsPaginated: jest.fn().mockResolvedValue({
+        data: [mcq],
+        total: 1,
+        page: 1,
+        offset: 1,
+        total_pages: 1,
+      }),
+      getMcqsByIds: jest.fn().mockResolvedValue([mcq]),
+      findFallbackMcq: jest.fn(),
+    } as any;
+    const userProfileService = {
+      getAuthenticatedUserProfileById: jest.fn().mockResolvedValue({
+        mode: {
+          include_qcm_definer: ModeDefiner.USER,
+          include_qcs_definer: ModeDefiner.USER,
+          include_qroc_definer: ModeDefiner.USER,
+          time_limit_definer: ModeDefiner.USER,
+          number_of_questions_definer: ModeDefiner.USER,
+          randomize_questions_order_definer: ModeDefiner.USER,
+          randomize_options_order_definer: ModeDefiner.USER,
+          difficulty_definer: ModeDefiner.USER,
+        },
+      }),
+    } as any;
+
+    const service = new TrainingSessionService(
+      deps.trainingSessionRepository,
+      deps.emailQueue,
+      deps.notificationQueue,
+      {} as any,
+      userProfileService,
+      deps.progressService,
+      mcqService,
+      deps.redisService,
+      deps.adaptiveEngineService,
+      undefined,
+      undefined,
+    );
+
+    (service as any).defineTrainingSessionParams = jest
+      .fn()
+      .mockResolvedValue({});
+
+    await service.getSessionMcqs('user1', 'session1');
+
+    const counterKey = RedisKeys.getSessionAttemptCounter('session1');
+    await deps.redisService.increment(counterKey);
+
+    await service.getSessionMcqs('user1', 'session1');
+
+    expect(mcqService.findMcqsPaginated).toHaveBeenCalledTimes(2);
+    expect(mcqService.getMcqsByIds).not.toHaveBeenCalled();
   });
 });

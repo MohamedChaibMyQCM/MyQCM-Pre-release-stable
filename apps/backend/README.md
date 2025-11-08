@@ -70,6 +70,57 @@ $ npm run start:dev or nest start --watch
 $ npm run start:prod or nest start prod
 ```
 
+## IRT Calibration Runbook
+
+The adaptive engine now expects versioned item parameters. Use the offline trainer whenever you add new attempts or roll out a new calibration.
+
+1. **Set calibration metadata** (PowerShell examples shown; adjust for your shell):
+
+   ```powershell
+   $env:IRT_VERSION = "2025-02-06-a"       # unique label per run (date or semver)
+   $env:IRT_SOURCE  = "offline-script"     # optional, defaults to "offline-script"
+   # $env:COURSE_ID = "<uuid>"             # optional: limit training to one course
+   # $env:MIN_ATTEMPTS = "5"               # optional: override minimum attempts per MCQ
+   ```
+
+2. **Run the trainer** (from `apps/backend`):
+
+   ```bash
+   npm run train:irt
+   ```
+
+   The script pulls attempts from `progress`, performs alternating ability/item updates, and upserts rows into `item_irt_params` keyed by `(mcq_id, version)` while ensuring only one row per MCQ is flagged `is_latest`.
+
+3. **Spot-check the results** in Postgres (Antares SQL, psql, etc.):
+
+   ```sql
+   SELECT mcq_id,
+          version,
+          is_latest,
+          discrimination,
+          difficulty,
+          guessing,
+          "updatedAt"
+   FROM item_irt_params
+   WHERE mcq_id = '<mcq uuid>'
+   ORDER BY "updatedAt" DESC;
+   ```
+
+   The newest row (matching `IRT_VERSION`) should show `is_latest = true`; older versions should be `false`.
+
+4. **Reset temporary overrides** after the run so future calibrations use defaults:
+
+   ```powershell
+   Remove-Item Env:IRT_VERSION   -ErrorAction SilentlyContinue
+   Remove-Item Env:IRT_SOURCE    -ErrorAction SilentlyContinue
+   Remove-Item Env:COURSE_ID     -ErrorAction SilentlyContinue
+   Remove-Item Env:MIN_ATTEMPTS  -ErrorAction SilentlyContinue
+   ```
+
+5. **Production rollout**: deploy the backend so adaptive updates pick up the latest parameters, then monitor adaptive logs for any fallbacks.
+
+> Tip: keep a changelog of `IRT_VERSION` values so you can compare or roll back calibrations later.
+
 ## Features
 
 - #### MCQ Entry and Management:

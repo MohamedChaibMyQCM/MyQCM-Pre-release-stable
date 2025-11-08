@@ -68,6 +68,7 @@ const dataSourceOptions: PostgresConnectionOptions = {
   entities: [join(__dirname, "/**/*.entity{.ts,.js}")],
   migrations: [join(__dirname, "/migrations/*{.ts,.js}")],
   migrationsTableName: "typeorm_migrations",
+  migrationsTransactionMode: "each",
   extra: {
     max: toNumber(process.env.POOL_SIZE, 10),
     idleTimeoutMillis: parseDuration(process.env.POOL_TIMEOUT, 30000),

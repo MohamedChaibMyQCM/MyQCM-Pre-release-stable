@@ -265,10 +265,17 @@ export class AdaptiveEngineService {
       : this.itemIrtParamsRepository;
 
     if (irtMap.mcqId) {
-      const stored = await repository.findOne({
-        where: { mcq: { id: irtMap.mcqId } },
-        relations: ["mcq"],
-      });
+      const stored =
+        (await repository.findOne({
+          where: { mcq: { id: irtMap.mcqId }, is_latest: true },
+          relations: ["mcq"],
+        })) ??
+        (await repository.findOne({
+          where: { mcq: { id: irtMap.mcqId } },
+          relations: ["mcq"],
+          order: { updatedAt: "DESC" },
+        }));
+
       if (stored) {
         return {
           discrimination: stored.discrimination,

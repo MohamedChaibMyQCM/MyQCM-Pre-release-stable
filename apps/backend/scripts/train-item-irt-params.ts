@@ -46,6 +46,9 @@ async function trainIrtParameters(
   dataSource: DataSource,
   options: TrainingOptions,
 ) {
+  if (!options.version?.trim()) {
+    throw new Error("IRT training requires a non-empty version identifier");
+  }
   const progressRepository = dataSource.getRepository(Progress);
   const paramsRepository = dataSource.getRepository(ItemIrtParams);
   const mcqRepository = dataSource.getRepository(Mcq);
@@ -114,10 +117,26 @@ async function trainIrtParameters(
       ...params,
       source: options.source,
       version: options.version,
+      is_latest: true,
     }),
   );
 
-  await paramsRepository.upsert(upsertPayload, ["mcq"]);
+  const mcqIds = upsertPayload.map((entry) => entry.mcq.id);
+
+  await paramsRepository.manager.transaction(async (transactionalManager) => {
+    if (mcqIds.length) {
+      await transactionalManager
+        .createQueryBuilder()
+        .update(ItemIrtParams)
+        .set({ is_latest: false })
+        .where('"mcq_id" IN (:...mcqIds)', { mcqIds })
+        .execute();
+    }
+
+    await transactionalManager
+      .getRepository(ItemIrtParams)
+      .upsert(upsertPayload, ["mcq", "version"]);
+  });
   console.log(
     `Stored calibrated parameters for ${upsertPayload.length} MCQs (${attempts.length} attempts, users=${userIds.length}).`,
   );

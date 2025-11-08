@@ -121,4 +121,31 @@ describe("AdaptiveEngineService", () => {
     expect(ability).toBeGreaterThan(0.5);
     thetaSpy.mockRestore();
   });
+
+  it("prefers the latest stored IRT parameters when available", async () => {
+    const storedParams = {
+      discrimination: 1.3,
+      difficulty: -0.4,
+      guessing: 0.22,
+    };
+    itemParamsRepository.findOne.mockResolvedValueOnce(storedParams);
+
+    const result = await service.mapIrtValues({
+      mcqId: "mcq-latest",
+      type: McqType.qcm,
+      difficulty: McqDifficulty.medium,
+      estimated_time: 60,
+      time_spent: 50,
+      baseline: 1,
+      knowledgeComponentIds: ["kc-1"],
+    });
+
+    expect(itemParamsRepository.findOne).toHaveBeenCalledWith({
+      where: { mcq: { id: "mcq-latest" }, is_latest: true },
+      relations: ["mcq"],
+    });
+    expect(result.discrimination).toBe(storedParams.discrimination);
+    expect(result.difficulty).toBe(storedParams.difficulty);
+    expect(result.guessing).toBe(storedParams.guessing);
+  });
 });

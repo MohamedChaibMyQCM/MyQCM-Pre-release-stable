@@ -2081,11 +2081,8 @@ export class McqService {
         transactionManager,
       );
 
-      // Update adaptive learning metrics only for graded attempts with a session
-      if (
-        submitMcqAttemptDto?.session != null &&
-        attemptResult?.success_ratio != null
-      ) {
+      // Update adaptive learning metrics for every graded attempt
+      if (attemptResult?.success_ratio != null) {
         await this.updateAdaptiveLearningMetrics(
           user.id,
           mcq,

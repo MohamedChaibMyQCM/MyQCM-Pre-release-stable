@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, In, Repository } from "typeorm";
 import { BktParamsInterface } from "src/adaptive-engine/types/interfaces/bkt.params.interface";
 import { IrtParamsInterface } from "./types/interfaces/irt-params.interface";
 import { IrtMapInterface } from "./types/interfaces/irt-map.interface";
@@ -8,15 +8,25 @@ import { McqDifficulty, McqType } from "src/mcq/dto/mcq.type";
 import { AdaptiveLearner } from "./entities/adaptive-learner.entity";
 import { CreateNewAdaptiveLearnerInterface } from "./types/interfaces/create-new-adaptive-learner.interface";
 import { DefaultBktParamsConfig } from "../../config/default-bkt-params.config";
+import { ItemIrtParams } from "./entities/item-irt-params.entity";
+import { AdaptiveLearnerKnowledgeComponent } from "./entities/adaptive-learner-knowledge-component.entity";
+import { KnowledgeComponent } from "src/knowledge-component/entities/knowledge-component.entity";
 
 @Injectable()
 export class AdaptiveEngineService {
   constructor(
     @InjectRepository(AdaptiveLearner)
     private readonly adaptiveLearnerRepository: Repository<AdaptiveLearner>,
+    @InjectRepository(ItemIrtParams)
+    private readonly itemIrtParamsRepository: Repository<ItemIrtParams>,
+    @InjectRepository(AdaptiveLearnerKnowledgeComponent)
+    private readonly learnerKnowledgeComponentRepository: Repository<AdaptiveLearnerKnowledgeComponent>,
   ) {}
   private readonly logger = new Logger(AdaptiveEngineService.name);
   private readonly USE_CORRECTED_BKT = process.env.FF_BKT_CORRECTED === "true";
+  private readonly irtPriorMean = 0;
+  private readonly irtPriorVariance = 4;
+  private readonly irtLearningRate = 0.75;
 
   // LEARNER PROFILE MANAGEMENT
 
@@ -98,6 +108,7 @@ export class AdaptiveEngineService {
   async updateAdaptiveLearner(
     params: { userId: string; courseId: string },
     options: {
+      mcqId: string;
       is_correct: boolean;
       success_ratio: number | null;
       type: McqType;
@@ -115,29 +126,42 @@ export class AdaptiveEngineService {
     );
     const { guessing_probability, slipping_probability, learning_rate } =
       adaptive_learner.course;
-    const knowledgeComponentIds =
-      options.knowledgeComponentIds ?? [];
+    const knowledgeComponentIds = options.knowledgeComponentIds ?? [];
+    const observation = {
+      isCorrect: options.is_correct,
+      accuracy: options.success_ratio,
+    };
 
     // Calculate new mastery using BKT model
     const new_bkt_mastery = await this.calculateBkt(
       adaptive_learner,
       { guessing_probability, slipping_probability, learning_rate },
-      {
-        isCorrect: options.is_correct,
-        accuracy: options.success_ratio,
-      },
+      observation,
     );
-    adaptive_learner.mastery = Math.min(1, Math.max(0, new_bkt_mastery));
+    adaptive_learner.mastery = this.clamp01(new_bkt_mastery);
+
+    await this.upsertKnowledgeComponentMastery(
+      adaptive_learner,
+      knowledgeComponentIds,
+      { guessing_probability, slipping_probability, learning_rate },
+      observation,
+      transactionManager,
+    );
 
     // Calculate IRT parameters and new ability score
-    const irtParams = await this.mapIrtValues(options);
+    const irtParams = await this.mapIrtValues(
+      {
+        ...options,
+        knowledgeComponentIds,
+      },
+      transactionManager,
+    );
     const new_irt_ability = await this.calculateIrt(
       adaptive_learner,
       irtParams,
       options.is_correct,
     );
-    adaptive_learner.ability = Math.min(1, Math.max(0, new_irt_ability));
-    (adaptive_learner as any).knowledgeComponentIds = knowledgeComponentIds;
+    adaptive_learner.ability = new_irt_ability;
 
     return transactionManager
       ? transactionManager.save(adaptive_learner)
@@ -232,7 +256,29 @@ export class AdaptiveEngineService {
    * @param irtMap Question metadata
    * @returns IRT parameters (difficulty, guessing, discrimination)
    */
-  async mapIrtValues(irtMap: IrtMapInterface): Promise<IrtParamsInterface> {
+  async mapIrtValues(
+    irtMap: IrtMapInterface,
+    transactionManager?: EntityManager,
+  ): Promise<IrtParamsInterface> {
+    const repository = transactionManager
+      ? transactionManager.getRepository(ItemIrtParams)
+      : this.itemIrtParamsRepository;
+
+    if (irtMap.mcqId) {
+      const stored = await repository.findOne({
+        where: { mcq: { id: irtMap.mcqId } },
+        relations: ["mcq"],
+      });
+      if (stored) {
+        return {
+          discrimination: stored.discrimination,
+          difficulty: stored.difficulty,
+          guessing: stored.guessing,
+          knowledgeComponentIds: irtMap.knowledgeComponentIds ?? [],
+        };
+      }
+    }
+
     // Map difficulty based on question difficulty level
     const difficulty_map = {
       [McqDifficulty.easy]: -1,
@@ -280,19 +326,87 @@ export class AdaptiveEngineService {
     irtParams: IrtParamsInterface,
     isCorrect: boolean,
   ): Promise<number> {
-    const { ability } = learner;
+    const theta = learner.ability ?? 0;
     const { difficulty, discrimination, guessing } = irtParams;
-
-    // Calculate exponent for logistic function
-    const exponent = -discrimination * (ability - difficulty);
-
-    // For a 3PL model including the guessing parameter:
-    const probability = guessing + (1 - guessing) / (1 + Math.exp(exponent));
+    const eps = 1e-9;
     const response = isCorrect ? 1 : 0;
-    const learningRate = 0.1;
-    const delta = discrimination * (response - probability) * learningRate;
-    const updatedAbility = ability + delta;
-    // Clamp to valid range
-    return Math.min(1, Math.max(0, updatedAbility));
+    const logistic = 1 / (1 + Math.exp(-discrimination * (theta - difficulty)));
+    const probability = guessing + (1 - guessing) * logistic;
+    const boundedProbability = Math.min(1 - eps, Math.max(eps, probability));
+    const dPdTheta =
+      (1 - guessing) *
+      discrimination *
+      logistic *
+      (1 - logistic);
+    const gradLikelihood =
+      (response - boundedProbability) *
+      (dPdTheta / (boundedProbability * (1 - boundedProbability)));
+    const gradPrior = -(theta - this.irtPriorMean) / this.irtPriorVariance;
+    return theta + this.irtLearningRate * (gradLikelihood + gradPrior);
+  }
+
+  private clamp01(value: number) {
+    return Math.min(1, Math.max(0, value));
+  }
+
+  private async upsertKnowledgeComponentMastery(
+    learner: AdaptiveLearner,
+    knowledgeComponentIds: string[],
+    bktParams: BktParamsInterface,
+    observation: { isCorrect: boolean; accuracy?: number | null },
+    transactionManager?: EntityManager,
+  ) {
+    if (!knowledgeComponentIds.length) {
+      return;
+    }
+
+    const uniqueIds = Array.from(new Set(knowledgeComponentIds));
+    const repository = transactionManager
+      ? transactionManager.getRepository(AdaptiveLearnerKnowledgeComponent)
+      : this.learnerKnowledgeComponentRepository;
+
+    const existingRecords = await repository.find({
+      where: {
+        adaptiveLearner: { id: learner.id },
+        knowledgeComponent: { id: In(uniqueIds) },
+      },
+      relations: ["knowledgeComponent"],
+    });
+    const recordByComponent = new Map(
+      existingRecords.map((record) => [
+        record.knowledgeComponent.id,
+        record,
+      ]),
+    );
+
+    const toSave: AdaptiveLearnerKnowledgeComponent[] = [];
+
+    for (const componentId of uniqueIds) {
+      let record = recordByComponent.get(componentId);
+      if (!record) {
+        record = repository.create({
+          adaptiveLearner: { id: learner.id } as AdaptiveLearner,
+          knowledgeComponent: { id: componentId } as KnowledgeComponent,
+          mastery: learner.mastery,
+        });
+      }
+
+      const syntheticLearner = {
+        ...learner,
+        mastery: record.mastery,
+      } as AdaptiveLearner;
+
+      const updatedMastery = await this.calculateBkt(
+        syntheticLearner,
+        bktParams,
+        observation,
+      );
+      record.mastery = this.clamp01(updatedMastery);
+      toSave.push(record);
+    }
+
+    if (toSave.length) {
+      await repository.save(toSave);
+    }
   }
 }

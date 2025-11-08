@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Logger,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -18,11 +19,18 @@ import { RejectGenerationItemDto } from "./dto/reject-generation-item.dto";
 import { McqService } from "src/mcq/mcq.service";
 import { McqDifficulty, McqTag, McqType, QuizType } from "src/mcq/dto/mcq.type";
 import { CreateMcqDto } from "src/mcq/dto/create-mcq.dto";
+import { Mcq } from "src/mcq/entities/mcq.entity";
 import { GenerationAiService } from "./generation-ai.service";
 import { KnowledgeComponentService } from "src/knowledge-component/knowledge-component.service";
+import { KnowledgeComponentAiService } from "src/knowledge-component/ai/knowledge-component-ai.service";
 
 @Injectable()
 export class GenerationService {
+  private readonly logger = new Logger(GenerationService.name);
+  private readonly autoMatchConfidenceThreshold = Number(
+    process.env.KC_AUTO_MATCH_THRESHOLD ?? 0.6,
+  );
+
   constructor(
     @InjectRepository(GenerationRequest)
     private readonly generationRequestRepository: Repository<GenerationRequest>,
@@ -31,6 +39,7 @@ export class GenerationService {
     private readonly mcqService: McqService,
     private readonly generationAiService: GenerationAiService,
     private readonly knowledgeComponentService: KnowledgeComponentService,
+    private readonly knowledgeComponentAiService: KnowledgeComponentAiService,
   ) {}
 
   async createRequest(
@@ -63,24 +72,42 @@ export class GenerationService {
       throw new BadRequestException("Unit is required");
     }
 
-    if (!dto.knowledge_component_ids || dto.knowledge_component_ids.length === 0) {
-      throw new BadRequestException(
-        "Select at least one knowledge component for this generation request",
-      );
-    }
+    const autoMatchWithAi = Boolean(dto.auto_match_with_ai);
 
-    try {
-      await this.knowledgeComponentService.getComponentsByIds(
-        dto.knowledge_component_ids,
-        {
-          ensureAll: true,
-        },
-      );
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new BadRequestException(error.message);
+    if (!autoMatchWithAi) {
+      if (
+        !dto.knowledge_component_ids ||
+        dto.knowledge_component_ids.length === 0
+      ) {
+        throw new BadRequestException(
+          "Select at least one knowledge component for this generation request",
+        );
       }
-      throw error;
+
+      try {
+        await this.knowledgeComponentService.getComponentsByIds(
+          dto.knowledge_component_ids,
+          {
+            ensureAll: true,
+          },
+        );
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw new BadRequestException(error.message);
+        }
+        throw error;
+      }
+    } else {
+      const availableComponents =
+        await this.knowledgeComponentService.listComponents({
+          courseId: dto.course,
+          includeInactive: false,
+        });
+      if (availableComponents.length === 0) {
+        throw new BadRequestException(
+          "Define knowledge components for this course before enabling AI matching.",
+        );
+      }
     }
 
     const request = this.generationRequestRepository.create({
@@ -99,7 +126,8 @@ export class GenerationService {
       source_file_name: dto.sourceFileName ?? null,
       source_file_mime: dto.sourceFileMime ?? null,
       source_file_size: dto.sourceFileSize ?? null,
-      knowledge_components: dto.knowledge_component_ids,
+      knowledge_components: dto.knowledge_component_ids ?? [],
+      auto_match_with_ai: autoMatchWithAi,
     });
 
     return this.generationRequestRepository.save(request);
@@ -254,17 +282,75 @@ export class GenerationService {
   }
 
   async getItems(requestId: string, freelancer: JwtPayload) {
-    await this.ensureOwnership(requestId, freelancer);
+    const request = await this.ensureOwnership(requestId, freelancer, true);
 
-    return this.generationItemRepository.find({
-      where: {
-        request: {
-          id: requestId,
-          freelancer: { id: freelancer.id },
+    // When ensureOwnership loads relations it already brings the items collection.
+    // Still, older requests might not have the relation eager-loaded, so we fallback
+    // to a lightweight query by requestId only (ownership already validated).
+    let items = request.items ?? [];
+    if (!items.length) {
+      items = await this.generationItemRepository.find({
+        where: {
+          request: {
+            id: requestId,
+          },
+        },
+        order: { createdAt: "ASC" },
+      });
+    } else {
+      items = items
+        .slice()
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    }
+
+    const statusCounts = Object.values(GenerationItemStatus).reduce(
+      (acc, status) => {
+        acc[status] = 0;
+        return acc;
+      },
+      {} as Record<GenerationItemStatus, number>,
+    );
+
+    const typeCounts = {
+      mcq: 0,
+      qroc: 0,
+    };
+
+    for (const item of items) {
+      if (statusCounts[item.status as GenerationItemStatus] !== undefined) {
+        statusCounts[item.status as GenerationItemStatus] += 1;
+      } else {
+        statusCounts[item.status as GenerationItemStatus] = 1;
+      }
+
+      if (item.type === GenerationItemType.MCQ) {
+        typeCounts.mcq += 1;
+      } else if (item.type === GenerationItemType.QROC) {
+        typeCounts.qroc += 1;
+      }
+    }
+
+    const summary = {
+      total: items.length,
+      statusCounts,
+      typeCounts,
+      request: {
+        id: request.id,
+        status: request.status,
+        requestedCounts: {
+          mcq: request.requested_mcq_count ?? 0,
+          qroc: request.requested_qroc_count ?? 0,
         },
       },
-      order: { createdAt: "ASC" },
-    });
+      lastUpdatedAt:
+        items.length > 0
+          ? items[items.length - 1].updatedAt ??
+            items[items.length - 1].createdAt ??
+            null
+          : null,
+    };
+
+    return { items, summary };
   }
 
   private validateItemPayload(item: UpdateGenerationItemDto) {
@@ -383,7 +469,7 @@ export class GenerationService {
       );
     }
 
-    const createdMcqs = [];
+    const createdMcqs: Mcq[] = [];
     for (const item of approvedItems) {
       const unitId =
         request.unit?.id ?? request.subject?.unit?.id ?? null;
@@ -423,6 +509,8 @@ export class GenerationService {
         subject: request.subject.id,
         course: request.course.id,
         knowledge_component_ids: request.knowledge_components ?? [],
+        allow_missing_knowledge_components:
+          request.auto_match_with_ai ?? false,
       } as CreateMcqDto;
 
       const mcq = await this.mcqService.create(dto, null, freelancer);
@@ -435,8 +523,74 @@ export class GenerationService {
     request.status = GenerationRequestStatus.COMPLETED;
     await this.generationRequestRepository.save(request);
 
+    if (request.auto_match_with_ai) {
+      await this.autoAssignKnowledgeComponents(
+        request,
+        createdMcqs,
+        freelancer,
+      );
+    }
+
     return {
       generated: createdMcqs.length,
     };
+  }
+
+  private async autoAssignKnowledgeComponents(
+    request: GenerationRequest,
+    createdMcqs: Mcq[],
+    freelancer: JwtPayload,
+  ) {
+    const mcqIds = createdMcqs
+      .map((mcq) => mcq.id)
+      .filter((id): id is string => Boolean(id));
+
+    if (!mcqIds.length || !request.course?.id) {
+      return;
+    }
+
+    try {
+      const review = await this.knowledgeComponentAiService.reviewCourse(
+        request.course.id,
+        { mcqIds },
+        {
+          id: freelancer.id,
+          email: freelancer.email,
+          name: freelancer.email,
+        },
+      );
+
+      const items = review.items
+        .map((item) => ({
+          mcqId: item.mcqId ?? "",
+          componentIds: item.suggestions
+            .filter(
+              (suggestion) =>
+                typeof suggestion.score === "number" &&
+                suggestion.score >= this.autoMatchConfidenceThreshold,
+            )
+            .map((suggestion) => suggestion.id)
+            .filter((id): id is string => Boolean(id)),
+        }))
+        .filter((item) => item.mcqId && item.componentIds.length > 0);
+
+      if (!items.length) {
+        this.logger.warn(
+          `AI auto-matching returned no confident suggestions for generation request ${request.id}`,
+        );
+        return;
+      }
+
+      await this.knowledgeComponentAiService.applyMatches(
+        request.course.id,
+        { items },
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to auto-match knowledge components for generation request ${request.id}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BullModule } from "@nestjs/bull";
 import { makeCounterProvider } from "@willsoto/nestjs-prometheus";
@@ -22,7 +22,7 @@ import { Mcq } from "src/mcq/entities/mcq.entity";
     }),
     KnowledgeComponentModule,
     CourseModule,
-    McqModule,
+    forwardRef(() => McqModule),
   ],
   controllers: [KcSuggestionController],
   providers: [

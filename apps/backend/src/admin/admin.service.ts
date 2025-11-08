@@ -9,6 +9,7 @@ import { Admin } from "./entities/admin.entity";
 import { Repository } from "typeorm";
 import { SigninAdminDto } from "./dto/signin-admin.dto";
 import { hashString, verifyHash } from "common/utils/hashing";
+import { AdminScope } from "./enums/admin-scope.enum";
 
 @Injectable()
 export class AdminService {
@@ -40,6 +41,9 @@ export class AdminService {
     const admin = this.adminRepository.create({
       ...createAdminDto,
       password: await hashString(createAdminDto.password),
+      scopes: createAdminDto.scopes?.length
+        ? createAdminDto.scopes
+        : [AdminScope.SUPER],
     });
     await this.adminRepository.save(admin);
     return admin;

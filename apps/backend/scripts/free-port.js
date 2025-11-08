@@ -1,6 +1,15 @@
 const path = require("node:path");
 const dotenv = require("dotenv");
-const killPort = require("kill-port");
+let killPort;
+
+try {
+  killPort = require("kill-port");
+} catch (error) {
+  console.warn(
+    "[free-port] 'kill-port' dependency missing; skipping automatic port cleanup.",
+  );
+  process.exit(0);
+}
 
 // Load backend-specific environment variables to resolve the target port.
 dotenv.config({ path: path.resolve(__dirname, "../.env") });

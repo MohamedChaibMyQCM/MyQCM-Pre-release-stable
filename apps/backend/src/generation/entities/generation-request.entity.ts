@@ -112,6 +112,12 @@ export class GenerationRequest extends ChronoEntity {
   @Column("uuid", { array: true, default: () => "ARRAY[]::uuid[]" })
   knowledge_components: string[];
 
+  @Column({
+    type: "boolean",
+    default: false,
+  })
+  auto_match_with_ai: boolean;
+
   @OneToMany(() => GenerationItem, (item) => item.request, {
     cascade: true,
   })

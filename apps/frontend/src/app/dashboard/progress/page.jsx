@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react"; 
+import { useMemo, useState } from "react"; 
 import { useQuery } from "@tanstack/react-query";
 import secureLocalStorage from "react-secure-storage";
 import toast from "react-hot-toast"; 
@@ -10,8 +10,22 @@ import Shedule_Stat from "@/components/dashboard/MyProgress/Shedule_Stat";
 import Strength_Stat from "@/components/dashboard/MyProgress/Strength_Stat";
 import Loading from "@/components/Loading";
 import Progress_Links from "@/components/dashboard/MyProgress/Progress_Links";
+import ProgressRangeSelector from "@/components/dashboard/MyProgress/ProgressRangeSelector";
 
 const ProgressSummaryPage = () => {
+  const [range, setRange] = useState("30d");
+
+  const dateFilters = useMemo(() => {
+    if (range === "all") return {};
+    const now = new Date();
+    const end = now.toISOString().split("T")[0];
+    const days = range === "7d" ? 7 : 30;
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - days);
+    const start = startDate.toISOString().split("T")[0];
+    return { from: start, to: end };
+  }, [range]);
+
   const {
     data: userData,
     isLoading: isLoadingUser,
@@ -45,7 +59,7 @@ const ProgressSummaryPage = () => {
     isError: isAnalyticsError,
     error: analyticsError,
   } = useQuery({
-    queryKey: ["userAnalytics"],
+    queryKey: ["userAnalytics", range, dateFilters.from, dateFilters.to],
     queryFn: async () => {
       const token = secureLocalStorage.getItem("token");
       if (!token) {
@@ -55,6 +69,10 @@ const ProgressSummaryPage = () => {
       try {
         const response = await BaseUrl.get("/progress/analytics", {
           headers: { Authorization: `Bearer ${token}` },
+          params: {
+            ...(dateFilters.from ? { from: dateFilters.from } : {}),
+            ...(dateFilters.to ? { to: dateFilters.to } : {}),
+          },
         });
         return response.data.data;
       } catch (err) {
@@ -100,10 +118,17 @@ const ProgressSummaryPage = () => {
 
   return (
     <>
-      <Progress_Links />
+      <Progress_Links
+        rightContent={
+          <ProgressRangeSelector value={range} onChange={setRange} />
+        }
+      />
       <div className="px-4 md:px-6 mt-4 md:mt-8 pb-6 md:pb-8">
         <GeneraleStat overall_summary={activityData.overall_summary} />
-        <Strength_Stat subject_strengths={activityData.subject_strengths} />
+        <Strength_Stat
+          subject_strengths={activityData.subject_strengths}
+          subject_recommendations={activityData.subject_recommendations}
+        />
         <Shedule_Stat accuracy_trend={activityData.accuracy_trend} />
       </div>
     </>

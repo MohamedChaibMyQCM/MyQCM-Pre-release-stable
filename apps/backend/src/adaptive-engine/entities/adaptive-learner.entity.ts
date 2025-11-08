@@ -17,7 +17,7 @@ export class AdaptiveLearner extends ChronoEntity {
   @Column({ type: "float", default: 0.2 })
   mastery: number;
 
-  // Current irt ability probability (0 to 1)
+  // Current IRT ability (theta). Unbounded, 0 represents average ability.
   @Column({ type: "float", default: 0 })
   ability: number;
 }

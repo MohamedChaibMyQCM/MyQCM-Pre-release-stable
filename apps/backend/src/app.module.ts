@@ -40,6 +40,7 @@ import { FileModule } from "./file/file.module";
 import { GenerationModule } from "./generation/generation.module";
 import { RewardModule } from "./reward/reward.module";
 import { KnowledgeComponentModule } from "./knowledge-component/knowledge-component.module";
+import { KnowledgeComponentAiModule } from "./knowledge-component/ai/knowledge-component-ai.module";
 import { KcSuggestionModule } from "./kc-suggestion/kc-suggestion.module";
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { KcSuggestionModule } from "./kc-suggestion/kc-suggestion.module";
     GenerationModule,
     RewardModule,
     KnowledgeComponentModule,
+    KnowledgeComponentAiModule,
     KcSuggestionModule,
   ],
   providers: [

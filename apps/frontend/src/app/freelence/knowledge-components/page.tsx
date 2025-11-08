@@ -1,13 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import toast from "react-hot-toast";
 import { FreelancerLayout } from "@/components/freelancer/FreelancerLayout";
-import {
-  CourseContextSelector,
-  CourseContext,
-} from "@/components/forms/CourseContextSelector";
+import type { CourseContext } from "@/components/forms/CourseContextSelector";
 import {
   apiFetch,
   UnauthorizedError,
@@ -17,37 +13,18 @@ import {
 } from "@/app/lib/api";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Download, FilePlus2, RefreshCw } from "lucide-react";
 
-type KnowledgeComponentRow = {
-  id: string;
-  slug: string;
-  name: string;
-  code?: string | null;
-  description?: string | null;
-  level?: number | null;
-  isActive: boolean;
-  domain?: { id: string; name: string } | null;
-  parent?: { id: string; name: string } | null;
-};
-
-type FormState = {
-  id?: string;
-  slug: string;
-  name: string;
-  code?: string;
-  description?: string;
-  domainId: string;
-  courseId: string;
-  parentId?: string;
-  level?: number | "";
-  isActive: boolean;
-};
+import { AiMcqMapperSection } from "./components/AiMcqMapperSection";
+import { KnowledgeComponentFormSection } from "./components/KnowledgeComponentFormSection";
+import { KnowledgeComponentsTableSection } from "./components/KnowledgeComponentsTableSection";
+import {
+  AiReviewConfidence,
+  AiReviewItem,
+  AiReviewResponse,
+  FormState,
+  KnowledgeComponentRow,
+  SelectOption,
+} from "./types";
 
 const extractItems = (payload: any): any[] => {
   if (!payload) return [];
@@ -60,7 +37,7 @@ const extractItems = (payload: any): any[] => {
   return [];
 };
 
-const mapOptions = (items: any[]): { id: string; name: string }[] =>
+const mapOptions = (items: any[]): SelectOption[] =>
   items
     .map((item) => {
       const id =
@@ -82,7 +59,7 @@ const mapOptions = (items: any[]): { id: string; name: string }[] =>
         "Unnamed";
       return { id, name };
     })
-    .filter((option): option is { id: string; name: string } => option !== null);
+    .filter((option): option is SelectOption => option !== null);
 
 const emptyFormState = (courseId: string): FormState => ({
   slug: "",
@@ -112,11 +89,8 @@ export default function KnowledgeComponentsPage() {
   const [courseContext, setCourseContext] =
     React.useState<CourseContext>(INITIAL_CONTEXT);
   const selectedCourse = courseContext.course;
-  const selectedModule = courseContext.subject;
 
-  const [domains, setDomains] = React.useState<{ id: string; name: string }[]>(
-    [],
-  );
+  const [domains, setDomains] = React.useState<SelectOption[]>([]);
   const [selectedDomainFilter, setSelectedDomainFilter] =
     React.useState<string>("");
 
@@ -133,6 +107,38 @@ export default function KnowledgeComponentsPage() {
 
   const [uploading, setUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const [aiReviewLoading, setAiReviewLoading] = React.useState(false);
+  const [aiReviewResponse, setAiReviewResponse] = React.useState<
+    AiReviewResponse | null
+  >(null);
+  const [storedSuggestions, setStoredSuggestions] = React.useState<AiReviewItem[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = React.useState(false);
+  const [aiApplyLoading, setAiApplyLoading] = React.useState(false);
+  const [aiEnrichmentLoading, setAiEnrichmentLoading] = React.useState(false);
+  const [aiEnrichmentResult, setAiEnrichmentResult] = React.useState<{
+    queued: number;
+    mcqIds: string[];
+  } | null>(null);
+  const [enrichmentLimit, setEnrichmentLimit] = React.useState(25);
+  const [enrichmentOnlyPending, setEnrichmentOnlyPending] = React.useState(true);
+
+  const storedSuggestionsResponse = React.useMemo<AiReviewResponse | null>(() => {
+    if (!storedSuggestions.length) {
+      return null;
+    }
+    return {
+      items: storedSuggestions,
+      requestIds: [],
+      processed: storedSuggestions.length,
+      requested: storedSuggestions.length,
+      skipped: 0,
+      optionsSkipped: 0,
+      tokens: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+    };
+  }, [storedSuggestions]);
+
+  const displayedReview = aiReviewResponse ?? storedSuggestionsResponse;
 
   const templateUrl = React.useMemo(
     () => `${getApiBaseUrl()}/knowledge-components/template`,
@@ -156,6 +162,46 @@ export default function KnowledgeComponentsPage() {
       (component) => component.domain?.id === selectedDomainFilter,
     );
   }, [components, selectedDomainFilter]);
+
+  const loadStoredSuggestions = React.useCallback(
+    async (courseId: string) => {
+      if (!courseId) {
+        setStoredSuggestions([]);
+        return;
+      }
+      setSuggestionsLoading(true);
+      try {
+        const response = await apiFetch<{
+          data?: { items?: AiReviewItem[] };
+        }>(`/knowledge-components/courses/${courseId}/ai-suggestions`);
+        const items = response.data?.items ?? [];
+        setStoredSuggestions(items);
+      } catch (err) {
+        if (err instanceof UnauthorizedError) {
+          redirectToLogin();
+          return;
+        }
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Failed to load saved AI suggestions.";
+        toast.error(message);
+      } finally {
+        setSuggestionsLoading(false);
+      }
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    if (!selectedCourse) {
+      setStoredSuggestions([]);
+      setAiReviewResponse(null);
+      return;
+    }
+    loadStoredSuggestions(selectedCourse);
+    setAiReviewResponse(null);
+  }, [selectedCourse, loadStoredSuggestions]);
 
   const resetForm = React.useCallback(
     (mode: "create" | "edit" = "create") => {
@@ -267,6 +313,8 @@ export default function KnowledgeComponentsPage() {
       setComponents([]);
       resetForm("create");
     }
+
+    setAiReviewResponse(null);
   }, [selectedCourse, loadComponents, resetForm]);
 
   const handleEdit = (component: KnowledgeComponentRow) => {
@@ -387,7 +435,7 @@ export default function KnowledgeComponentsPage() {
     }
   };
 
-  const handleUpload = async (event: React.FormEvent) => {
+  const handleUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedCourse) {
       toast.error("Select a course before importing knowledge components.");
@@ -422,6 +470,150 @@ export default function KnowledgeComponentsPage() {
     }
   };
 
+  const confidenceBadgeVariantMap: Record<
+    AiReviewConfidence,
+    "success" | "secondary" | "destructive"
+  > = {
+    high: "success",
+    medium: "secondary",
+    low: "destructive",
+  };
+
+  const handleRunAiReview = async () => {
+    if (!selectedCourse) {
+      toast.error("Select a course before running the AI review.");
+      return;
+    }
+
+    setAiReviewLoading(true);
+    try {
+      const response = await apiFetch<AiReviewResponse>(
+        `/knowledge-components/courses/${selectedCourse}/ai-review`,
+        {
+          method: "POST",
+          body: {},
+        },
+      );
+      setAiReviewResponse(response);
+      toast.success(
+        `AI review processed ${response.processed}/${response.requested} MCQ${
+          response.processed === 1 ? "" : "s"
+        }.`,
+      );
+      await loadStoredSuggestions(selectedCourse);
+    } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        redirectToLogin();
+        return;
+      }
+      const message =
+        err instanceof Error ? err.message : "AI review failed, please retry.";
+      toast.error(message);
+    } finally {
+      setAiReviewLoading(false);
+    }
+  };
+
+  const handleApplyAiSuggestions = async () => {
+    if (!selectedCourse) {
+      toast.error("Select a course before pushing AI suggestions live.");
+      return;
+    }
+
+    const source = aiReviewResponse ?? storedSuggestionsResponse;
+    if (!source?.items.length) {
+      toast.error(
+        "No AI suggestions are available. Run a review or load saved suggestions first.",
+      );
+      return;
+    }
+
+    const payload = {
+      items: source.items
+        .filter((item) => item.suggestions.length > 0)
+        .map((item) => ({
+          mcqId: item.mcqId,
+          componentIds: item.suggestions.map((suggestion) => suggestion.id),
+        })),
+    };
+
+    if (!payload.items.length) {
+      toast.error("No suggestions were available to push to production.");
+      return;
+    }
+
+    setAiApplyLoading(true);
+    try {
+      const response = await apiFetch<{
+        data?: { applied?: number };
+      }>(`/knowledge-components/courses/${selectedCourse}/ai-apply`, {
+        method: "POST",
+        body: payload,
+      });
+      const applied = response.data?.applied ?? payload.items.length;
+      toast.success(`${applied} MCQ${applied === 1 ? "" : "s"} pushed live.`);
+      setAiReviewResponse(null);
+      await loadStoredSuggestions(selectedCourse);
+    } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        redirectToLogin();
+        return;
+      }
+      const message =
+        err instanceof Error ? err.message : "Failed to apply AI suggestions.";
+      toast.error(message);
+    } finally {
+      setAiApplyLoading(false);
+    }
+  };
+
+  const handleQueueAiEnrichment = async () => {
+    if (!selectedCourse) {
+      toast.error("Select a course before queuing MCQs.");
+      return;
+    }
+
+    setAiEnrichmentLoading(true);
+    try {
+      const payload: Record<string, any> = {};
+      const sanitizedLimit = Math.min(
+        200,
+        Math.max(1, Number.isFinite(enrichmentLimit) ? enrichmentLimit : 1),
+      );
+      payload.limit = sanitizedLimit;
+      if (!enrichmentOnlyPending) {
+        payload.only_pending = false;
+      }
+
+      const response = await apiFetch<any>(
+        `/mcq/courses/${selectedCourse}/ai-enrichment`,
+        {
+          method: "POST",
+          body: payload,
+        },
+      );
+      const data = (response?.data ?? response) as {
+        queued: number;
+        mcqIds: string[];
+      };
+      setAiEnrichmentResult(data);
+      setEnrichmentLimit(sanitizedLimit);
+      toast.success(
+        `Queued ${data.queued} MCQ${data.queued === 1 ? "" : "s"} for AI enrichment.`,
+      );
+    } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        redirectToLogin();
+        return;
+      }
+      const message =
+        err instanceof Error ? err.message : "Failed to queue MCQs for enrichment.";
+      toast.error(message);
+    } finally {
+      setAiEnrichmentLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <FreelancerLayout>
@@ -450,342 +642,67 @@ export default function KnowledgeComponentsPage() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-          <section className="space-y-6 rounded-lg border border-border bg-card p-6">
-            <div className="space-y-6">
-              <div>
-                <Label className="mb-2 block text-sm font-medium">
-                  Course Context
-                </Label>
-                <CourseContextSelector
-                  value={courseContext}
-                  onChange={(value) => {
-                    setCourseContext(value);
-                    setSelectedDomainFilter("");
-                  }}
-                />
-              </div>
+          <div className="space-y-6">
+            <KnowledgeComponentsTableSection
+              courseContext={courseContext}
+              onCourseContextChange={(value) => {
+                setCourseContext(value);
+                setSelectedDomainFilter("");
+              }}
+              selectedDomainFilter={selectedDomainFilter}
+              onDomainFilterChange={setSelectedDomainFilter}
+              domains={domains}
+              filteredComponents={filteredComponents}
+              loadingComponents={loadingComponents}
+              selectedCourse={selectedCourse}
+              templateUrl={templateUrl}
+              onRefresh={() => {
+                setError(null);
+                if (selectedCourse) {
+                  loadComponents(selectedCourse);
+                }
+              }}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              uploading={uploading}
+              onUpload={handleUpload}
+              fileInputRef={fileInputRef}
+            />
 
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <Label htmlFor="domain-filter">Domain Filter</Label>
-                  <select
-                    id="domain-filter"
-                    value={selectedDomainFilter}
-                    onChange={(event) =>
-                      setSelectedDomainFilter(event.target.value)
-                    }
-                    className="flex h-10 w-64 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <option value="">All domains</option>
-                    {domains.map((domain) => (
-                      <option key={domain.id} value={domain.id}>
-                        {domain.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <AiMcqMapperSection
+              aiReviewLoading={aiReviewLoading}
+              aiApplyLoading={aiApplyLoading}
+              aiEnrichmentLoading={aiEnrichmentLoading}
+              suggestionsLoading={suggestionsLoading}
+              hasSessionResults={Boolean(aiReviewResponse)}
+              selectedCourse={selectedCourse}
+              aiReviewResponse={displayedReview}
+              aiEnrichmentResult={aiEnrichmentResult}
+              enrichmentLimit={enrichmentLimit}
+              enrichmentOnlyPending={enrichmentOnlyPending}
+              onRunAiReview={handleRunAiReview}
+              onApplyAiSuggestions={handleApplyAiSuggestions}
+              onQueueAiEnrichment={handleQueueAiEnrichment}
+              onChangeEnrichmentLimit={setEnrichmentLimit}
+              onToggleOnlyPending={(value) =>
+                setEnrichmentOnlyPending(Boolean(value))
+              }
+              onClearResults={() => setAiReviewResponse(null)}
+              onClearEnrichmentResult={() => setAiEnrichmentResult(null)}
+            />
+          </div>
 
-                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                  <Button
-                    variant="outline"
-                    asChild
-                    className="gap-2"
-                  >
-                    <Link href={templateUrl} target="_blank" rel="noopener noreferrer">
-                      <Download className="h-4 w-4" />
-                      Download Template
-                    </Link>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => {
-                      setError(null);
-                      if (selectedCourse) {
-                        loadComponents(selectedCourse);
-                      }
-                    }}
-                    disabled={loadingComponents || !selectedCourse}
-                  >
-                    {loadingComponents ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4" />
-                    )}
-                    Refresh
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-border">
-              <div className="flex items-center justify-between border-b border-border p-4">
-                <div>
-                  <h2 className="text-lg font-semibold">Knowledge Components</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {filteredComponents.length} result
-                    {filteredComponents.length === 1 ? "" : "s"} displayed
-                  </p>
-                </div>
-                {loadingComponents && <Spinner size="sm" />}
-              </div>
-
-              <div className="max-h-[480px] overflow-auto">
-                <table className="min-w-full divide-y divide-border text-sm">
-                  <thead className="bg-muted/40">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-medium">Name</th>
-                      <th className="px-4 py-3 text-left font-medium">Slug</th>
-                      <th className="px-4 py-3 text-left font-medium">Domain</th>
-                      <th className="px-4 py-3 text-left font-medium">Level</th>
-                      <th className="px-4 py-3 text-left font-medium">Status</th>
-                      <th className="px-4 py-3 text-left font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {filteredComponents.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
-                          {loadingComponents
-                            ? "Loading components…"
-                            : selectedCourse
-                              ? "No knowledge components found for this selection."
-                              : "Select a course to view knowledge components."}
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredComponents.map((component) => (
-                        <tr key={component.id} className="hover:bg-muted/40">
-                          <td className="px-4 py-3">
-                            <div className="flex flex-col">
-                              <span className="font-medium">{component.name}</span>
-                              {component.code && (
-                                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                                  {component.code}
-                                </span>
-                              )}
-                              {component.description && (
-                                <span className="text-xs text-muted-foreground">
-                                  {component.description}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground">{component.slug}</td>
-                          <td className="px-4 py-3">
-                            {component.domain ? (
-                              <Badge variant="outline">{component.domain.name}</Badge>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Unassigned</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {component.level ?? (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <Badge
-                              variant={component.isActive ? "success" : "secondary"}
-                            >
-                              {component.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEdit(component)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleDelete(component)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <form className="rounded-lg border border-border p-4" onSubmit={handleUpload}>
-              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                  <div>
-                    <Label htmlFor="kc-upload">Upload Spreadsheet</Label>
-                    <Input
-                      id="kc-upload"
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".csv,.xls,.xlsx"
-                      className="w-64"
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Supports CSV or Excel files up to 5MB.
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="gap-2"
-                  disabled={uploading || !selectedCourse}
-                >
-                  <FilePlus2 className="h-4 w-4" />
-                  {uploading ? "Uploading..." : "Upload"}
-                </Button>
-              </div>
-            </form>
-          </section>
-
-          <section className="space-y-4 rounded-lg border border-border bg-card p-6">
-            <div>
-              <h2 className="text-lg font-semibold">
-                {formMode === "edit" ? "Edit Knowledge Component" : "Create Knowledge Component"}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Fill in the details below to {formMode === "edit" ? "update" : "add"} a knowledge component.
-              </p>
-            </div>
-
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug *</Label>
-                <Input
-                  id="slug"
-                  value={formState.slug}
-                  onChange={(event) => handleFormChange("slug", event.target.value)}
-                  placeholder="Unique identifier"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  value={formState.name}
-                  onChange={(event) => handleFormChange("name", event.target.value)}
-                  placeholder="Display name"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="code">Code</Label>
-                <Input
-                  id="code"
-                  value={formState.code ?? ""}
-                  onChange={(event) => handleFormChange("code", event.target.value)}
-                  placeholder="Optional short code"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <textarea
-                  id="description"
-                  value={formState.description ?? ""}
-                  onChange={(event) => handleFormChange("description", event.target.value)}
-                  className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  placeholder="Optional description to guide authors"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="domainId">Domain *</Label>
-                <select
-                  id="domainId"
-                  value={formState.domainId}
-                  onChange={(event) => handleFormChange("domainId", event.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="">Select domain…</option>
-                  {domains.map((domain) => (
-                    <option key={domain.id} value={domain.id}>
-                      {domain.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="parentId">Parent Component</Label>
-                <select
-                  id="parentId"
-                  value={formState.parentId ?? ""}
-                  onChange={(event) => handleFormChange("parentId", event.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="">No parent</option>
-                  {parentOptions.map((parent) => (
-                    <option key={parent.id} value={parent.id}>
-                      {parent.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="level">Level</Label>
-                <Input
-                  id="level"
-                  type="number"
-                  min={1}
-                  value={formState.level === "" ? "" : Number(formState.level)}
-                  onChange={(event) =>
-                    handleFormChange(
-                      "level",
-                      event.target.value === ""
-                        ? ""
-                        : Number.parseInt(event.target.value, 10),
-                    )
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
-                <div>
-                  <p className="text-sm font-medium">Active</p>
-                  <p className="text-xs text-muted-foreground">
-                    Inactive components won&apos;t appear in selectors.
-                  </p>
-                </div>
-                <Switch
-                  checked={formState.isActive}
-                  onCheckedChange={(checked) => handleFormChange("isActive", checked)}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button type="submit" disabled={submitting || !selectedCourse}>
-                  {submitting
-                    ? "Saving..."
-                    : formMode === "edit"
-                    ? "Update Component"
-                    : "Create Component"}
-                </Button>
-                {formMode === "edit" && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => resetForm("create")}
-                  >
-                    Cancel Edit
-                  </Button>
-                )}
-              </div>
-            </form>
-          </section>
+          <KnowledgeComponentFormSection
+            formMode={formMode}
+            formState={formState}
+            domains={domains}
+            parentOptions={parentOptions}
+            submitting={submitting}
+            selectedCourse={selectedCourse}
+            onSubmit={handleSubmit}
+            onChange={handleFormChange}
+            onCancelEdit={() => resetForm("create")}
+          />
         </div>
       </div>
     </FreelancerLayout>

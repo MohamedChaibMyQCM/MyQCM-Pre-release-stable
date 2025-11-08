@@ -94,6 +94,12 @@ npm run dev
 
 > **Tip:** Backends expect seeded data (universities, MCQs, etc.). Review `apps/backend` scripts and migrations before running in a blank environment.
 
+### Package Manager Policy
+
+- **npm only.** The repo standardizes on npm (lockfile v3). Yarn/PNPM lockfiles have been removed to prevent drift.
+- **Fresh installs:** If you previously installed with another tool, delete `node_modules` (root + `apps/*`) and re-run `npm install`, `npm install --prefix apps/backend`, `npm install --prefix apps/frontend`.
+- **Lockfile hygiene:** Never commit `yarn.lock` or `pnpm-lock.yaml`. CI and docs assume npm commands exclusively.
+
 ---
 
 ## Environment Configuration

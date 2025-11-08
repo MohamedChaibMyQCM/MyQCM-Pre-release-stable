@@ -18,8 +18,8 @@ export interface CreateNewAdaptiveLearnerInterface {
   mastery?: number;
 
   /**
-   * The initial ability probability for the user in the course.
-   * This is a float value between 0 and 1, representing the user's initial ability level.
+   * The initial ability (theta) for the user in the course.
+   * This is an unbounded float where 0 corresponds to average ability.
    */
   ability?: number;
 }

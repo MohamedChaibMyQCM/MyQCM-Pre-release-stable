@@ -1,6 +1,7 @@
 import { ChronoEntity } from "abstract/base-chrono.entity";
 import { Column, Entity } from "typeorm";
 import { BaseRoles } from "shared/enums/base-roles.enum";
+import { AdminScope } from "../enums/admin-scope.enum";
 @Entity()
 export class Admin extends ChronoEntity {
   @Column({
@@ -25,4 +26,12 @@ export class Admin extends ChronoEntity {
     default: BaseRoles.ADMIN,
   })
   role: BaseRoles.ADMIN;
+
+  @Column({
+    type: "enum",
+    enum: AdminScope,
+    array: true,
+    default: [AdminScope.SUPER],
+  })
+  scopes: AdminScope[];
 }

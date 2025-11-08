@@ -7,6 +7,9 @@ import * as path from "path";
 import OpenAI from "openai";
 import type { AxiosError } from "axios";
 import { GenerationItemType } from "./enums/generation-item-type.enum";
+import PDFDocument from "pdfkit";
+import * as XLSX from "xlsx";
+import * as mammoth from "mammoth";
 
 type GenerateParams = {
   mcqCount: number;
@@ -53,6 +56,8 @@ export class GenerationAiService {
   private readonly model: string;
   private readonly baseUrl: string;
   private readonly openAiClient: OpenAI;
+  private readonly spreadsheetExtensions = new Set([".xlsx", ".xls", ".csv"]);
+  private readonly docxExtensions = new Set([".docx"]);
 
   constructor(private readonly httpService: HttpService) {
     this.openaiApiKey = getEnvOrFatal("ASSISTANT_API_KEY");
@@ -67,9 +72,12 @@ export class GenerationAiService {
   async uploadSourceFile(params: SourceFileParams): Promise<string> {
     const absolutePath = this.ensureLocalFilePath(params.filePath);
     let stream: fs.ReadStream | null = null;
+    let cleanupPath: string | null = null;
 
     try {
-      stream = fs.createReadStream(absolutePath);
+      const prepared = await this.prepareFileForOpenAi(absolutePath, params.originalName);
+      cleanupPath = prepared.cleanupPath;
+      stream = fs.createReadStream(prepared.path);
       const uploaded = await this.openAiClient.files.create({
         file: stream as any,
         purpose: "assistants", // valid with Responses + input_file
@@ -89,6 +97,17 @@ export class GenerationAiService {
       throw new Error("Failed to upload source document to OpenAI");
     } finally {
       if (stream) stream.close();
+      if (cleanupPath) {
+        fs.promises
+          .unlink(cleanupPath)
+          .catch((unlinkError) =>
+            this.logger.warn(
+              `Failed to remove temporary PDF ${cleanupPath}: ${
+                unlinkError instanceof Error ? unlinkError.message : unlinkError
+              }`,
+            ),
+          );
+      }
     }
   }
 
@@ -96,6 +115,176 @@ export class GenerationAiService {
     const absolutePath = path.resolve(filePath);
     if (!fs.existsSync(absolutePath)) throw new Error("Source file not found on disk");
     return absolutePath;
+  }
+
+  private async prepareFileForOpenAi(
+    absolutePath: string,
+    originalName: string,
+  ): Promise<{ path: string; cleanupPath: string | null }> {
+    const ext = path.extname(originalName || absolutePath).toLowerCase();
+
+    if (ext === ".pdf") {
+      return { path: absolutePath, cleanupPath: null };
+    }
+
+    if (this.spreadsheetExtensions.has(ext)) {
+      const pdfPath = await this.convertSpreadsheetToPdf(absolutePath, originalName);
+      return { path: pdfPath, cleanupPath: pdfPath };
+    }
+
+    if (this.docxExtensions.has(ext)) {
+      const pdfPath = await this.convertDocxToPdf(absolutePath, originalName);
+      return { path: pdfPath, cleanupPath: pdfPath };
+    }
+
+    if (ext === ".txt") {
+      const fileContent = await fs.promises.readFile(absolutePath, "utf8");
+      const pdfPath = await this.createPdfFromLines(
+        fileContent.split(/\r?\n/).filter((line, index, arr) => line.length || index < arr.length - 1),
+        absolutePath,
+        originalName,
+      );
+      return { path: pdfPath, cleanupPath: pdfPath };
+    }
+
+    // Default: fallback to original path (likely already PDF); OpenAI will reject unsupported binary formats.
+    return { path: absolutePath, cleanupPath: null };
+  }
+
+  private async convertSpreadsheetToPdf(filePath: string, originalName: string) {
+    try {
+      const workbook = XLSX.readFile(filePath, { cellDates: false, raw: false });
+      const lines: string[] = [];
+
+      workbook.SheetNames.forEach((sheetName, sheetIndex) => {
+        lines.push(`Sheet ${sheetIndex + 1}: ${sheetName}`);
+        const sheet = workbook.Sheets[sheetName];
+        const rows: any[][] = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+          blankrows: false,
+          defval: "",
+          raw: false,
+        });
+
+        if (!rows.length) {
+          lines.push("(empty sheet)");
+          lines.push("");
+          return;
+        }
+
+        rows.forEach((row, idx) => {
+          const normalized = (Array.isArray(row) ? row : [row])
+            .map((cell) => {
+              if (cell === null || typeof cell === "undefined") {
+                return "";
+              }
+              return cell.toString().replace(/\s+/g, " ").trim();
+            })
+            .join(" | ")
+            .trim();
+
+          const prefix = `${idx + 1}. `;
+          lines.push(
+            normalized.length
+              ? `${prefix}${normalized}`
+              : `${prefix}(empty row)`,
+          );
+        });
+
+        lines.push("");
+      });
+
+      if (!lines.length) {
+        lines.push("The spreadsheet did not contain any readable cells.");
+      }
+
+      return this.createPdfFromLines(lines, filePath, originalName);
+    } catch (error) {
+      this.logger.error(
+        `Failed to convert spreadsheet to PDF: ${
+          error instanceof Error ? error.message : error
+        }`,
+      );
+      throw new Error("Unable to preprocess spreadsheet for AI consumption");
+    }
+  }
+
+  private async convertDocxToPdf(filePath: string, originalName: string) {
+    try {
+      const { value } = await mammoth.extractRawText({ path: filePath });
+      const lines = value
+        ? value
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter((line, index, arr) => line.length || index < arr.length - 1)
+        : ["Document did not contain readable text."];
+
+      return this.createPdfFromLines(lines, filePath, originalName);
+    } catch (error) {
+      this.logger.error(
+        `Failed to convert DOCX to PDF: ${
+          error instanceof Error ? error.message : error
+        }`,
+      );
+      throw new Error("Unable to preprocess document for AI consumption");
+    }
+  }
+
+  private buildPdfOutputPath(sourcePath: string, preferredName?: string) {
+    const parsed = path.parse(preferredName ?? "");
+    const fallbackParsed = path.parse(sourcePath);
+    const baseRaw = parsed.name || fallbackParsed.name || "source";
+    const safeBase = baseRaw.replace(/[^a-zA-Z0-9-_]+/g, "_").slice(0, 60) || "source";
+    return path.join(
+      fallbackParsed.dir,
+      `${safeBase}-${Date.now()}.pdf`,
+    );
+  }
+
+  private async createPdfFromLines(
+    incomingLines: string[],
+    sourcePath: string,
+    originalName: string,
+  ) {
+    const pdfPath = this.buildPdfOutputPath(sourcePath, originalName);
+    const limitedLines = this.limitPdfLines(incomingLines);
+
+    await new Promise<void>((resolve, reject) => {
+      const doc = new PDFDocument({ margin: 50 });
+      const writeStream = fs.createWriteStream(pdfPath);
+      doc.pipe(writeStream);
+      doc.fontSize(12);
+
+      limitedLines.forEach((line) => {
+        doc.text(line || " ");
+      });
+
+      doc.end();
+      writeStream.on("finish", () => resolve());
+      writeStream.on("error", (err) => reject(err));
+    });
+
+    return pdfPath;
+  }
+
+  private limitPdfLines(lines: string[], maxLines: number = 2000, maxLength: number = 300) {
+    const sanitized = lines.map((line) => {
+      const normalized = line.replace(/\s+/g, " ").trim();
+      if (normalized.length <= maxLength) {
+        return normalized;
+      }
+      return `${normalized.slice(0, maxLength)}…`;
+    });
+
+    if (sanitized.length <= maxLines) {
+      return sanitized;
+    }
+
+    const truncated = sanitized.slice(0, maxLines - 1);
+    truncated.push(
+      `… (truncated ${sanitized.length - maxLines + 1} additional lines to keep context manageable)`,
+    );
+    return truncated;
   }
 
   async generateItemsFromSource(params: GenerateParams): Promise<GeneratedItem[]> {

@@ -11,6 +11,7 @@ import { McqModule } from "src/mcq/mcq.module";
 import { HttpModule } from "@nestjs/axios";
 import { GenerationAiService } from "./generation-ai.service";
 import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
+import { KnowledgeComponentAiModule } from "src/knowledge-component/ai/knowledge-component-ai.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-comp
     ]),
     McqModule,
     KnowledgeComponentModule,
+    KnowledgeComponentAiModule,
   ],
   providers: [GenerationService, GenerationAiService],
   controllers: [GenerationController],

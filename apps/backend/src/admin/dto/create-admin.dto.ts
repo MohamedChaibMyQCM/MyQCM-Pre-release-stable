@@ -1,4 +1,13 @@
-import { IsEmail, IsStrongPassword } from "class-validator";
+import {
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsStrongPassword,
+} from "class-validator";
+import { AdminScope } from "../enums/admin-scope.enum";
 
 export class CreateAdminDto {
   @IsEmail()
@@ -6,4 +15,11 @@ export class CreateAdminDto {
 
   @IsStrongPassword()
   password: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsEnum(AdminScope, { each: true })
+  scopes?: AdminScope[];
 }

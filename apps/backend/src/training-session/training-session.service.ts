@@ -247,12 +247,13 @@ export class TrainingSessionService {
       courseId: session.course.id,
     });
 
+    const normalizedAbility = this.normalizeAbility(adaptiveLearner.ability);
     let difficultyFilter: McqDifficulty;
     if (dynamicSessionParams.difficulty) {
       difficultyFilter = dynamicSessionParams.difficulty as McqDifficulty;
-    } else if (adaptiveLearner.ability < 0.3) {
+    } else if (normalizedAbility < 0.3) {
       difficultyFilter = McqDifficulty.easy;
-    } else if (adaptiveLearner.ability < 0.7) {
+    } else if (normalizedAbility < 0.7) {
       difficultyFilter = McqDifficulty.medium;
     } else {
       difficultyFilter = McqDifficulty.hard;
@@ -965,6 +966,7 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
         courseId,
       },
     );
+    const normalizedAbility = this.normalizeAbility(adaptiveLearner.ability);
 
     const result: Record<string, any> = {};
 
@@ -986,7 +988,7 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
         case "time_limit":
           // Lower ability users get more time
           const baseTime = 60;
-          const abilityFactor = 1 - adaptiveLearner.ability * 0.5; // Factor between 0.5-1.0
+          const abilityFactor = 1 - normalizedAbility * 0.5; // Factor between 0.5-1.0
           result[field.field] = Math.round(baseTime * abilityFactor);
           break;
 
@@ -1001,9 +1003,9 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
 
         case "difficulty":
           // Map ability to a starting difficulty level
-          if (adaptiveLearner.ability < 0.3) {
+          if (normalizedAbility < 0.3) {
             result[field.field] = McqDifficulty.easy;
-          } else if (adaptiveLearner.ability < 0.7) {
+          } else if (normalizedAbility < 0.7) {
             result[field.field] = McqDifficulty.medium;
           } else {
             result[field.field] = McqDifficulty.hard;
@@ -1020,5 +1022,12 @@ private async evaluateSessionResults(userId: string, sessionId: string) {
     }
 
     return result;
+  }
+
+  private normalizeAbility(theta: number | null | undefined) {
+    if (theta == null || Number.isNaN(theta)) {
+      return 0.5;
+    }
+    return 1 / (1 + Math.exp(-theta));
   }
 }

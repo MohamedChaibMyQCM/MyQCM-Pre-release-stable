@@ -167,6 +167,17 @@ const ReplayAttemptDetails = ({ attempt, index }) => {
       isSelected: selectedIds.has(option.id),
     })) || [];
 
+  const knowledgeComponents =
+    attempt.knowledge_component_details?.length
+      ? attempt.knowledge_component_details
+      : (attempt.knowledge_components || []).map((kc) => ({
+          id: kc,
+          name: kc,
+          description: null,
+          slug: kc,
+          code: null,
+        }));
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#121212]">
@@ -233,18 +244,19 @@ const ReplayAttemptDetails = ({ attempt, index }) => {
           </div>
         )}
 
-        {attempt.knowledge_components?.length > 0 && (
+        {knowledgeComponents.length > 0 && (
           <div className="mt-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
               Compétences ciblées
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {attempt.knowledge_components.map((kc) => (
+              {knowledgeComponents.map((kc) => (
                 <span
-                  key={kc}
-                  className="rounded-full bg-purple-500/10 px-3 py-1 text-xs text-purple-600 dark:bg-purple-500/20 dark:text-purple-200"
+                  key={kc.id || kc.slug || kc.name}
+                  title={kc.description || undefined}
+                  className="rounded-full bg-purple-500/10 px-3 py-1 text-xs text-purple-600 transition hover:bg-purple-500/20 dark:bg-purple-500/20 dark:text-purple-200"
                 >
-                  {kc}
+                  {kc.name || kc.code || kc.slug || kc.id}
                 </span>
               ))}
             </div>

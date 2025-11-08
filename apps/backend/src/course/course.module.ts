@@ -9,7 +9,11 @@ import { McqModule } from "src/mcq/mcq.module";
 import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Course]), ProgressModule, McqModule],
+  imports: [
+    TypeOrmModule.forFeature([Course]),
+    ProgressModule,
+    forwardRef(() => McqModule),
+  ],
   controllers: [CourseController],
   providers: [CourseService],
   exports: [CourseService],

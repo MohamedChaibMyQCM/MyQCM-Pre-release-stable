@@ -31,16 +31,21 @@ const ResponseValidationSchema = z.object({
     .array(
       z.object({
         index: z.number().int().nonnegative(),
-        mcq_id: z.string().uuid().optional(),
-        rationale: z.string().optional(),
-        confidence_score: z.number().min(0).max(1).optional(),
+        mcq_id: z.string().nullable().optional(),
+        rationale: z.string().nullable().optional(),
+        confidence_score: z
+          .number()
+          .min(0)
+          .max(1)
+          .nullable()
+          .optional(),
         suggestions: z
           .array(
             z.object({
               kc_slug: z.string(),
-              kc_name: z.string().optional(),
+              kc_name: z.string().nullable().optional(),
               score: z.number().min(0).max(1),
-              rationale: z.string().optional(),
+              rationale: z.string().nullable().optional(),
             }),
           )
           .max(5),
@@ -193,11 +198,14 @@ export class KcSuggestionService {
       );
     }
 
+    const previousState = await this.getLatestResponseState(request.courseId);
+
     const prompt = this.promptBuilder.buildPrompt({
       courseName: course.name,
       candidateComponents,
       items: request.items,
       promptVersion: this.promptVersion,
+      reuseContext: Boolean(previousState?.previousResponseId),
     });
 
     const schema = this.buildResponseSchema();
@@ -207,6 +215,7 @@ export class KcSuggestionService {
       prompt,
       responseSchema: schema,
       requestId,
+      previousResponseId: previousState?.previousResponseId,
     });
 
     let parsedJson: unknown;
@@ -235,12 +244,7 @@ export class KcSuggestionService {
     );
 
     const items = parsedResponse.data.items.map((item) =>
-      this.mapResultItem(
-        item,
-        request.items[item.index],
-        slugToComponent,
-        llmResult.usage,
-      ),
+      this.mapResultItem(item, request.items, slugToComponent, llmResult.usage),
     );
 
     const response: SuggestionBatchResponse = {
@@ -260,6 +264,8 @@ export class KcSuggestionService {
       promptTokens: llmResult.usage.promptTokens,
       completionTokens: llmResult.usage.completionTokens,
       totalTokens: llmResult.usage.totalTokens,
+      responseId: llmResult.responseId,
+      previousResponseId: llmResult.previousResponseId ?? undefined,
     });
 
     return response;
@@ -286,6 +292,8 @@ export class KcSuggestionService {
     promptTokens: number;
     completionTokens: number;
     totalTokens: number;
+    responseId: string;
+    previousResponseId?: string;
   }) {
     const entry = this.callRepository.create({
       course_id: params.courseId,
@@ -296,6 +304,8 @@ export class KcSuggestionService {
       total_tokens: params.totalTokens,
       extra_labels: {
         prompt_version: this.promptVersion,
+        response_id: params.responseId,
+        previous_response_id: params.previousResponseId ?? "",
       },
     });
 
@@ -311,7 +321,7 @@ export class KcSuggestionService {
 
   private mapResultItem(
     modelItem: z.infer<typeof ResponseValidationSchema>["items"][number],
-    requestItem: SuggestionItemInput,
+    requestItems: SuggestionItemInput[],
     slugToComponent: Map<string, PromptCandidateComponent>,
     usage: {
       promptTokens: number;
@@ -319,6 +329,15 @@ export class KcSuggestionService {
       totalTokens: number;
     },
   ): SuggestionResultItem {
+    const normalizedIndex = this.resolveModelIndex(modelItem.index, requestItems);
+    const requestItem = requestItems[normalizedIndex];
+
+    if (!requestItem) {
+      throw new BadRequestException(
+        `Model returned index ${modelItem.index} that could not be mapped to a request item`,
+      );
+    }
+
     const suggestions: SuggestedKnowledgeComponent[] = [];
 
     modelItem.suggestions.forEach((suggestion) => {
@@ -358,6 +377,40 @@ export class KcSuggestionService {
       confidenceScore,
       tokenUsage: usage,
     };
+  }
+
+  private resolveModelIndex(
+    reportedIndex: number,
+    requestItems: SuggestionItemInput[],
+  ): number {
+    if (Number.isInteger(reportedIndex) && reportedIndex >= 0 && reportedIndex < requestItems.length) {
+      return reportedIndex;
+    }
+
+    const oneBasedIndex = reportedIndex - 1;
+    if (Number.isInteger(oneBasedIndex) && oneBasedIndex >= 0 && oneBasedIndex < requestItems.length) {
+      return oneBasedIndex;
+    }
+
+    return Math.max(0, Math.min(requestItems.length - 1, reportedIndex));
+  }
+
+  private async getLatestResponseState(courseId: string) {
+    if (!courseId) {
+      return null;
+    }
+    const lastCall = await this.callRepository.findOne({
+      where: { course_id: courseId },
+      order: { createdAt: "DESC" },
+    });
+    if (!lastCall?.extra_labels) {
+      return null;
+    }
+    const previousResponseId =
+      lastCall.extra_labels.previous_response_id ||
+      lastCall.extra_labels.response_id ||
+      null;
+    return { previousResponseId };
   }
 
   private computeConfidenceLevel(
@@ -400,12 +453,17 @@ export class KcSuggestionService {
               additionalProperties: false,
               properties: {
                 index: { type: "integer", minimum: 0 },
-                mcq_id: { type: "string" },
-                rationale: { type: "string" },
+                mcq_id: { type: ["string", "null"] },
+                rationale: { type: ["string", "null"] },
                 confidence_score: {
-                  type: "number",
-                  minimum: 0,
-                  maximum: 1,
+                  anyOf: [
+                    {
+                      type: "number",
+                      minimum: 0,
+                      maximum: 1,
+                    },
+                    { type: "null" },
+                  ],
                 },
                 suggestions: {
                   type: "array",
@@ -415,15 +473,21 @@ export class KcSuggestionService {
                     additionalProperties: false,
                     properties: {
                       kc_slug: { type: "string" },
-                      kc_name: { type: "string" },
+                      kc_name: { type: ["string", "null"] },
                       score: { type: "number", minimum: 0, maximum: 1 },
-                      rationale: { type: "string" },
+                      rationale: { type: ["string", "null"] },
                     },
-                    required: ["kc_slug", "score"],
+                    required: ["kc_slug", "kc_name", "score", "rationale"],
                   },
                 },
               },
-              required: ["index", "suggestions"],
+              required: [
+                "index",
+                "mcq_id",
+                "rationale",
+                "confidence_score",
+                "suggestions",
+              ],
             },
           },
         },

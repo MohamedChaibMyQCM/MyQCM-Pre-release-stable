@@ -24,6 +24,7 @@ import { RedisService } from "src/redis/redis.service";
 import { RedisKeys } from "common/utils/redis-keys.util";
 import { AccuracyThresholdConfigInterface } from "shared/interfaces/accuracy-threshold-config.interface";
 import { DefaultAccuracyThresholdConfig } from "config/default-accuracy-threshold.config";
+import { KnowledgeComponentService } from "src/knowledge-component/knowledge-component.service";
 
 @Injectable()
 export class ProgressService {
@@ -31,6 +32,7 @@ export class ProgressService {
     @InjectRepository(Progress)
     private readonly progressRepository: Repository<Progress>,
     private readonly redisService: RedisService,
+    private readonly knowledgeComponentService: KnowledgeComponentService,
   ) {}
 
   // ---------------------- SECTION 1 -------------------------------------
@@ -214,6 +216,43 @@ export class ProgressService {
 
     const session = attempts[0].session;
 
+    const allKnowledgeComponentIds = Array.from(
+      new Set(
+        attempts
+          .flatMap((attempt) => attempt.knowledge_components || [])
+          .filter((componentId): componentId is string => Boolean(componentId)),
+      ),
+    );
+
+    const knowledgeComponentMap = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        description: string | null;
+        slug: string;
+        code: string | null;
+      }
+    >();
+
+    if (allKnowledgeComponentIds.length) {
+      const components =
+        await this.knowledgeComponentService.getComponentsByIds(
+          allKnowledgeComponentIds,
+          { includeInactive: true },
+        );
+
+      components.forEach((component) => {
+        knowledgeComponentMap.set(component.id, {
+          id: component.id,
+          name: component.name,
+          description: component.description ?? null,
+          slug: component.slug,
+          code: component.code ?? null,
+        });
+      });
+    }
+
     const sessionSummary = session
       ? {
           id: session.id,
@@ -285,6 +324,13 @@ export class ProgressService {
         response: attempt.response,
         selected_options: attempt.selected_options ?? [],
         knowledge_components: attempt.knowledge_components ?? [],
+        knowledge_component_details:
+          attempt.knowledge_components
+            ?.map((componentId) => knowledgeComponentMap.get(componentId))
+            .filter(
+              (component): component is NonNullable<typeof component> =>
+                Boolean(component),
+            ) ?? [],
         mcq: mcqMeta,
       };
     });
@@ -466,8 +512,9 @@ export class ProgressService {
       // Overall performance metrics (from getUserSummary)
       overall_summary: overallMetrics,
 
-      // Subject strengths (from getUserSummary)
+      // Subject strengths & recommendations (from summary)
       subject_strengths: subjectMetrics.subject_strengths,
+      subject_recommendations: subjectMetrics.subject_recommendations,
 
       // Recent activity metrics (from getUserProgress)
       recent_activity: {
@@ -543,18 +590,28 @@ export class ProgressService {
       }
 
       const stdDev = Math.sqrt(sumSquaredDiff / recordCount);
+      const accuracyPercent = Number((avgSuccessRatio * 100).toFixed(2));
+      const consistencyScore = Number(
+        Math.max(0, 100 - stdDev * 100).toFixed(2),
+      );
+      const strengthScore = this.calculateSubjectStrength(
+        accuracyPercent,
+        stdDev * 100,
+      );
 
       subject_strengths.push({
         subject: subject.name,
         subject_id: subject.id,
-        strength: this.calculateSubjectStrength(
-          avgSuccessRatio * 100,
-          stdDev * 100,
-        ),
+        strength: strengthScore,
+        accuracy: accuracyPercent,
+        consistency: consistencyScore,
         attempts: recordCount,
         unique_mcqs: uniqueMcqIds.size,
         total_time: Number(totalTime.toFixed(2)),
         average_time: Number((totalTime / recordCount).toFixed(2)),
+        priority_score: Number(
+          (100 - strengthScore + (100 - consistencyScore) * 0.3).toFixed(2),
+        ),
       });
 
       module_progress.push({
@@ -563,8 +620,22 @@ export class ProgressService {
       });
     }
 
+    const subject_recommendations = subject_strengths
+      .filter((item) => item.attempts >= 5)
+      .sort((a, b) => a.strength - b.strength)
+      .slice(0, 3)
+      .map((item) => ({
+        subject: item.subject,
+        subject_id: item.subject_id,
+        strength: item.strength,
+        accuracy: item.accuracy,
+        attempts: item.attempts,
+        unique_mcqs: item.unique_mcqs,
+      }));
+
     return {
       subject_strengths,
+      subject_recommendations,
       module_progress,
     };
   }

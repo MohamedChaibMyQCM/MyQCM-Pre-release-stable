@@ -119,6 +119,67 @@ export class McqService {
     return [defaultComponent.id];
   }
 
+  async listMcqsForCourse(
+    courseId: string,
+    options?: { mcqIds?: string[]; limit?: number },
+  ): Promise<Mcq[]> {
+    const query = this.mcqRepository
+      .createQueryBuilder("mcq")
+      .leftJoinAndSelect("mcq.options", "option")
+      .where("mcq.courseId = :courseId", { courseId })
+      .orderBy("mcq.createdAt", "DESC");
+
+    if (options?.mcqIds?.length) {
+      query.andWhere("mcq.id IN (:...mcqIds)", { mcqIds: options.mcqIds });
+    }
+
+    if (options?.limit) {
+      query.limit(options.limit);
+    }
+
+    return query.getMany();
+  }
+  async listMcqSuggestions(courseId: string): Promise<Mcq[]> {
+    return this.mcqRepository
+      .createQueryBuilder("mcq")
+      .leftJoinAndSelect("mcq.options", "option")
+      .where("mcq.courseId = :courseId", { courseId })
+      .andWhere("mcq.suggested_knowledge_components IS NOT NULL")
+      .orderBy("mcq.suggestion_generated_at", "DESC", "NULLS LAST")
+      .getMany();
+  }
+
+  async clearSuggestionMetadata(mcqId: string): Promise<void> {
+    await this.mcqRepository.update(mcqId, {
+      suggested_knowledge_components: null,
+      suggestion_confidence: null,
+      suggestion_confidence_score: null,
+      suggestion_rationale: null,
+      suggestion_generated_at: null,
+    });
+  }
+
+  async assignKnowledgeComponentsToMcq(
+    mcqId: string,
+    componentIds: string[],
+  ): Promise<Mcq> {
+    if (!componentIds.length) {
+      throw new BadRequestException(
+        "At least one knowledge component must be provided.",
+      );
+    }
+
+    const mcq = await this.getOneMcq({ mcqId }, true);
+    const knowledgeComponents = await this.resolveKnowledgeComponents(
+      componentIds,
+    );
+
+    mcq.knowledgeComponents = knowledgeComponents;
+    mcq.approval_status = McqApprovalStatus.APPROVED;
+
+    return this.mcqRepository.save(mcq);
+  }
+
   /**
    * Retrieves MCQs with pagination based on filters.
    *
@@ -522,7 +583,11 @@ export class McqService {
     this.validateMcqDto(createMcqDto);
     return await this.mcqRepository.manager.transaction(
       async (transactionalManager) => {
-        const { knowledge_component_ids, ...mcqPayload } = createMcqDto;
+        const {
+          knowledge_component_ids,
+          allow_missing_knowledge_components: _allowMissing,
+          ...mcqPayload
+        } = createMcqDto;
         const knowledgeComponents = await this.resolveKnowledgeComponents(
           knowledge_component_ids,
           transactionalManager,
@@ -2059,6 +2124,7 @@ export class McqService {
         courseId: mcq.course.id,
       },
       {
+        mcqId: mcq.id,
         is_correct: wasCorrect,
         success_ratio: accuracyRate,
         type: mcq.type,

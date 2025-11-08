@@ -4,9 +4,14 @@ import { ProgressController } from "./progress.controller";
 import { Progress } from "./entities/progress.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { RedisModule } from "src/redis/redis.module";
+import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Progress]), RedisModule],
+  imports: [
+    TypeOrmModule.forFeature([Progress]),
+    RedisModule,
+    KnowledgeComponentModule,
+  ],
   controllers: [ProgressController],
   providers: [ProgressService],
   exports: [ProgressService],

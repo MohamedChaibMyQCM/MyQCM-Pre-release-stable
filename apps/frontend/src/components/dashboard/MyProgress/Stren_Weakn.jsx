@@ -8,7 +8,10 @@ import {
 } from "@/components/ui/chart";
 import { motion } from "framer-motion";
 
-const Stren_Weakn = ({ subject_strengths }) => {
+const Stren_Weakn = ({
+  subject_strengths,
+  subject_recommendations = [],
+}) => {
   // Premium animation variants
   const containerVariants = {
     hidden: { opacity: 0, x: -30 },
@@ -71,11 +74,21 @@ const Stren_Weakn = ({ subject_strengths }) => {
   }
 
   // Map filtered subjects to chart data
-  const chartData = filteredSubjects.map((item) => ({
-    axis: item.subject.split(":")[0].trim(),
-    value: 100 - item.strength,
-    strength: item.strength,
-  }));
+  const chartData = filteredSubjects.map((item) => {
+    const label = item.subject.split(":")[0].trim();
+    const strength = item.strength ?? 0;
+    const accuracy = item.accuracy ?? strength;
+    const consistency = item.consistency ?? strength;
+    return {
+      axis: label,
+      strength,
+      accuracy,
+      consistency,
+      attempts: item.attempts ?? 0,
+      unique_mcqs: item.unique_mcqs ?? 0,
+      average_time: item.average_time ?? 0,
+    };
+  });
 
   // Calculate average performance
   const avgStrength = chartData.reduce((sum, item) => sum + item.strength, 0) / chartData.length;
@@ -92,7 +105,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
   return (
     <motion.div
       id="tour-stren-weakn"
-      className="flex-1 weak max-xl:w-full"
+      className="flex-1 weak max-xl:w-full gap-4 flex flex-col"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -111,7 +124,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
         </div>
       </motion.div>
       <motion.div
-        className="bg-white dark:bg-[#1a1a1a] rounded-2xl px-6 py-6 box h-[327px] relative overflow-hidden border border-transparent dark:border-gray-700"
+        className="bg-white dark:bg-[#1a1a1a] rounded-2xl px-4 md:px-6 py-5 box h-[327px] relative overflow-hidden border border-transparent dark:border-gray-700 flex flex-col"
         variants={contentVariants}
         whileHover={{
           boxShadow: "0 12px 30px rgba(248, 88, 159, 0.1)",
@@ -123,17 +136,17 @@ const Stren_Weakn = ({ subject_strengths }) => {
 
         <Card className="border-none shadow-none relative z-10">
           <CardHeader className="p-0 mb-2">
-            <CardTitle className="flex items-center justify-center gap-6">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#F64C4C] shadow-sm"></span>
-                <span className="text-xs font-semibold text-[#F64C4C]">
-                  Faible
+            <CardTitle className="flex items-center justify-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pink-50/80 dark:bg-pink-900/20 border border-pink-100 dark:border-pink-800">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#F8589F] shadow-sm"></span>
+                <span className="text-xs font-semibold text-[#F8589F]">
+                  Précision
                 </span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50/80 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#47B881] shadow-sm"></span>
-                <span className="text-xs font-semibold text-[#47B881]">
-                  Fort
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50/80 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#34D399] shadow-sm"></span>
+                <span className="text-xs font-semibold text-[#047857]">
+                  Régularité
                 </span>
               </div>
             </CardTitle>
@@ -141,7 +154,7 @@ const Stren_Weakn = ({ subject_strengths }) => {
           <CardContent className="pb-0">
             <ChartContainer
               config={{}}
-              className="mx-auto aspect-square max-h-[240px]"
+              className="mx-auto w-full max-w-[360px] aspect-square max-md:aspect-[4/3] max-h-[260px]"
             >
               <RadarChart data={chartData} outerRadius={85}>
                 <ChartTooltip
@@ -150,9 +163,26 @@ const Stren_Weakn = ({ subject_strengths }) => {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-white dark:bg-gray-800 px-4 py-2.5 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                          <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">{payload[0].payload.axis}</p>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-[#47B881] font-medium">Force: {payload[0].payload.strength}%</span>
+                          <p className="font-semibold text-sm text-gray-900 dark:text-white">
+                            {payload[0].payload.axis}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground mb-2">
+                            Force : {payload[0].payload.strength}%
+                          </p>
+                          <div className="text-xs space-y-1">
+                            <p className="text-[#F8589F] font-medium">
+                              Précision : {payload[0].payload.accuracy}%
+                            </p>
+                            <p className="text-[#047857] font-medium">
+                              Régularité : {payload[0].payload.consistency}%
+                            </p>
+                            <p className="text-muted-foreground">
+                              {payload[0].payload.attempts} tentatives •{" "}
+                              {payload[0].payload.unique_mcqs} uniques
+                            </p>
+                            <p className="text-muted-foreground">
+                              Temps moyen : {payload[0].payload.average_time}s
+                            </p>
                           </div>
                         </div>
                       );
@@ -174,23 +204,23 @@ const Stren_Weakn = ({ subject_strengths }) => {
                   strokeWidth={1}
                 />
                 <Radar
-                  name="Faiblesses"
-                  dataKey="value"
-                  fill="#F64C4C"
-                  fillOpacity={0.15}
-                  stroke="#F64C4C"
+                  name="Précision"
+                  dataKey="accuracy"
+                  fill="#F8589F"
+                  fillOpacity={0.18}
+                  stroke="#F8589F"
                   strokeWidth={2.5}
-                  dot={{ fill: "#F64C4C", r: 4, strokeWidth: 2, stroke: "#fff" }}
+                  dot={{ fill: "#F8589F", r: 4, strokeWidth: 2, stroke: "#fff" }}
                   animationDuration={1000}
                 />
                 <Radar
-                  name="Forces"
-                  dataKey="strength"
-                  fill="#47B881"
-                  fillOpacity={0.2}
-                  stroke="#47B881"
+                  name="Régularité"
+                  dataKey="consistency"
+                  fill="#34D399"
+                  fillOpacity={0.18}
+                  stroke="#047857"
                   strokeWidth={2.5}
-                  dot={{ fill: "#47B881", r: 4, strokeWidth: 2, stroke: "#fff" }}
+                  dot={{ fill: "#10B981", r: 4, strokeWidth: 2, stroke: "#fff" }}
                   animationDuration={1200}
                 />
               </RadarChart>
@@ -198,6 +228,45 @@ const Stren_Weakn = ({ subject_strengths }) => {
           </CardContent>
         </Card>
       </motion.div>
+
+      <div className="relative z-10 mt-4 w-full">
+        {subject_recommendations?.length ? (
+          <div className="rounded-2xl border border-border bg-white dark:bg-[#111] p-4 shadow-sm max-w-[420px] w-full max-md:max-w-full">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[13px] font-semibold text-muted-foreground">
+                Sujets à prioriser
+              </p>
+              <span className="text-[11px] text-muted-foreground">
+                Basé sur vos dernières sessions
+              </span>
+            </div>
+            <ul className="space-y-3">
+              {subject_recommendations.map((subject) => (
+                <li
+                  key={subject.subject_id}
+                  className="flex items-center justify-between rounded-xl border border-border px-3 py-2"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {subject.subject}
+                    </p>
+                    <p className="text-[12px] text-muted-foreground">
+                      {subject.attempts} tentatives • {subject.accuracy}% précision
+                    </p>
+                  </div>
+                  <span className="text-[12px] font-semibold text-[#F64C4C]">
+                    {Math.round(subject.strength)}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border px-4 py-4 text-center text-sm text-muted-foreground">
+            Pas de priorité urgente – continuez sur votre lancée !
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };

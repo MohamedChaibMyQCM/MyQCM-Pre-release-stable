@@ -5,7 +5,11 @@
       "Bash(cat:*)",
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
-      "Bash(node scripts/generateSounds.js:*)"
+      "Bash(node scripts/generateSounds.js:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout 5 bash:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

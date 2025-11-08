@@ -16,6 +16,8 @@ const mockAdaptiveLearner = () => ({
 describe("AdaptiveEngineService", () => {
   let service: AdaptiveEngineService;
   let repository: any;
+  let itemParamsRepository: any;
+  let learnerKcRepository: any;
 
   beforeEach(() => {
     repository = {
@@ -24,11 +26,25 @@ describe("AdaptiveEngineService", () => {
       create: jest.fn(),
     };
 
-    service = new AdaptiveEngineService(repository);
+    itemParamsRepository = {
+      findOne: jest.fn().mockResolvedValue(null),
+    };
+    learnerKcRepository = {
+      find: jest.fn().mockResolvedValue([]),
+      save: jest.fn().mockResolvedValue([]),
+      create: jest.fn((payload) => payload),
+    };
+
+    service = new AdaptiveEngineService(
+      repository,
+      itemParamsRepository,
+      learnerKcRepository,
+    );
   });
 
   it("persists mastery updates and increases ability on correct answers", async () => {
     const payload = {
+      mcqId: "mcq-1",
       is_correct: true,
       success_ratio: 1,
       type: McqType.qcm,
@@ -48,8 +64,7 @@ describe("AdaptiveEngineService", () => {
     const saved = repository.save.mock.calls[0][0];
     expect(saved.mastery).toBeGreaterThan(0.2);
     expect(saved.mastery).toBeLessThanOrEqual(1);
-    expect(saved.ability).toBeGreaterThanOrEqual(0.4);
-    expect(saved.ability).toBeLessThanOrEqual(1);
+    expect(saved.ability).toBeGreaterThan(0.4);
   });
 
   it("reduces ability when the learner answers incorrectly", async () => {
@@ -59,6 +74,7 @@ describe("AdaptiveEngineService", () => {
     await service.updateAdaptiveLearner(
       { userId: "user-2", courseId: "course-1" },
       {
+        mcqId: "mcq-2",
         is_correct: false,
         success_ratio: 0,
         type: McqType.qcm,
@@ -72,7 +88,6 @@ describe("AdaptiveEngineService", () => {
     const saved = repository.save.mock.calls[0][0];
     expect(saved.mastery).toBeLessThanOrEqual(0.2);
     expect(saved.mastery).toBeGreaterThanOrEqual(0);
-    expect(saved.ability).toBeLessThanOrEqual(0.4);
-    expect(saved.ability).toBeGreaterThanOrEqual(0);
+    expect(saved.ability).toBeLessThan(0.4);
   });
 });

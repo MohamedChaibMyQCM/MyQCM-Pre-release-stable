@@ -9,6 +9,9 @@ const allowedTypes = [
   "text/plain",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
 ];
 
 const storageRoot = path.resolve(process.cwd(), "storage", "generation");

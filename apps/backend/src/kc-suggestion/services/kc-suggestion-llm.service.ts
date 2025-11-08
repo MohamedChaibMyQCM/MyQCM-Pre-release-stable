@@ -12,6 +12,8 @@ export type LlmInvocationResult = {
     completionTokens: number;
     totalTokens: number;
   };
+  responseId: string;
+  previousResponseId?: string | null;
   response: unknown;
 };
 
@@ -23,6 +25,7 @@ type InvokeParams = {
     strict?: boolean;
   };
   requestId?: string;
+  previousResponseId?: string | null;
 };
 
 @Injectable()
@@ -32,14 +35,21 @@ export class KcSuggestionLlmService {
   private readonly model: string;
   private readonly maxRetries: number;
   private readonly timeoutMs: number;
-  private readonly temperature: number;
+  private readonly temperature?: number;
+  private readonly maxOutputTokens: number;
 
   constructor() {
     const apiKey = getEnvOrFatal<string>("ASSISTANT_API_KEY");
     this.model = process.env.KC_SUGGESTION_MODEL || "gpt-5-mini-2025-08-07";
     this.maxRetries = Number(process.env.KC_SUGGESTION_MAX_RETRIES || 2);
     this.timeoutMs = Number(process.env.KC_SUGGESTION_TIMEOUT_MS || 45000);
-    this.temperature = Number(process.env.KC_SUGGESTION_TEMPERATURE || 0.1);
+    // Includes reasoning tokens per OpenAI Responses API docs, so keep generous headroom
+    this.maxOutputTokens = Number(process.env.KC_SUGGESTION_MAX_OUTPUT || 3200);
+    const temperatureEnv = process.env.KC_SUGGESTION_TEMPERATURE;
+    this.temperature =
+      temperatureEnv !== undefined && temperatureEnv !== ""
+        ? Number(temperatureEnv)
+        : undefined;
 
     this.openAiClient = new OpenAI({
       apiKey,
@@ -63,13 +73,12 @@ ${sanitizedPrompt}`);
         const controller = new AbortController();
         timeoutRef = setTimeout(() => controller.abort(), this.timeoutMs);
 
-        const response = await this.openAiClient.responses.create(
-          {
-            model: this.model,
-            temperature: this.temperature,
-            max_output_tokens: Number(process.env.KC_SUGGESTION_MAX_OUTPUT || 1200),
-            input: [
-              {
+        const requestPayload = {
+          model: this.model,
+          max_output_tokens: this.maxOutputTokens,
+          previous_response_id: params.previousResponseId ?? undefined,
+          input: [
+            {
                 role: "system",
                 content: [{ type: "input_text", text: params.prompt.systemPrompt }],
               },
@@ -78,15 +87,21 @@ ${sanitizedPrompt}`);
                 content: [{ type: "input_text", text: params.prompt.userPrompt }],
               },
             ],
-            response_format: {
-              type: "json_schema",
-              json_schema: {
+            text: {
+              format: {
+                type: "json_schema",
                 name: params.responseSchema.name,
-                schema: params.responseSchema.schema,
                 strict: params.responseSchema.strict ?? true,
+                schema: params.responseSchema.schema,
               },
             },
-          } as any,
+          ...(typeof this.temperature === "number" && !Number.isNaN(this.temperature)
+            ? { temperature: this.temperature }
+            : {}),
+        };
+
+        const response = await this.openAiClient.responses.create(
+          requestPayload as any,
           { signal: controller.signal },
         );
 
@@ -94,7 +109,11 @@ ${sanitizedPrompt}`);
           clearTimeout(timeoutRef);
         }
 
-        const rawText = response.output_text;
+        const rawText = this.extractOutputText(response);
+
+        if (!rawText) {
+          throw new Error("Model returned empty response");
+        }
 
         const usage = response.usage ?? {
           input_tokens: 0,
@@ -118,6 +137,8 @@ ${sanitizedPrompt}`);
             completionTokens: usage.output_tokens ?? 0,
             totalTokens: usage.total_tokens ?? 0,
           },
+          responseId: response.id,
+          previousResponseId: params.previousResponseId,
           response,
         };
       } catch (error) {
@@ -152,5 +173,71 @@ ${sanitizedPrompt}`);
 
   private delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private extractOutputText(response: unknown): string {
+    const data = response as {
+      output_text?: unknown;
+      output?: Array<{ content?: unknown[] }>;
+      content?: unknown;
+      choices?: Array<{ message?: { content?: unknown } }>;
+    };
+
+    const direct = this.normalizeContent(data?.output_text);
+    if (direct) {
+      return direct;
+    }
+
+    const fromOutput =
+      data?.output
+        ?.flatMap((item) => item?.content ?? [])
+        .map((content) => this.normalizeContent(content))
+        .find((text) => text) ?? "";
+    if (fromOutput) {
+      return fromOutput;
+    }
+
+    const fallbacks = [
+      data?.content,
+      data?.choices?.[0]?.message?.content,
+    ];
+
+    for (const candidate of fallbacks) {
+      const text = this.normalizeContent(candidate);
+      if (text) {
+        return text;
+      }
+    }
+
+    return "";
+  }
+
+  private normalizeContent(value: unknown): string {
+    if (!value) {
+      return "";
+    }
+
+    if (typeof value === "string") {
+      return value.trim();
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((entry) => this.normalizeContent(entry))
+        .filter(Boolean)
+        .join("\n")
+        .trim();
+    }
+
+    if (typeof value === "object") {
+      const candidate =
+        (value as { text?: unknown; output_text?: unknown }).text ??
+        (value as { text?: unknown; output_text?: unknown }).output_text;
+      if (typeof candidate === "string") {
+        return candidate.trim();
+      }
+    }
+
+    return "";
   }
 }

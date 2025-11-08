@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -11,6 +12,7 @@ import {
   Max,
   Min,
   ValidateNested,
+  ValidateIf,
 } from "class-validator";
 import {
   McqApprovalStatus,
@@ -183,9 +185,18 @@ export class CreateMcqDto {
     type: [String],
   })
   @IsArray()
+  @ValidateIf((dto) => !dto.allow_missing_knowledge_components)
   @ArrayMinSize(1)
   @IsUUID("4", { each: true })
-  knowledge_component_ids: string[];
+  knowledge_component_ids?: string[];
+
+  @ApiPropertyOptional({
+    description: "Allow creation even if no knowledge components are provided (AI matching will populate later).",
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  allow_missing_knowledge_components?: boolean;
 
   @ApiPropertyOptional({
     description: "Approval status of the MCQ.",

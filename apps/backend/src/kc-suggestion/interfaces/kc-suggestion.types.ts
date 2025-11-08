@@ -50,6 +50,7 @@ export type SuggestionResultItem = {
   confidenceScore: number;
   suggestions: SuggestedKnowledgeComponent[];
   modelScore?: number;
+  generatedAt?: Date | string | null;
   tokenUsage?: {
     promptTokens: number;
     completionTokens: number;

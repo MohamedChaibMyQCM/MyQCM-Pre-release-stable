@@ -18,6 +18,7 @@ import {
   ParseBoolPipe,
 } from "@nestjs/common";
 import { McqService } from "./mcq.service";
+import { McqEnrichmentService } from "./mcq-enrichment.service";
 import { CreateMcqDto } from "./dto/create-mcq.dto";
 import { UpdateMcqDto } from "./dto/update-mcq.dto";
 import {
@@ -52,10 +53,14 @@ import { FacultyType } from "src/faculty/types/enums/faculty-type.enum";
 import { McqBatchUploadMetadataDto } from "./dto/mcq-batch-upload.dto";
 import { SpreadsheetMulterConfig } from "config/spreadsheet-multer.config";
 import { ApproveMcqBulkDto } from "./dto/approve-mcq.dto";
+import { McqAiEnrichmentRequestDto } from "./dto/mcq-ai-enrichment.dto";
 @ApiTags("Mcq")
 @Controller("mcq")
 export class McqController {
-  constructor(private readonly mcqService: McqService) {}
+  constructor(
+    private readonly mcqService: McqService,
+    private readonly mcqEnrichmentService: McqEnrichmentService,
+  ) {}
   @Post()
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(BaseRoles.FREELANCER)
@@ -116,6 +121,37 @@ export class McqController {
     return {
       message: `Imported ${data.created} question(s)`,
       status: HttpStatus.CREATED,
+      data,
+    };
+  }
+
+  @Post("/courses/:courseId/ai-enrichment")
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(BaseRoles.ADMIN, BaseRoles.FREELANCER)
+  @ApiBearerAuth("JWT-auth")
+  @ApiOperation({
+    summary: "Queue AI enrichment for MCQs in a course",
+    description:
+      "Enqueues MCQs so the AI suggestion pipeline can generate knowledge component recommendations.",
+  })
+  @ApiResponse({
+    status: HttpStatus.ACCEPTED,
+    description: "Enrichment job queued",
+  })
+  async enqueueAiEnrichment(
+    @Param("courseId", ParseUUIDPipe) courseId: string,
+    @Body() dto: McqAiEnrichmentRequestDto,
+    @GetUser() requester: JwtPayload,
+  ) {
+    const data = await this.mcqEnrichmentService.enqueueForCourse(
+      courseId,
+      dto,
+      requester,
+    );
+
+    return {
+      message: `Queued ${data.queued} MCQ(s) for AI enrichment`,
+      status: HttpStatus.ACCEPTED,
       data,
     };
   }

@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -11,6 +12,7 @@ import {
   Max,
   Min,
   ValidateNested,
+  ValidateIf,
 } from "class-validator";
 import { YearOfStudy } from "src/user/types/enums/user-study-year.enum";
 import { McqDifficulty } from "src/mcq/dto/mcq.type";
@@ -102,7 +104,17 @@ export class CreateGenerationRequestDto {
     example: ["550e8400-e29b-41d4-a716-446655440000"],
   })
   @IsArray()
+  @ValidateIf((dto) => !dto.auto_match_with_ai)
   @ArrayNotEmpty()
   @IsUUID("4", { each: true })
-  knowledge_component_ids: string[];
+  knowledge_component_ids?: string[];
+
+  @ApiProperty({
+    description: "Enable AI-assisted matching of knowledge components after import.",
+    required: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  auto_match_with_ai?: boolean;
 }

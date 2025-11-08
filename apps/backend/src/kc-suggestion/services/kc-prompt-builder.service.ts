@@ -6,6 +6,7 @@ type PromptBuildInput = {
   candidateComponents: PromptCandidateComponent[];
   items: SuggestionItemInput[];
   promptVersion: string;
+  reuseContext?: boolean;
 };
 
 export type PromptBuildResult = {
@@ -24,36 +25,15 @@ export class KcPromptBuilderService {
     const candidateCount = params.candidateComponents.length;
 
     const candidateLines = params.candidateComponents.map((component, index) => {
-      const description = component.description
-        ? this.condense(component.description)
-        : null;
-      const domain = component.domainName ? ` • Domain: ${component.domainName}` : "";
-      const level = component.level != null ? ` • Level: ${component.level}` : "";
-      return `${index + 1}. ${component.slug} — ${component.name}${domain}${level}${
-        description ? ` • ${description}` : ""
-      }`;
+      const kcId = component.slug || component.id;
+      return `${index + 1}. KC_ID: ${kcId} • KC_NAME: ${component.name}`;
     });
 
     const itemLines = params.items.map((item, index) => {
       const mcqIdPart = item.metadata?.mcqId ? ` [mcq_id=${item.metadata.mcqId}]` : "";
-      const optionsText =
-        item.options
-          ?.map((option, optionIndex) => {
-            const label = String.fromCharCode(65 + optionIndex);
-            const normalizedOption = this.condense(option.content);
-            const correctness = option.is_correct ? " ✓" : "";
-            return `${label}) ${normalizedOption}${correctness}`;
-          })
-          .join(" | ") ?? "";
-
-      const explanation = item.explanation ? this.condense(item.explanation) : "None";
-
-      return [
-        `Item ${index + 1}${mcqIdPart}`,
-        `Stem: ${this.condense(item.stem)}`,
-        `Options: ${optionsText}`,
-        `Explanation: ${explanation}`,
-      ].join("\n");
+      return [`Item ${index + 1}${mcqIdPart}`, `Question: ${this.condense(item.stem)}`].join(
+        "\n",
+      );
     });
 
     const systemPrompt = [
@@ -61,16 +41,27 @@ export class KcPromptBuilderService {
       `Respect the candidate components list and pick the closest matches.`,
       `Base suggestions strictly on the provided course: ${normalizedCourseName}.`,
       `Prompt version: ${params.promptVersion}.`,
-      `Respond in JSON only.`,
+      `Respond in JSON only. Ensure the JSON is complete, strictly valid, and uses zero-based item indexes matching the order provided.`,
     ].join(" ");
 
-    const userPrompt = [
-      `Candidate knowledge components (${candidateCount}):`,
-      candidateLines.join("\n"),
-      ``,
+    const userPromptParts = [];
+
+    if (params.reuseContext) {
+      userPromptParts.push(
+        `Use the candidate knowledge component catalog provided earlier in this conversation.`,
+      );
+    } else {
+      userPromptParts.push(`Candidate knowledge components (${candidateCount}):`);
+      userPromptParts.push(candidateLines.join("\n"));
+      userPromptParts.push("");
+    }
+
+    userPromptParts.push(
       `Evaluate the following MCQ items and return matching knowledge component slugs with confidence scores.`,
-      itemLines.join("\n\n"),
-    ].join("\n");
+    );
+    userPromptParts.push(itemLines.join("\n\n"));
+
+    const userPrompt = userPromptParts.join("\n");
 
     return {
       systemPrompt,

@@ -8,7 +8,7 @@ import secureLocalStorage from "react-secure-storage";
 import BaseUrl from "@/components/BaseUrl";
 import Loading from "@/components/Loading";
 
-const Strength_Stat = ({ subject_strengths }) => {
+const Strength_Stat = ({ subject_strengths, subject_recommendations = [] }) => {
   const {
     data: userXp,
     isLoading,
@@ -33,7 +33,10 @@ const Strength_Stat = ({ subject_strengths }) => {
     <div
       className="flex mt-8 gap-6 max-md:flex-col max-xl:flex-wrap"
     >
-      <Stren_Weakn subject_strengths={subject_strengths} />
+      <Stren_Weakn
+        subject_strengths={subject_strengths}
+        subject_recommendations={subject_recommendations}
+      />
       <Study_time />
       <div className="flex flex-col max-xl:flex-1">
         <Total_Point userXp={userXp} />

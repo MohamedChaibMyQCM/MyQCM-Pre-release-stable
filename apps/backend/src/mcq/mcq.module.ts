@@ -12,6 +12,8 @@ import { ProgressModule } from "src/progress/progress.module";
 import { UserModule } from "src/user/user.module";
 import { AdaptiveEngineModule } from "src/adaptive-engine/adaptive-engine.module";
 import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-component.module";
+import { McqEnrichmentService } from "./mcq-enrichment.service";
+import { KcSuggestionModule } from "src/kc-suggestion/kc-suggestion.module";
 
 @Module({
   imports: [
@@ -25,9 +27,10 @@ import { KnowledgeComponentModule } from "src/knowledge-component/knowledge-comp
     forwardRef(() => UserModule),
     AdaptiveEngineModule,
     KnowledgeComponentModule,
+    forwardRef(() => KcSuggestionModule),
   ],
   controllers: [McqController],
-  providers: [McqService],
-  exports: [McqService],
+  providers: [McqService, McqEnrichmentService],
+  exports: [McqService, McqEnrichmentService],
 })
 export class McqModule {}
